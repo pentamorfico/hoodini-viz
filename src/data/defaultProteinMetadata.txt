@@ -1,0 +1,130 @@
+gene_id	cluster	description	cog
+gene_A_1	1	hypothetical protein	COG001
+gene_A_2	2	kinase	COG002
+gene_A_3	3	transporter	COG003
+gene_A_4	4	oxidoreductase	COG004
+gene_A_5	1	membrane protein	COG005
+gene_A_6	2	transcription factor	COG006
+gene_A_7	3	ABC transporter	COG007
+gene_A_8	4	DNA-binding protein	COG008
+gene_B_1	1	hypothetical protein	COG001
+gene_B_2	2	kinase	COG002
+gene_B_3	3	transporter	COG003
+gene_B_4	4	oxidoreductase	COG004
+gene_B_5	1	membrane protein	COG005
+gene_C_1	1	hypothetical protein	COG001
+gene_C_2	2	kinase	COG002
+gene_C_3	3	transporter	COG003
+gene_C_4	4	oxidoreductase	COG004
+gene_C_5	1	membrane protein	COG005
+gene_C_6	2	transcription factor	COG006
+gene_C_7	3	ABC transporter	COG007
+gene_C_8	4	DNA-binding protein	COG008
+gene_C_9	1	methyltransferase	COG009
+gene_C_10	2	phosphatase	COG010
+gene_D_1	1	hypothetical protein	COG001
+gene_D_2	2	kinase	COG002
+gene_D_3	3	transporter	COG003
+gene_D_4	4	oxidoreductase	COG004
+gene_D_5	1	membrane protein	COG005
+gene_D_6	2	transcription factor	COG006
+gene_D_7	3	ABC transporter	COG007
+gene_E_1	1	hypothetical protein	COG001
+gene_E_2	2	kinase	COG002
+gene_E_3	3	transporter	COG003
+gene_E_4	4	oxidoreductase	COG004
+gene_E_5	1	membrane protein	COG005
+gene_E_6	2	transcription factor	COG006
+gene_E_7	3	ABC transporter	COG007
+gene_E_8	4	DNA-binding protein	COG008
+gene_E_9	1	methyltransferase	COG009
+gene_E_10	2	phosphatase	COG010
+gene_F_1	1	hypothetical protein	COG001
+gene_F_2	2	kinase	COG002
+gene_F_3	3	transporter	COG003
+gene_F_4	4	oxidoreductase	COG004
+gene_G_1	1	hypothetical protein	COG001
+gene_G_2	2	kinase	COG002
+gene_G_3	3	transporter	COG003
+gene_G_4	4	oxidoreductase	COG004
+gene_H_1	1	hypothetical protein	COG001
+gene_H_2	2	kinase	COG002
+gene_H_3	3	transporter	COG003
+gene_H_4	4	oxidoreductase	COG004
+gene_H_5	1	membrane protein	COG005
+gene_H_6	2	transcription factor	COG006
+gene_H_7	3	ABC transporter	COG007
+gene_H_8	4	DNA-binding protein	COG008
+gene_H_9	1	methyltransferase	COG009
+gene_I_1	1	hypothetical protein	COG001
+gene_I_2	2	kinase	COG002
+gene_I_3	3	transporter	COG003
+gene_I_4	4	oxidoreductase	COG004
+gene_I_5	1	membrane protein	COG005
+gene_I_6	2	transcription factor	COG006
+gene_I_7	3	ABC transporter	COG007
+gene_J_1	1	hypothetical protein	COG001
+gene_J_2	2	kinase	COG002
+gene_J_3	3	transporter	COG003
+gene_J_4	4	oxidoreductase	COG004
+gene_K_1	1	hypothetical protein	COG001
+gene_K_2	2	kinase	COG002
+gene_K_3	3	transporter	COG003
+gene_K_4	4	oxidoreductase	COG004
+gene_K_5	1	membrane protein	COG005
+gene_K_6	2	transcription factor	COG006
+gene_L_1	1	hypothetical protein	COG001
+gene_L_2	2	kinase	COG002
+gene_L_3	3	transporter	COG003
+gene_L_4	4	oxidoreductase	COG004
+gene_L_5	1	membrane protein	COG005
+gene_L_6	2	transcription factor	COG006
+gene_L_7	3	ABC transporter	COG007
+gene_L_8	4	DNA-binding protein	COG008
+gene_M_1	1	hypothetical protein	COG001
+gene_M_2	2	kinase	COG002
+gene_M_3	3	transporter	COG003
+gene_M_4	4	oxidoreductase	COG004
+gene_M_5	1	membrane protein	COG005
+gene_M_6	2	transcription factor	COG006
+gene_N_1	1	hypothetical protein	COG001
+gene_N_2	2	kinase	COG002
+gene_N_3	3	transporter	COG003
+gene_N_4	4	oxidoreductase	COG004
+gene_N_5	1	membrane protein	COG005
+gene_N_6	2	transcription factor	COG006
+gene_N_7	3	ABC transporter	COG007
+gene_N_8	4	DNA-binding protein	COG008
+gene_O_1	1	hypothetical protein	COG001
+gene_O_2	2	kinase	COG002
+gene_O_3	3	transporter	COG003
+gene_O_4	4	oxidoreductase	COG004
+gene_O_5	1	membrane protein	COG005
+gene_O_6	2	transcription factor	COG006
+gene_O_7	3	ABC transporter	COG007
+gene_P_1	1	hypothetical protein	COG001
+gene_P_2	2	kinase	COG002
+gene_P_3	3	transporter	COG003
+gene_P_4	4	oxidoreductase	COG004
+gene_P_5	1	membrane protein	COG005
+gene_Q_1	1	hypothetical protein	COG001
+gene_Q_2	2	kinase	COG002
+gene_Q_3	3	transporter	COG003
+gene_Q_4	4	oxidoreductase	COG004
+gene_Q_5	1	membrane protein	COG005
+gene_R_1	1	hypothetical protein	COG001
+gene_R_2	2	kinase	COG002
+gene_R_3	3	transporter	COG003
+gene_R_4	4	oxidoreductase	COG004
+gene_S_1	1	hypothetical protein	COG001
+gene_S_2	2	kinase	COG002
+gene_S_3	3	transporter	COG003
+gene_S_4	4	oxidoreductase	COG004
+gene_S_5	1	membrane protein	COG005
+gene_S_6	2	transcription factor	COG006
+gene_T_1	1	hypothetical protein	COG001
+gene_T_2	2	kinase	COG002
+gene_T_3	3	transporter	COG003
+gene_T_4	4	oxidoreductase	COG004
+gene_T_5	1	membrane protein	COG005
+gene_T_6	2	transcription factor	COG006

@@ -299,20 +299,41 @@ class GenomeView {
     });
   }
 
-  buildNodePoints(selectedNode) {
+  buildNodePoints(selectedNode, colorLeavesBy) {
     const highlightLeaves = selectedNode ? new Set(this.getNodeDescendantLeaves(selectedNode)) : null;
     return this.tree.allNodes.map(n => {
       const nodeLeaves = this.getNodeDescendantLeaves(n);
       const isDesc = !selectedNode || nodeLeaves.some(l => highlightLeaves.has(l));
-      const baseColor = n.branchset.length > 0 ? [0, 0, 0, 255] : [100, 100, 100, 255];
-      const color = selectedNode ? (isDesc ? baseColor : this.fadeColor(baseColor, 0.1)) : baseColor;
+      let color;
+      if (n.branchset.length > 0) {
+        // Internal node: black
+        color = [0, 0, 0, 255];
+      } else {
+        // Leaf: color by metadata
+        const meta = n.metadata || {};
+        if (meta[colorLeavesBy]) {
+          // Simple hash to color
+          const str = String(meta[colorLeavesBy]);
+          let hash = 0;
+          for (let i = 0; i < str.length; ++i) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+          const r = (hash >> 0) & 0xFF;
+          const g = (hash >> 8) & 0xFF;
+          const b = (hash >> 16) & 0xFF;
+          color = [Math.abs(r), Math.abs(g), Math.abs(b), 255];
+        } else {
+          color = [100, 100, 100, 255];
+        }
+      }
+      if (selectedNode && !isDesc) {
+        color = this.fadeColor(color, 0.1);
+      }
       return {
         id: n.id,
         node: n,
         position: [n.y, n.x],
         color: color,
-        radius: n.branchset.length > 0 ? 10 : 22,
-        metadata: n.metadata || { name: n.name, id: n.id } // Attach metadata for tooltip
+        radius: n.branchset.length > 0 ? 10 : 12,
+        metadata: n.metadata || { name: n.name, id: n.id }
       };
     });
   }

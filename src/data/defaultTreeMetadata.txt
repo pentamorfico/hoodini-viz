@@ -1,0 +1,21 @@
+leaf_id	species	ecosystem
+A	Bacteria	Soil
+B	Bacteria	Water
+C	Archaea	Hot Spring
+D	Bacteria	Soil
+E	Bacteria	Water
+F	Archaea	Hot Spring
+G	Bacteria	Soil
+H	Bacteria	Water
+I	Archaea	Hot Spring
+J	Bacteria	Soil
+K	Bacteria	Water
+L	Archaea	Hot Spring
+M	Bacteria	Soil
+N	Bacteria	Water
+O	Archaea	Hot Spring
+P	Bacteria	Soil
+Q	Bacteria	Water
+R	Archaea	Hot Spring
+S	Bacteria	Soil
+T	Bacteria	Water

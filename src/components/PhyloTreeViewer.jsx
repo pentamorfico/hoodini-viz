@@ -6,6 +6,7 @@ import DeckGL from '@deck.gl/react';
 import { LineLayer, PolygonLayer, PathLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers';
 import {OrthographicView} from '@deck.gl/core';
 import ScrollbarWidget from '../widgets/ScrollbarWidget';
+import ExportSVGWidget from '../widgets/ExportSVGWidget';
 
 const PhyloTreeViewer = ({
   newickStr,
@@ -13,12 +14,19 @@ const PhyloTreeViewer = ({
   proteinLinks,
   nucleotideLinks,
   domainsByGene,
-  proteinClusters,
   baselines,
   showScrollbar,
   setGenomeViewRef,
   alignCluster,
   defaultAlign = 'start', // new prop, default to 'start'
+  onObjectClick, // new prop
+  showSVGWidget = false,
+  proteinMetadata, // new prop
+  colorBy = 'cluster', // new prop
+  labelBy, // new prop
+  treeMetadata,
+  treeLabelBy = 'leaf_id',
+  treeColorBy = 'species',
 }) => {
   // Visualization state
   const [tree, setTree] = useState(null);
@@ -44,11 +52,37 @@ const PhyloTreeViewer = ({
     genomeView.addDomains(domainsByGene);
     genomeView.addProteinLinks(proteinLinks);
     genomeView.addNucleotideLinks(nucleotideLinks);
-    if (proteinClusters) {
-      genomeView.setProteinClusters(proteinClusters);
+    // --- CLUSTER LOGIC: always extract from proteinMetadata ---
+    let clustersFromMetadata = null;
+    if (proteinMetadata) {
+      console.log('proteinMetadata:', proteinMetadata);
+      const entries = Object.values(proteinMetadata);
+      console.log('proteinMetadata entries:', entries);
+      if (entries.length && entries[0][colorBy] !== undefined) {
+        clustersFromMetadata = {};
+        console.log('Extracting clusters from metadata:', entries);
+        for (const entry of entries) {
+          if (entry.gene_id && entry[colorBy] !== undefined) {
+            clustersFromMetadata[entry.gene_id] = entry[colorBy];
+          }
+        }
+      } else {
+        console.log('No cluster property found in first entry:', entries[0]);
+      }
+    }
+    if (clustersFromMetadata) {
+      genomeView.setProteinClusters(clustersFromMetadata);
     }
     if (baselines) {
       genomeView.applyBaselines(baselines);
+    }
+    // Attach protein metadata to gene objects (do this only once, right after creation)
+    if (genomeView && proteinMetadata) {
+      for (const geneId in genomeView.genesById) {
+        if (proteinMetadata[geneId]) {
+          genomeView.genesById[geneId].metadata = proteinMetadata[geneId];
+        }
+      }
     }
     setTree(tree);
     setGenomeView(genomeView);
@@ -56,7 +90,21 @@ const PhyloTreeViewer = ({
     if (typeof setGenomeViewRef === 'function') {
       setGenomeViewRef(genomeView);
     }
-  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, proteinClusters, baselines, treeLabelPadding]);
+  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, treeLabelPadding, proteinMetadata, colorBy]);
+
+  // Recompute treeLabelPadding based on the longest leaf label length
+  React.useEffect(() => {
+    if (!tree) return;
+    const labels = tree.leafNodes.map(l => {
+      const meta = treeMetadata?.[l.name] || {};
+      let label = meta[treeLabelBy];
+      if (label === undefined || label === null) label = l.name;
+      return String(label);
+    });
+    const maxLen = labels.reduce((max, txt) => Math.max(max, txt.length), 0);
+    const charWidth = 60; // approximate pixels per character
+    setTreeLabelPadding(maxLen * charWidth);
+  }, [tree, treeMetadata, treeLabelBy]);
 
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree) {
@@ -189,26 +237,46 @@ const PhyloTreeViewer = ({
 
   // Helper to build gene metadata labels (e.g., protein cluster) below each gene
   function buildGeneLabels(genes) {
-    // For each gene, position label at the center X between start and end, just below min Y
     return genes.map(gene => {
-      const clusterId = gene.metadata && gene.metadata.clusterId ? gene.metadata.clusterId : null;
-      if (!clusterId) return null; // Only show if clusterId exists
+      const labelKey = labelBy || colorBy;
+      const labelValue = gene.metadata && gene.metadata[labelKey] !== undefined ? gene.metadata[labelKey] : null;
+      if (labelValue === null || labelValue === undefined) return null;
       if (!gene.polygon || gene.polygon.length === 0) return null;
-      // Use the center between gene.start and gene.end for X
       const centerX = (gene.start + gene.end) / 2;
-      // Use the minimum Y of the polygon for vertical position
       const ys = gene.polygon.map(([_, y]) => y);
       const minY = Math.min(...ys);
-      const labelY = minY; // 30 units below the gene (adjust as needed)
+      // Use the gene stroke color for the label
+      const strokeColor = darkenColor(gene.fillColor);
       return {
-        position: [centerX, labelY],
-        text: String(clusterId),
-        color: [0, 0, 0, 255],
+        position: [centerX, minY],
+        text: String(labelValue),
+        color: strokeColor,
         size: 12,
         textAnchor: 'middle',
         alignmentBaseline: 'top',
       };
     }).filter(Boolean);
+  }
+
+  // Utility to darken an RGBA color array
+  function darkenColor(color, factor = 0.7) {
+    if (!Array.isArray(color) || color.length < 3) return color;
+    return [
+      Math.max(0, Math.floor(color[0] * factor)),
+      Math.max(0, Math.floor(color[1] * factor)),
+      Math.max(0, Math.floor(color[2] * factor)),
+      color.length > 3 ? color[3] : 255
+    ];
+  }
+
+  // Utility: hash a string to a color
+  function hashToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; ++i) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    const r = (hash >> 0) & 0xFF;
+    const g = (hash >> 8) & 0xFF;
+    const b = (hash >> 16) & 0xFF;
+    return [Math.abs(r), Math.abs(g), Math.abs(b), 255];
   }
 
   const layers = React.useMemo(() => {
@@ -232,10 +300,37 @@ const PhyloTreeViewer = ({
       metadata: e.metadata
     }));
     // Phylo labels (shift X by treeOffset)
-    const phyloLabels = genomeView.buildPhyloLabels().map(l => ({
-      ...l,
-      position: [l.position[0] + treeOffset, l.position[1]]
-    }));
+    let rawPhyloLabels = tree.leafNodes.map(l => {
+      const meta = treeMetadata?.[l.name] || {};
+      let label = meta[treeLabelBy];
+      if (label === undefined || label === null) label = l.name;
+      if (typeof label !== 'string') label = String(label);
+      const colorValue = meta[treeColorBy] || '';
+      const color = colorValue ? hashToColor(colorValue) : [0,0,0,255];
+      const position = [l.y + treeOffset, l.x];
+      return {
+        position,
+        text: label,
+        color,
+        size: 14,
+        textAnchor: 'start',
+      };
+    });
+    // Log all raw labels for debugging
+    console.log('rawPhyloLabels', rawPhyloLabels);
+    // Only keep valid ones
+    const phyloLabels = rawPhyloLabels.filter(lbl => {
+      const valid = Number.isFinite(lbl.position[0]) && Number.isFinite(lbl.position[1]) && typeof lbl.text === 'string' && lbl.text.trim() !== '';
+      if (!valid) console.warn('Skipping invalid phylo label:', lbl);
+      return valid;
+    });
+    // If array is empty, add a dummy label (not rendered)
+    if (phyloLabels.length === 0) {
+      phyloLabels.push({position: [0,0], text: '_', color: [0,0,0,0], size: 1, textAnchor: 'start'});
+    }
+    // Prune extra properties: meta and leaf removed
+    const finalPhyloLabels = phyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
+
     // Node points (shift X by treeOffset)
     const nodePoints = genomeView.buildNodePoints(selectedNode).map(n => ({
       ...n,
@@ -303,7 +398,7 @@ const PhyloTreeViewer = ({
         widthUnits: 'meters',
         jointRounded: true,
         capRounded: true,
-        widthMinPixels: 2,
+        getWidth: d => d.width || 5,
         pickable: true,
         updateTriggers: {
           getPath: phyloPaths.map(p => p.path),
@@ -317,14 +412,15 @@ const PhyloTreeViewer = ({
         getPolygon: d => d.polygon,
         getFillColor: d => d.fillColor,
         stroked: true,
-        getLineColor: [50, 50, 50],
+        getLineColor: d => darkenColor(d.fillColor),
         lineWidthMinPixels: 1,
         filled: true,
         pickable: true, // changed from false
         autoHighlight: true,
         updateTriggers: {
           getPolygon: genes.map(g => g.polygon),
-          getFillColor: genes.map(g => g.fillColor)
+          getFillColor: genes.map(g => g.fillColor),
+          getLineColor: genes.map(g => g.fillColor) // update when fillColor changes
         }
       }),
       // Domains
@@ -333,7 +429,7 @@ const PhyloTreeViewer = ({
         data: domains,
         getPolygon: d => d.polygon,
         getFillColor: d => d.fillColor,
-        stroked: true,
+        stroked: false,
         getLineColor: [0,0,0,255],
         lineWidthMinPixels: 1,
         filled: true,
@@ -365,20 +461,21 @@ const PhyloTreeViewer = ({
       // Phylo labels
       new TextLayer({
         id: 'phylo-labels',
-        data: phyloLabels,
+        data: finalPhyloLabels,
         getPosition: d => d.position,
         getText: d => d.text,
         getColor: d => d.color,
-        getSize: d => d.size*5,
+        getSize: d => d.size * 10,
         sizeUnits: 'meters',
         fontFamily: 'sans-serif',
         getTextAnchor: d => d.textAnchor || 'start',
-        getAlignmentBaseline: 'middle',
+        getAlignmentBaseline: 'center',
         getPixelOffset: d => [5, 0],
         pickable: false,
         updateTriggers: {
-          getPosition: phyloLabels.map(l => l.position),
-          getText: phyloLabels.map(l => l.text)
+          getPosition: finalPhyloLabels.map(l => l.position),
+          getText: finalPhyloLabels.map(l => l.text),
+          getColor: finalPhyloLabels.map(l => l.color)
         }
       }),
       // Node points
@@ -400,7 +497,7 @@ const PhyloTreeViewer = ({
         }
       })
     ];
-  }, [genomeView, tree, selectedNode, viewState, treeLabelPadding]);
+  }, [genomeView, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);
@@ -439,16 +536,24 @@ const PhyloTreeViewer = ({
 
   return (
     <div id="phylo-tree-viewer-container" ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10 }}>
+      <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, display: 'flex', gap: '10px' }}>
+        {showSVGWidget && (
+          <ExportSVGWidget layers={layers} viewState={viewState} containerSize={containerSize} />
+        )}
+        {/* ...other overlay buttons can go here... */}
       </div>
       <DeckGL
         views={[new OrthographicView({ flipY: false })]}
         controller={true}
         viewState={viewState}
         layers={layers}
+        pickingRadius={10}
         style={{ width: '100%', height: '100%' }}
         onViewStateChange={({ viewState: vs }) => setViewState(vs)}
         getTooltip={getTooltip}
+        onClick={({object}) => {
+          if (object && onObjectClick) onObjectClick(object);
+        }}
       />
       {/* Custom CSS vertical scrollbar overlay, now as a widget */}
       {showScrollbar && isFinite(minY) && isFinite(maxY) && (

@@ -8,7 +8,7 @@ class Gene extends GFFFeature {
     this.origEnd = end;
     this.origStrand = strand;
     this.domains = [];
-    this.fillColor = [Math.random() * 255, Math.random() * 255, Math.random() * 255, 255];
+    this.fillColor = [230, 230, 230, 255]; // Default color for all genes
     this.polygon = null;
     this.trackY = null;
     this.geneHeight = 550; // GENE_HEIGHT default
