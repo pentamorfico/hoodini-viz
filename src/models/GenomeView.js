@@ -367,6 +367,36 @@ class GenomeView {
     this.trackOffset[seqid] += delta;
   }
 
+  alignCluster(clusterId) {
+    // 1. Find all genes in the cluster
+    const clusterGenes = Object.values(this.genesById).filter(g => this.proteinClusters && this.proteinClusters[this.getGeneIdFromAttributes(g.attributes)] == clusterId);
+    if (clusterGenes.length === 0) return;
+    // 2. For each gene, ensure its track is on the positive strand (flip if needed)
+    for (const gene of clusterGenes) {
+      const seqid = gene.seqid;
+      const flipped = !!this.trackFlipped[seqid];
+      const origStrand = gene.origStrand;
+      // If gene is negative strand after current flip state, flip the track
+      const effectiveStrand = flipped ? (origStrand === '+' ? '-' : '+') : origStrand;
+      if (effectiveStrand === '-') {
+        this.flipTrack(seqid);
+      }
+    }
+    // 3. Recompute positions after flipping
+    this.computeTrackPositions();
+    // 4. Find the minimum start among all cluster genes (now all on positive strand)
+    const starts = clusterGenes.map(g => g.start);
+    const minStart = Math.min(...starts);
+    // 5. For each gene, shift its track so its start aligns to minStart
+    for (const gene of clusterGenes) {
+      const seqid = gene.seqid;
+      const delta = minStart - gene.start;
+      this.shiftTrack(seqid, delta);
+    }
+    // 6. Recompute positions after shifting
+    this.computeTrackPositions();
+  }
+
 }
 
 // Helper: HSL to RGB

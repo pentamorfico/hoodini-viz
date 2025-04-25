@@ -30,8 +30,8 @@ A	.	gene	6871	8083	.	+	.	ID=gene_A_6
 A	.	gene	8198	9931	.	+	.	ID=gene_A_7
 A	.	gene	10009	10760	.	+	.	ID=gene_A_8
 B	.	gene	250	1065	.	+	.	ID=gene_B_1
-B	.	gene	1231	2606	.	+	.	ID=gene_B_2
-B	.	gene	2688	4142	.	+	.	ID=gene_B_3
+B	.	gene	1231	2606	.	-	.	ID=gene_B_2
+B	.	gene	2688	4142	.	-	.	ID=gene_B_3
 B	.	gene	4237	5855	.	+	.	ID=gene_B_4
 B	.	gene	5983	7657	.	+	.	ID=gene_B_5
 C	.	gene	50	1561	.	+	.	ID=gene_C_1
@@ -676,6 +676,16 @@ const PhyloTreeViewer = ({
             </button>
           </span>
         ))}
+        <div style={{marginTop: 16}}>
+          <button onClick={() => {
+            if (genomeView) {
+              genomeView.alignCluster(3);
+              setGenomeView(Object.assign(Object.create(Object.getPrototypeOf(genomeView)), genomeView));
+            }
+          }}>
+            Align all genes in cluster 3
+          </button>
+        </div>
       </div>
       <DeckGL
         views={[new OrthographicView({ flipY: true })]}
