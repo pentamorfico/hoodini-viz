@@ -1,6 +1,9 @@
 // PhyloTree.js
 import PhyloNode from './PhyloNode';
 
+// Configurable vertical spacing for tree leaves
+const TREE_Y_SPACING = 200;
+
 class PhyloTree {
   constructor(newickStr) {
     this.root = this.parseNewick(newickStr);
@@ -82,7 +85,7 @@ class PhyloTree {
 
   assignX(leaves) {
     for (let i=0;i<leaves.length;i++) {
-      leaves[i].x=i*209; // TREE_X_SPACING default
+      leaves[i].x = i * TREE_Y_SPACING;
     }
   }
 

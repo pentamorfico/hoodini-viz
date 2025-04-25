@@ -22,11 +22,42 @@ class Gene extends GFFFeature {
   }
 
   updatePolygon() {
-    this.polygon = this.getBasePolygon(this.trackY, this.geneHeight);
+    this.polygon = this._buildPolygon(this.trackY, this.geneHeight);
     this.centerLine = this.computeCenterLine();
-    // Debug: log center line after update
     for (let d of this.domains) {
       d.updatePolygon();
+    }
+  }
+
+  // Gene-specific polygon construction (was getBasePolygon)
+  _buildPolygon(trackY, geneHeight, TIP_WIDTH_FACTOR = 0.03) {
+    let start = this.start;
+    let end = this.end;
+    if (start > end) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+    const length = Math.abs(end - start);
+    const tipWidth = length * TIP_WIDTH_FACTOR;
+    const halfH = geneHeight / 2;
+    const isForward = (this.strand === '+');
+    if (isForward) {
+      return [
+        [start, trackY - halfH],
+        [end - tipWidth, trackY - halfH],
+        [end, trackY],
+        [end - tipWidth, trackY + halfH],
+        [start, trackY + halfH]
+      ];
+    } else {
+      return [
+        [end, trackY - halfH],
+        [start + tipWidth, trackY - halfH],
+        [start, trackY],
+        [start + tipWidth, trackY + halfH],
+        [end, trackY + halfH]
+      ];
     }
   }
 

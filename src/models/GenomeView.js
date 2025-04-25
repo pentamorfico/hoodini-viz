@@ -3,6 +3,7 @@ import Domain from './Domain';
 import ProteinLink from './ProteinLink';
 import NucleotideLink from './NucleotideLink';
 import Nucleotide from './Nucleotide';
+import Baseline from './Baseline';
 
 class GenomeView {
   constructor(leaves, tree) {
@@ -15,7 +16,7 @@ class GenomeView {
     this.proteinLinks = [];
     this.nucleotideLinks = [];
     this.domainsByGene = {};
-    this.GENE_HEIGHT = 100;
+    this.GENE_HEIGHT = 80;
     this.trackFlipped = {}; // Track flip state per seqid
     this.trackOffset = {};  // Track offset per seqid
     this.nucleotidesBySeqid = {}; // New: map of seqid -> Nucleotide
@@ -91,6 +92,8 @@ class GenomeView {
       if (!leafNode) continue;
       const trackY = leafNode.x;
       const feats = this.featuresBySeqid[seqid] || [];
+      // Defensive: skip if no features for this seqid
+      if (!this.featuresBySeqid[seqid]) continue;
       // Always use the current baseline center as anchor for flipping, but do not mutate offset or baseline
       let anchor;
       const nuc = this.nucleotidesBySeqid[seqid];
@@ -152,6 +155,13 @@ class GenomeView {
       for (let d of domainsByGene[gId]) {
         let dom = new Domain(gId, d.domainName, d.start, d.end, d.evalue);
         g.addDomain(dom);
+      }
+      // Add domains summary string to gene metadata
+      if (!g.metadata) g.metadata = {};
+      if (g.domains && g.domains.length > 0) {
+        g.metadata.domainsSummary = g.domains.map(dom => `${dom.domainName}(${dom.start}-${dom.end})`).join(';');
+      } else {
+        g.metadata.domainsSummary = '';
       }
     }
   }
@@ -334,7 +344,7 @@ class GenomeView {
       const color = hslToRgb(i / clusterIds.length, 0.6, 0.5).concat(255);
       this.clusterColors[cluster] = color;
     });
-    // Update gene colors
+    // Update gene colors and metadata
     for (const geneId in this.genesById) {
       const gene = this.genesById[geneId];
       const cluster = clusterMap[geneId];
@@ -343,6 +353,9 @@ class GenomeView {
       } else {
         gene.fillColor = [211,211,211,255]; // Light gray if no cluster
       }
+      // Add clusterId to gene metadata
+      if (!gene.metadata) gene.metadata = {};
+      gene.metadata.clusterId = cluster || null;
     }
   }
 
@@ -453,6 +466,14 @@ class GenomeView {
       }
     }
     this.computeTrackPositions();
+  }
+
+  applyBaselines(baselines) {
+    for (const b of baselines) {
+      if (this.nucleotidesBySeqid[b.seqid]) {
+        this.nucleotidesBySeqid[b.seqid].setBaseline(b.start, b.end);
+      }
+    }
   }
 
 }

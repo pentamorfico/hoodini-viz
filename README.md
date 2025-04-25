@@ -67,6 +67,18 @@ Hoodini-Viz is an interactive genome and phylogenetic tree visualization tool. I
 - **Custom Anchors:** The system is designed to allow future alignment or flipping around arbitrary anchors (e.g., gene start, domain center).
 - **Dynamic Anchor Recalculation:** The anchor for flipping is always recalculated after every shift, so flipping is always visually intuitive.
 
+## Custom Vertical Scrollbar (DeckGL Y-Pan)
+- **Purpose:** Allows users to pan the visualization vertically by dragging a custom scrollbar overlay on the right side of the viewer.
+- **Implementation:**
+  - A pure CSS/HTML vertical bar and thumb are rendered absolutely on the right, above the DeckGL canvas.
+  - The thumb's position is normalized (0–100) and mapped to the [minY, maxY] data range, so it travels the full height of the bar.
+  - Dragging the thumb or clicking on the bar updates the DeckGL viewState's Y target, panning the view up or down.
+  - The thumb's position is recalculated and synced with the current viewState, so it always reflects the current vertical pan.
+  - No React component libraries are used—just divs, inline styles, and mouse events for a lightweight, customizable experience.
+- **User Experience:**
+  - The scrollbar is always visible, takes up nearly the full height of the viewer, and provides intuitive, fine-grained vertical navigation.
+  - Clicking on the bar moves the thumb to that position; dragging the thumb pans smoothly.
+
 ## Extensibility
 - **Adding New Feature Types:** To add new feature types (e.g., regulatory elements), create a new model, update GenomeView, and add a DeckGL layer in PhyloTreeViewer.jsx.
 - **Custom Alignment:** To add new alignment strategies, implement a method in GenomeView and add a button in the control panel.

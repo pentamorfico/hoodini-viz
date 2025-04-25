@@ -1,0 +1,147 @@
+import React, { useRef } from 'react';
+
+export default function ScrollbarWidget({
+  minY,
+  maxY,
+  scrollNorm,
+  setScrollNorm,
+  visibleFraction,
+  setViewState,
+  containerHeight,
+  viewState
+}) {
+  // Helper to get the thumb's top position and height for the custom scrollbar
+  function getThumbMetrics(norm, barHeight, visibleFraction) {
+    const minThumbHeight = 24;
+    const thumbHeight = Math.max(barHeight * visibleFraction, minThumbHeight);
+    // Center of thumb in px
+    const thumbCenter = (barHeight * norm) / 100;
+    // Top of thumb, clamped
+    let thumbTop = thumbCenter - thumbHeight / 2;
+    thumbTop = Math.max(0, Math.min(barHeight - thumbHeight, thumbTop));
+    return { thumbTop, thumbHeight };
+  }
+
+  const scrollBarRef = useRef(null);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        height: '100%',
+        width: '32px',
+        zIndex: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'auto',
+        background: 'rgba(255,255,255,0.05)'
+      }}
+    >
+      <div
+        id="custom-scrollbar"
+        ref={scrollBarRef}
+        style={{
+          position: 'relative',
+          width: '12px',
+          height: '96%',
+          background: '#eee',
+          borderRadius: '6px',
+          margin: '2%',
+          cursor: 'pointer',
+          boxShadow: '0 0 2px #aaa',
+          userSelect: 'none',
+        }}
+        onMouseDown={e => {
+          // Allow clicking on the bar to move the thumb
+          const bar = scrollBarRef.current;
+          const barRect = bar.getBoundingClientRect();
+          const barHeight = barRect.height;
+          const { thumbHeight } = getThumbMetrics(scrollNorm, barHeight, visibleFraction);
+          const clickY = e.clientY - barRect.top;
+          let newNorm = (clickY - thumbHeight / 2) / (barHeight - thumbHeight) * 100;
+          newNorm = Math.max(0, Math.min(100, newNorm));
+          if (!isFinite(newNorm)) {
+            console.warn('Aborting: newNorm is not finite', { newNorm, clickY, barHeight, thumbHeight });
+            return;
+          }
+          setScrollNorm(newNorm);
+          if (isFinite(minY) && isFinite(maxY) && maxY > minY) {
+            const newY = maxY - (newNorm / 100) * (maxY - minY);
+            if (!isFinite(newY)) {
+              console.warn('Aborting: newY is not finite', { newY, minY, maxY, newNorm });
+              return;
+            }
+            setViewState(vs => {
+              if (!vs) return vs;
+              const z = (vs.target && isFinite(vs.target[2])) ? vs.target[2] : 0;
+              return { ...vs, target: [vs.target[0], newY, z] };
+            });
+          }
+        }}
+      >
+        <div
+          id="custom-scrollbar-thumb"
+          style={{
+            position: 'absolute',
+            left: 0,
+            width: '100%',
+            ...(() => {
+              if (!scrollBarRef.current) return { top: 0, height: 40 };
+              const barHeight = scrollBarRef.current.offsetHeight;
+              const { thumbTop, thumbHeight } = getThumbMetrics(scrollNorm, barHeight, visibleFraction);
+              return { top: thumbTop, height: thumbHeight };
+            })(),
+            background: '#bbb',
+            borderRadius: '6px',
+            boxShadow: '0 1px 4px #888',
+            cursor: 'grab',
+            transition: 'background 0.1s',
+          }}
+          onMouseDown={e => {
+            e.preventDefault();
+            const bar = scrollBarRef.current;
+            const barRect = bar.getBoundingClientRect();
+            const barHeight = barRect.height;
+            const { thumbTop, thumbHeight } = getThumbMetrics(scrollNorm, barHeight, visibleFraction);
+            const startY = e.clientY;
+            const startNorm = scrollNorm;
+            const startThumbTop = thumbTop;
+            function onMove(ev) {
+              const delta = ev.clientY - startY;
+              let newThumbTop = startThumbTop + delta;
+              newThumbTop = Math.max(0, Math.min(barHeight - thumbHeight, newThumbTop));
+              let newNorm = ((newThumbTop + thumbHeight / 2) / barHeight) * 100;
+              newNorm = Math.max(0, Math.min(100, newNorm));
+              if (!isFinite(newNorm)) {
+                console.warn('Aborting drag: newNorm is not finite', { newNorm, newThumbTop, barHeight, thumbHeight });
+                return;
+              }
+              setScrollNorm(newNorm);
+              if (isFinite(minY) && isFinite(maxY) && maxY > minY) {
+                const newY = maxY - (newNorm / 100) * (maxY - minY);
+                if (!isFinite(newY)) {
+                  console.warn('Aborting drag: newY is not finite', { newY, minY, maxY, newNorm });
+                  return;
+                }
+                setViewState(vs => {
+                  if (!vs) return vs;
+                  const z = (vs.target && isFinite(vs.target[2])) ? vs.target[2] : 0;
+                  return { ...vs, target: [vs.target[0], newY, z] };
+                });
+              }
+            }
+            function onUp() {
+              window.removeEventListener('mousemove', onMove);
+              window.removeEventListener('mouseup', onUp);
+            }
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onUp);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
