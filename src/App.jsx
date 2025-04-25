@@ -46,20 +46,6 @@ function App() {
 
   return (
     <div className="App" >
-      <div style={{display: 'flex', gap: '1em', marginBottom: '1em'}}>
-        <label>
-          Tree leaf label:
-          <select value={treeLabelBy} onChange={e => setTreeLabelBy(e.target.value)}>
-            {treeMetadataColumns.map(col => <option key={col} value={col}>{col}</option>)}
-          </select>
-        </label>
-        <label>
-          Tree leaf color:
-          <select value={treeColorBy} onChange={e => setTreeColorBy(e.target.value)}>
-            {treeMetadataColumns.map(col => <option key={col} value={col}>{col}</option>)}
-          </select>
-        </label>
-      </div>
       <PhyloTreeViewer
         newickStr={newickStr}
         gffFeatures={parsedGFF}
@@ -67,19 +53,17 @@ function App() {
         nucleotideLinks={parsedNucleotideLinks}
         domainsByGene={parsedDomains}
         baselines={parsedBaselines}
-        showScrollbar={showScrollbar}
+        showScrollbar={false}
         alignCluster={alignCluster} // Pass the cluster
         defaultAlign='start'
         onObjectClick={handleObjectClick}
-        showSVGWidget={true}
+        showSVGWidget={false}
         proteinMetadata={parsedProteinMetadata}
         colorBy="cluster"
         labelBy="description"
         treeMetadata={parsedTreeMetadata}
-        treeLabelBy={treeLabelBy}
-        treeColorBy={treeColorBy}
-        colorLeavesBy="species"
-        labelLeavesBy="ecosystem"
+        treeLabelBy="species"
+        treeColorBy="species"
       />
     </div>
   );

@@ -41,7 +41,7 @@ class Domain {
   }
 
   createDomainPolygon(g, domainStart, domainEnd, strand) {
-    console.log('Creating domain polygon for gene:', g.attributes, domainStart, domainEnd, strand);
+    // console.log('Creating domain polygon for gene:', g.attributes, domainStart, domainEnd, strand);
     // Use the true gene start: lower for +, higher for -
     const isPlus = strand === '+';
     const geneStartCoord = g.start;

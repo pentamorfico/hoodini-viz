@@ -1,5 +1,19 @@
 # Hoodini-Viz Overview
 
+## Recent Changes (April 2025)
+- **Protein Link Bands:** Improved construction so bands always connect the true leftmost and rightmost coordinates of each gene, regardless of strand or orientation.
+- **Consistent Polygon Ordering:** Band polygons are now always ordered clockwise, preventing self-crossing and ensuring robust, visually correct links.
+- **Curved Bands:** Bands between genes use smooth, inward-bending Bezier curves for a more visually appealing “Sankey” style, with control points dynamically calculated based on gene positions.
+- **Debugging Improvements:** Added detailed logging to the link construction logic to help diagnose and resolve issues with band geometry or ordering.
+- **Robust Polygon Logic:** Polygon construction for links is now robust to all gene arrangements, including flipped, reversed, or overlapping genes.
+- **Gene Arrow Direction:** Fixed so that gene arrows always point outward according to strand, regardless of flipping or start/end order.
+- **Flipping Anchor:** Flipping is now always performed around the current baseline center, not the original, for more intuitive behavior.
+- **Shift Direction:** Shift direction is reversed when flipped, so "+1kb" always moves right visually.
+- **Idempotent Alignment:** Alignment functions (cluster, start, end, center) set offsets directly, so repeated clicks do not cause drift.
+- **Cluster Alignment:** Genes in a cluster are flipped to positive strand and aligned by their leftmost coordinate.
+- **Tree Offset:** Tree is always repositioned to the left of the minimum baseline after any genome movement.
+- **UI Buttons:** Added buttons for all alignment operations and ensured they are always visible and clickable.
+
 ## Project Purpose
 Hoodini-Viz is an interactive genome and phylogenetic tree visualization tool. It allows users to explore gene clusters, protein/nucleotide links, and perform advanced manipulations such as flipping, shifting, and aligning genome tracks in the context of a phylogenetic tree.
 

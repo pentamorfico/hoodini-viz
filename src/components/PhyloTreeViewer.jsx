@@ -26,7 +26,7 @@ const PhyloTreeViewer = ({
   labelBy, // new prop
   treeMetadata,
   treeLabelBy = 'leaf_id',
-  treeColorBy = 'species',
+  treeColorBy = 'leaf_id',
 }) => {
   // Visualization state
   const [tree, setTree] = useState(null);
@@ -55,19 +55,14 @@ const PhyloTreeViewer = ({
     // --- CLUSTER LOGIC: always extract from proteinMetadata ---
     let clustersFromMetadata = null;
     if (proteinMetadata) {
-      console.log('proteinMetadata:', proteinMetadata);
       const entries = Object.values(proteinMetadata);
-      console.log('proteinMetadata entries:', entries);
       if (entries.length && entries[0][colorBy] !== undefined) {
         clustersFromMetadata = {};
-        console.log('Extracting clusters from metadata:', entries);
         for (const entry of entries) {
           if (entry.gene_id && entry[colorBy] !== undefined) {
             clustersFromMetadata[entry.gene_id] = entry[colorBy];
           }
         }
-      } else {
-        console.log('No cluster property found in first entry:', entries[0]);
       }
     }
     if (clustersFromMetadata) {
@@ -316,8 +311,6 @@ const PhyloTreeViewer = ({
         textAnchor: 'start',
       };
     });
-    // Log all raw labels for debugging
-    console.log('rawPhyloLabels', rawPhyloLabels);
     // Only keep valid ones
     const phyloLabels = rawPhyloLabels.filter(lbl => {
       const valid = Number.isFinite(lbl.position[0]) && Number.isFinite(lbl.position[1]) && typeof lbl.text === 'string' && lbl.text.trim() !== '';
@@ -523,7 +516,6 @@ const PhyloTreeViewer = ({
         setViewState(vs => vs ? { ...vs } : vs);
       }
       if (isFirstRun.current) {
-        console.log('First run, aligning to default:', defaultAlign);
         fitViewToBounds(genomeView, tree, containerSize, setViewState);
         isFirstRun.current = false;
       }
