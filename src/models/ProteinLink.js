@@ -22,47 +22,31 @@ class ProteinLink extends Link {
 
   buildPolygon(gA, gB) {
     if (!gA || !gB) return null;
-    const geneHeightA = gA.geneHeight;
-    const geneHeightB = gB.geneHeight;
-    const halfH = Math.min(geneHeightA, geneHeightB) / 2;
-    const trackYA = gA.trackY;
-    const trackYB = gB.trackY;
-    if (trackYA == null || trackYB == null) return null;
-    const strandA = gA.strand;
-    const strandB = gB.strand;
-    let adjustedHalfStartA, adjustedHalfEndA, adjustedHalfStartB, adjustedHalfEndB;
-    if (trackYA > trackYB) {
-      adjustedHalfStartA = strandA === '+' ? -halfH : 0;
-      adjustedHalfEndA = strandA === '+' ? 0 : -halfH;
-      adjustedHalfStartB = strandB === '+' ? 0 : +halfH;
-      adjustedHalfEndB = strandB === '+' ? -halfH : 0;
+    // Get left/right x for each gene
+    const aLeftX = Math.min(gA.start, gA.end);
+    const aRightX = Math.max(gA.start, gA.end);
+    const bLeftX = Math.min(gB.start, gB.end);
+    const bRightX = Math.max(gB.start, gB.end);
+    // Get center Y for each gene
+    const yA = gA.trackY;
+    const yB = gB.trackY;
+    // Determine which gene is visually on top
+    let top, bottom;
+    if (yA <= yB) {
+      top = { left: [aLeftX, yA], right: [aRightX, yA] };
+      bottom = { left: [bLeftX, yB], right: [bRightX, yB] };
     } else {
-      adjustedHalfStartA = strandA === '+' ? halfH : 0;
-      adjustedHalfEndA = strandA === '+' ? 0 : +halfH;
-      adjustedHalfStartB = strandB === '+' ? 0 : -halfH;
-      adjustedHalfEndB = strandB === '+' ? halfH : 0;
+      top = { left: [bLeftX, yB], right: [bRightX, yB] };
+      bottom = { left: [aLeftX, yA], right: [aRightX, yA] };
     }
-    const topLeft = [gA.start, trackYA + adjustedHalfStartA];
-    const topRight = [gA.end, trackYA + adjustedHalfEndA];
-    const bottomRight = [gB.end, trackYB + adjustedHalfStartB];
-    const bottomLeft = [gB.start, trackYB - adjustedHalfEndB];
-    const midYLeft = (topLeft[1] + bottomLeft[1]) / 2;
-    const leftP0 = topLeft;
-    const leftP3 = bottomLeft;
-    const leftP1 = [leftP0[0] - 50, midYLeft];
-    const leftP2 = [leftP3[0] - 50, midYLeft];
-    const leftCurve = this.bezierCurve(leftP0, leftP1, leftP2, leftP3, 20);
-    const midYRight = (topRight[1] + bottomRight[1]) / 2;
-    const rightP0 = topRight;
-    const rightP3 = bottomRight;
-    const rightP1 = [rightP0[0] + 50, midYRight];
-    const rightP2 = [rightP3[0] + 50, midYRight];
-    const rightCurve = this.bezierCurve(rightP0, rightP1, rightP2, rightP3, 20);
-    return [
-      ...[topLeft], ...[topRight],
-      ...rightCurve, ...[bottomRight],
-      ...[bottomLeft], ...leftCurve.reverse()
-    ];
+    // Always go top.right -> bottom.right for the top curve
+    // and bottom.left -> top.left for the bottom curve
+    const midY = (top.left[1] + bottom.right[1]) / 2;
+    const curve = (p0, p1) => this.bezierCurve(p0, [p0[0], midY], [p1[0], midY], p1, 20);
+    const topCurve = curve(top.right, bottom.right); // top to bottom
+    const bottomCurve = curve(bottom.left, top.left); // bottom to top
+    // Clockwise: top.left, top.right, ...topCurve, bottom.right, bottom.left, ...bottomCurve
+    return [top.left, top.right, ...topCurve, bottom.right, bottom.left, ...bottomCurve];
   }
 }
 
