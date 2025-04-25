@@ -384,16 +384,74 @@ class GenomeView {
     }
     // 3. Recompute positions after flipping
     this.computeTrackPositions();
-    // 4. Find the minimum start among all cluster genes (now all on positive strand)
-    const starts = clusterGenes.map(g => g.start);
-    const minStart = Math.min(...starts);
-    // 5. For each gene, shift its track so its start aligns to minStart
+    // 4. Find the minimum left edge among all cluster genes (after flip/shift)
+    const leftEdges = clusterGenes.map(g => Math.min(g.start, g.end));
+    const minLeft = Math.min(...leftEdges);
+    // 5. For each gene, set the offset so its left edge aligns to minLeft (idempotent)
     for (const gene of clusterGenes) {
       const seqid = gene.seqid;
-      const delta = minStart - gene.start;
-      this.shiftTrack(seqid, delta);
+      // Calculate the required offset to align left edge to minLeft
+      // Undo any previous offset for this track
+      this.trackOffset[seqid] = (this.trackOffset[seqid] || 0) + (minLeft - Math.min(gene.start, gene.end));
     }
     // 6. Recompute positions after shifting
+    this.computeTrackPositions();
+  }
+
+  alignAllToStart() {
+    // For each track, set to original strand and shift so baseline start is at 0
+    for (const seqid of this.leaves) {
+      // 1. Flip to original strand if needed
+      const flipped = !!this.trackFlipped[seqid];
+      const nuc = this.nucleotidesBySeqid[seqid];
+      if (nuc && nuc.strand && flipped) {
+        this.flipTrack(seqid); // flip back to original
+      }
+      // 2. Shift so baseline start is at 0
+      if (nuc && nuc.baseline) {
+        const offset = this.trackOffset[seqid] || 0;
+        // Compute current baseline start (after offset, not flipped)
+        const currentStart = nuc.baseline.origStart + offset;
+        // Set offset so baseline start is at 0
+        this.trackOffset[seqid] = -nuc.baseline.origStart;
+      }
+    }
+    this.computeTrackPositions();
+  }
+
+  alignAllToEnd() {
+    // For each track, set to original strand and shift so baseline end is at 0
+    for (const seqid of this.leaves) {
+      // 1. Flip to original strand if needed
+      const flipped = !!this.trackFlipped[seqid];
+      const nuc = this.nucleotidesBySeqid[seqid];
+      if (nuc && nuc.strand && flipped) {
+        this.flipTrack(seqid); // flip back to original
+      }
+      // 2. Shift so baseline end is at 0
+      if (nuc && nuc.baseline) {
+        // Set offset so baseline end is at 0
+        this.trackOffset[seqid] = -nuc.baseline.origEnd;
+      }
+    }
+    this.computeTrackPositions();
+  }
+
+  alignAllToCenter() {
+    // For each track, set to original strand and shift so baseline center is at 0
+    for (const seqid of this.leaves) {
+      // 1. Flip to original strand if needed
+      const flipped = !!this.trackFlipped[seqid];
+      const nuc = this.nucleotidesBySeqid[seqid];
+      if (nuc && nuc.strand && flipped) {
+        this.flipTrack(seqid); // flip back to original
+      }
+      // 2. Shift so baseline center is at 0
+      if (nuc && nuc.baseline) {
+        const center = (nuc.baseline.origStart + nuc.baseline.origEnd) / 2;
+        this.trackOffset[seqid] = -center;
+      }
+    }
     this.computeTrackPositions();
   }
 

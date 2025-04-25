@@ -22,8 +22,8 @@ const defaultLeaves = [
 // Static mock GFF data
 const defaultGFFStr = `
 A	.	gene	350	1146	.	-	.	ID=gene_A_1
-A	.	gene	1328	2594	.	+	.	ID=gene_A_2
-A	.	gene	2771	4187	.	+	.	ID=gene_A_3
+A	.	gene	1328	2594	.	-	.	ID=gene_A_2
+A	.	gene	2771	4187	.	-	.	ID=gene_A_3
 A	.	gene	4238	5376	.	+	.	ID=gene_A_4
 A	.	gene	5534	6710	.	+	.	ID=gene_A_5
 A	.	gene	6871	8083	.	+	.	ID=gene_A_6
@@ -307,6 +307,13 @@ const PhyloTreeViewer = ({
   // Allow external padding for tree offset
   const [treeLabelPadding, setTreeLabelPadding] = React.useState(160); // default 60px, can be changed externally
 
+  // Helper to get the thumb's top position in px for the custom scrollbar
+  function getThumbTop(norm, barHeight, thumbHeight) {
+    return ((barHeight - thumbHeight) * norm) / 100;
+  }
+  // Ref for the scrollbar bar
+  const scrollBarRef = React.useRef(null);
+
   // Setup tree and genomeView on mount or when data changes
   useEffect(() => {
     const tree = new PhyloTree(newickStr);
@@ -360,6 +367,7 @@ const PhyloTreeViewer = ({
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree) {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let minBaselineX = Infinity;
     if (!genomeView) return { minX: 0, minY: 0, maxX: 1000, maxY: 1000, treeOffset: 0, geneOffset: 0 };
     // Genes
     Object.values(genomeView.genesById).forEach(g => {
@@ -375,6 +383,12 @@ const PhyloTreeViewer = ({
         minY = Math.min(minY, y); maxY = Math.max(maxY, y);
       });
     });
+    // Baselines (for tree offset)
+    Object.values(genomeView.nucleotidesBySeqid).forEach(nuc => {
+      if (nuc.baseline) {
+        minBaselineX = Math.min(minBaselineX, nuc.baseline.start, nuc.baseline.end);
+      }
+    });
     // Tree paths: get maxX
     let treeMaxX = -Infinity;
     if (tree) tree.buildEdges().forEach(e => {
@@ -384,8 +398,10 @@ const PhyloTreeViewer = ({
     });
     // Set geneOffset so that minX is at e.g. 100
     const geneOffset = isFinite(minX) ? (100 - minX) : 0;
-    // Compute offset to align tree's maxX to gene minX (after geneOffset applied)
-    const treeOffset = isFinite(treeMaxX) && isFinite(minX) ? (100 - treeMaxX) : 0;
+    // Compute offset to align tree's maxX to min baseline X (after geneOffset applied)
+    // Always keep tree to the left of genome features by a fixed gap (e.g. 40px)
+    const treeGap = 40;
+    const treeOffset = isFinite(treeMaxX) && isFinite(minBaselineX) ? (minBaselineX - treeMaxX - treeGap) : 0;
     // Fallback
     if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
       minX = 0; minY = 0; maxX = 1000; maxY = 1000;
@@ -425,10 +441,34 @@ const PhyloTreeViewer = ({
     setViewState({
       target: [(bounds.minX + bounds.maxX) / 2, (bounds.minY + bounds.maxY) / 2, 0],
       zoom,
-      treeOffset: 0,
-      geneOffset: 0
+      treeOffset: bounds.treeOffset,
+      geneOffset: bounds.geneOffset
     });
   }, [genomeView, tree, containerSize]);
+
+  // Add after viewState and bounds are available
+  const bounds = computeBounds(genomeView, tree);
+  const minY = bounds.minY;
+  const maxY = bounds.maxY;
+  // Normalized scrollbar state (0-100)
+  const [scrollNorm, setScrollNorm] = React.useState(0);
+  // Compute minY/maxY from bounds
+  // When viewState changes, update normalized scroll position
+  React.useEffect(() => {
+    if (viewState && isFinite(viewState.target[1]) && isFinite(minY) && isFinite(maxY) && maxY > minY) {
+      const norm = ((viewState.target[1] - minY) / (maxY - minY)) * 100;
+      setScrollNorm(norm);
+    }
+  }, [viewState, minY, maxY]);
+  // Handler for normalized scrollbar
+  const handleScroll = (e) => {
+    const norm = Number(e.target.value);
+    setScrollNorm(norm);
+    if (isFinite(minY) && isFinite(maxY)) {
+      const newY = minY + (norm / 100) * (maxY - minY);
+      setViewState(vs => vs ? { ...vs, target: [vs.target[0], newY, vs.target[2]] } : vs);
+    }
+  };
 
   // Tooltip handler for DeckGL
   const getTooltip = ({object, layer}) => {
@@ -457,9 +497,9 @@ const PhyloTreeViewer = ({
 
   const layers = React.useMemo(() => {
     if (!genomeView || !tree) return [];
-    // Use tree._treeOffset (which includes treeLabelPadding) for all tree-related X shifts
-    const treeOffset = tree._treeOffset || 0;
+    // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
     const bounds = computeBounds(genomeView, tree);
+    const treeOffset = bounds.treeOffset || 0;
     // Genes
     const genes = Object.values(genomeView.genesById);
     // Domains
@@ -650,7 +690,6 @@ const PhyloTreeViewer = ({
         display: 'inline-block',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
       }}>
-        <b>Flip/Shift D track:</b>{' '}
         {genomeView && genomeView.leaves.filter(seqid => seqid === 'A').map(seqid => (
           <span key={seqid} style={{marginRight: 8}}>
             <button onClick={() => handleFlip(seqid)} style={{marginRight: 4}}>
@@ -685,6 +724,30 @@ const PhyloTreeViewer = ({
           }}>
             Align all genes in cluster 3
           </button>
+          <button style={{marginLeft: 8}} onClick={() => {
+            if (genomeView) {
+              genomeView.alignAllToStart();
+              setGenomeView(Object.assign(Object.create(Object.getPrototypeOf(genomeView)), genomeView));
+            }
+          }}>
+            Align all to start (0, original strand)
+          </button>
+          <button style={{marginLeft: 8}} onClick={() => {
+            if (genomeView) {
+              genomeView.alignAllToEnd();
+              setGenomeView(Object.assign(Object.create(Object.getPrototypeOf(genomeView)), genomeView));
+            }
+          }}>
+            Align all to end (0, original strand)
+          </button>
+          <button style={{marginLeft: 8}} onClick={() => {
+            if (genomeView) {
+              genomeView.alignAllToCenter();
+              setGenomeView(Object.assign(Object.create(Object.getPrototypeOf(genomeView)), genomeView));
+            }
+          }}>
+            Align all to center (0, original strand)
+          </button>
         </div>
       </div>
       <DeckGL
@@ -696,6 +759,95 @@ const PhyloTreeViewer = ({
         onViewStateChange={({viewState: vs}) => setViewState(prev => prev ? { ...prev, target: vs.target, zoom: vs.zoom } : prev)}
         getTooltip={getTooltip}
       />
+      {/* Custom CSS vertical scrollbar overlay */}
+      {isFinite(minY) && isFinite(maxY) && (
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            height: '100%',
+            width: '32px',
+            zIndex: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'auto',
+            background: 'rgba(255,255,255,0.05)'
+          }}
+        >
+          <div
+            id="custom-scrollbar"
+            ref={scrollBarRef}
+            style={{
+              position: 'relative',
+              width: '12px',
+              height: '96%',
+              background: '#eee',
+              borderRadius: '6px',
+              margin: '2%',
+              cursor: 'pointer',
+              boxShadow: '0 0 2px #aaa',
+              userSelect: 'none',
+            }}
+            onMouseDown={e => {
+              // Allow clicking on the bar to move the thumb
+              const bar = scrollBarRef.current;
+              const barRect = bar.getBoundingClientRect();
+              const thumbHeight = 40;
+              const clickY = e.clientY - barRect.top;
+              let newNorm = (clickY - thumbHeight / 2) / (barRect.height - thumbHeight) * 100;
+              newNorm = Math.max(0, Math.min(100, newNorm));
+              setScrollNorm(newNorm);
+              if (isFinite(minY) && isFinite(maxY)) {
+                const newY = minY + (newNorm / 100) * (maxY - minY);
+                setViewState(vs => vs ? { ...vs, target: [vs.target[0], newY, vs.target[2]] } : vs);
+              }
+            }}
+          >
+            <div
+              id="custom-scrollbar-thumb"
+              style={{
+                position: 'absolute',
+                left: 0,
+                width: '100%',
+                height: '40px', // Thumb height, can be adjusted
+                background: '#bbb',
+                borderRadius: '6px',
+                boxShadow: '0 1px 4px #888',
+                top: scrollBarRef.current ? getThumbTop(scrollNorm, scrollBarRef.current.offsetHeight, 40) : 0,
+                cursor: 'grab',
+                transition: 'background 0.1s',
+              }}
+              onMouseDown={e => {
+                e.preventDefault();
+                const bar = scrollBarRef.current;
+                const barRect = bar.getBoundingClientRect();
+                const thumbHeight = 40;
+                const startY = e.clientY;
+                const startNorm = scrollNorm;
+                function onMove(ev) {
+                  const delta = ev.clientY - startY;
+                  const barHeight = barRect.height;
+                  let newNorm = startNorm + (delta / (barHeight - thumbHeight)) * 100;
+                  newNorm = Math.max(0, Math.min(100, newNorm));
+                  setScrollNorm(newNorm);
+                  if (isFinite(minY) && isFinite(maxY)) {
+                    const newY = minY + (newNorm / 100) * (maxY - minY);
+                    setViewState(vs => vs ? { ...vs, target: [vs.target[0], newY, vs.target[2]] } : vs);
+                  }
+                }
+                function onUp() {
+                  window.removeEventListener('mousemove', onMove);
+                  window.removeEventListener('mouseup', onUp);
+                }
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
