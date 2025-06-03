@@ -11,6 +11,8 @@ import RulerWidget from '../widgets/RulerWidget';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 import { useTheme } from '../contexts/ThemeContext.jsx';
 import { getPaletteColors } from '../utils/colorPalettes';
+import { parseNonCodingMetadata } from '../utils/parseNonCodingMetadata';
+import nonCodingMetadataText from '../data/defaultNonCodingMetadata.txt?raw';
 
 const PhyloTreeViewer = React.forwardRef(({
   newickStr,
@@ -47,8 +49,8 @@ const PhyloTreeViewer = React.forwardRef(({
   domainColorBy = 'domainName', // Add this prop
 }, ref) => {
   // Theme context
-  const { getThemeColors } = useTheme();
-  const themeColors = getThemeColors();
+  const { getThemeColors, theme } = useTheme();
+  const themeColors = React.useMemo(() => getThemeColors(), [theme]);
   
   // Visualization state
   const [tree, setTree] = useState(null);
@@ -86,6 +88,16 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeView.addFeatures(gffFeatures);
     if (baselines) genomeView.applyBaselines(baselines);
     genomeView.initGenes();
+    // Attach ncRNA metadata to ncRNA features
+    for (const uniqueNcId in genomeView.ncRNAsById) {
+      const nc = genomeView.ncRNAsById[uniqueNcId];
+      if (nc && nonCodingMetadata[nc.originalId]) {
+        nc.metadata = { ...nc.metadata, ...nonCodingMetadata[nc.originalId] };
+        if (nonCodingMetadata[nc.originalId].color) {
+          nc.fillColor = nonCodingMetadata[nc.originalId].color;
+        }
+      }
+    }
     genomeView.computeTrackPositions();
     genomeView.addDomains(domainsByGene);
     genomeView.addProteinLinks(proteinLinks);
@@ -153,6 +165,9 @@ const PhyloTreeViewer = React.forwardRef(({
     setTreeLabelPadding(maxLen * charWidth);
   }, [tree, treeMetadata, treeLabelBy, config]);
 
+  // Parse ncRNA metadata once
+  const nonCodingMetadata = React.useMemo(() => parseNonCodingMetadata(nonCodingMetadataText), []);
+
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree') {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -164,9 +179,14 @@ const PhyloTreeViewer = React.forwardRef(({
       minX = genomeView.globalMin;
       maxX = genomeView.globalMax;
     } else {
-      // Fallback: manually calculate X bounds from genes and domains
+      // Fallback: manually calculate X bounds from genes, ncRNAs, and domains
       Object.values(genomeView.genesById).forEach(g => {
         if (g.polygon) g.polygon.forEach(([x, y]) => {
+          minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        });
+      });
+      Object.values(genomeView.ncRNAsById).forEach(nc => {
+        if (nc.polygon) nc.polygon.forEach(([x, y]) => {
           minX = Math.min(minX, x); maxX = Math.max(maxX, x);
         });
       });
@@ -177,9 +197,14 @@ const PhyloTreeViewer = React.forwardRef(({
       });
     }
     
-    // Calculate Y bounds from genes and domains (still needed for vertical layout)
+    // Calculate Y bounds from genes, ncRNAs, and domains (still needed for vertical layout)
     Object.values(genomeView.genesById).forEach(g => {
       if (g.polygon) g.polygon.forEach(([x, y]) => {
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      });
+    });
+    Object.values(genomeView.ncRNAsById).forEach(nc => {
+      if (nc.polygon) nc.polygon.forEach(([x, y]) => {
         minY = Math.min(minY, y); maxY = Math.max(maxY, y);
       });
     });
@@ -464,7 +489,7 @@ const PhyloTreeViewer = React.forwardRef(({
     for (const label of treeLabels) {
       const metadata = treeMetadata[label.leafNode.name] || {};
       const colorValue = metadata[treeColorBy];
-      if (colorValue !== undefined && colorValue !== null) {
+      if (colorValue !== undefined && colorValue !== null && colorValue !== '') {
         colorValues.add(String(colorValue));
       }
     }
@@ -478,7 +503,7 @@ const PhyloTreeViewer = React.forwardRef(({
           phyloPalette.reverse || false
         );
       } catch (error) {
-        paletteColors = [];
+        // Handle error
       }
     }
 
@@ -490,11 +515,20 @@ const PhyloTreeViewer = React.forwardRef(({
     // Apply palette colors to labels
     return treeLabels.map(label => {
       const metadata = treeMetadata[label.leafNode.name] || {};
-      const colorValue = String(metadata[treeColorBy] || '');
-      return {
-        ...label,
-        color: colorValueToColor[colorValue] || [0, 0, 0, 255]
-      };
+      const colorValue = metadata[treeColorBy];
+      // Only apply palette color if colorValue is valid, otherwise use default black color
+      if (colorValue !== null && colorValue !== undefined) {
+        const colorKey = String(colorValue);
+        return {
+          ...label,
+          color: colorValueToColor[colorKey] || [0, 0, 0, 255]
+        };
+      } else {
+        return {
+          ...label,
+          color: [0, 0, 0, 255] // Default black color for null/undefined values
+        };
+      }
     });
   }
 
@@ -509,14 +543,114 @@ const PhyloTreeViewer = React.forwardRef(({
     // Domains
     let domains = genomeView.getAllDomains();
     // Protein links
-    const proteinPolygons = genomeView.getProteinPolygons();
+    let proteinPolygons = genomeView.getProteinPolygons();
     // Nucleotide links
-    const nucleotidePolygons = genomeView.getNucleotidePolygons();
+    let nucleotidePolygons = genomeView.getNucleotidePolygons();
+
+    // --- FILTER LINKS TO ONLY CONSECUTIVE HOODS (ORDER-INSENSITIVE) ---
+    // Build a set of valid consecutive hood pairs (order-insensitive)
+    const leaves = genomeView.leaves;
+    // Debug: Check the structure of leaves array and mapping
+    // console.log('Leaves array:', leaves);
+    // console.log('Hood to seqid mapping:', genomeView.hoodToSeqidMap);
+    const consecutivePairs = new Set();
+    for (let i = 0; i < leaves.length - 1; ++i) {
+      const a = leaves[i];
+      const b = leaves[i + 1];
+      consecutivePairs.add([a, b].sort().join('__'));
+    }
+    // For proteinPolygons, check metadata for hood/gene info if available
+    proteinPolygons = proteinPolygons.filter(p => {
+      if (!p.metadata) return false;
+      const { gAId, gBId, hoodA, hoodB, seqids } = p.metadata;
+      let hood1 = hoodA || (gAId && genomeView.genesById[gAId]?.hood_id) || (seqids && seqids[0]);
+      let hood2 = hoodB || (gBId && genomeView.genesById[gBId]?.hood_id) || (seqids && seqids[1]);
+      if (!hood1 || !hood2) return false;
+      const key = [hood1, hood2].sort().join('__');
+      return consecutivePairs.has(key);
+    });
+    // --- STRICT NEIGHBOR FILTER FOR NUCLEOTIDE LINKS ---
+    // First, identify which consecutive pairs should have links
+    const validConsecutivePairs = [];
+    for (let i = 0; i < leaves.length - 1; ++i) {
+      const hoodA = leaves[i];
+      const hoodB = leaves[i + 1];
+      const seqidA = genomeView.hoodToSeqidMap[hoodA];
+      const seqidB = genomeView.hoodToSeqidMap[hoodB];
+      if (seqidA && seqidB && seqidA !== seqidB) {
+        // Create both orderings to handle links in either direction
+        validConsecutivePairs.push(`${seqidA}-${seqidB}`);
+        validConsecutivePairs.push(`${seqidB}-${seqidA}`);
+      }
+    }
+    // console.log('Valid consecutive pairs (by seqid):', validConsecutivePairs);
+    
+    // Track which consecutive pairs have already been assigned a link
+    const assignedPairs = new Set();
+    
+    nucleotidePolygons = nucleotidePolygons.filter((p, idx) => {
+      // console.log(`Nucleotide link ${idx}:`, p);
+      
+      // Try to get the actual hoods (by hood ID) this link connects
+      let hoodA = p.hoodA || (p.metadata && p.metadata.hoodA);
+      let hoodB = p.hoodB || (p.metadata && p.metadata.hoodB);
+      // console.log(`  hoodA: ${hoodA}, hoodB: ${hoodB}`);
+      
+      if (hoodA && hoodB) {
+        // Only allow if hoodA and hoodB are direct neighbors in leaves
+        for (let i = 0; i < leaves.length - 1; ++i) {
+          if ((leaves[i] === hoodA && leaves[i + 1] === hoodB) || (leaves[i] === hoodB && leaves[i + 1] === hoodA)) {
+            // console.log(`  Link ${idx}: KEEPING - ${hoodA} and ${hoodB} are neighbors at positions ${i} and
+          }
+        }
+        // console.log(`  Link ${idx}: REMOVING - ${hoodA} and ${hoodB} are not neighbors`);
+        return false;
+      }
+      
+      // If no explicit hoodA/hoodB, infer from seqids
+      if (p.seqids && p.seqids.length === 2) {
+        const seqid1 = p.seqids[0];
+        const seqid2 = p.seqids[1];
+        const linkKey = `${seqid1}-${seqid2}`;
+        const linkKeyReverse = `${seqid2}-${seqid1}`;
+        
+        // console.log(`  seqids: ${seqid1}, ${seqid2}, linkKey: ${linkKey}`);
+        
+        // Check if this seqid pair corresponds to a valid consecutive pair
+        if (validConsecutivePairs.includes(linkKey) || validConsecutivePairs.includes(linkKeyReverse)) {
+          // Check if we've already assigned a link to this consecutive pair
+          if (assignedPairs.has(linkKey) || assignedPairs.has(linkKeyReverse)) {
+            // console.log(`  Link ${idx}: REMOVING - pair ${linkKey} already assigned`);
+            return false;
+          }
+          
+          // Assign this link to the consecutive pair
+          assignedPairs.add(linkKey);
+          assignedPairs.add(linkKeyReverse);
+          // console.log(`  Link ${idx}: KEEPING - first link for consecutive pair ${linkKey}`);
+          return true;
+        } else {
+          // console.log(`  Link ${idx}: REMOVING - ${linkKey} is not a valid consecutive pair`);
+          return false;
+        }
+      }
+      
+      return false;
+    });
     // --- GENE PALETTE LOGIC ---
-    if (genePalette && genePalette.enabled) {
+    if (!genePalette || !genePalette.enabled) {
+      genes = genes.map(g => {
+        return { ...g, fillColor: themeColors.geneFill };
+      });
+    } else {
       // Use cluster (or colorBy) as the key for coloring
       const geneKeyField = colorBy || 'cluster';
-      const geneKeys = Array.from(new Set(genes.map(g => g.metadata && g.metadata[geneKeyField] !== undefined ? g.metadata[geneKeyField] : g[geneKeyField] || g.hood_id || g.gene_id || g.id || g.name)));
+      // Only include genes that have valid (non-null/undefined/empty) values for the color field in metadata
+      const genesWithValidKeys = genes.filter(g => {
+        const key = g.metadata && g.metadata[geneKeyField];
+        return key !== null && key !== undefined && key !== '';
+      });
+      const geneKeys = Array.from(new Set(genesWithValidKeys.map(g => g.metadata[geneKeyField])));
       const geneColors = getPaletteColors(
         genePalette.name,
         Math.max(geneKeys.length, genePalette.numColors || geneKeys.length),
@@ -525,15 +659,38 @@ const PhyloTreeViewer = React.forwardRef(({
       const geneKeyToColor = {};
       geneKeys.forEach((key, i) => { geneKeyToColor[key] = geneColors[i % geneColors.length]; });
       genes = genes.map(g => {
-        const key = g.metadata && g.metadata[geneKeyField] !== undefined ? g.metadata[geneKeyField] : g[geneKeyField] || g.hood_id || g.gene_id || g.id || g.name;
-        return { ...g, fillColor: geneKeyToColor[key] };
+        // Only check metadata for the key - no fallback to gene properties
+        const key = g.metadata && g.metadata[geneKeyField];
+        // Only apply palette color if key is valid, otherwise use themeColors.geneFill
+        if (key !== null && key !== undefined && key !== '') {
+          return { ...g, fillColor: geneKeyToColor[key] };
+        } else {
+          return { ...g, fillColor: themeColors.geneFill }; // Use themeColors.geneFill for genes without a cluster
+        }
       });
     }
 
     // --- DOMAIN PALETTE LOGIC ---
-    if (domainPalette && domainPalette.enabled) {
+    if (!domainPalette || !domainPalette.enabled) {
+      domains = domains.map(d => {
+        return { ...d, fillColor: themeColors.domainFill };
+      });
+    } else {
       // Use the selected domain color field instead of hardcoded domainName
-      const domainKeys = Array.from(new Set(domains.map(d => {
+      // Only include domains that have valid (non-null/undefined/empty) values for the color field
+      const domainsWithValidKeys = domains.filter(d => {
+        const key = (() => {
+          switch(domainColorBy) {
+            case 'domainName': return d.domainName;
+            case 'start': return d.start;
+            case 'end': return d.end;
+            case 'evalue': return d.evalue;
+            default: return d.domainName;
+          }
+        })();
+        return key !== null && key !== undefined && key !== '';
+      });
+      const domainKeys = Array.from(new Set(domainsWithValidKeys.map(d => {
         switch(domainColorBy) {
           case 'domainName': return d.domainName;
           case 'start': return d.start;
@@ -564,7 +721,11 @@ const PhyloTreeViewer = React.forwardRef(({
             default: return d.domainName;
           }
         })();
-        return { ...d, fillColor: domainKeyToColor[key] };
+        // Apply palette color if key is valid, otherwise use themeColors.geneFill
+        return {
+          ...d,
+          fillColor: key !== null && key !== undefined && key !== '' ? domainKeyToColor[key] : themeColors.domainFill
+        };
       });
     }
     // Phylo tree paths (shifted)
@@ -627,9 +788,13 @@ const PhyloTreeViewer = React.forwardRef(({
       if (typeof label !== 'string') label = String(label);
       let color;
       if (phyloPalette && phyloPalette.enabled) {
-        // Use colorBy value for coloring if palette is enabled
-        const colorValue = meta[treeColorBy] || '';
-        color = colorValue ? hashToColor(colorValue) : [0,0,0,255];
+        // Use colorBy value for coloring if palette is enabled - only if value exists
+        const colorValue = meta[treeColorBy];
+        if (colorValue !== null && colorValue !== undefined) {
+          color = hashToColor(colorValue);
+        } else {
+          color = [0,0,0,255]; // Default black for null/undefined values
+        }
       } else {
         // Always use default color if no palette
         color = [0,0,0,255];
@@ -645,6 +810,13 @@ const PhyloTreeViewer = React.forwardRef(({
         Object.values(genomeView.genesById).forEach(gene => {
           if (gene.hood_id === l.name || genomeView.getHoodIdFromSeqid(gene.seqid) === l.name) {
             rightmostX = Math.max(rightmostX, Math.max(gene.start, gene.end));
+          }
+        });
+        
+        // Check all ncRNAs for this leaf to find the rightmost position
+        Object.values(genomeView.ncRNAsById).forEach(ncRNA => {
+          if (ncRNA.hood_id === l.name || genomeView.getHoodIdFromSeqid(ncRNA.seqid) === l.name) {
+            rightmostX = Math.max(rightmostX, Math.max(ncRNA.start, ncRNA.end));
           }
         });
         
@@ -674,6 +846,7 @@ const PhyloTreeViewer = React.forwardRef(({
         color,
         size: config.text.phyloLabelSize,
         textAnchor: 'start',
+        alignmentBaseline: 'center',
         leafNode: l
       };
     });
@@ -690,12 +863,19 @@ const PhyloTreeViewer = React.forwardRef(({
     }
 
     // Apply palette to phylo labels if enabled
-    let finalPhyloLabels = rawPhyloLabels;
+    let finalPhyloLabels;
     if (phyloPalette && phyloPalette.enabled && treeMetadata) {
-      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, phyloPalette);
+      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, phyloPalette).map(lbl => {
+        // Ensure fallback to themeColors.geneFill for labels without valid metadata
+        const colorValue = treeMetadata?.[lbl.leafNode.name]?.[treeColorBy];
+        return colorValue !== null && colorValue !== undefined && colorValue !== ''
+          ? lbl
+          : { ...lbl, color: themeColors.phyloLabelFill };
+      });
     } else {
-      // Remove leafNode property for DeckGL
-      finalPhyloLabels = rawPhyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
+      finalPhyloLabels = rawPhyloLabels.map(lbl => {
+        return { ...lbl, color: themeColors.phyloLabelFill };
+      });
     }
 
     // Only keep valid ones
@@ -720,11 +900,11 @@ const PhyloTreeViewer = React.forwardRef(({
     const getGeneEdgeColor = (gene) => {
       const fillColor = gene.fillColor || config.gene.fillColor;
       if (!Array.isArray(fillColor) || fillColor.length < 3) return fillColor;
-      
-      // For light theme: darken the color (multiply by factor < 1)
-      // For dark theme: lighten the color (multiply by factor > 1) 
-      const factor = themeColors.background === '#ffffff' ? 0.7 : 1.3; // light theme = darken, dark theme = lighten
-      
+
+      // Dynamically adjust color based on theme
+      const isLightTheme = themeColors.background === '#ffffff';
+      const factor = isLightTheme ? 0.7 : 1.3; // light theme = darken, dark theme = lighten
+
       return [
         Math.max(0, Math.min(255, Math.floor(fillColor[0] * factor))),
         Math.max(0, Math.min(255, Math.floor(fillColor[1] * factor))),
@@ -799,7 +979,7 @@ const PhyloTreeViewer = React.forwardRef(({
         id: 'genes',
         data: genes,
         getPolygon: d => d.polygon,
-        getFillColor: d => d.fillColor || config.gene.fillColor,
+        getFillColor: d => d.fillColor || themeColors.geneFill || config.gene.fillColor,
         stroked: config.gene.edgeWidth > 0,
         getLineColor: d => getGeneEdgeColor(d),
         getLineWidth: () => config.gene.edgeWidth,
@@ -821,7 +1001,7 @@ const PhyloTreeViewer = React.forwardRef(({
         id: 'domains',
         data: domains,
         getPolygon: d => d.polygon,
-        getFillColor: d => d.fillColor || config.colors.gray,
+        getFillColor: d => d.fillColor || themeColors.geneFill || config.colors.gray,
         stroked: true,
         getLineColor: () => config.colors.black,
         getLineWidth: () => config.domain.edgeWidth || 2,
@@ -868,7 +1048,12 @@ const PhyloTreeViewer = React.forwardRef(({
         getPixelOffset: d => [5, 0],
         // Add background when connecting lines are active
         background: showConnectingLines,
-        getBackgroundColor: showConnectingLines ? [themeColors.background === '#ffffff' ? 255 : 0, themeColors.background === '#ffffff' ? 255 : 0, themeColors.background === '#ffffff' ? 255 : 0, 255] : [0, 0, 0, 0],
+        getBackgroundColor: () => {
+          const isLightTheme = themeColors.background === '#ffffff';
+          return showConnectingLines
+            ? [isLightTheme ? 255 : 0, isLightTheme ? 255 : 0, isLightTheme ? 255 : 0, 255]
+            : [0, 0, 0, 0];
+        },
         backgroundPadding: showConnectingLines ? [2, 1, 2, 1] : [0, 0, 0, 0],
         pickable: false,
         updateTriggers: {
@@ -998,6 +1183,39 @@ const PhyloTreeViewer = React.forwardRef(({
         updateTriggers: {
           getSourcePosition: treeTicks.map(d => d.sourcePosition),
           getTargetPosition: treeTicks.map(d => d.targetPosition)
+        }
+      })
+    );
+
+    // --- NCRNA COLORING LOGIC ---
+    let ncRNAs = Object.values(genomeView.ncRNAsById);
+    ncRNAs = ncRNAs.map(nc => {
+      // Use fillColor from metadata if present, else fallback to theme color
+      return {
+        ...nc,
+        fillColor: nc.fillColor || (nc.metadata && nc.metadata.color) || themeColors.geneFill
+      };
+    });
+    layers.push(
+      new PolygonLayer({
+        id: 'ncrna-features',
+        data: ncRNAs,
+        getPolygon: d => d.polygon,
+        getFillColor: d => d.fillColor,
+        stroked: config.gene.edgeWidth > 0,
+        getLineColor: d => getGeneEdgeColor(d),
+        getLineWidth: () => config.gene.edgeWidth,
+        lineWidthUnits: 'pixels',
+        lineWidthMinPixels: 0,
+        filled: true,
+        pickable: true,
+        autoHighlight: true,
+        updateTriggers: {
+          getPolygon: ncRNAs.map(nc => nc.polygon),
+          getFillColor: ncRNAs.map(nc => nc.fillColor),
+          getLineColor: ncRNAs.map(nc => getGeneEdgeColor(nc)),
+          getLineWidth: config.gene.edgeWidth,
+          stroked: config.gene.edgeWidth
         }
       })
     );

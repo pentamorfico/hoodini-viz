@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 import PhyloTreeViewer from './components/PhyloTreeViewer';
 import ThemeToggle from './components/ThemeToggle';
+import ColorPaletteWidget from './widgets/ColorPaletteWidget';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
 import { parseGFF } from './utils/parseGFF';
 import { parseLinks } from './utils/parseLinks';
@@ -42,10 +43,28 @@ function App() {
   const [geneLabelBy, setGeneLabelBy] = useState('cluster'); // Gene labeling field selection
   const [domainColorBy, setDomainColorBy] = useState('domainName'); // Domain coloring field selection
   
-  // Color palette states
-  const [genePalette, setGenePalette] = useState("Set2");
-  const [domainPalette, setDomainPalette] = useState("Set2");
-  const [phyloPalette, setPhyloPalette] = useState("Set2");
+  // Color palette states - configured for Set2 palette
+  const [genePalette, setGenePalette] = useState({
+    type: 'qualitative',
+    name: 'Set2',
+    numColors: 8,
+    reverse: false,
+    enabled: true
+  });
+  const [domainPalette, setDomainPalette] = useState({
+    type: 'qualitative', 
+    name: 'Set2',
+    numColors: 8,
+    reverse: false,
+    enabled: true
+  });
+  const [phyloPalette, setPhyloPalette] = useState({
+    type: 'qualitative',
+    name: 'Set2', 
+    numColors: 8,
+    reverse: false,
+    enabled: true
+  });
   
   // Handler for domain palette changes that updates enabled state
   const handleDomainPaletteChange = (newPalette) => {
@@ -174,7 +193,81 @@ function App() {
           <span style={{ marginLeft: '5px' }}>{arrowheadHeight}</span>
         </label>
 
-        {/* Removed Color Palette Controls */}
+        {/* Field Selection Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Color/Label Fields:</div>
+          
+          {/* Gene Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Gene Colors:
+            <select 
+              value={geneColorBy} 
+              onChange={(e) => setGeneColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              {geneMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+
+          {/* Tree Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Tree Colors:
+            <select 
+              value={treeColorBy} 
+              onChange={(e) => setTreeColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              {treeMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+          
+          {/* Domain Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Domain Colors:
+            <select 
+              value={domainColorBy} 
+              onChange={(e) => setDomainColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              <option value="domainName">Domain Name</option>
+              <option value="evalue">E-value</option>
+              <option value="length">Length</option>
+            </select>
+          </label>
+        </div>
+
+        {/* Color Palette Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Color Palettes:</div>
+          
+          {/* Gene Palette */}
+          <ColorPaletteWidget 
+            paletteConfig={genePalette}
+            onPaletteChange={setGenePalette}
+            title="Gene Palette (by cluster)"
+            showPreview={true}
+          />
+
+          {/* Tree Palette */}
+          <ColorPaletteWidget 
+            paletteConfig={phyloPalette}
+            onPaletteChange={setPhyloPalette}
+            title="Tree Palette (by species)"
+            showPreview={true}
+          />
+
+          {/* Domain Palette */}
+          <ColorPaletteWidget 
+            paletteConfig={domainPalette}
+            onPaletteChange={setDomainPalette}
+            title="Domain Palette (by domain name)"
+            showPreview={true}
+          />
+        </div>
         
         {/* Alignment Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
@@ -283,9 +376,9 @@ function App() {
           ))}
         </div>
 
-        {/* Tree Metadata Controls */}
+        {/* Gene Label Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Tree Display:</div>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Label Controls:</div>
           
           {/* Tree Label By */}
           <label style={{ display: 'block', marginBottom: '5px' }}>
@@ -301,25 +394,6 @@ function App() {
             </select>
           </label>
 
-          {/* Tree Color By */}
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Tree Colors:
-            <select 
-              value={treeColorBy} 
-              onChange={(e) => setTreeColorBy(e.target.value)}
-              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
-            >
-              {treeMetadataColumns.map(col => (
-                <option key={col} value={col}>{col}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        {/* Gene Metadata Controls */}
-        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Gene Metadata Display:</div>
-          
           {/* Gene Label By */}
           <label style={{ display: 'block', marginBottom: '5px' }}>
             Gene Labels:
@@ -332,34 +406,6 @@ function App() {
               {geneMetadataColumns.map(col => (
                 <option key={col} value={col}>{col}</option>
               ))}
-            </select>
-          </label>
-
-          {/* Gene Color By */}
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Gene Colors:
-            <select 
-              value={geneColorBy} 
-              onChange={(e) => setGeneColorBy(e.target.value)}
-              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
-            >
-              {geneMetadataColumns.map(col => (
-                <option key={col} value={col}>{col}</option>
-              ))}
-            </select>
-          </label>
-          
-          {/* Domain Color By */}
-          <label style={{ display: 'block', marginBottom: '5px' }}>
-            Domain Colors:
-            <select 
-              value={domainColorBy} 
-              onChange={(e) => setDomainColorBy(e.target.value)}
-              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
-            >
-              <option value="domainName">Domain Name</option>
-              <option value="evalue">E-value</option>
-              <option value="length">Length</option>
             </select>
           </label>
         </div>

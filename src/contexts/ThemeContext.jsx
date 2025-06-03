@@ -19,7 +19,16 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const getThemeColors = () => {
-    return DEFAULT_CONFIG.theme[theme];
+    const colors = DEFAULT_CONFIG.theme[theme];
+    const geneFill = theme === 'light' ? [240, 240, 240, 255] : [30, 30, 30, 255];
+    const inverseColor = theme === 'light' ? [60, 60, 60, 255] : [240, 240, 240, 255];
+
+    return {
+      ...colors,
+      geneFill,
+      domainFill: inverseColor, // Inverse of geneFill
+      phyloLabelFill: inverseColor // Inverse of geneFill
+    };
   };
 
   // Apply theme to CSS variables

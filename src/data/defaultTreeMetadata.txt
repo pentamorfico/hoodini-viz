@@ -1,5 +1,5 @@
 leaf_id	species	ecosystem
-hood_A	Bacteria	Soil
+hood_A	Bacteria	
 hood_A2	Bacteria	Soil_variant
 hood_A3	Bacteria	Soil_subset
 hood_B	Bacteria	Water

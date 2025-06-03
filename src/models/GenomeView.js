@@ -4,6 +4,7 @@ import ProteinLink from './ProteinLink';
 import NucleotideLink from './NucleotideLink';
 import Nucleotide from './Nucleotide';
 import Baseline from './Baseline';
+import NonCodingFeature from './NonCodingFeature';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 class GenomeView {
@@ -13,6 +14,7 @@ class GenomeView {
     this.config = config || DEFAULT_CONFIG;
     this.featuresBySeqid = {};
     this.genesById = {};
+    this.ncRNAsById = {}; // Store ncRNA features by unique ID
     this.globalMin = Infinity;
     this.globalMax = -Infinity;
     this.proteinLinks = [];
@@ -94,6 +96,22 @@ class GenomeView {
           if (this.nucleotidesBySeqid[seqid]) {
             this.nucleotidesBySeqid[seqid].addGene(g);
           }
+        } else if (f.type === 'ncRNA') {
+          // Only include ncRNAs that are COMPLETELY within the hood's GFF range
+          const ncRNACompletelyWithinHood = (f.start >= hoodStart && f.end <= hoodEnd);
+          if (!ncRNACompletelyWithinHood) continue;
+          const adjustedStart = f.start - hoodStart;
+          const adjustedEnd = f.end - hoodStart;
+          const originalId = this.getGeneIdFromAttributes(f.attributes);
+          const uniqueId = `${hood_id}_${originalId}`;
+          let nc = new NonCodingFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
+          nc.hood_id = hood_id;
+          nc.originalId = originalId;
+          // Ensure origStart, origEnd, and origStrand are set for transformation
+          nc.origStart = adjustedStart;
+          nc.origEnd = adjustedEnd;
+          nc.origStrand = f.strand;
+          this.ncRNAsById[uniqueId] = nc;
         }
       }
     }
@@ -163,114 +181,234 @@ class GenomeView {
     for (let hood_id of this.leaves) {
       const leafNode = this.tree.leafNodes.find(d => d.name === hood_id);
       if (!leafNode) continue;
-      // Use config.layout.geneOffset for gene positioning if needed
       const trackY = leafNode.x + (this.config?.layout?.geneOffset || 0);
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
-      const feats = this.featuresBySeqid[seqid] || [];
-      if (!this.featuresBySeqid[seqid]) continue;
-      let anchor;
       const nuc = this.nucleotidesBySeqid[seqid];
       const offset = this.trackOffset[hood_id] || 0;
-      
-      // Use hood-relative coordinates for anchor to match alignment methods
+      let anchor;
       if (nuc && nuc.baseline) {
-        // In hood coordinates: baseline runs from 0 to hoodBaseline.length
         const hoodBaseline = this.hoodBaselines[hood_id];
-        if (hoodBaseline) {
-          anchor = hoodBaseline.length / 2; // Center of hood
-        } else {
-          anchor = (nuc.baseline.origEnd - nuc.baseline.origStart) / 2; // Fallback
-        }
+        anchor = hoodBaseline ? hoodBaseline.length / 2 : (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
       } else {
         anchor = (this.featuresBySeqid[seqid].origMaxEnd - this.featuresBySeqid[seqid].origMinStart) / 2;
       }
       const flipped = !!this.trackFlipped[hood_id];
-      // --- Apply genome.xScalePercent to the whole track ---
       const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
       const xScale = xScalePercent / 100;
       // ---
-      // Update genes for this specific hood
-      for (let uniqueGeneId in this.genesById) {
-        const g = this.genesById[uniqueGeneId];
-        if (g.hood_id === hood_id) {
-          g.trackY = trackY;
-          g.geneHeight = this.geneHeight;
-          // Convert gene coordinates to hood-relative coordinates
-          const hoodBaseline = this.hoodBaselines[hood_id];
-          let geneStartHood, geneEndHood;
-          
-          if (hoodBaseline) {
-            // Gene coordinates are already hood-relative (converted in initGenes)
-            geneStartHood = g.origStart;
-            geneEndHood = g.origEnd;
-          } else {
-            // Fallback: use genes as-is (should not happen in normal operation)
-            geneStartHood = g.origStart;
-            geneEndHood = g.origEnd;
-          }
-          
-          // Apply scaling to gene positions around anchor
-          let startX = GenomeView.getTransformedXUnified(geneStartHood, anchor, offset, flipped);
-          let endX = GenomeView.getTransformedXUnified(geneEndHood, anchor, offset, flipped);
-          startX = anchor + (startX - anchor) * xScale;
-          endX = anchor + (endX - anchor) * xScale;
-          g.start = startX;
-          g.end = endX;
-          g.strand = flipped ? (g.origStrand === '+' ? '-' : '+') : g.origStrand;
-          for (let d of g.domains) {
-            // Apply the same scaling transformations to domains
-            // Domains are already stored in hood-relative coordinates relative to gene start
-            let domainStartHood = geneStartHood + d.origStart;
-            let domainEndHood = geneStartHood + d.origEnd;
-            
-            let domainStartX = GenomeView.getTransformedXUnified(domainStartHood, anchor, offset, flipped);
-            let domainEndX = GenomeView.getTransformedXUnified(domainEndHood, anchor, offset, flipped);
-            domainStartX = anchor + (domainStartX - anchor) * xScale;
-            domainEndX = anchor + (domainEndX - anchor) * xScale;
-            
-            // Convert back to relative coordinates within the scaled gene
-            d.start = domainStartX - g.start;
-            d.end = domainEndX - g.start;
-          }
-          g.updatePolygon();
+      // Transform genes for this hood
+      for (const gene of Object.values(this.genesById)) {
+        if (gene.hood_id !== hood_id) continue;
+        gene.trackY = trackY;
+        gene.geneHeight = this.geneHeight;
+        const hoodBaseline = this.hoodBaselines[hood_id];
+        let geneStartHood = gene.origStart;
+        let geneEndHood = gene.origEnd;
+        let startX = GenomeView.getTransformedXUnified(geneStartHood, anchor, offset, flipped);
+        let endX = GenomeView.getTransformedXUnified(geneEndHood, anchor, offset, flipped);
+        startX = anchor + (startX - anchor) * xScale;
+        endX = anchor + (endX - anchor) * xScale;
+        gene.start = startX;
+        gene.end = endX;
+        gene.strand = flipped ? (gene.origStrand === '+' ? '-' : '+') : gene.origStrand;
+        for (let d of gene.domains) {
+          let domainStartHood = geneStartHood + d.origStart;
+          let domainEndHood = geneStartHood + d.origEnd;
+          let domainStartX = GenomeView.getTransformedXUnified(domainStartHood, anchor, offset, flipped);
+          let domainEndX = GenomeView.getTransformedXUnified(domainEndHood, anchor, offset, flipped);
+          domainStartX = anchor + (domainStartX - anchor) * xScale;
+          domainEndX = anchor + (domainEndX - anchor) * xScale;
+          d.start = domainStartX - gene.start;
+          d.end = domainEndX - gene.start;
         }
+        gene.updatePolygon();
       }
-      // Baseline - convert from GFF to hood coordinates, then transform
+      // Transform ncRNAs for this hood (no domains)
+      for (const nc of Object.values(this.ncRNAsById)) {
+        if (nc.hood_id !== hood_id) continue;
+        nc.trackY = trackY;
+        nc.featureHeight = this.geneHeight;
+        // Always use origStart/origEnd as the source for transformation
+        const ncStartHood = nc.origStart;
+        const ncEndHood = nc.origEnd;
+        let startX = GenomeView.getTransformedXUnified(ncStartHood, anchor, offset, flipped);
+        let endX = GenomeView.getTransformedXUnified(ncEndHood, anchor, offset, flipped);
+        startX = anchor + (startX - anchor) * xScale;
+        endX = anchor + (endX - anchor) * xScale;
+        nc.start = startX;
+        nc.end = endX;
+        nc.strand = flipped ? (nc.origStrand === '+' ? '-' : '+') : nc.origStrand;
+        nc.updatePolygon();
+      }
+      // Baseline and nucleotide region
       if (nuc && nuc.baseline) {
         const hoodBaseline = this.hoodBaselines[hood_id];
-        if (hoodBaseline) {
-          // Convert GFF baseline coordinates to hood coordinates
-          const baseStartHood = hoodBaseline.origStart - hoodBaseline.origStart; // = 0
-          const baseEndHood = hoodBaseline.origEnd - hoodBaseline.origStart;     // = hood length
-          
-          // Apply transformations using hood coordinates
-          let baseStart = GenomeView.getTransformedXUnified(baseStartHood, anchor, offset, flipped);
-          let baseEnd = GenomeView.getTransformedXUnified(baseEndHood, anchor, offset, flipped);
-          baseStart = anchor + (baseStart - anchor) * xScale;
-          baseEnd = anchor + (baseEnd - anchor) * xScale;
-          nuc.baseline.start = baseStart;
-          nuc.baseline.end = baseEnd;
-          // Keep origStart/origEnd as the original GFF values
-        }
+        const baseStartHood = 0;
+        const baseEndHood = hoodBaseline ? hoodBaseline.length : (nuc.baseline.origEnd - nuc.baseline.origStart);
+        let baseStart = GenomeView.getTransformedXUnified(baseStartHood, anchor, offset, flipped);
+        let baseEnd = GenomeView.getTransformedXUnified(baseEndHood, anchor, offset, flipped);
+        baseStart = anchor + (baseStart - anchor) * xScale;
+        baseEnd = anchor + (baseEnd - anchor) * xScale;
+        nuc.baseline.start = baseStart;
+        nuc.baseline.end = baseEnd;
       }
-      // Nucleotide region (track) start/end - use hood coordinates
       if (nuc) {
         const hoodBaseline = this.hoodBaselines[hood_id];
-        if (hoodBaseline) {
-          // Use hood coordinates: 0 to hood length  
-          let regionStart = GenomeView.getTransformedXUnified(0, anchor, offset, flipped);
-          let regionEnd = GenomeView.getTransformedXUnified(hoodBaseline.origEnd - hoodBaseline.origStart, anchor, offset, flipped);
-          regionStart = anchor + (regionStart - anchor) * xScale;
-          regionEnd = anchor + (regionEnd - anchor) * xScale;
-          nuc.start = regionStart;
-          nuc.end = regionEnd;
-        }
+        let regionStart = GenomeView.getTransformedXUnified(0, anchor, offset, flipped);
+        let regionEnd = GenomeView.getTransformedXUnified(hoodBaseline ? hoodBaseline.length : 0, anchor, offset, flipped);
+        regionStart = anchor + (regionStart - anchor) * xScale;
+        regionEnd = anchor + (regionEnd - anchor) * xScale;
+        nuc.start = regionStart;
+        nuc.end = regionEnd;
       }
     }
     this.updateLinkPositions();
+    this.updateGlobalBounds();
+  }
+
+  // Static method to calculate the visual X coordinate of a gene's starting edge
+  // Takes into account hood-relative position, track offset, flip state, hood anchor, and global X-axis scaling
+  static getGeneVisualX(gene, genomeView) {
+    const hood_id = gene.hood_id;
+    const hoodBaseline = genomeView.hoodBaselines[hood_id];
+    if (!hoodBaseline) return null;
     
-    // Update global bounds after all positions are computed
+    // Get transformation parameters
+    const offset = genomeView.trackOffset[hood_id] || 0;
+    const flipped = !!genomeView.trackFlipped[hood_id];
+    const anchor = hoodBaseline.length / 2; // Center of hood
+    
+    // Get scale factor
+    const xScalePercent = (genomeView.config.genome && typeof genomeView.config.genome.xScalePercent === 'number') ? genomeView.config.genome.xScalePercent : 100;
+    const xScale = xScalePercent / 100;
+    
+    // Gene coordinates are already hood-relative (converted in initGenes)
+    const geneStartHood = gene.origStart;
+    const geneEndHood = gene.origEnd;
+    
+    // For alignment purposes, we want the gene's "functional start" position
+    // For plus strand genes: functional start = leftmost edge
+    // For minus strand genes: functional start = rightmost edge
+    // But when tracks are flipped, the coordinate system changes
+    let alignmentPoint;
+    
+    if (gene.origStrand === '+') {
+      // Plus strand gene: functional start is at the leftmost position
+      alignmentPoint = Math.min(geneStartHood, geneEndHood);
+    } else {
+      // Minus strand gene: functional start is at the rightmost position
+      alignmentPoint = Math.max(geneStartHood, geneEndHood);
+    }
+    
+    // Apply transformation: offset first, then flip, then scale
+    const transformedX = GenomeView.getTransformedXUnified(alignmentPoint, anchor, offset, flipped);
+    const scaledX = anchor + (transformedX - anchor) * xScale;
+    
+    return scaledX;
+  }
+
+  // General flip function: flip x around anchor
+  static flipCoordinate(x, anchor) {
+    return 2 * anchor - x;
+  }
+
+  // Unified transformation: always apply offset first, then flip if needed, using anchor
+  static getTransformedXUnified(x, anchor, offset, flipped) {
+    let shifted = x + offset;
+    if (flipped) {
+      return GenomeView.flipCoordinate(shifted, anchor);
+    }
+    return shifted;
+  }
+
+  computeTrackPositions() {
+    for (let hood_id of this.leaves) {
+      const leafNode = this.tree.leafNodes.find(d => d.name === hood_id);
+      if (!leafNode) continue;
+      const trackY = leafNode.x + (this.config?.layout?.geneOffset || 0);
+      const seqid = this.hoodToSeqidMap[hood_id];
+      if (!seqid) continue;
+      const nuc = this.nucleotidesBySeqid[seqid];
+      const offset = this.trackOffset[hood_id] || 0;
+      let anchor;
+      if (nuc && nuc.baseline) {
+        const hoodBaseline = this.hoodBaselines[hood_id];
+        anchor = hoodBaseline ? hoodBaseline.length / 2 : (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
+      } else {
+        anchor = (this.featuresBySeqid[seqid].origMaxEnd - this.featuresBySeqid[seqid].origMinStart) / 2;
+      }
+      const flipped = !!this.trackFlipped[hood_id];
+      const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
+      const xScale = xScalePercent / 100;
+      // ---
+      // Transform genes for this hood
+      for (const gene of Object.values(this.genesById)) {
+        if (gene.hood_id !== hood_id) continue;
+        gene.trackY = trackY;
+        gene.geneHeight = this.geneHeight;
+        const hoodBaseline = this.hoodBaselines[hood_id];
+        let geneStartHood = gene.origStart;
+        let geneEndHood = gene.origEnd;
+        let startX = GenomeView.getTransformedXUnified(geneStartHood, anchor, offset, flipped);
+        let endX = GenomeView.getTransformedXUnified(geneEndHood, anchor, offset, flipped);
+        startX = anchor + (startX - anchor) * xScale;
+        endX = anchor + (endX - anchor) * xScale;
+        gene.start = startX;
+        gene.end = endX;
+        gene.strand = flipped ? (gene.origStrand === '+' ? '-' : '+') : gene.origStrand;
+        for (let d of gene.domains) {
+          let domainStartHood = geneStartHood + d.origStart;
+          let domainEndHood = geneStartHood + d.origEnd;
+          let domainStartX = GenomeView.getTransformedXUnified(domainStartHood, anchor, offset, flipped);
+          let domainEndX = GenomeView.getTransformedXUnified(domainEndHood, anchor, offset, flipped);
+          domainStartX = anchor + (domainStartX - anchor) * xScale;
+          domainEndX = anchor + (domainEndX - anchor) * xScale;
+          d.start = domainStartX - gene.start;
+          d.end = domainEndX - gene.start;
+        }
+        gene.updatePolygon();
+      }
+      // Transform ncRNAs for this hood (no domains)
+      for (const nc of Object.values(this.ncRNAsById)) {
+        if (nc.hood_id !== hood_id) continue;
+        nc.trackY = trackY;
+        nc.featureHeight = this.geneHeight;
+        // Always use origStart/origEnd as the source for transformation
+        const ncStartHood = nc.origStart;
+        const ncEndHood = nc.origEnd;
+        let startX = GenomeView.getTransformedXUnified(ncStartHood, anchor, offset, flipped);
+        let endX = GenomeView.getTransformedXUnified(ncEndHood, anchor, offset, flipped);
+        startX = anchor + (startX - anchor) * xScale;
+        endX = anchor + (endX - anchor) * xScale;
+        nc.start = startX;
+        nc.end = endX;
+        nc.strand = flipped ? (nc.origStrand === '+' ? '-' : '+') : nc.origStrand;
+        nc.updatePolygon();
+      }
+      // Baseline and nucleotide region
+      if (nuc && nuc.baseline) {
+        const hoodBaseline = this.hoodBaselines[hood_id];
+        const baseStartHood = 0;
+        const baseEndHood = hoodBaseline ? hoodBaseline.length : (nuc.baseline.origEnd - nuc.baseline.origStart);
+        let baseStart = GenomeView.getTransformedXUnified(baseStartHood, anchor, offset, flipped);
+        let baseEnd = GenomeView.getTransformedXUnified(baseEndHood, anchor, offset, flipped);
+        baseStart = anchor + (baseStart - anchor) * xScale;
+        baseEnd = anchor + (baseEnd - anchor) * xScale;
+        nuc.baseline.start = baseStart;
+        nuc.baseline.end = baseEnd;
+      }
+      if (nuc) {
+        const hoodBaseline = this.hoodBaselines[hood_id];
+        let regionStart = GenomeView.getTransformedXUnified(0, anchor, offset, flipped);
+        let regionEnd = GenomeView.getTransformedXUnified(hoodBaseline ? hoodBaseline.length : 0, anchor, offset, flipped);
+        regionStart = anchor + (regionStart - anchor) * xScale;
+        regionEnd = anchor + (regionEnd - anchor) * xScale;
+        nuc.start = regionStart;
+        nuc.end = regionEnd;
+      }
+    }
+    this.updateLinkPositions();
     this.updateGlobalBounds();
   }
 
@@ -290,6 +428,20 @@ class GenomeView {
         // Fallback to start/end coordinates if polygon not available
         minX = Math.min(minX, gene.start, gene.end);
         maxX = Math.max(maxX, gene.start, gene.end);
+      }
+    });
+    
+    // Check all ncRNA positions
+    Object.values(this.ncRNAsById).forEach(ncRNA => {
+      if (ncRNA.polygon) {
+        ncRNA.polygon.forEach(([x, y]) => {
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+        });
+      } else if (ncRNA.start !== undefined && ncRNA.end !== undefined) {
+        // Fallback to start/end coordinates if polygon not available
+        minX = Math.min(minX, ncRNA.start, ncRNA.end);
+        maxX = Math.max(maxX, ncRNA.start, ncRNA.end);
       }
     });
     
@@ -451,7 +603,8 @@ class GenomeView {
       genes: Object.values(this.genesById),
       proteinPolygons: this.getProteinPolygons(),
       nucleotidePolygons: this.getNucleotidePolygons(),
-      domains: this.getAllDomains()
+      domains: this.getAllDomains(),
+      ncRNAs: Object.values(this.ncRNAsById)
     };
     const leavesSet = new Set(this.getNodeDescendantLeaves(selectedNode));
     // Filter by hood_id instead of seqid
@@ -459,7 +612,8 @@ class GenomeView {
     const filteredProtein = this.getProteinPolygons().filter(p => p.seqids.every(s => leavesSet.has(this.getHoodIdFromSeqid(s))));
     const filteredNucleotide = this.getNucleotidePolygons().filter(p => p.seqids.every(s => leavesSet.has(this.getHoodIdFromSeqid(s))));
     const filteredDomains = this.getAllDomains().filter(d => leavesSet.has(this.genesById[d.geneId]?.hood_id || this.getHoodIdFromSeqid(this.genesById[d.geneId]?.seqid)));
-    return { genes: filteredGenes, proteinPolygons: filteredProtein, nucleotidePolygons: filteredNucleotide, domains: filteredDomains };
+    const filteredNcRNAs = Object.values(this.ncRNAsById).filter(nc => leavesSet.has(nc.hood_id || this.getHoodIdFromSeqid(nc.seqid)));
+    return { genes: filteredGenes, proteinPolygons: filteredProtein, nucleotidePolygons: filteredNucleotide, domains: filteredDomains, ncRNAs: filteredNcRNAs };
   }
 
   getProteinPolygons() {
@@ -565,6 +719,10 @@ class GenomeView {
     return alld;
   }
 
+  getAllNcRNAs() {
+    return Object.values(this.ncRNAsById);
+  }
+
   getNodeDescendantLeaves(node) {
     if (!node) return [];
     function getLeafNames(n) {
@@ -583,7 +741,7 @@ class GenomeView {
 
   buildPhyloLabels(phyloLabelPosition = 'after-tree') {
     const labelOffset = this.config?.tree?.labelOffset || 10;
-    const labelColor = this.config?.colors?.black || [0, 0, 0, 255];
+    const labelColor = this.config?.colors?.black || [10, 10, 10, 255];
     const labelSize = this.config?.text?.phyloLabelSize || 14;
     
     return this.tree.leafNodes.map(l => {
@@ -598,6 +756,13 @@ class GenomeView {
         Object.values(this.genesById).forEach(gene => {
           if (gene.hood_id === hood_id) {
             rightmostX = Math.max(rightmostX, Math.max(gene.start, gene.end));
+          }
+        });
+        
+        // Check all ncRNAs for this leaf to find the rightmost position
+        Object.values(this.ncRNAsById).forEach(ncRNA => {
+          if (ncRNA.hood_id === hood_id) {
+            rightmostX = Math.max(rightmostX, Math.max(ncRNA.start, ncRNA.end));
           }
         });
         
@@ -854,7 +1019,7 @@ class GenomeView {
     const selectedGenes = [];
     for (const hood_id in genesByTrack) {
       const trackGenes = genesByTrack[hood_id];
-      // Sort genes by originalGeneId for deterministic selection
+      // Sort genes by originalGeneId for deterministically selection
       trackGenes.sort((a, b) => a.originalGeneId.localeCompare(b.originalGeneId));
       const firstGene = trackGenes[0]; // Take the first gene after sorting
       selectedGenes.push(firstGene);
@@ -911,12 +1076,10 @@ class GenomeView {
       // For flipped tracks: finalX = anchor + (2*anchor - (dataX + offset) - anchor) * scale
       //                           = anchor + (anchor - dataX - offset) * scale
       // So for flipped tracks, increasing offset decreases finalX
-      const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
-      const xScale = xScalePercent / 100;
+      let offsetAdjustment = requiredVisualShift / xScale;
       const isFlipped = !!this.trackFlipped[hood_id];
       
       // For flipped tracks, we need to reverse the direction of the offset adjustment
-      let offsetAdjustment = requiredVisualShift / xScale;
       if (isFlipped) {
         offsetAdjustment = -offsetAdjustment;
       }
@@ -1275,6 +1438,20 @@ class GenomeView {
         // Fallback to start/end coordinates if polygon not available
         minX = Math.min(minX, gene.start, gene.end);
         maxX = Math.max(maxX, gene.start, gene.end);
+      }
+    });
+    
+    // Check all ncRNA positions
+    Object.values(this.ncRNAsById).forEach(ncRNA => {
+      if (ncRNA.polygon) {
+        ncRNA.polygon.forEach(([x, y]) => {
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+        });
+      } else if (ncRNA.start !== undefined && ncRNA.end !== undefined) {
+        // Fallback to start/end coordinates if polygon not available
+        minX = Math.min(minX, ncRNA.start, ncRNA.end);
+        maxX = Math.max(maxX, ncRNA.start, ncRNA.end);
       }
     });
     

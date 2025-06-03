@@ -1,4 +1,4 @@
-gene_A_10 gene_B_1 20
+gene_A_8 gene_B_2 20
 gene_C_2 gene_D_2 30
 gene_B_2 gene_C_3 50
 gene_D_1 gene_E_1 10

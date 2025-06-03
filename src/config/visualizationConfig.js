@@ -26,7 +26,7 @@ export const DEFAULT_CONFIG = {
     height: 60,             // Height of gene features on tracks (used in GenomeView)
     defaultHeight: 550,     // Default gene height (used in Gene constructor)
     fillColor: [230, 230, 230, 255],  // Default gray color for genes
-    tipWidthFactor: 0.2,   // Factor for gene arrow tip width (3% of gene length)
+    tipWidthFactor: 0.1,   // Factor for gene arrow tip width (3% of gene length)
     strokeWidthFactor: 0.9, // Factor for darkening stroke color
     edgeWidth: 1,           // Edge width for gene polygons
     arrowheadHeight: 0      // Height of the arrowhead (0 = no arrowhead, > 0 = true arrow)
@@ -34,7 +34,7 @@ export const DEFAULT_CONFIG = {
 
   // Genome-wide (non-tree) X scaling
   genome: {
-    xScalePercent: 20 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
+    xScalePercent: 10 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
   },
 
   // Theme Configuration

@@ -1,7 +1,7 @@
 hood_id	seqid	start	end	align_gene
-hood_A	A	0	10760	gene_A_1
-hood_A2	A	2771	8083	gene_A_3
-hood_A3	A	5234	10760	gene_A_5
+hood_A	A	0	13760	gene_A_1
+hood_A2	A	0	12760	gene_A_3
+hood_A3	A	0	10760	gene_A_5
 hood_B	B	0	7900	gene_B_3
 hood_C	C	0	11387	gene_C_4
 hood_D	D	0	9056	gene_D_3
