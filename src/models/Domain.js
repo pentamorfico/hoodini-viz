@@ -11,7 +11,6 @@ class Domain {
     this.start = start;
     this.end = end;
     this.evalue = evalue;
-    this.fillColor = [50 + Math.random() * 205, 50 + Math.random() * 205, 50 + Math.random() * 205, 255];
     this.parentGene = null;
     this.polygon = null;
     this.metadata = { geneId, domainName, start, end, evalue };
