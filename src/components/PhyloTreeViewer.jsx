@@ -44,6 +44,7 @@ const PhyloTreeViewer = React.forwardRef(({
   genePalette,
   domainPalette,
   phyloPalette,
+  ncRNAPalette,
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
@@ -1189,13 +1190,37 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // --- NCRNA COLORING LOGIC ---
     let ncRNAs = Object.values(genomeView.ncRNAsById);
-    ncRNAs = ncRNAs.map(nc => {
-      // Use fillColor from metadata if present, else fallback to theme color
-      return {
-        ...nc,
-        fillColor: nc.fillColor || (nc.metadata && nc.metadata.color) || themeColors.geneFill
-      };
-    });
+    if (ncRNAPalette && ncRNAPalette.enabled) {
+      // Use 'type' field from metadata for palette coloring
+      const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
+        const key = nc.metadata && nc.metadata.type;
+        return key !== null && key !== undefined && key !== '';
+      });
+      const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => nc.metadata.type)));
+      const ncRNAColors = getPaletteColors(
+        ncRNAPalette.name,
+        Math.max(ncRNATypeKeys.length, ncRNAPalette.numColors || ncRNATypeKeys.length),
+        ncRNAPalette.reverse || false
+      );
+      const ncRNATypeToColor = {};
+      ncRNATypeKeys.forEach((key, i) => { ncRNATypeToColor[key] = ncRNAColors[i % ncRNAColors.length]; });
+      ncRNAs = ncRNAs.map(nc => {
+        const key = nc.metadata && nc.metadata.type;
+        if (key !== null && key !== undefined && key !== '') {
+          return { ...nc, fillColor: ncRNATypeToColor[key] };
+        } else {
+          return { ...nc, fillColor: themeColors.geneFill };
+        }
+      });
+    } else {
+      // Fallback: use fillColor from metadata or theme color
+      ncRNAs = ncRNAs.map(nc => {
+        return {
+          ...nc,
+          fillColor: nc.fillColor || (nc.metadata && nc.metadata.color) || themeColors.geneFill
+        };
+      });
+    }
     layers.push(
       new PolygonLayer({
         id: 'ncrna-features',
@@ -1221,7 +1246,7 @@ const PhyloTreeViewer = React.forwardRef(({
     );
 
     return layers;
-  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette, geneColorBy, geneLabelBy, domainColorBy]);
+  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette, ncRNAPalette, geneColorBy, geneLabelBy, domainColorBy]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);

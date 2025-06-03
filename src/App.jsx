@@ -66,6 +66,15 @@ function App() {
     enabled: true
   });
   
+  // ncRNA Palette state  
+  const [ncRNAPalette, setNcRNAPalette] = useState({
+    type: 'qualitative',
+    name: 'Set3',
+    numColors: 8,
+    reverse: false,
+    enabled: true
+  });
+  
   // Handler for domain palette changes that updates enabled state
   const handleDomainPaletteChange = (newPalette) => {
     setDomainPalette(newPalette);
@@ -84,9 +93,10 @@ function App() {
     colorPalettes: {
       genePalette,
       domainPalette,
-      phyloPalette
+      phyloPalette,
+      ncRNAPalette
     }
-  }), [arrowheadHeight, genePalette, domainPalette, phyloPalette]);
+  }), [arrowheadHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette]);
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
@@ -267,6 +277,14 @@ function App() {
             title="Domain Palette (by domain name)"
             showPreview={true}
           />
+
+          {/* ncRNA Palette - New addition */}
+          <ColorPaletteWidget 
+            paletteConfig={ncRNAPalette}
+            onPaletteChange={setNcRNAPalette}
+            title="ncRNA Palette (by type)"
+            showPreview={true}
+          />
         </div>
         
         {/* Alignment Controls */}
@@ -441,6 +459,7 @@ function App() {
         genePalette={genePalette}
         domainPalette={domainPalette}
         phyloPalette={phyloPalette}
+        ncRNAPalette={ncRNAPalette}
       />
       <ThemeToggle />
     </div>

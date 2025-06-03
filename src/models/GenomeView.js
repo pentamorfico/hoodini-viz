@@ -5,6 +5,7 @@ import NucleotideLink from './NucleotideLink';
 import Nucleotide from './Nucleotide';
 import Baseline from './Baseline';
 import NonCodingFeature from './NonCodingFeature';
+import RegionFeature from './RegionFeature';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 class GenomeView {
@@ -15,6 +16,7 @@ class GenomeView {
     this.featuresBySeqid = {};
     this.genesById = {};
     this.ncRNAsById = {}; // Store ncRNA features by unique ID
+    this.regionsById = {}; // Store region features by unique ID
     this.globalMin = Infinity;
     this.globalMax = -Infinity;
     this.proteinLinks = [];
@@ -112,6 +114,22 @@ class GenomeView {
           nc.origEnd = adjustedEnd;
           nc.origStrand = f.strand;
           this.ncRNAsById[uniqueId] = nc;
+        } else if (f.type === 'region') {
+          // Only include regions that are COMPLETELY within the hood's GFF range
+          const regionCompletelyWithinHood = (f.start >= hoodStart && f.end <= hoodEnd);
+          if (!regionCompletelyWithinHood) continue;
+          const adjustedStart = f.start - hoodStart;
+          const adjustedEnd = f.end - hoodStart;
+          const originalId = this.getGeneIdFromAttributes(f.attributes);
+          const uniqueId = `${hood_id}_${originalId}`;
+          let region = new RegionFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
+          region.hood_id = hood_id;
+          region.originalId = originalId;
+          // Ensure origStart, origEnd, and origStrand are set for transformation
+          region.origStart = adjustedStart;
+          region.origEnd = adjustedEnd;
+          region.origStrand = f.strand;
+          this.regionsById[uniqueId] = region;
         }
       }
     }
