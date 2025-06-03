@@ -21,10 +21,13 @@ const ColorPaletteWidget = ({
   const [colorCounts, setColorCounts] = useState([]);
   const [previewColors, setPreviewColors] = useState([]);
 
+  // Ensure paletteConfig is not null to avoid errors
+  const safePaletteConfig = paletteConfig || { enabled: false };
+
   // Load available palettes when type changes
   useEffect(() => {
     let palettes = [];
-    switch (paletteConfig.type) {
+    switch (safePaletteConfig.type) {
       case 'qualitative':
         palettes = getQualitativePalettes();
         break;
@@ -38,29 +41,31 @@ const ColorPaletteWidget = ({
         palettes = getQualitativePalettes();
     }
     setAvailablePalettes(palettes);
-  }, [paletteConfig.type]);
+  }, [safePaletteConfig.type]);
 
   // Update available color counts when palette name changes
   useEffect(() => {
-    if (paletteConfig.name) {
-      const counts = getPaletteColorCounts(paletteConfig.name);
+    if (safePaletteConfig.name) {
+      const counts = getPaletteColorCounts(safePaletteConfig.name);
       setColorCounts(counts);
-      
+
       // If current numColors is not available, use the first available count
-      if (counts.length > 0 && !counts.includes(paletteConfig.numColors)) {
+      if (counts.length > 0 && !counts.includes(safePaletteConfig.numColors)) {
         onPaletteChange({
-          ...paletteConfig,
+          ...safePaletteConfig,
           numColors: counts[0]
         });
       }
+    } else {
+      setColorCounts([]);
     }
-  }, [paletteConfig.name]);
+  }, [safePaletteConfig.name]);
 
   // Update preview colors when palette config changes
   useEffect(() => {
-    if (paletteConfig.enabled && paletteConfig.name && paletteConfig.numColors) {
+    if (safePaletteConfig.enabled && safePaletteConfig.name && safePaletteConfig.numColors) {
       try {
-        const colors = getPaletteColors(paletteConfig.name, paletteConfig.numColors, paletteConfig.reverse);
+        const colors = getPaletteColors(safePaletteConfig.name, safePaletteConfig.numColors, safePaletteConfig.reverse);
         setPreviewColors(colors);
       } catch (error) {
         console.warn('Failed to load palette preview:', error);
@@ -69,16 +74,20 @@ const ColorPaletteWidget = ({
     } else {
       setPreviewColors([]);
     }
-  }, [paletteConfig]);
+  }, [safePaletteConfig]);
 
   // Get unique palette names from available palettes
-  const uniquePaletteNames = [...new Set(availablePalettes.map(p => p.name))].sort();
+  const uniquePaletteNames = paletteConfig ? [...new Set(availablePalettes.map(p => p.name))].sort() : [];
 
   const handleConfigChange = (updates) => {
-    onPaletteChange({
-      ...paletteConfig,
-      ...updates
-    });
+    if (updates === null) {
+      onPaletteChange(null); // Pass null to apply default theme coloring
+    } else {
+      onPaletteChange({
+        ...paletteConfig,
+        ...updates
+      });
+    }
   };
 
   const handleRecommendedPalette = (recommended) => {
@@ -87,7 +96,7 @@ const ColorPaletteWidget = ({
       const bestMatch = matchingPalettes.reduce((best, current) => 
         current.number > best.number ? current : best
       );
-      
+
       handleConfigChange({
         name: recommended.name,
         numColors: bestMatch.number,
@@ -127,10 +136,12 @@ const ColorPaletteWidget = ({
               Palette Type:
             </label>
             <select
-              value={paletteConfig.type}
+              value={paletteConfig?.type || ''}
               onChange={(e) => handleConfigChange({ type: e.target.value })}
               style={{ width: '100%', padding: '3px', fontSize: '12px' }}
+              disabled={!paletteConfig}
             >
+              <option value="" disabled>Select a type...</option>
               <option value="qualitative">Qualitative (Categorical)</option>
               <option value="sequential">Sequential (Continuous)</option>
               <option value="diverging">Diverging (Comparative)</option>
@@ -172,11 +183,12 @@ const ColorPaletteWidget = ({
               Palette Name:
             </label>
             <select
-              value={paletteConfig.name}
+              value={paletteConfig?.name || ''}
               onChange={(e) => handleConfigChange({ name: e.target.value })}
               style={{ width: '100%', padding: '3px', fontSize: '12px' }}
+              disabled={!paletteConfig}
             >
-              <option value="">Select a palette...</option>
+              <option value="" disabled>Select a palette...</option>
               {uniquePaletteNames.map(name => (
                 <option key={name} value={name}>{name}</option>
               ))}
@@ -190,10 +202,12 @@ const ColorPaletteWidget = ({
                 Number of Colors:
               </label>
               <select
-                value={paletteConfig.numColors}
+                value={paletteConfig?.numColors || ''}
                 onChange={(e) => handleConfigChange({ numColors: parseInt(e.target.value) })}
                 style={{ width: '100%', padding: '3px', fontSize: '12px' }}
+                disabled={!paletteConfig}
               >
+                <option value="" disabled>Select a number...</option>
                 {colorCounts.map(count => (
                   <option key={count} value={count}>{count}</option>
                 ))}

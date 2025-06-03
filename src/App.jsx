@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 import PhyloTreeViewer from './components/PhyloTreeViewer';
 import ThemeToggle from './components/ThemeToggle';
-import ColorPaletteWidget from './widgets/ColorPaletteWidget';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
 import { parseGFF } from './utils/parseGFF';
 import { parseLinks } from './utils/parseLinks';
@@ -44,9 +43,9 @@ function App() {
   const [domainColorBy, setDomainColorBy] = useState('domainName'); // Domain coloring field selection
   
   // Color palette states
-  const [genePalette, setGenePalette] = useState(DEFAULT_CONFIG.colorPalettes.genePalette);
-  const [domainPalette, setDomainPalette] = useState(DEFAULT_CONFIG.colorPalettes.domainPalette);
-  const [phyloPalette, setPhyloPalette] = useState(DEFAULT_CONFIG.colorPalettes.phyloPalette);
+  const [genePalette, setGenePalette] = useState("Set2");
+  const [domainPalette, setDomainPalette] = useState("Set2");
+  const [phyloPalette, setPhyloPalette] = useState("Set2");
   
   // Handler for domain palette changes that updates enabled state
   const handleDomainPaletteChange = (newPalette) => {
@@ -175,31 +174,7 @@ function App() {
           <span style={{ marginLeft: '5px' }}>{arrowheadHeight}</span>
         </label>
 
-        {/* Color Palette Controls */}
-        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Color Palettes:</div>
-          
-          <ColorPaletteWidget
-            title="Gene Colors"
-            paletteConfig={genePalette}
-            onPaletteChange={setGenePalette}
-            showPreview={true}
-          />
-          
-          <ColorPaletteWidget
-            title="Domain Colors"
-            paletteConfig={domainPalette}
-            onPaletteChange={handleDomainPaletteChange}
-            showPreview={true}
-          />
-          
-          <ColorPaletteWidget
-            title="Phylo Label Colors"
-            paletteConfig={phyloPalette}
-            onPaletteChange={setPhyloPalette}
-            showPreview={true}
-          />
-        </div>
+        {/* Removed Color Palette Controls */}
         
         {/* Alignment Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>

@@ -2,7 +2,7 @@
 import Link from './Link';
 
 class NucleotideLink extends Link {
-  constructor(seqidA, startA, endA, seqidB, startB, endB, color) {
+  constructor(seqidA, startA, endA, seqidB, startB, endB, similarity, color = [220, 50, 50]) {
     super();
     this.seqidA = seqidA;
     this.seqidB = seqidB;
@@ -22,7 +22,10 @@ class NucleotideLink extends Link {
     this.endA = endA;
     this.startB = startB;
     this.endB = endB;
-    this.color = color;
+    this.similarity = similarity;
+    // Use provided color, alpha based on similarity
+    const alpha = Math.round(255 * (similarity / 100));
+    this.fillColor = [...color, alpha];
   }
 
   buildPolygon(yA, yB) {

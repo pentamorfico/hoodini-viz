@@ -45,6 +45,8 @@ const PhyloTreeViewer = React.forwardRef(({
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
+  proteinLinkColor = [50, 100, 220],
+  nucleotideLinkColor = [220, 50, 50],
 }, ref) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -88,8 +90,8 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeView.initGenes();
     genomeView.computeTrackPositions();
     genomeView.addDomains(domainsByGene);
-    genomeView.addProteinLinks(proteinLinks);
-    genomeView.addNucleotideLinks(nucleotideLinks);
+    genomeView.addProteinLinks(proteinLinks, proteinLinkColor);
+    genomeView.addNucleotideLinks(nucleotideLinks, nucleotideLinkColor);
     // Attach protein metadata to gene objects
     if (proteinMetadata) {
       for (const uniqueGeneId in genomeView.genesById) {
@@ -119,7 +121,7 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeViewRef.current = genomeView;
     setTree(tree);
     setSelectedNode(null);
-  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, proteinMetadata, colorBy, config, ultrametric, themeColors]);
+  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, proteinMetadata, colorBy, config, ultrametric, themeColors, proteinLinkColor, nucleotideLinkColor]);
 
   // Force update effect for manual track manipulations
   useEffect(() => {
@@ -451,16 +453,14 @@ const PhyloTreeViewer = React.forwardRef(({
 
   // Function to apply color palette to phylogenetic labels
   function applyPhyloPalette(treeLabels, treeColorBy, treeMetadata, phyloPalette) {
-    if (!phyloPalette || !phyloPalette.enabled || !treeMetadata) {
-      // Use default hash-based coloring
-      return treeLabels.map(label => {
-        const colorValue = treeMetadata[label.leafNode.name]?.[treeColorBy] || '';
-        return {
-          ...label,
-          color: colorValue ? hashToColor(colorValue) : [0, 0, 0, 255]
-        };
-      });
+    if (!phyloPalette || !phyloPalette.enabled) {
+      // Ensure no colors are applied if phyloPalette is null or not enabled
+      return treeLabels.map(label => ({
+        ...label,
+        color: [0, 0, 0, 255] // Default to black or uncolored
+      }));
     }
+
     // Collect unique values for the color-by field
     const colorValues = new Set();
     for (const label of treeLabels) {
@@ -483,20 +483,7 @@ const PhyloTreeViewer = React.forwardRef(({
         paletteColors = [];
       }
     }
-    if (paletteColors.length === 0) {
-      const colorValueToColor = {};
-      sortedColorValues.forEach(value => {
-        colorValueToColor[value] = hashToColor(value);
-      });
-      return treeLabels.map(label => {
-        const metadata = treeMetadata[label.leafNode.name] || {};
-        const colorValue = String(metadata[treeColorBy] || '');
-        return {
-          ...label,
-          color: colorValueToColor[colorValue] || [0, 0, 0, 255]
-        };
-      });
-    }
+
     // Create color mapping
     const colorValueToColor = {};
     sortedColorValues.forEach((value, i) => {
@@ -640,9 +627,15 @@ const PhyloTreeViewer = React.forwardRef(({
       let label = meta[treeLabelBy];
       if (label === undefined || label === null) label = l.name;
       if (typeof label !== 'string') label = String(label);
-      const colorValue = meta[treeColorBy] || '';
-      const color = colorValue ? hashToColor(colorValue) : [0,0,0,255];
-      
+      let color;
+      if (phyloPalette && phyloPalette.enabled) {
+        // Use colorBy value for coloring if palette is enabled
+        const colorValue = meta[treeColorBy] || '';
+        color = colorValue ? hashToColor(colorValue) : [0,0,0,255];
+      } else {
+        // Always use default color if no palette
+        color = [0,0,0,255];
+      }
       let position;
       if (effectivePhyloLabelPosition === 'after-tracks') {
         // Position phylo labels after the rightmost edge of genome tracks

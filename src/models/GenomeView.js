@@ -371,13 +371,12 @@ class GenomeView {
     }
   }
 
-  addProteinLinks(links) {
+  addProteinLinks(links, color = [50, 100, 220]) {
     this.proteinLinks = [];
     for (let l of links) {
       const originalGeneIdA = l[0];
       const originalGeneIdB = l[1];
-      const color = l[2];
-      
+      const similarity = l[2];
       // Find all genes with these original gene IDs
       const genesA = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneIdA)
@@ -385,60 +384,47 @@ class GenomeView {
       const genesB = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneIdB)
         .map(([uniqueId, gene]) => uniqueId);
-      
       // Create links between all combinations
       for (const geneIdA of genesA) {
         for (const geneIdB of genesB) {
-          this.proteinLinks.push(new ProteinLink(geneIdA, geneIdB, color));
+          this.proteinLinks.push(new ProteinLink(geneIdA, geneIdB, similarity, color));
         }
       }
     }
   }
 
-  addNucleotideLinks(links) {
+  addNucleotideLinks(links, color = [220, 50, 50]) {
     this.nucleotideLinks = [];
     for (let l of links) {
       const seqidA = l.seqidA;
       const seqidB = l.seqidB;
-      
+      const startA = l.startA;
+      const endA = l.endA;
+      const startB = l.startB;
+      const endB = l.endB;
+      const similarity = l.similarity;
       // Get all hoods for each sequence
       const hoodsA = this.getHoodIdsFromSeqid(seqidA);
       const hoodsB = this.getHoodIdsFromSeqid(seqidB);
-      
       // Create links between all combinations of hoods that contain the link coordinates
       for (const hoodA of hoodsA) {
         const baselineA = this.hoodBaselines[hoodA];
         if (!baselineA) continue;
-        
-        // Check if link GFF coordinates are COMPLETELY within this hood's GFF range
-        const linkCompletelyWithinA = (l.startA >= baselineA.origStart && l.endA <= baselineA.origEnd); // Use .origStart/.origEnd
-        if (!linkCompletelyWithinA) continue;
-        
+        // Only allow if link coordinates are fully within the hood's genomic range
+        if (!(startA >= baselineA.origStart && endA <= baselineA.origEnd)) continue;
         for (const hoodB of hoodsB) {
           const baselineB = this.hoodBaselines[hoodB];
           if (!baselineB) continue;
-          
-          // Check if link GFF coordinates are COMPLETELY within this hood's GFF range
-          const linkCompletelyWithinB = (l.startB >= baselineB.origStart && l.endB <= baselineB.origEnd); // Use .origStart/.origEnd
-          if (!linkCompletelyWithinB) continue;
-          
-          // Store original coordinates (absolute) and hood-relative coordinates
-          const nucleotideLink = new NucleotideLink(
-            seqidA, l.startA, l.endA, 
-            seqidB, l.startB, l.endB, 
-            l.color
-          );
-          
-          // Store hood information and hood-relative coordinates for proper positioning
-          // This part was fixed previously and should be correct if baselineA.origStart is GFF hood start
-          nucleotideLink.hoodA = hoodA;
-          nucleotideLink.hoodB = hoodB;
-          nucleotideLink.hoodStartA = l.startA - baselineA.origStart;
-          nucleotideLink.hoodEndA = l.endA - baselineA.origStart;
-          nucleotideLink.hoodStartB = l.startB - baselineB.origStart;
-          nucleotideLink.hoodEndB = l.endB - baselineB.origStart;
-          
-          this.nucleotideLinks.push(nucleotideLink);
+          if (!(startB >= baselineB.origStart && endB <= baselineB.origEnd)) continue;
+          const link = new NucleotideLink(seqidA, startA, endA, seqidB, startB, endB, similarity, color);
+          // Set hood and hood-relative coordinates for rendering
+          link.hoodA = hoodA;
+          link.hoodB = hoodB;
+          link.hoodStartA = startA - baselineA.origStart;
+          link.hoodEndA = endA - baselineA.origStart;
+          link.hoodStartB = startB - baselineB.origStart;
+          link.hoodEndB = endB - baselineB.origStart;
+          this.nucleotideLinks.push(link);
         }
       }
     }
@@ -486,7 +472,7 @@ class GenomeView {
       const poly = pl.buildPolygon(gA, gB);
       if (poly) polys.push({
         polygon: poly,
-        fillColor: pl.color,
+        fillColor: pl.fillColor, // FIX: use fillColor with alpha
         metadata: pl.metadata // Attach metadata for tooltip
       });
     }
@@ -549,7 +535,7 @@ class GenomeView {
       const poly = l.buildPolygonFromCoords(xA1, xA2, xB1, xB2, trackYA, trackYB);
       polys.push({
         polygon: poly,
-        fillColor: l.color,
+        fillColor: l.fillColor, // FIX: use fillColor with alpha
         metadata: l.metadata, // Attach metadata for tooltip
         seqids: [l.seqidA, l.seqidB] // For filtering
       });
@@ -706,26 +692,21 @@ class GenomeView {
 
   setProteinClusters(clusterMap) {
     this.proteinClusters = {};
-    // Convert original gene IDs to unique gene IDs
     for (const originalGeneId in clusterMap) {
       const cluster = clusterMap[originalGeneId];
-      // Find all genes with this original gene ID
       const matchingGenes = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneId);
-      
+
       for (const [uniqueId, gene] of matchingGenes) {
         this.proteinClusters[uniqueId] = cluster;
       }
     }
-    
-    // Assign a color to each cluster
-    this.clusterColors = {};
-    const clusterIds = Array.from(new Set(Object.values(this.proteinClusters)));
-    clusterIds.forEach((cluster, i) => {
-      // Use HSL for visually distinct colors
-      const color = hslToRgb(i / clusterIds.length, 0.6, 0.5).concat(255);
-      this.clusterColors[cluster] = color;
-    });
+
+    // Skip assigning colors if no palette is provided
+    if (!this.clusterColors) {
+      return;
+    }
+
     // Update gene colors and metadata
     for (const uniqueGeneId in this.genesById) {
       const gene = this.genesById[uniqueGeneId];
@@ -733,9 +714,8 @@ class GenomeView {
       if (cluster && this.clusterColors[cluster]) {
         gene.fillColor = this.clusterColors[cluster];
       } else {
-        gene.fillColor = [211,211,211,255]; // Light gray if no cluster
+        gene.fillColor = null; // Do not assign any fallback color
       }
-      // Add clusterId to gene metadata
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
     }
@@ -747,25 +727,28 @@ class GenomeView {
     // Convert original gene IDs to unique gene IDs
     for (const originalGeneId in clusterMap) {
       const cluster = clusterMap[originalGeneId];
-      // Find all genes with this original gene ID
       const matchingGenes = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneId);
-      
+
       for (const [uniqueId, gene] of matchingGenes) {
         this.proteinClusters[uniqueId] = cluster;
       }
     }
-    
+
+    // Skip assigning colors if no palette is provided or enabled
+    if (!paletteConfig || !paletteConfig.enabled) {
+      return;
+    }
+
     // Assign colors to each cluster
     this.clusterColors = {};
     const clusterIds = Array.from(new Set(Object.values(this.proteinClusters))).sort();
-    
+
     let clusterColors = [];
-    
+
     // Try to use palette if enabled and available
-    if (paletteConfig && paletteConfig.enabled && paletteConfig.name) {
+    if (paletteConfig.name) {
       try {
-        // Import getPaletteColors dynamically to avoid circular dependency
         const { getPaletteColors } = require('../utils/colorPalettes');
         clusterColors = getPaletteColors(
           paletteConfig.name,
@@ -776,19 +759,18 @@ class GenomeView {
         clusterColors = [];
       }
     }
-    
+
     // Fallback to HSL colors if palette not available or failed
     if (clusterColors.length === 0) {
       clusterColors = clusterIds.map((cluster, i) => 
         hslToRgb(i / clusterIds.length, 0.6, 0.5).concat(255)
       );
     }
-    
-    // Assign colors to clusters
+
     clusterIds.forEach((cluster, i) => {
       this.clusterColors[cluster] = clusterColors[i % clusterColors.length];
     });
-    
+
     // Update gene colors and metadata
     for (const uniqueGeneId in this.genesById) {
       const gene = this.genesById[uniqueGeneId];
@@ -796,9 +778,8 @@ class GenomeView {
       if (cluster && this.clusterColors[cluster]) {
         gene.fillColor = this.clusterColors[cluster];
       } else {
-        gene.fillColor = [211,211,211,255]; // Light gray if no cluster
+        gene.fillColor = null; // Do not assign any fallback color
       }
-      // Add clusterId to gene metadata
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
     }
@@ -1330,13 +1311,7 @@ class GenomeView {
   // Method to apply domain colors using a color palette
   applyDomainPalette(paletteConfig = null) {
     if (!paletteConfig || !paletteConfig.enabled) {
-      // Reset to default random colors if palette is disabled
-      for (const geneId in this.genesById) {
-        const gene = this.genesById[geneId];
-        for (const domain of gene.domains) {
-          domain.fillColor = [50 + Math.random() * 205, 50 + Math.random() * 205, 50 + Math.random() * 205, 255];
-        }
-      }
+      // Do not apply any fallback colors if no palette is passed
       return;
     }
 
@@ -1364,13 +1339,6 @@ class GenomeView {
       } catch (error) {
         domainColors = [];
       }
-    }
-
-    // Fallback to HSL colors if palette not available
-    if (domainColors.length === 0) {
-      domainColors = sortedDomainNames.map((_, i) => 
-        hslToRgb(i / sortedDomainNames.length, 0.7, 0.6).concat(255)
-      );
     }
 
     // Create domain name to color mapping

@@ -11,9 +11,8 @@ export function parseNucleotideLinks(str) {
     const seqidB = parts[3];
     const startB = parseInt(parts[4], 10);
     const endB = parseInt(parts[5], 10);
-    const colorParts = parts[6].split(',');
-    const color = colorParts.map(c => parseInt(c, 10));
-    links.push({ seqidA, startA, endA, seqidB, startB, endB, color });
+    const similarity = parseFloat(parts[6]);
+    links.push({ seqidA, startA, endA, seqidB, startB, endB, similarity });
   }
   return links;
 }

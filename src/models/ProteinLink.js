@@ -2,12 +2,15 @@
 import Link from './Link';
 
 class ProteinLink extends Link {
-  constructor(gAId, gBId, color) {
+  constructor(gAId, gBId, similarity, color = [50, 100, 220]) {
     super();
     this.gAId = gAId;
     this.gBId = gBId;
-    this.color = color;
-    this.metadata = { gAId, gBId, color };
+    this.similarity = similarity;
+    // Use provided color, alpha based on similarity
+    const alpha = Math.round(255 * (similarity / 100));
+    this.fillColor = [...color, alpha];
+    this.metadata = { gAId, gBId, similarity };
   }
 
   bezierCurve(p0, p1, p2, p3, segments = 120) {
