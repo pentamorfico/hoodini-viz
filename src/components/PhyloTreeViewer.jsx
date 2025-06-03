@@ -45,8 +45,6 @@ const PhyloTreeViewer = React.forwardRef(({
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
-  proteinLinkColor = [50, 100, 220],
-  nucleotideLinkColor = [220, 50, 50],
 }, ref) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -90,8 +88,8 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeView.initGenes();
     genomeView.computeTrackPositions();
     genomeView.addDomains(domainsByGene);
-    genomeView.addProteinLinks(proteinLinks, proteinLinkColor);
-    genomeView.addNucleotideLinks(nucleotideLinks, nucleotideLinkColor);
+    genomeView.addProteinLinks(proteinLinks);
+    genomeView.addNucleotideLinks(nucleotideLinks);
     // Attach protein metadata to gene objects
     if (proteinMetadata) {
       for (const uniqueGeneId in genomeView.genesById) {
@@ -121,7 +119,7 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeViewRef.current = genomeView;
     setTree(tree);
     setSelectedNode(null);
-  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, proteinMetadata, colorBy, config, ultrametric, themeColors, proteinLinkColor, nucleotideLinkColor]);
+  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, proteinMetadata, colorBy, config, ultrametric, themeColors]);
 
   // Force update effect for manual track manipulations
   useEffect(() => {
