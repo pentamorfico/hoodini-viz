@@ -978,6 +978,39 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
 
+    // Tree ticks (for SVG export)
+    const treeTicks = tree.leafNodes.map(leaf => {
+      const tickLength = 10; // Length of the tick in pixels
+      const tickStart = [leaf.y + treeOffset, leaf.x];
+      const tickEnd = [leaf.y + treeOffset + tickLength, leaf.x];
+      return {
+        sourcePosition: tickStart,
+        targetPosition: tickEnd,
+        metadata: {
+          leaf_id: leaf.name,
+          type: 'tree_tick'
+        }
+      };
+    });
+
+    layers.push(
+      new LineLayer({
+        id: 'tree-ticks',
+        data: treeTicks,
+        getSourcePosition: d => d.sourcePosition,
+        getTargetPosition: d => d.targetPosition,
+        getColor: config.tree.tickColor || [0, 0, 0, 255],
+        getWidth: config.tree.tickWidth || 1,
+        widthUnits: 'pixels',
+        pickable: false,
+        autoHighlight: false,
+        updateTriggers: {
+          getSourcePosition: treeTicks.map(d => d.sourcePosition),
+          getTargetPosition: treeTicks.map(d => d.targetPosition)
+        }
+      })
+    );
+
     return layers;
   }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette, geneColorBy, geneLabelBy, domainColorBy]);
 
@@ -1032,6 +1065,8 @@ const PhyloTreeViewer = React.forwardRef(({
   }, [manualUpdateTrigger, genomeViewRef, alignCluster, defaultAlign, useDefaultGeneAlignment, tree, containerSize, config]);
   
 
+  const [rulerTicks, setRulerTicks] = React.useState([]);
+
   return (
     <div id="phylo-tree-viewer-container" ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
       {/* Camera export button in top-right corner */}
@@ -1050,7 +1085,8 @@ const PhyloTreeViewer = React.forwardRef(({
           viewState,
           alignmentReferencePoint: getAlignmentReferencePoint(genomeViewRef.current),
           bounds,
-          genomeView: genomeViewRef.current
+          genomeView: genomeViewRef.current,
+          precomputedTicks: rulerTicks // <-- pass ticks to SVG export
         } : undefined}
       />
       {/* Overlay buttons (top-left) */}
@@ -1097,6 +1133,7 @@ const PhyloTreeViewer = React.forwardRef(({
           alignmentReferencePoint={getAlignmentReferencePoint(genomeViewRef.current)}
           bounds={bounds}
           config={config}
+          onTicksComputed={setRulerTicks} // <-- capture ticks
         />
       )}
     </div>

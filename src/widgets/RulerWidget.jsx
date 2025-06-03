@@ -13,7 +13,8 @@ const RulerWidget = ({
   genomeView,
   alignmentReferencePoint = null,
   bounds,
-  config = DEFAULT_CONFIG
+  config = DEFAULT_CONFIG,
+  onTicksComputed // <-- NEW PROP
 }) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -357,6 +358,14 @@ const RulerWidget = ({
   const treeTicks = generateTreeTicks();
   const allTicks = [...geneTicks, ...treeTicks];
 
+  // --- NEW: Call onTicksComputed if provided ---
+  React.useEffect(() => {
+    if (typeof onTicksComputed === 'function') {
+      onTicksComputed(allTicks);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(allTicks)]); // Only call when ticks change
+
   // Format coordinate labels for gene ticks
   const formatCoordinate = (coord) => {
     // Always show sign for negative values, no sign for positive
@@ -497,30 +506,7 @@ const RulerWidget = ({
       </svg>
       
       {/* Coordinate range indicator (only for gene area) */}
-      {geneTicks.length > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 2,
-            right: 5,
-            fontSize: '9px',
-            color: themeColors.rulerText || '#666',
-            fontFamily: 'Helvetica, Arial, sans-serif'
-          }}
-        >
-          {formatCoordinate(scaledGeneVisibleMinX)} - {formatCoordinate(scaledGeneVisibleMaxX)}
-          {isAlignmentActive && (
-            <span style={{ marginLeft: '8px', color: themeColors.rulerText || '#0066cc', fontWeight: 'bold' }}>
-              (aligned)
-            </span>
-          )}
-          {genomeXScalePercent !== 100 && (
-            <span style={{ marginLeft: '8px', color: themeColors.rulerText || '#ff6600', fontWeight: 'bold' }}>
-              ({genomeXScalePercent}% scale)
-            </span>
-          )}
-        </div>
-      )}
+      {/* REMOVED: visible window and alignment/scale status text */}
       
     </div>
   );

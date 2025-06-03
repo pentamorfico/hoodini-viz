@@ -98,26 +98,23 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='1'/>`;
       }
     }
-    // LineLayer (connecting lines)
+    // LineLayer (connecting lines only, no per-leaf tree-ticks)
     if(layer.id === 'connecting-lines') {
       for(const feature of props.data) {
         const sourcePos = feature.sourcePosition || (props.getSourcePosition ? props.getSourcePosition(feature) : [0,0]);
         const targetPos = feature.targetPosition || (props.getTargetPosition ? props.getTargetPosition(feature) : [0,0]);
-        
         // Handle color - can be feature property, function result, or static array
         let color = [0,0,0,255]; // default
         if (feature.color) {
           color = feature.color;
         } else if (props.getColor) {
           if (typeof props.getColor === 'function') {
-            // Try calling with feature first, if that fails, call without arguments
             try {
               color = props.getColor(feature);
             } catch (e) {
               try {
                 color = props.getColor();
               } catch (e2) {
-                // If both fail, use default
                 color = [0,0,0,255];
               }
             }
@@ -125,7 +122,6 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
             color = props.getColor;
           }
         }
-        
         // Handle width - can be feature property, function result, or static value
         let width = 1; // default
         if (feature.width) {
@@ -138,7 +134,6 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
               try {
                 width = props.getWidth();
               } catch (e2) {
-                // If both fail, use default
                 width = 1;
               }
             }
@@ -146,7 +141,6 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
             width = props.getWidth;
           }
         }
-        
         const stroke = colorToStr(color);
         const [x1, y1] = applyBounds(sourcePos);
         const [x2, y2] = applyBounds(targetPos);
@@ -233,9 +227,48 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   }
   // --- RULER SVG EXPORT ---
   if (rulerOptions && rulerOptions.config && rulerOptions.width && rulerOptions.height) {
-    // Always draw the ruler if rulerOptions are provided (regardless of showRuler)
-    const { minX, maxX, width, height, config: rulerConfig, viewState: rulerViewState, alignmentReferencePoint, bounds, genomeView } = rulerOptions;
+    // Use precomputed ticks from rulerOptions if available
+    const { minX, maxX, width, height, config: rulerConfig, viewState: rulerViewState, alignmentReferencePoint, bounds, genomeView, precomputedTicks } = rulerOptions;
     const configToUse = rulerConfig || config;
+    // If precomputed ticks are provided (from RulerWidget), use them directly
+    if (precomputedTicks && Array.isArray(precomputedTicks)) {
+      const geneTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
+      const geneLabelColor = themeColors.text || (themeColors.background === '#ffffff' ? '#333' : '#ccc');
+      const treeTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
+      const _rulerHeight = configToUse.ruler.height;
+      const _rulerTop = height - _rulerHeight;
+      const _tickHeight = configToUse.ruler.tickHeight;
+      const _labelOffset = configToUse.ruler.labelOffset;
+      svg += `<rect x='0' y='${_rulerTop}' width='${width}' height='${_rulerHeight}' fill='${themeColors.background || '#ffffff'}' stroke='${themeColors.background === '#ffffff' ? '#ccc' : '#555'}' stroke-width='1'/>`;
+      // Main ticks and labels
+      for (const tick of precomputedTicks) {
+        if (tick.type === 'gene') {
+          svg += `<line x1='${tick.screenX}' y1='${_rulerTop}' x2='${tick.screenX}' y2='${_rulerTop + _tickHeight}' stroke='${geneTickColor}' stroke-width='1'/>`;
+          svg += `<text x='${tick.screenX}' y='${_rulerTop + _labelOffset}' text-anchor='middle' font-size='11px' fill='${geneLabelColor}' font-family='Helvetica, Arial, sans-serif'>${formatCoordinate(tick.x)}</text>`;
+        } else if (tick.type === 'tree' && tick.isScale) {
+          svg += `<line x1='${tick.screenX}' y1='${_rulerTop}' x2='${tick.screenX}' y2='${_rulerTop + _tickHeight / 2}' stroke='${treeTickColor}' stroke-width='1'/>`;
+          svg += `<text x='${tick.screenX}' y='${_rulerTop + _labelOffset}' text-anchor='middle' font-size='11px' fill='${treeTickColor}' font-family='Helvetica, Arial, sans-serif' font-weight='bold'>${tick.label}</text>`;
+        }
+      }
+      // --- Minor ticks (only for gene area) ---
+      const geneTicks = precomputedTicks.filter(t => t.type === 'gene');
+      if (geneTicks.length > 1) {
+        for (let i = 0; i < geneTicks.length - 1; i++) {
+          const tick = geneTicks[i];
+          const nextTick = geneTicks[i + 1];
+          const tickSpacing = nextTick.x - tick.x;
+          if (tickSpacing > 20) { // Only if spacing is large enough
+            const nextX = tick.x + tickSpacing / 2;
+            const nextScreenX = tick.screenX + (nextTick.screenX - tick.screenX) / 2;
+            if (nextScreenX >= 0 && nextScreenX <= width) {
+              svg += `<line x1='${nextScreenX}' y1='${_rulerTop}' x2='${nextScreenX}' y2='${_rulerTop + _tickHeight / 2}' stroke='${geneTickColor}' stroke-width='0.5'/>`;
+            }
+          }
+        }
+      }
+      svg += `</svg>`;
+      return svg;
+    }
     const centerX = rulerViewState?.target?.[0] || 0;
     const zoom = rulerViewState?.zoom || 0;
     const scale = Math.pow(2, zoom);
@@ -319,17 +352,12 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
       const leftEdgeWorld = centerX - visibleWidth / 2;
       const rightEdgeWorld = treeBoundary;
       const treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * width;
-      // Allow tree ticks even for small tree areas, especially when aligned to start
-      // The tree should have ticks as long as there's a reasonable tree area (>= 20 pixels)
-      if (treeBoundaryScreen >= 20) {
+      // Allow tree ticks even for very small tree areas
+      if (treeBoundaryScreen >= 1) {
         const treeOffset = bounds.treeOffset || 0;
-        
         // Get tree nodes that correspond to genes within the visible gene coordinate range
-        const visibleLeaves = genomeView.tree.leafNodes.filter(leaf => {
-          // Check if this leaf has genes in the visible coordinate range
-          if (!genomeView.genesBySeqid) {
-            return false;
-          }
+        let visibleLeaves = genomeView.tree.leafNodes.filter(leaf => {
+          if (!genomeView.genesBySeqid) return false;
           const leafGenes = Object.values(genomeView.genesBySeqid).flat().filter(gene => 
             gene.seqid === leaf.name || gene.seqid === leaf.id
           );
@@ -337,7 +365,10 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
             gene.end >= scaledGeneVisibleMinX && gene.start <= scaledGeneVisibleMaxX
           );
         });
-        
+        // Fallback: if no visible leaves, use all leaves
+        if (visibleLeaves.length === 0) {
+          visibleLeaves = genomeView.tree.leafNodes;
+        }
         if (visibleLeaves.length > 0) {
           const visibleTreeYCoords = visibleLeaves.map(leaf => leaf.y + treeOffset);
           const treeMinY = Math.min(...visibleTreeYCoords);
@@ -347,40 +378,40 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           const minEvolutionaryDistance = Math.min(...rootDistances);
           const visibleTreeMinY = Math.max(treeMinY, leftEdgeWorld);
           const visibleTreeMaxY = Math.min(treeMaxY, rightEdgeWorld);
-        if (visibleTreeMinY < visibleTreeMaxY) {
-          const convertTreeYToScreen = (treeY) => {
-            return ((treeY - leftEdgeWorld) / visibleWidth) * width;
-          };
-          const visibleTreeRange = visibleTreeMaxY - visibleTreeMinY;
-          const numTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100)));
-          for (let i = 0; i < numTicks; i++) {
-            const treeY = visibleTreeMinY + (i / (numTicks - 1)) * (visibleTreeMaxY - visibleTreeMinY);
-            const screenX = convertTreeYToScreen(treeY);
-            const yScaleFactor = maxEvolutionaryDistance > 0 ? 800 / maxEvolutionaryDistance : 1;
-            const evolutionaryDist = (treeY - treeOffset) / yScaleFactor;
-            let label;
-            if (maxEvolutionaryDistance < 0.001) {
-              label = evolutionaryDist.toExponential(1);
-            } else if (maxEvolutionaryDistance < 0.01) {
-              label = evolutionaryDist.toFixed(3);
-            } else if (maxEvolutionaryDistance < 0.1) {
-              label = evolutionaryDist.toFixed(2);
-            } else if (maxEvolutionaryDistance < 1) {
-              label = evolutionaryDist.toFixed(2);
-            } else {
-              label = evolutionaryDist.toFixed(1);
-            }
-            if (screenX >= 0 && screenX <= treeBoundaryScreen) {
-              treeTicks.push({
-                x: evolutionaryDist,
-                screenX,
-                type: 'tree',
-                label: label,
-                isScale: true
-              });
+          if (visibleTreeMinY < visibleTreeMaxY) {
+            const convertTreeYToScreen = (treeY) => {
+              return ((treeY - leftEdgeWorld) / visibleWidth) * width;
+            };
+            const visibleTreeRange = visibleTreeMaxY - visibleTreeMinY;
+            const numTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100)));
+            for (let i = 0; i < numTicks; i++) {
+              const treeY = visibleTreeMinY + (i / (numTicks - 1)) * (visibleTreeMaxY - visibleTreeMinY);
+              const screenX = convertTreeYToScreen(treeY);
+              const yScaleFactor = maxEvolutionaryDistance > 0 ? 800 / maxEvolutionaryDistance : 1;
+              const evolutionaryDist = (treeY - treeOffset) / yScaleFactor;
+              let label;
+              if (maxEvolutionaryDistance < 0.001) {
+                label = evolutionaryDist.toExponential(1);
+              } else if (maxEvolutionaryDistance < 0.01) {
+                label = evolutionaryDist.toFixed(3);
+              } else if (maxEvolutionaryDistance < 0.1) {
+                label = evolutionaryDist.toFixed(2);
+              } else if (maxEvolutionaryDistance < 1) {
+                label = evolutionaryDist.toFixed(2);
+              } else {
+                label = evolutionaryDist.toFixed(1);
+              }
+              if (screenX >= 0 && screenX <= treeBoundaryScreen) {
+                treeTicks.push({
+                  x: evolutionaryDist,
+                  screenX,
+                  type: 'tree',
+                  label: label,
+                  isScale: true
+                });
+              }
             }
           }
-        }
         }
       }
     } else if (treeBoundary) {
@@ -422,10 +453,6 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         svg += `<text x='${tick.screenX}' y='${rulerTop + labelOffset}' text-anchor='middle' font-size='11px' fill='${treeTickColor}' font-family='Helvetica, Arial, sans-serif' font-weight='bold'>${tick.label}</text>`;
       }
     }
-    
-    // Draw coordinate range with theme-aware colors
-    const rangeTextColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
-    svg += `<text x='${width - 5}' y='${rulerTop + 12}' text-anchor='end' font-size='9px' fill='${rangeTextColor}' font-family='Helvetica, Arial, sans-serif'>${formatCoordinate(scaledGeneVisibleMinX)} - ${formatCoordinate(scaledGeneVisibleMaxX)}</text>`;
   }
   svg += `</svg>`;
   return svg;
