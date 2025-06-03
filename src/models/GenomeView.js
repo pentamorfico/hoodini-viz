@@ -279,8 +279,6 @@ class GenomeView {
     let minX = Infinity;
     let maxX = -Infinity;
     
-    console.log('updateGlobalBounds: Starting calculation');
-    
     // Check all gene positions
     Object.values(this.genesById).forEach(gene => {
       if (gene.polygon) {
@@ -295,8 +293,6 @@ class GenomeView {
       }
     });
     
-    console.log('updateGlobalBounds: After genes, minX:', minX, 'maxX:', maxX);
-    
     // Check all domain positions
     this.getAllDomains().forEach(domain => {
       if (domain.polygon) {
@@ -306,8 +302,6 @@ class GenomeView {
         });
       }
     });
-    
-    console.log('updateGlobalBounds: After domains, minX:', minX, 'maxX:', maxX);
     
     // Check baseline positions
     Object.values(this.nucleotidesBySeqid).forEach(nuc => {
@@ -322,15 +316,10 @@ class GenomeView {
       }
     });
     
-    console.log('updateGlobalBounds: After baselines, minX:', minX, 'maxX:', maxX);
-    
     // Update global bounds if valid values found
     if (isFinite(minX) && isFinite(maxX)) {
       this.globalMin = minX;
       this.globalMax = maxX;
-      console.log('updateGlobalBounds: Updated globalMin:', this.globalMin, 'globalMax:', this.globalMax);
-    } else {
-      console.log('updateGlobalBounds: No finite bounds found, keeping existing values');
     }
   }
 
@@ -782,9 +771,7 @@ class GenomeView {
           Math.max(clusterIds.length, paletteConfig.numColors || clusterIds.length),
           paletteConfig.reverse || false
         );
-        console.log(`Using palette ${paletteConfig.name} for ${clusterIds.length} gene clusters`);
       } catch (error) {
-        console.warn('Failed to load color palette, using fallback colors:', error);
         clusterColors = [];
       }
     }
@@ -858,8 +845,6 @@ class GenomeView {
   flipTrackToggle(hood_id) {
     this.flipTrack(hood_id);
   }  alignCluster(clusterId) {
-    console.log('alignCluster called with clusterId:', clusterId);
-    
     // Get scale factor
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
@@ -869,10 +854,7 @@ class GenomeView {
       .filter(([uniqueGeneId, gene]) => this.proteinClusters && this.proteinClusters[uniqueGeneId] == clusterId)
       .map(([uniqueGeneId, gene]) => gene);
     
-    console.log('Found cluster genes:', allClusterGenes.length);
-    
     if (allClusterGenes.length === 0) {
-      console.log('No genes found for cluster', clusterId);
       return;
     }
 
@@ -886,8 +868,6 @@ class GenomeView {
       genesByTrack[hood_id].push(gene);
     }
 
-    console.log('Genes by track:', Object.keys(genesByTrack).length);
-
     // Deterministically select one gene per track that has cluster genes (sorted by originalGeneId)
     const selectedGenes = [];
     for (const hood_id in genesByTrack) {
@@ -899,17 +879,13 @@ class GenomeView {
     }
 
     if (selectedGenes.length === 0) {
-      console.log('No genes selected for alignment');
       return;
     }
     
-    console.log('Selected genes for alignment:', selectedGenes.length);
-
     // 3. Deterministically pick the first gene (sorted by hood_id) as the reference gene for alignment
     // This ensures consistent alignment results across multiple runs
     selectedGenes.sort((a, b) => a.hood_id.localeCompare(b.hood_id));
     const referenceGene = selectedGenes[0];
-    console.log('Reference gene (deterministic):', referenceGene.originalGeneId, 'in hood:', referenceGene.hood_id);
 
     // 4. BATCH OPERATION: For each selected gene, ensure its track is on the positive strand (flip if needed)
     // Do this without calling computeTrackPositions() after each flip to avoid race conditions
@@ -920,7 +896,6 @@ class GenomeView {
       // If gene is negative strand after current flip state, flip the track
       const effectiveStrand = flipped ? (origStrand === '+' ? '-' : '+') : origStrand;
       if (effectiveStrand === '-') {
-        console.log('Flipping track', hood_id, 'to positive strand');
         // Flip without recomputing positions immediately
         this.flipTrackState(hood_id);
       }
@@ -937,7 +912,6 @@ class GenomeView {
     
     // 7. Calculate the reference gene's visual X coordinate AFTER all flipping is done
     const referenceVisualX = GenomeView.getGeneVisualX(referenceGene, this);
-    console.log('Reference gene visual X (after flipping):', referenceVisualX);
 
     // 8. For each selected gene, calculate the required offset to align its visual X to the reference
     for (const gene of selectedGenes) {
@@ -968,8 +942,6 @@ class GenomeView {
       // Apply the offset adjustment (preserve any existing manual offset)
       const currentOffset = this.trackOffset[hood_id] || 0;
       this.trackOffset[hood_id] = currentOffset + offsetAdjustment;
-      
-      console.log('Gene', gene.originalGeneId, 'in hood', hood_id, 'visual shift:', requiredVisualShift, 'offset adjustment:', offsetAdjustment, 'new total offset:', this.trackOffset[hood_id]);
     }
 
     // 9. Handle tracks that don't contain the alignment cluster - center them at the reference point
@@ -998,29 +970,16 @@ class GenomeView {
           const hoodCenter = hoodBaseline ? hoodBaseline.length / 2 : anchor;
           const requiredOffset = (referenceVisualX - anchor) / xScale + anchor - hoodCenter;
           
-          console.log('Centering track', hood_id, 'debug values:', {
-            hoodLength: hoodBaseline ? hoodBaseline.length : 'no baseline',
-            hoodCenter: hoodCenter,
-            xScale: xScale,
-            referenceVisualX: referenceVisualX,
-            anchor: anchor,
-            requiredOffset: requiredOffset
-          });
-          
           this.trackOffset[hood_id] = requiredOffset;
-          console.log('Centered track', hood_id, 'at reference position with offset:', requiredOffset);
         }
       }
     }
 
     // 10. Recompute positions after setting offsets
     this.computeTrackPositions();
-    console.log('Cluster alignment completed');
   }
 
   alignAllToStart() {
-    console.log('alignAllToStart called');
-    
     // Get scale factor
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
@@ -1033,13 +992,10 @@ class GenomeView {
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
       
-      console.log('Processing hood', hood_id, 'seqid', seqid);
-      
       // 1. Flip to original strand if needed
       const flipped = !!this.trackFlipped[hood_id];
       const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.strand && flipped) {
-        console.log('Flipping track', hood_id, 'back to original strand');
         this.flipTrack(hood_id); // flip back to original
       }
       
@@ -1063,17 +1019,13 @@ class GenomeView {
         // Solving for offset: offset = (globalAlignmentTarget - anchor) / xScale + anchor - baselineStart
         const requiredOffset = (globalAlignmentTarget - anchor) / xScale + anchor - baselineStart;
         
-        console.log('Setting track offset for hood', hood_id, 'to', requiredOffset, '(anchor:', anchor, ', xScale:', xScale, ')');
         this.trackOffset[hood_id] = requiredOffset;
       }
     }
-    console.log('Recomputing track positions after alignAllToStart');
     this.computeTrackPositions();
   }
 
   alignAllToEnd() {
-    console.log('alignAllToEnd called');
-    
     // Get scale factor
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
@@ -1119,8 +1071,6 @@ class GenomeView {
   }
 
   alignAllToCenter() {
-    console.log('alignAllToCenter called');
-    
     // Get scale factor
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
@@ -1215,8 +1165,6 @@ class GenomeView {
   }
 
   alignByDefaultGenes() {
-    console.log('alignByDefaultGenes called');
-    
     // Get scale factor
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
@@ -1232,20 +1180,15 @@ class GenomeView {
       const gene = this.genesById[uniqueGeneId];
       if (gene) {
         genesToAlign.push(gene);
-        console.log('Found alignment gene:', hoodBaseline.align_gene, 'in hood:', hood_id);
-      } else {
-        console.log('Alignment gene not found:', hoodBaseline.align_gene, 'in hood:', hood_id);
       }
     }
     
-    console.log('Total genes to align:', genesToAlign.length);
     if (genesToAlign.length === 0) return;
     
     // 2. Deterministically pick the first gene (sorted by hood_id) as reference for alignment
     // This ensures consistent alignment results across multiple runs
     genesToAlign.sort((a, b) => a.hood_id.localeCompare(b.hood_id));
     const referenceGene = genesToAlign[0];
-    console.log('Reference gene (deterministic):', referenceGene.originalGeneId, 'in hood:', referenceGene.hood_id);
 
     // 3. BATCH OPERATION: For each gene, ensure its track is on the positive strand (flip if needed)
     // Do this without calling computeTrackPositions() after each flip to avoid race conditions
@@ -1256,7 +1199,6 @@ class GenomeView {
       // If gene is negative strand after current flip state, flip the track
       const effectiveStrand = flipped ? (origStrand === '+' ? '-' : '+') : origStrand;
       if (effectiveStrand === '-') {
-        console.log('Flipping track', hood_id, 'to positive strand');
         // Flip without recomputing positions immediately
         this.flipTrackState(hood_id);
       }
@@ -1273,7 +1215,6 @@ class GenomeView {
     // 6. For default gene alignment, we want all alignment genes to appear at coordinate 0
     // This is consistent with traditional alignments (start/center/end) that also align to coordinate 0
     const targetVisualX = 0;
-    console.log('Target visual X for default gene alignment:', targetVisualX);
     
     // 7. For each gene, calculate the required offset to align its visual X to coordinate 0
     for (const gene of genesToAlign) {
@@ -1300,8 +1241,6 @@ class GenomeView {
       // Apply the offset adjustment (preserve any existing manual offset)
       const currentOffset = this.trackOffset[hood_id] || 0;
       this.trackOffset[hood_id] = currentOffset + adjustedOffsetAdjustment;
-      
-      console.log('Gene', gene.originalGeneId, 'in hood', hood_id, 'current visual X:', currentVisualX, 'visual shift to 0:', requiredVisualShift, 'offset adjustment:', adjustedOffsetAdjustment, 'new total offset:', this.trackOffset[hood_id]);
     }
     
     // 8. Handle tracks that don't have default alignment genes - center them at coordinate 0
@@ -1329,30 +1268,19 @@ class GenomeView {
           const hoodCenter = hoodBaseline ? hoodBaseline.length / 2 : anchor;
           const requiredOffset = -hoodCenter;
           
-          console.log('Centering track', hood_id, 'debug values:', {
-            hoodLength: hoodBaseline ? hoodBaseline.length : 'no baseline',
-            hoodCenter: hoodCenter,
-            xScale: xScale,
-            requiredOffset: requiredOffset
-          });
-          
           this.trackOffset[hood_id] = requiredOffset;
-          console.log('Centered track', hood_id, 'without default alignment gene at coordinate 0 with offset:', requiredOffset);
         }
       }
     }
     
     // 9. Recompute positions after setting offsets
     this.computeTrackPositions();
-    console.log('Default gene alignment completed');
   }
 
   // Method to update global bounds based on transformed feature positions
   updateGlobalBounds() {
     let minX = Infinity;
     let maxX = -Infinity;
-    
-    console.log('updateGlobalBounds: Starting calculation');
     
     // Check all gene positions
     Object.values(this.genesById).forEach(gene => {
@@ -1368,8 +1296,6 @@ class GenomeView {
       }
     });
     
-    console.log('updateGlobalBounds: After genes, minX:', minX, 'maxX:', maxX);
-    
     // Check all domain positions
     this.getAllDomains().forEach(domain => {
       if (domain.polygon) {
@@ -1379,8 +1305,6 @@ class GenomeView {
         });
       }
     });
-    
-    console.log('updateGlobalBounds: After domains, minX:', minX, 'maxX:', maxX);
     
     // Check baseline positions
     Object.values(this.nucleotidesBySeqid).forEach(nuc => {
@@ -1395,15 +1319,10 @@ class GenomeView {
       }
     });
     
-    console.log('updateGlobalBounds: After baselines, minX:', minX, 'maxX:', maxX);
-    
     // Update global bounds if valid values found
     if (isFinite(minX) && isFinite(maxX)) {
       this.globalMin = minX;
       this.globalMax = maxX;
-      console.log('updateGlobalBounds: Updated globalMin:', this.globalMin, 'globalMax:', this.globalMax);
-    } else {
-      console.log('updateGlobalBounds: No finite bounds found, keeping existing values');
     }
   }
 
@@ -1441,9 +1360,7 @@ class GenomeView {
           Math.max(sortedDomainNames.length, paletteConfig.numColors || sortedDomainNames.length),
           paletteConfig.reverse || false
         );
-        console.log(`Using palette ${paletteConfig.name} for ${sortedDomainNames.length} domain types`);
       } catch (error) {
-        console.warn('Failed to load domain color palette, using fallback colors:', error);
         domainColors = [];
       }
     }

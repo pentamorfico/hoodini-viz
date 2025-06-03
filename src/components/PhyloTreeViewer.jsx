@@ -156,15 +156,11 @@ const PhyloTreeViewer = React.forwardRef(({
     let minBaselineX = Infinity;
     if (!genomeView) return config.layout.containerFallback; // Use configurable fallback
     
-    console.log('computeBounds: genomeView.globalMin:', genomeView.globalMin, 'genomeView.globalMax:', genomeView.globalMax);
-    
     // Use GenomeView's authoritative global bounds for X coordinates if available
     if (genomeView.globalMin !== Infinity && genomeView.globalMax !== -Infinity) {
       minX = genomeView.globalMin;
       maxX = genomeView.globalMax;
-      console.log('computeBounds: Using GenomeView global bounds - minX:', minX, 'maxX:', maxX);
     } else {
-      console.log('computeBounds: GenomeView global bounds not available, calculating manually');
       // Fallback: manually calculate X bounds from genes and domains
       Object.values(genomeView.genesById).forEach(g => {
         if (g.polygon) g.polygon.forEach(([x, y]) => {
@@ -176,7 +172,6 @@ const PhyloTreeViewer = React.forwardRef(({
           minX = Math.min(minX, x); maxX = Math.max(maxX, x);
         });
       });
-      console.log('computeBounds: Manual calculation - minX:', minX, 'maxX:', maxX);
     }
     
     // Calculate Y bounds from genes and domains (still needed for vertical layout)
@@ -282,15 +277,6 @@ const PhyloTreeViewer = React.forwardRef(({
     const hasTraditionalAlignment = (defaultAlign === 'start' || defaultAlign === 'center' || defaultAlign === 'end') &&
       genomeView.leaves.some(hood_id => genomeView.trackOffset && genomeView.trackOffset[hood_id] !== undefined);
     
-    console.log('getAlignmentReferencePoint check:', {
-      hasOffsets,
-      hasTraditionalAlignment,
-      useDefaultGeneAlignment,
-      trackOffsets: genomeView.trackOffset,
-      defaultAlign,
-      alignCluster
-    });
-    
     if (!hasOffsets && !hasTraditionalAlignment) {
       // No alignment detected 
       return null;
@@ -300,30 +286,19 @@ const PhyloTreeViewer = React.forwardRef(({
     
     // For cluster alignment, find the visual X coordinate of aligned genes (takes precedence over default alignment)
     if (alignCluster != null && alignCluster !== '') {
-      console.log('Looking for cluster alignment with alignCluster:', alignCluster);
-      console.log('Available protein clusters:', Object.keys(genomeView.proteinClusters || {}));
-      console.log('Available genes:', Object.keys(genomeView.genesById || {}));
-      
       // Find genes in the aligned cluster
       const clusterGenes = Object.entries(genomeView.genesById || {})
         .filter(([uniqueGeneId, gene]) => {
           const clusterValue = genomeView.proteinClusters && genomeView.proteinClusters[uniqueGeneId];
-          console.log(`Gene ${uniqueGeneId} has cluster ${clusterValue}, looking for ${alignCluster}`);
           return clusterValue == alignCluster;
         })
         .map(([uniqueGeneId, gene]) => gene);
-      
-      console.log('Found cluster genes:', clusterGenes.length, clusterGenes.map(g => g.originalGeneId));
       
       if (clusterGenes.length > 0) {
         // Use the first gene's visual X coordinate as the alignment reference
         const referenceGene = clusterGenes[0];
         const visualX = GenomeView.getGeneVisualX(referenceGene, genomeView);
-        console.log('Cluster alignment reference point (visual X):', visualX, 'from gene:', referenceGene.originalGeneId);
-        console.log('Reference gene details:', referenceGene);
         return visualX;
-      } else {
-        console.log('No genes found in cluster', alignCluster);
       }
     }
     
@@ -351,7 +326,6 @@ const PhyloTreeViewer = React.forwardRef(({
         // Use the first default gene's visual X coordinate as the alignment reference
         const referenceGene = defaultGenes[0];
         const visualX = GenomeView.getGeneVisualX(referenceGene, genomeView);
-        console.log('Default gene alignment reference point (visual X):', visualX, 'from gene:', referenceGene.originalGeneId);
         return visualX;
       }
     }
@@ -384,7 +358,6 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
     
-    console.log('Final alignment reference point (visual X):', alignmentPoint, 'with', maxCount, 'genes aligned');
     return alignmentPoint;
   }
   
@@ -713,7 +686,6 @@ const PhyloTreeViewer = React.forwardRef(({
     // Only keep valid ones
     const phyloLabels = finalPhyloLabels.filter(lbl => {
       const valid = Number.isFinite(lbl.position[0]) && Number.isFinite(lbl.position[1]) && typeof lbl.text === 'string' && lbl.text.trim() !== '';
-      if (!valid) console.warn('Skipping invalid phylo label:', lbl);
       return valid;
     });
     // If array is empty, add a dummy label (not rendered)
@@ -959,11 +931,6 @@ const PhyloTreeViewer = React.forwardRef(({
           };
         });
 
-      // Debug: log the connecting lines data
-      console.log('Connecting lines data:', connectingLinesData);
-      console.log('showConnectingLines:', showConnectingLines);
-      console.log('Tree leaves:', tree.leafNodes.map(l => l.name));
-
       // Only add the layer if we have data
       if (connectingLinesData.length > 0) {
         // Insert connecting lines at the beginning so they render behind everything else
@@ -998,28 +965,11 @@ const PhyloTreeViewer = React.forwardRef(({
     
     // Skip alignment if we're in manual manipulation mode
     if (isManualManipulation.current) {
-      console.log('Skipping alignment due to manual manipulation');
       return;
     }
     
-    console.log('Alignment useEffect triggered:', {
-      alignCluster,
-      defaultAlign,
-      useDefaultGeneAlignment,
-      proteinClusters: genomeView.proteinClusters,
-      hoodBaselines: genomeView.hoodBaselines
-    });
-    
     if (alignCluster != null && alignCluster !== '') {
       // alignCluster is set to a specific cluster number
-      console.log('Attempting cluster alignment for cluster:', alignCluster);
-      console.log('Available protein clusters:', genomeView.proteinClusters);
-      
-      // Check if cluster exists
-      const clusterGenes = Object.entries(genomeView.genesById || {})
-        .filter(([uniqueGeneId, gene]) => genomeView.proteinClusters && genomeView.proteinClusters[uniqueGeneId] == alignCluster);
-      console.log('Genes found in cluster', alignCluster, ':', clusterGenes.length);
-      
       genomeView.alignCluster(alignCluster);
       // Recompute bounds and refit view after alignment
       fitViewToBounds(genomeView, tree, containerSize, setViewState);
@@ -1027,20 +977,13 @@ const PhyloTreeViewer = React.forwardRef(({
       // No specific cluster alignment requested
       // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
       const hasDefaultGenes = Object.values(genomeView.hoodBaselines || {}).some(baseline => baseline.align_gene);
-      console.log('Default gene alignment check:', {
-        useDefaultGeneAlignment,
-        hasDefaultGenes,
-        hoodBaselines: genomeView.hoodBaselines
-      });
       
       if (useDefaultGeneAlignment && hasDefaultGenes) {
-        console.log('Using default gene alignment');
         genomeView.alignByDefaultGenes();
         // Recompute bounds and refit view after alignment
         fitViewToBounds(genomeView, tree, containerSize, setViewState);
       } else {
         // Fall back to traditional alignment
-        console.log('Using traditional alignment:', defaultAlign);
         if (defaultAlign === 'center') {
           genomeView.alignAllToCenter();
           // Recompute bounds and refit view after alignment
