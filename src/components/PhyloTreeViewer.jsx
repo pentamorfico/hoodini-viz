@@ -10,6 +10,7 @@ import ExportSVGWidget from '../widgets/ExportSVGWidget';
 import RulerWidget from '../widgets/RulerWidget';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 import { useTheme } from '../contexts/ThemeContext.jsx';
+import { getPaletteColors } from '../utils/colorPalettes';
 
 const PhyloTreeViewer = React.forwardRef(({
   newickStr,
@@ -38,6 +39,9 @@ const PhyloTreeViewer = React.forwardRef(({
   forceUpdateCounter = 0, // new prop to trigger re-renders after manual track manipulations
   phyloLabelPosition = 'after-tree', // new prop to control phylo label positioning: 'after-tree' or 'after-tracks'
   alignLabels = true, // new prop to control whether phylo labels are aligned to the same X coordinate
+  genePalette, // color palette config for genes
+  domainPalette, // color palette config for domains
+  phyloPalette, // color palette config for phylo labels
 }, ref) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -469,6 +473,70 @@ const PhyloTreeViewer = React.forwardRef(({
     return [Math.abs(r), Math.abs(g), Math.abs(b), 255];
   }
 
+  // Function to apply color palette to phylogenetic labels
+  function applyPhyloPalette(treeLabels, treeColorBy, treeMetadata, phyloPalette) {
+    if (!phyloPalette || !phyloPalette.enabled || !treeMetadata) {
+      // Use default hash-based coloring
+      return treeLabels.map(label => {
+        const colorValue = treeMetadata[label.leafNode.name]?.[treeColorBy] || '';
+        return {
+          ...label,
+          color: colorValue ? hashToColor(colorValue) : [0, 0, 0, 255]
+        };
+      });
+    }
+    // Collect unique values for the color-by field
+    const colorValues = new Set();
+    for (const label of treeLabels) {
+      const metadata = treeMetadata[label.leafNode.name] || {};
+      const colorValue = metadata[treeColorBy];
+      if (colorValue !== undefined && colorValue !== null) {
+        colorValues.add(String(colorValue));
+      }
+    }
+    const sortedColorValues = Array.from(colorValues).sort();
+    let paletteColors = [];
+    if (phyloPalette.name) {
+      try {
+        paletteColors = getPaletteColors(
+          phyloPalette.name,
+          Math.max(sortedColorValues.length, phyloPalette.numColors || sortedColorValues.length),
+          phyloPalette.reverse || false
+        );
+      } catch (error) {
+        paletteColors = [];
+      }
+    }
+    if (paletteColors.length === 0) {
+      const colorValueToColor = {};
+      sortedColorValues.forEach(value => {
+        colorValueToColor[value] = hashToColor(value);
+      });
+      return treeLabels.map(label => {
+        const metadata = treeMetadata[label.leafNode.name] || {};
+        const colorValue = String(metadata[treeColorBy] || '');
+        return {
+          ...label,
+          color: colorValueToColor[colorValue] || [0, 0, 0, 255]
+        };
+      });
+    }
+    // Create color mapping
+    const colorValueToColor = {};
+    sortedColorValues.forEach((value, i) => {
+      colorValueToColor[value] = paletteColors[i % paletteColors.length];
+    });
+    // Apply palette colors to labels
+    return treeLabels.map(label => {
+      const metadata = treeMetadata[label.leafNode.name] || {};
+      const colorValue = String(metadata[treeColorBy] || '');
+      return {
+        ...label,
+        color: colorValueToColor[colorValue] || [0, 0, 0, 255]
+      };
+    });
+  }
+
   const layers = React.useMemo(() => {
     const genomeView = genomeViewRef.current;
     if (!genomeView || !tree) return [];
@@ -476,13 +544,47 @@ const PhyloTreeViewer = React.forwardRef(({
     const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
     const treeOffset = bounds.treeOffset || 0;
     // Genes
-    const genes = Object.values(genomeView.genesById);
+    let genes = Object.values(genomeView.genesById);
     // Domains
-    const domains = genomeView.getAllDomains();
+    let domains = genomeView.getAllDomains();
     // Protein links
     const proteinPolygons = genomeView.getProteinPolygons();
     // Nucleotide links
     const nucleotidePolygons = genomeView.getNucleotidePolygons();
+    // --- GENE PALETTE LOGIC ---
+    if (genePalette && genePalette.enabled) {
+      // Use cluster (or colorBy) as the key for coloring
+      const geneKeyField = colorBy || 'cluster';
+      const geneKeys = Array.from(new Set(genes.map(g => g.metadata && g.metadata[geneKeyField] !== undefined ? g.metadata[geneKeyField] : g[geneKeyField] || g.hood_id || g.gene_id || g.id || g.name)));
+      const geneColors = getPaletteColors(
+        genePalette.name,
+        Math.max(geneKeys.length, genePalette.numColors || geneKeys.length),
+        genePalette.reverse || false
+      );
+      const geneKeyToColor = {};
+      geneKeys.forEach((key, i) => { geneKeyToColor[key] = geneColors[i % geneColors.length]; });
+      genes = genes.map(g => {
+        const key = g.metadata && g.metadata[geneKeyField] !== undefined ? g.metadata[geneKeyField] : g[geneKeyField] || g.hood_id || g.gene_id || g.id || g.name;
+        return { ...g, fillColor: geneKeyToColor[key] };
+      });
+    }
+
+    // --- DOMAIN PALETTE LOGIC ---
+    if (domainPalette && domainPalette.enabled) {
+      // Use domain type as the key
+      const domainKeys = Array.from(new Set(domains.map(d => d.type || d.domain_id || d.name)));
+      const domainColors = getPaletteColors(
+        domainPalette.name,
+        Math.max(domainKeys.length, domainPalette.numColors || domainKeys.length),
+        domainPalette.reverse || false
+      );
+      const domainKeyToColor = {};
+      domainKeys.forEach((key, i) => { domainKeyToColor[key] = domainColors[i % domainColors.length]; });
+      domains = domains.map(d => {
+        const key = d.type || d.domain_id || d.name;
+        return { ...d, fillColor: domainKeyToColor[key] };
+      });
+    }
     // Phylo tree paths (shifted)
     // Create baselines per hood (needed for phylo label positioning)  
     const nucleotideBaselines = genomeView.leaves
@@ -599,8 +701,17 @@ const PhyloTreeViewer = React.forwardRef(({
       });
     }
 
+    // Apply palette to phylo labels if enabled
+    let finalPhyloLabels = rawPhyloLabels;
+    if (phyloPalette && phyloPalette.enabled && treeMetadata) {
+      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, phyloPalette);
+    } else {
+      // Remove leafNode property for DeckGL
+      finalPhyloLabels = rawPhyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
+    }
+
     // Only keep valid ones
-    const phyloLabels = rawPhyloLabels.filter(lbl => {
+    const phyloLabels = finalPhyloLabels.filter(lbl => {
       const valid = Number.isFinite(lbl.position[0]) && Number.isFinite(lbl.position[1]) && typeof lbl.text === 'string' && lbl.text.trim() !== '';
       if (!valid) console.warn('Skipping invalid phylo label:', lbl);
       return valid;
@@ -610,7 +721,7 @@ const PhyloTreeViewer = React.forwardRef(({
       phyloLabels.push({position: [0,0], text: '_', color: [0,0,0,0], size: 1, textAnchor: 'start'});
     }
     // Prune extra properties: meta and leaf removed
-    const finalPhyloLabels = phyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
+    const finalPhyloLabelsPruned = phyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
 
     // Node points (shift X by treeOffset)
     const nodePoints = genomeView.buildNodePoints(selectedNode).map(n => ({
@@ -758,7 +869,7 @@ const PhyloTreeViewer = React.forwardRef(({
       // Phylo labels
       new TextLayer({
         id: 'phylo-labels',
-        data: finalPhyloLabels,
+        data: finalPhyloLabelsPruned,
         getPosition: d => d.position,
         getText: d => d.text,
         getColor: d => d.color,
@@ -877,7 +988,7 @@ const PhyloTreeViewer = React.forwardRef(({
     }
 
     return layers;
-  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config]);
+  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);
