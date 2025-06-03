@@ -48,19 +48,19 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #f8f9fa;
-  color: #222;
+  background: var(--theme-background, #ffffff);
+  color: var(--theme-text, #222);
 }
 
 body {
-  background: #f8f9fa;
-  color: #222;
+  background: var(--theme-background, #ffffff);
+  color: var(--theme-text, #222);
 }
 
 button {
-  background: #fff;
-  color: #222;
-  border: 1px solid #ccc;
+  background: var(--theme-button-background, #fff);
+  color: var(--theme-button-text, #222);
+  border: 1px solid var(--theme-button-border, #ccc);
 }
 
 #phylo-tree-viewer-container {
@@ -71,12 +71,24 @@ button {
   overflow: hidden;
   position: relative;
   flex: 1 1 auto;
-  background: #fff;
+  background: var(--theme-background, #ffffff);
 }
 
-/* Optional: DeckGL overlay tweaks for light theme */
+/* Theme toggle button */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* DeckGL overlay theming */
 .deck-tooltip {
-  background: #fff !important;
-  color: #222 !important;
-  border: 1px solid #ccc !important;
+  background: var(--theme-tooltip-background, #fff) !important;
+  color: var(--theme-tooltip-text, #222) !important;
+  border: 1px solid var(--theme-tooltip-border, #ccc) !important;
 }

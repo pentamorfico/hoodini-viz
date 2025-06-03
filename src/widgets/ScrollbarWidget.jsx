@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 export default function ScrollbarWidget({
   minY,
@@ -8,11 +9,12 @@ export default function ScrollbarWidget({
   visibleFraction,
   setViewState,
   containerHeight,
-  viewState
+  viewState,
+  config = DEFAULT_CONFIG
 }) {
   // Helper to get the thumb's top position and height for the custom scrollbar
   function getThumbMetrics(norm, barHeight, visibleFraction) {
-    const minThumbHeight = 24;
+    const minThumbHeight = config.scrollbar.minThumbHeight;
     const thumbHeight = Math.max(barHeight * visibleFraction, minThumbHeight);
     // Center of thumb in px
     const thumbCenter = (barHeight * norm) / 100;
@@ -31,7 +33,7 @@ export default function ScrollbarWidget({
         right: 0,
         top: 0,
         height: '100%',
-        width: '32px',
+        width: config.scrollbar.width,
         zIndex: 20,
         display: 'flex',
         alignItems: 'center',
@@ -45,11 +47,13 @@ export default function ScrollbarWidget({
         ref={scrollBarRef}
         style={{
           position: 'relative',
-          width: '12px',
+          width: config.scrollbar.barWidth,
           height: '96%',
           background: '#eee',
-          borderRadius: '6px',
-          margin: '2%',
+          borderRadius: 0, // force square
+          WebkitBorderRadius: 0,
+          MozBorderRadius: 0,
+          margin: config.scrollbar.margin,
           cursor: 'pointer',
           boxShadow: '0 0 2px #aaa',
           userSelect: 'none',
@@ -95,7 +99,9 @@ export default function ScrollbarWidget({
               return { top: thumbTop, height: thumbHeight };
             })(),
             background: '#bbb',
-            borderRadius: '6px',
+            borderRadius: 0, // force square
+            WebkitBorderRadius: 0,
+            MozBorderRadius: 0,
             boxShadow: '0 1px 4px #888',
             cursor: 'grab',
             transition: 'background 0.1s',

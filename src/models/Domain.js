@@ -1,8 +1,9 @@
 import polygonClipping from 'polygon-clipping';
+import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 // Domain.js
 class Domain {
-  constructor(geneId, domainName, start, end, evalue) {
+  constructor(geneId, domainName, start, end, evalue, config = DEFAULT_CONFIG) {
     this.geneId = geneId;
     this.domainName = domainName;
     this.origStart = start;
@@ -14,6 +15,7 @@ class Domain {
     this.parentGene = null;
     this.polygon = null;
     this.metadata = { geneId, domainName, start, end, evalue };
+    this.config = config || DEFAULT_CONFIG;
   }
 
   setParentGene(gene) {
@@ -47,8 +49,15 @@ class Domain {
     const geneStartCoord = g.start;
     const geneEndCoord = g.end;
     const geneLength = Math.abs(geneEndCoord - geneStartCoord);
-    const domainRelStart = domainStart / geneLength;
-    const domainRelEnd = domainEnd / geneLength;
+    
+    // Convert absolute domain coordinates to relative positions within the gene
+    const domainAbsStart = geneStartCoord + domainStart;
+    const domainAbsEnd = geneStartCoord + domainEnd;
+    
+    // Calculate relative positions as fractions of gene length
+    const domainRelStart = Math.abs(domainAbsStart - geneStartCoord) / geneLength;
+    const domainRelEnd = Math.abs(domainAbsEnd - geneStartCoord) / geneLength;
+    
     const startPos = this.interpolateOnLine(g.centerLine, domainRelStart);
     const endPos = this.interpolateOnLine(g.centerLine, domainRelEnd);
     const perp = this.perpVector(g.centerLine[0], g.centerLine[1]);

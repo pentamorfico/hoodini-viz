@@ -1,16 +1,16 @@
 gene_id	cluster	description	cog
-gene_A_1	1	hypothetical protein	COG001
+gene_A_1		hypothetical protein	COG001
 gene_A_2	2	kinase	COG002
 gene_A_3	3	transporter	COG003
 gene_A_4	4	oxidoreductase	COG004
 gene_A_5	1	membrane protein	COG005
-gene_A_6	2	transcription factor	COG006
+gene_A_6	3	transcription factor	COG006
 gene_A_7	3	ABC transporter	COG007
 gene_A_8	4	DNA-binding protein	COG008
-gene_B_1	1	hypothetical protein	COG001
+gene_B_1		hypothetical protein	COG001
 gene_B_2	2	kinase	COG002
 gene_B_3	3	transporter	COG003
-gene_B_4	4	oxidoreductase	COG004
+gene_B_4		oxidoreductase	COG004
 gene_B_5	1	membrane protein	COG005
 gene_C_1	1	hypothetical protein	COG001
 gene_C_2	2	kinase	COG002

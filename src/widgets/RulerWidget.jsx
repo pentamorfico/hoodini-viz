@@ -1,0 +1,642 @@
+// RulerWidget.jsx
+import React from 'react';
+import { DEFAULT_CONFIG } from '../config/visualizationConfig';
+import { useTheme } from '../contexts/ThemeContext.jsx';
+
+const RulerWidget = ({
+  minX,
+  maxX,
+  viewState,
+  containerWidth,
+  containerHeight,
+  visible = true,
+  genomeView,
+  alignmentReferencePoint = null,
+  bounds,
+  config = DEFAULT_CONFIG
+}) => {
+  // Theme context
+  const { getThemeColors } = useTheme();
+  const themeColors = getThemeColors();
+  
+  if (!visible || !isFinite(minX) || !isFinite(maxX) || maxX <= minX) {
+    return null;
+  }
+
+  // Calculate the boundary between tree area and gene area
+  // Tree area: from some leftmost point to the leftmost baseline
+  // Gene area: from leftmost baseline onwards
+  let treeBoundary = null;
+  if (bounds && genomeView) {
+    // Find the leftmost baseline position (where genes start)
+    let leftmostBaseline = Infinity;
+    Object.values(genomeView.nucleotidesBySeqid).forEach(nuc => {
+      if (nuc.baseline) {
+        leftmostBaseline = Math.min(leftmostBaseline, Math.min(nuc.baseline.start, nuc.baseline.end));
+      }
+    });
+    if (isFinite(leftmostBaseline)) {
+      treeBoundary = leftmostBaseline;
+    }
+    
+    // If treeBoundary is very close to 0 or negative (after alignment), 
+    // use the tree's actual rightmost position instead
+    if (treeBoundary !== null && treeBoundary <= 50 && genomeView.tree && bounds.treeOffset !== undefined) {
+      const treeOffset = bounds.treeOffset || 0;
+      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y + treeOffset);
+      const treeMaxY = Math.max(...allTreeYCoords);
+      // Use tree's rightmost position as boundary, ensuring there's space for tree ticks
+      treeBoundary = Math.max(treeMaxY + 100, 200); // At least 200 units for tree area
+    }
+    
+    console.log('treeBoundary calculation:', { leftmostBaseline, treeBoundary, hasBaselines: Object.keys(genomeView.nucleotidesBySeqid).length });
+  }
+
+  // Get genome x-scaling factor
+  const genomeXScalePercent = (config.genome && typeof config.genome.xScalePercent === 'number') ? config.genome.xScalePercent : 100;
+  const genomeXScale = genomeXScalePercent / 100;
+
+  // Detect if alignment is active and calculate alignment offset
+  let alignmentOffset = 0;
+  let isAlignmentActive = false;
+  
+  if (genomeView && alignmentReferencePoint !== null && isFinite(alignmentReferencePoint)) {
+    // Alignment is active - shift coordinates so alignment point becomes 0
+    alignmentOffset = alignmentReferencePoint;
+    isAlignmentActive = true;
+  }
+  
+  console.log('RulerWidget: alignment check - alignmentReferencePoint:', alignmentReferencePoint, 'isAlignmentActive:', isAlignmentActive);
+
+  // Calculate the visible X range based on current view state
+  const centerX = viewState?.target?.[0] || 0;
+  const zoom = viewState?.zoom || 0;
+  const scale = Math.pow(2, zoom);
+  
+  console.log('RulerWidget: bounds received - minX:', minX, 'maxX:', maxX);
+  console.log('RulerWidget: viewState center and zoom:', centerX, zoom);
+  
+  // Calculate visible width in coordinate units
+  const visibleWidth = containerWidth / scale;
+  let visibleMinX = centerX - visibleWidth / 2;
+  let visibleMaxX = centerX + visibleWidth / 2;
+  
+  console.log('RulerWidget: calculated visible range before alignment adjustment:', visibleMinX, 'to', visibleMaxX);
+  
+  // Apply alignment offset to show coordinates relative to alignment point (matching exportToSVG logic exactly)
+  let geneVisibleMinX = visibleMinX - (alignmentReferencePoint || 0);
+  let geneVisibleMaxX = visibleMaxX - (alignmentReferencePoint || 0);
+
+  console.log('RulerWidget: after alignment adjustment:', geneVisibleMinX, 'to', geneVisibleMaxX);
+
+  // Apply inverse genome scaling to get the coordinate values that should be displayed on ruler
+  // When genome is scaled down (e.g., 20%), the visible range appears compressed but should show original coordinates
+  const scaledGeneVisibleMinX = geneVisibleMinX / genomeXScale;
+  const scaledGeneVisibleMaxX = geneVisibleMaxX / genomeXScale;
+   console.log('RulerWidget: final scaled range for ticks:', scaledGeneVisibleMinX, 'to', scaledGeneVisibleMaxX);
+
+  // CONSTRAINT: Limit tick generation to actual gene boundaries
+  // Convert gene boundaries to the same coordinate space as the visible range
+  const geneBoundaryMinX = (minX - (alignmentReferencePoint || 0)) / genomeXScale;
+  const geneBoundaryMaxX = (maxX - (alignmentReferencePoint || 0)) / genomeXScale;
+  
+  // Constrain the tick range to the intersection of visible range and gene boundaries
+  const constrainedMinX = Math.max(scaledGeneVisibleMinX, geneBoundaryMinX);
+  const constrainedMaxX = Math.min(scaledGeneVisibleMaxX, geneBoundaryMaxX);
+  
+  console.log('RulerWidget: gene boundaries in scaled coordinates:', geneBoundaryMinX, 'to', geneBoundaryMaxX);
+  console.log('RulerWidget: constrained tick range:', constrainedMinX, 'to', constrainedMaxX);
+
+  // Ruler dimensions and positioning
+  const rulerHeight = config.ruler.height;
+  const rulerTop = containerHeight - rulerHeight;
+  const tickHeight = config.ruler.tickHeight;
+  const labelOffset = config.ruler.labelOffset;
+  
+  // Generate ticks for gene area (genomic coordinates)
+  const generateGeneTicks = (minX, maxX) => {
+    // Calculate appropriate tick spacing based on both zoom level and screen space
+    const getTickSpacing = (visibleRange) => {
+      // Estimate minimum screen pixels needed per tick label to avoid overlap
+      // Average character width (~8px) * average digits per label (~4-6) + padding
+      const minPixelsPerTick = 60; // Increase minimum spacing to reduce need for filtering
+      
+      // Calculate how many ticks can fit comfortably on screen
+      const maxTicksBasedOnScreen = Math.floor(containerWidth / minPixelsPerTick);
+      
+      // Use the more restrictive constraint: screen space or original target
+      const targetTicks = Math.min(config.ruler.targetTicks, maxTicksBasedOnScreen);
+      
+      // Ensure we have at least a few ticks but not too many
+      const effectiveTargetTicks = Math.max(3, Math.min(targetTicks, 8));
+      
+      const rawSpacing = visibleRange / effectiveTargetTicks;
+      
+      // Round to nice numbers (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, etc.)
+      const magnitude = Math.pow(10, Math.floor(Math.log10(rawSpacing)));
+      const normalized = rawSpacing / magnitude;
+      let niceSpacing;
+      if (normalized <= 1) niceSpacing = 1;
+      else if (normalized <= 2) niceSpacing = 2;
+      else if (normalized <= 5) niceSpacing = 5;
+      else niceSpacing = 10;
+      
+      console.log('RulerWidget: adaptive spacing - containerWidth:', containerWidth, 'maxTicksBasedOnScreen:', maxTicksBasedOnScreen, 'effectiveTargetTicks:', effectiveTargetTicks, 'rawSpacing:', rawSpacing, 'niceSpacing:', niceSpacing * magnitude);
+      
+      return niceSpacing * magnitude;
+    };
+
+    const tickSpacing = getTickSpacing(maxX - minX);
+    
+    // --- Generate regular spaced ticks from 0 ---
+    // Always ensure ticks are at regular intervals relative to 0
+    // This ensures ticks are always at regular intervals (e.g., ..., -2000, -1000, 0, 1000, 2000, ...)
+    // regardless of what's currently visible
+    
+    // Find the range of tick indices that should be visible
+    const firstTickIndex = Math.floor(minX / tickSpacing);
+    const lastTickIndex = Math.ceil(maxX / tickSpacing);
+    let ticks = [];
+    
+    console.log('RulerWidget: tick generation - tickSpacing:', tickSpacing, 'minX:', minX, 'maxX:', maxX, 'firstTickIndex:', firstTickIndex, 'lastTickIndex:', lastTickIndex);
+    
+    // Generate ticks at regular intervals relative to 0
+    for (let i = firstTickIndex; i <= lastTickIndex; i++) {
+      // Always calculate tick position as exact multiple of tickSpacing
+      const x = i * tickSpacing;
+      
+      console.log('RulerWidget: generating tick i:', i, 'x:', x, 'tickSpacing:', tickSpacing);
+      
+      // Skip if outside the actual range (with small tolerance)
+      if (x < minX - tickSpacing * 0.1 || x > maxX + tickSpacing * 0.1) continue;
+      // Convert back to scaled coordinate space for screen positioning
+      const scaledX = x * genomeXScale;
+      const worldX = scaledX + (alignmentReferencePoint || 0);
+      const screenX = ((worldX - (centerX - visibleWidth / 2)) / visibleWidth) * containerWidth;
+      
+      console.log('RulerWidget: tick candidate x:', x, 'scaledX:', scaledX, 'worldX:', worldX, 'screenX:', screenX);
+      
+      if (screenX >= -2 && screenX <= containerWidth + 2) {
+        // When alignment is active, ignore treeBoundary for tick filtering
+        // because we want to show negative ticks relative to the alignment reference
+        if (treeBoundary === null || isAlignmentActive || worldX >= treeBoundary) {
+          console.log('RulerWidget: adding tick x:', x, 'screenX:', screenX);
+          ticks.push({ x, screenX, type: 'gene' });
+        } else {
+          console.log('RulerWidget: skipping tick x:', x, 'due to treeBoundary check - worldX:', worldX, 'treeBoundary:', treeBoundary);
+        }
+      } else {
+        console.log('RulerWidget: skipping tick x:', x, 'due to screen bounds - screenX:', screenX, 'containerWidth:', containerWidth);
+      }
+    }
+    
+    // Always ensure 0 tick is included if alignment is active and 0 is in visible range
+    if (isAlignmentActive && minX <= 0 && maxX >= 0) {
+      const zeroExists = ticks.some(tick => tick.x === 0);
+      if (!zeroExists) {
+        // Add 0 tick explicitly
+        const scaledX = 0 * genomeXScale;
+        const worldX = scaledX + (alignmentReferencePoint || 0);
+        const screenX = ((worldX - (centerX - visibleWidth / 2)) / visibleWidth) * containerWidth;
+        
+        if (screenX >= -2 && screenX <= containerWidth + 2) {
+          if (treeBoundary === null || isAlignmentActive || worldX >= treeBoundary) {
+            ticks.push({ x: 0, screenX, type: 'gene' });
+          }
+        }
+      }
+    }
+    // Sort ticks by their x value to ensure correct order (negative to left, positive to right)
+    ticks.sort((a, b) => a.x - b.x);
+    
+    // Light post-processing to remove only extremely close ticks (should be rare now)
+    const minScreenDistance = 30; // Reduced minimum distance since we're more conservative
+    const filteredTicks = [];
+    
+    for (let i = 0; i < ticks.length; i++) {
+      const currentTick = ticks[i];
+      let tooClose = false;
+      
+      // Check distance to all previously added ticks
+      for (let j = 0; j < filteredTicks.length; j++) {
+        const existingTick = filteredTicks[j];
+        const screenDistance = Math.abs(currentTick.screenX - existingTick.screenX);
+        
+        if (screenDistance < minScreenDistance) {
+          tooClose = true;
+          break;
+        }
+      }
+      
+      // Always include the 0 tick if it exists and alignment is active
+      const isZeroTick = currentTick.x === 0 && isAlignmentActive;
+      
+      // Also always include ticks that are exact multiples of the tick spacing
+      const isRegularTick = Math.abs(currentTick.x % getTickSpacing(maxX - minX)) < 0.0001;
+      
+      if (!tooClose || isZeroTick || isRegularTick) {
+        filteredTicks.push(currentTick);
+      }
+    }
+    
+    console.log('[RulerWidget] Filtered gene ticks (removed close ones):', filteredTicks.length, 'from', ticks.length, 'original');
+    
+    // Debug: print all tick positions and the alignment reference
+    console.log('[RulerWidget] Final gene ticks before filtering:', ticks.map(t => ({ x: t.x, screenX: t.screenX })));
+    console.log('[RulerWidget] Final gene ticks (after filtering):', filteredTicks.map(t => ({ x: t.x, screenX: t.screenX })));
+    console.log('[RulerWidget] AlignmentRef:', (alignmentReferencePoint || 0));
+    console.log('[RulerWidget] TickSpacing used:', getTickSpacing(maxX - minX));
+    
+    // Debug: Check if 0 tick is positioned correctly when alignment is active
+    if (isAlignmentActive) {
+      const zeroTick = filteredTicks.find(tick => tick.x === 0);
+      if (zeroTick) {
+        console.log('[RulerWidget] Zero tick screen position:', zeroTick.screenX, 'World position should be:', (alignmentReferencePoint || 0));
+        // Also check where the alignment reference point should be on screen
+        const alignRefScreenX = ((alignmentReferencePoint - (centerX - visibleWidth / 2)) / visibleWidth) * containerWidth;
+        console.log('[RulerWidget] Alignment reference point screen position:', alignRefScreenX);
+      }
+    }
+    
+    return filteredTicks;
+  };
+
+  // Generate ticks for tree area (phylogenetic scale)
+  const generateTreeTicks = () => {
+    console.log('generateTreeTicks called, treeBoundary:', treeBoundary, 'bounds:', bounds);
+    if (!treeBoundary || !bounds) return [];
+    
+    // Tree area extends from the left edge of the view to the treeBoundary
+    // Calculate the screen position range for the tree area
+    const leftEdgeWorld = centerX - visibleWidth / 2;
+    const rightEdgeWorld = treeBoundary;
+    
+    console.log('Tree area calculation:', { 
+      leftEdgeWorld, 
+      rightEdgeWorld, 
+      treeBoundary, 
+      centerX, 
+      visibleWidth,
+      containerWidth 
+    });
+    
+    // Convert tree boundary to screen coordinates
+    const treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * containerWidth;
+    
+    console.log('Tree boundary screen position:', treeBoundaryScreen);
+    
+    // Only show tree tick if there's meaningful tree area visible
+    // Be more lenient when treeBoundary was adjusted for alignment scenarios
+    const minTreeAreaWidth = (treeBoundary > leftEdgeWorld + 150) ? 20 : 50;
+    if (treeBoundaryScreen < minTreeAreaWidth) {
+      console.log('Tree area too small, skipping tree ticks', { treeBoundaryScreen, minRequired: minTreeAreaWidth });
+      return [];
+    }
+    
+    if (genomeView && genomeView.tree) {
+      // Get the actual tree coordinates (Y coordinates in tree space represent evolutionary distance)
+      const treeOffset = bounds.treeOffset || 0;
+      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y + treeOffset);
+      const treeMinY = Math.min(...allTreeYCoords);
+      const treeMaxY = Math.max(...allTreeYCoords);
+      
+      // Get evolutionary distances
+      const rootDistances = genomeView.tree.allNodes.map(n => n.rootDist || 0);
+      const maxEvolutionaryDistance = Math.max(...rootDistances);
+      const minEvolutionaryDistance = Math.min(...rootDistances);
+      
+      console.log('Tree coordinate analysis:', {
+        treeMinY,
+        treeMaxY,
+        treeOffset,
+        maxEvolutionaryDistance,
+        minEvolutionaryDistance,
+        leftEdgeWorld,
+        rightEdgeWorld
+      });
+      
+      // Calculate which portion of the tree is actually visible
+      const visibleTreeMinY = Math.max(treeMinY, leftEdgeWorld);
+      const visibleTreeMaxY = Math.min(treeMaxY, rightEdgeWorld);
+      
+      // If no tree is visible in current view, skip
+      if (visibleTreeMinY >= visibleTreeMaxY) {
+        console.log('No tree visible in current view');
+        return [];
+      }
+      
+      // Convert tree Y coordinates to screen positions
+      const convertTreeYToScreen = (treeY) => {
+        return ((treeY - leftEdgeWorld) / visibleWidth) * containerWidth;
+      };
+      
+      // Generate ticks based on actual tree coordinate positions
+      const ticks = [];
+      
+      // Determine good tick positions based on visible tree range and screen space
+      const visibleTreeRange = visibleTreeMaxY - visibleTreeMinY;
+      const treeScreenWidth = treeBoundaryScreen; // Available screen width for tree area
+      
+      // Calculate adaptive number of ticks based on screen space
+      const minPixelsPerTreeTick = 60; // Minimum screen pixels between tree tick centers (wider spacing for scientific notation)
+      const maxTicksBasedOnScreen = Math.floor(treeScreenWidth / minPixelsPerTreeTick);
+      const baseNumTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100))); // One tick per ~100 tree units
+      
+      const numTicks = Math.min(baseNumTicks, maxTicksBasedOnScreen, 6); // Cap at 6 ticks maximum
+      
+      console.log('Tree ticks calculation:', {
+        treeScreenWidth,
+        maxTicksBasedOnScreen,
+        baseNumTicks,
+        finalNumTicks: numTicks,
+        visibleTreeRange
+      });
+      
+      for (let i = 0; i < numTicks; i++) {
+        // Position ticks at actual tree coordinates
+        const treeY = visibleTreeMinY + (i / (numTicks - 1)) * (visibleTreeMaxY - visibleTreeMinY);
+        const screenX = convertTreeYToScreen(treeY);
+        
+        // Convert tree Y coordinate back to evolutionary distance
+        // Since tree.scaleY() uses: n.y = n.rootDist * yScaleFactor
+        const yScaleFactor = maxEvolutionaryDistance > 0 ? 800 / maxEvolutionaryDistance : 1;
+        const evolutionaryDist = (treeY - treeOffset) / yScaleFactor;
+        
+        // Format the evolutionary distance label
+        let label;
+        if (maxEvolutionaryDistance < 0.001) {
+          label = evolutionaryDist.toExponential(1);
+        } else if (maxEvolutionaryDistance < 0.01) {
+          label = evolutionaryDist.toFixed(3);
+        } else if (maxEvolutionaryDistance < 0.1) {
+          label = evolutionaryDist.toFixed(2);
+        } else if (maxEvolutionaryDistance < 1) {
+          label = evolutionaryDist.toFixed(2);
+        } else {
+          label = evolutionaryDist.toFixed(1);
+        }
+        
+        if (screenX >= 0 && screenX <= treeBoundaryScreen) {
+          ticks.push({ 
+            x: evolutionaryDist,
+            screenX, 
+            type: 'tree', 
+            label: label,
+            isScale: true
+          });
+        }
+      }
+      
+      // Filter tree ticks that are too close together on screen
+      const minTreeScreenDistance = 50; // Minimum pixels between tree tick centers
+      const filteredTreeTicks = [];
+      
+      for (let i = 0; i < ticks.length; i++) {
+        const currentTick = ticks[i];
+        let tooClose = false;
+        
+        // Check distance to all previously added ticks
+        for (let j = 0; j < filteredTreeTicks.length; j++) {
+          const existingTick = filteredTreeTicks[j];
+          const screenDistance = Math.abs(currentTick.screenX - existingTick.screenX);
+          
+          if (screenDistance < minTreeScreenDistance) {
+            tooClose = true;
+            break;
+          }
+        }
+        
+        if (!tooClose) {
+          filteredTreeTicks.push(currentTick);
+        }
+      }
+      
+      console.log('Tree phylogenetic scale:', { 
+        maxEvolutionaryDistance,
+        minEvolutionaryDistance,
+        visibleTreeMinY,
+        visibleTreeMaxY,
+        numTicks,
+        originalTicks: ticks.length,
+        filteredTicks: filteredTreeTicks.length,
+        ticks: filteredTreeTicks 
+      });
+      
+      return filteredTreeTicks;
+    }
+    
+    // Fallback: just show "Phylogeny" label if no tree data available
+    const treeAreaWidth = treeBoundaryScreen;
+    const phylogenyLabelScreen = treeAreaWidth * 0.25;
+    
+    console.log('Tree center calculation:', { 
+      treeAreaWidth, 
+      phylogenyLabelScreen,
+      containerWidth
+    });
+    
+    const ticks = [];
+    if (phylogenyLabelScreen >= 0 && phylogenyLabelScreen <= containerWidth) {
+      ticks.push({ 
+        x: 0, // Not used for tree 
+        screenX: phylogenyLabelScreen, 
+        type: 'tree', 
+        label: 'Phylogeny'
+      });
+      console.log('Added tree tick:', ticks[0]);
+    } else {
+      console.log('Phylogeny label outside container bounds:', { phylogenyLabelScreen, containerWidth });
+    }
+    
+    console.log('generateTreeTicks returning:', ticks);
+    return ticks;
+  };
+
+  // Generate all ticks
+  const geneTicks = generateGeneTicks(constrainedMinX, constrainedMaxX);
+  const treeTicks = generateTreeTicks();
+  const allTicks = [...geneTicks, ...treeTicks];
+
+  console.log('Final tick summary:', { 
+    geneTicks: geneTicks.length, 
+    treeTicks: treeTicks.length, 
+    allTicks: allTicks.length,
+    treeTicksData: treeTicks
+  });
+
+  // Format coordinate labels for gene ticks
+  const formatCoordinate = (coord) => {
+    // Always show sign for negative values, no sign for positive
+    if (coord > 0) {
+      if (Math.abs(coord) >= 1000000) {
+        return `${(coord / 1000000).toFixed(2)}M`;
+      } else if (Math.abs(coord) >= 10000) {
+        return `${(coord / 1000).toFixed(1)}K`;
+      } else if (Math.abs(coord) >= 1000) {
+        return `${(coord / 1000).toFixed(1)}K`;
+      } else if (Math.abs(coord) >= 100) {
+        return `${Math.round(coord)}`;
+      } else {
+        return `${coord.toFixed(1)}`;
+      }
+    } else if (coord < 0) {
+      if (Math.abs(coord) >= 1000000) {
+        return `${(coord / 1000000).toFixed(2)}M`;
+      } else if (Math.abs(coord) >= 10000) {
+        return `${(coord / 1000).toFixed(1)}K`;
+      } else if (Math.abs(coord) >= 1000) {
+        return `${(coord / 1000).toFixed(1)}K`;
+      } else if (Math.abs(coord) >= 100) {
+        return `${Math.round(coord)}`;
+      } else {
+        return `${coord.toFixed(1)}`;
+      }
+    } else {
+      return '0';
+    }
+  };
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: `${rulerHeight}px`,
+        backgroundColor: themeColors.rulerBackground || 'rgba(255, 255, 255, 0.95)',
+        borderTop: '1px solid #ccc',
+        pointerEvents: 'none',
+        zIndex: 15,
+        overflow: 'hidden'
+      }}
+    >
+      {/* Ruler background */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: themeColors.rulerBackground || 'rgba(250, 250, 250, 0.9)'
+        }}
+      />
+      
+      {/* Ticks and labels */}
+      <svg
+        width="100%"
+        height="100%"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0
+        }}
+      >
+        {allTicks.map((tick, index) => {
+          console.log(`Rendering tick ${index}:`, { 
+            type: tick.type, 
+            screenX: tick.screenX, 
+            label: tick.type === 'gene' ? formatCoordinate(tick.x) : tick.label,
+            containerWidth 
+          });
+          return (
+            <g key={index}>
+              {/* Tick line for gene coordinates only */}
+              {tick.type === 'gene' && (
+                <line
+                  x1={tick.screenX}
+                  y1={0}
+                  x2={tick.screenX}
+                  y2={tickHeight}
+                  stroke={themeColors.rulerTicks || "#666"}
+                  strokeWidth={1}
+                />
+              )}            {/* Labels */}
+            <text
+              x={tick.screenX}
+              y={labelOffset}
+              textAnchor="middle"
+              fontSize="11px"
+              fill={tick.type === 'tree' ? (themeColors.rulerText || "#0066cc") : (themeColors.rulerText || "#333")}
+              fontFamily="Helvetica, Arial, sans-serif"
+              fontWeight={tick.type === 'tree' ? 'bold' : 'normal'}
+            >
+              {tick.type === 'gene' ? formatCoordinate(tick.x) : tick.label}
+            </text>
+            {/* Small tick marks for evolutionary distance scale */}
+            {tick.type === 'tree' && tick.isScale && (
+              <line
+                x1={tick.screenX}
+                y1={0}
+                x2={tick.screenX}
+                y2={tickHeight / 2}
+                stroke={themeColors.rulerTicks || "#0066cc"}
+                strokeWidth={1}
+              />
+            )}
+            </g>
+          );
+        })}
+        
+        {/* Minor ticks (only for gene area) */}
+        {geneTicks.length > 1 && geneTicks.map((tick, index) => {
+          if (index < geneTicks.length - 1) {
+            const nextTick = geneTicks[index + 1];
+            const tickSpacing = nextTick.x - tick.x;
+            if (tickSpacing > 20) {
+              const nextX = tick.x + tickSpacing / 2;
+              // Convert back to scaled coordinate space for screen positioning (matching main tick logic)
+              const scaledNextX = nextX * genomeXScale;
+              const worldNextX = scaledNextX + (alignmentReferencePoint || 0);
+              const nextScreenX = ((worldNextX - (centerX - visibleWidth / 2)) / visibleWidth) * containerWidth;
+              if (nextScreenX >= 0 && nextScreenX <= containerWidth) {
+                return (
+                  <line
+                    key={`minor-${index}`}
+                    x1={nextScreenX}
+                    y1={0}
+                    x2={nextScreenX}
+                    y2={tickHeight / 2}
+                    stroke={themeColors.rulerTicks || "#999"}
+                    strokeWidth={0.5}
+                  />
+                );
+              }
+            }
+          }
+          return null;
+        })}
+      </svg>
+      
+      {/* Coordinate range indicator (only for gene area) */}
+      {geneTicks.length > 0 && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 2,
+            right: 5,
+            fontSize: '9px',
+            color: themeColors.rulerText || '#666',
+            fontFamily: 'Helvetica, Arial, sans-serif'
+          }}
+        >
+          {formatCoordinate(scaledGeneVisibleMinX)} - {formatCoordinate(scaledGeneVisibleMaxX)}
+          {isAlignmentActive && (
+            <span style={{ marginLeft: '8px', color: themeColors.rulerText || '#0066cc', fontWeight: 'bold' }}>
+              (aligned)
+            </span>
+          )}
+          {genomeXScalePercent !== 100 && (
+            <span style={{ marginLeft: '8px', color: themeColors.rulerText || '#ff6600', fontWeight: 'bold' }}>
+              ({genomeXScalePercent}% scale)
+            </span>
+          )}
+        </div>
+      )}
+      
+    </div>
+  );
+};
+
+export default RulerWidget;

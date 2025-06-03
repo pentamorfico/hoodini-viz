@@ -1,20 +1,23 @@
-A 0 10760
-B 0 7657
-C 0 11387
-D 0 9056
-E 0 11402
-F 0 5250
-G 0 5924
-H 0 11085
-I 0 8654
-J 0 5374
-K 0 7569
-L 0 8926
-M 0 6929
-N 0 9081
-O 0 9755
-P 0 6823
-Q 0 6325
-R 0 4766
-S 0 7738
-T 0 7705
+hood_id	seqid	start	end	align_gene
+hood_A	A	0	10760	gene_A_1
+hood_A2	A	2771	8083	gene_A_3
+hood_A3	A	5234	10760	gene_A_5
+hood_B	B	0	7900	gene_B_3
+hood_C	C	0	11387	gene_C_4
+hood_D	D	0	9056	gene_D_3
+hood_E	E	0	11402	gene_E_4
+hood_F	F	0	5250	gene_F_2
+hood_G	G	0	5924	gene_G_2
+hood_H	H	0	11085	gene_H_4
+hood_I	I	0	8654	gene_I_3
+hood_J	J	0	5374	gene_J_2
+hood_K	K	0	7569	gene_K_3
+hood_L	L	0	8926	gene_L_3
+hood_M	M	0	6929	gene_M_3
+hood_N	N	0	9081	gene_N_3
+hood_O	O	0	9755	gene_O_3
+hood_P	P	0	6823	gene_P_3
+hood_Q	Q	0	6325	gene_Q_3
+hood_R	R	0	4766	gene_R_3
+hood_S	S	0	7738	gene_S_3
+hood_T	T	0	7705	gene_T_3

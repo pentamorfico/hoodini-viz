@@ -1,15 +1,20 @@
 // PhyloTree.js
 import PhyloNode from './PhyloNode';
-
-// Configurable vertical spacing for tree leaves
-const TREE_Y_SPACING = 200;
+import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 class PhyloTree {
-  constructor(newickStr) {
+  constructor(newickStr, config = DEFAULT_CONFIG, ultrametric = false, themeColors = null) {
+    this.config = config;
+    this.themeColors = themeColors;
     this.root = this.parseNewick(newickStr);
     this.allNodes = [];
     this.leafNodes = [];
     this.collectAll();
+    
+    // Apply ultrametric conversion if requested
+    if (ultrametric) {
+      this.makeUltrametric();
+    }
   }
 
   parseNewick(s) {
@@ -84,8 +89,9 @@ class PhyloTree {
   }
 
   assignX(leaves) {
+    const spacing = this.config.tree.ySpacing;
     for (let i=0;i<leaves.length;i++) {
-      leaves[i].x = i * TREE_Y_SPACING;
+      leaves[i].x = i * spacing;
     }
   }
 
@@ -99,7 +105,7 @@ class PhyloTree {
   scaleY() {
     const rootDists=this.allNodes.map(n=>n.rootDist);
     const maxDist=Math.max(...rootDists);
-    const yScaleFactor=800/(maxDist>0?maxDist:1);
+    const yScaleFactor=this.config.tree.yScaleFactor/(maxDist>0?maxDist:1);
     for(let n of this.allNodes) {
       n.y=n.rootDist*yScaleFactor;
     }
@@ -122,6 +128,10 @@ class PhyloTree {
 
   buildEdges() {
     const edges=[];
+    
+    // Use theme colors if available, otherwise fall back to config or default
+    const edgeColor = this.themeColors?.treeEdges || this.config.tree.edgeColor || [85,85,85,255];
+    
     const build=(node)=>{
       for(let ch of node.branchset) {
         const path=[
@@ -129,12 +139,80 @@ class PhyloTree {
           [node.y,ch.x],
           [ch.y,ch.x]
         ];
-        edges.push({path:path,color:[85,85,85,255],source:node,target:ch});
+        edges.push({path:path,color:edgeColor,source:node,target:ch});
         build(ch);
       }
     };
     build(this.root);
     return edges;
+  }
+
+    /**
+   * Convert tree to ultrametric format where all leaves are equidistant from the root
+   * This adjusts branch lengths to make the tree ultrametric while preserving topology
+   */
+  makeUltrametric() {
+    if (!this.allNodes || this.allNodes.length === 0) {
+      this.collectAll();
+    }
+    
+    // First, ensure we have parent pointers and root distances
+    this.setParents();
+    this.computeDistances();
+    
+    // Find the maximum distance from root to any leaf
+    const leafNodes = this.getLeafNodes();
+    const maxRootDist = Math.max(...leafNodes.map(leaf => leaf.rootDist));
+    
+    // For each internal node, calculate the distance it should be from the root
+    // to maintain ultrametricity
+    const adjustBranchLengths = (node) => {
+      if (node.branchset.length === 0) {
+        // Leaf node: ensure its distance to root equals maxRootDist
+        node.rootDist = maxRootDist;
+        return;
+      }
+      
+      // Internal node: process children first
+      for (let child of node.branchset) {
+        adjustBranchLengths(child);
+      }
+      
+      // For internal nodes, set the rootDist to the minimum of children's rootDist
+      // minus their branch length to this node
+      const childDistances = node.branchset.map(child => child.rootDist);
+      const minChildDist = Math.min(...childDistances);
+      
+      // Adjust this node's position to maintain ultrametricity
+      // All children should have the same distance from this node to their tips
+      node.rootDist = minChildDist - Math.max(...node.branchset.map(child => 
+        child.branchLength || 0
+      ));
+      
+      // Ensure we don't go negative
+      if (node.rootDist < 0) {
+        node.rootDist = 0;
+      }
+    };
+    
+    // Start from leaves and work backwards
+    adjustBranchLengths(this.root);
+    
+    // Now recalculate branch lengths based on the adjusted root distances
+    const recalculateBranchLengths = (node) => {
+      for (let child of node.branchset) {
+        // Branch length is the difference in root distances
+        child.branchLength = child.rootDist - node.rootDist;
+        recalculateBranchLengths(child);
+      }
+    };
+    
+    // Root should have rootDist of 0
+    this.root.rootDist = 0;
+    recalculateBranchLengths(this.root);
+    
+    // Recompute distances to ensure consistency
+    this.computeDistances();
   }
 }
 

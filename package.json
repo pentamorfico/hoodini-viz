@@ -14,6 +14,7 @@
     "@deck.gl/layers": "9.1.10",
     "@deck.gl/react": "9.1.10",
     "deck.gl": "9.1.10",
+    "dicopal": "^0.8.1",
     "polygon-clipping": "^0.15.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

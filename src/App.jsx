@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 import PhyloTreeViewer from './components/PhyloTreeViewer';
+import ThemeToggle from './components/ThemeToggle';
+import ColorPaletteWidget from './widgets/ColorPaletteWidget';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
 import { parseGFF } from './utils/parseGFF';
 import { parseLinks } from './utils/parseLinks';
 import { parseNucleotideLinks } from './utils/parseNucleotideLinks';
@@ -8,6 +11,7 @@ import { parseDomains } from './utils/parseDomains';
 import parseBaselines from './utils/parseBaselines';
 import parseProteinMetadata from './utils/parseProteinMetadata';
 import parseTreeMetadata from './utils/parseTreeMetadata';
+import { DEFAULT_CONFIG } from './config/visualizationConfig';
 
 import defaultNewick from './data/defaultNewick.txt?raw';
 import defaultGFFStr from './data/defaultGFF.gff?raw';
@@ -22,9 +26,39 @@ import defaultTreeMetadata from './data/defaultTreeMetadata.txt?raw';
 function App() {
   const [newickStr, setNewickStr] = useState(defaultNewick);
   const [showScrollbar, setShowScrollbar] = useState(true);
-  const [alignCluster, setAlignCluster] = useState(null); // Add this state
+  const [alignCluster, setAlignCluster] = useState(null); // Set to null by default - no cluster alignment
+  const [useDefaultGeneAlignment, setUseDefaultGeneAlignment] = useState(false); // Enable default gene alignment by default
+  const [showRuler, setShowRuler] = useState(true); // New state to control ruler visibility
   const [treeLabelBy, setTreeLabelBy] = useState("leaf_id");
   const [treeColorBy, setTreeColorBy] = useState("species");
+  const [ultrametric, setUltrametric] = useState(false); // New state to control ultrametric tree conversion
+  const [showConnectingLines, setShowConnectingLines] = useState(false); // New state to control connecting lines
+  const [defaultAlign, setDefaultAlign] = useState('start'); // Add state for default alignment
+  const [phyloLabelPosition, setPhyloLabelPosition] = useState('after-tree'); // New state to control phylo label positioning
+  const [alignLabels, setAlignLabels] = useState(true); // New state to control phylo label alignment
+  const [arrowheadHeight, setArrowheadHeight] = useState(0); // New state to control gene arrowhead height
+  
+  // Color palette states
+  const [genePalette, setGenePalette] = useState(DEFAULT_CONFIG.colorPalettes.genePalette);
+  const [domainPalette, setDomainPalette] = useState(DEFAULT_CONFIG.colorPalettes.domainPalette);
+  const [phyloPalette, setPhyloPalette] = useState(DEFAULT_CONFIG.colorPalettes.phyloPalette);
+  
+  // Reference to the PhyloTreeViewer to access genomeView for track manipulation
+  const phyloTreeViewerRef = useRef(null);
+
+  // Always use DEFAULT_CONFIG directly, but merge with dynamic settings
+  const config = React.useMemo(() => ({
+    ...DEFAULT_CONFIG,
+    gene: {
+      ...DEFAULT_CONFIG.gene,
+      arrowheadHeight: arrowheadHeight
+    },
+    colorPalettes: {
+      genePalette,
+      domainPalette,
+      phyloPalette
+    }
+  }), [arrowheadHeight, genePalette, domainPalette, phyloPalette]);
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
@@ -33,6 +67,26 @@ function App() {
     // object contains all metadata, etc.
     console.log('Clicked object:', object);
     // You can store it in state if needed
+  };
+
+  // Track manipulation functions
+  const handleTrackShiftPlus1kb = (hoodId) => {
+    if (phyloTreeViewerRef.current && phyloTreeViewerRef.current.genomeView) {
+      phyloTreeViewerRef.current.genomeView.shiftTrackPlus1kb(hoodId);
+      phyloTreeViewerRef.current.forceManualUpdate();
+    }
+  };
+  const handleTrackShiftMinus1kb = (hoodId) => {
+    if (phyloTreeViewerRef.current && phyloTreeViewerRef.current.genomeView) {
+      phyloTreeViewerRef.current.genomeView.shiftTrackMinus1kb(hoodId);
+      phyloTreeViewerRef.current.forceManualUpdate();
+    }
+  };
+  const handleTrackFlip = (hoodId) => {
+    if (phyloTreeViewerRef.current && phyloTreeViewerRef.current.genomeView) {
+      phyloTreeViewerRef.current.genomeView.flipTrackToggle(hoodId);
+      phyloTreeViewerRef.current.forceManualUpdate();
+    }
   };
 
   // Parse all data up front
@@ -46,27 +100,274 @@ function App() {
 
   return (
     <div className="App" >
+      {/* Simple controls for demonstration */}
+      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          <input 
+            type="checkbox" 
+            checked={ultrametric} 
+            onChange={(e) => setUltrametric(e.target.checked)}
+            style={{ marginRight: '5px' }}
+          />
+          Convert to Ultrametric Tree
+        </label>
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          <input 
+            type="checkbox" 
+            checked={showConnectingLines} 
+            onChange={(e) => setShowConnectingLines(e.target.checked)}
+            style={{ marginRight: '5px' }}
+          />
+          Show Connecting Lines
+        </label>
+        
+        {/* Phylo Label Position Control */}
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          Phylo Label Position:
+          <select 
+            value={phyloLabelPosition} 
+            onChange={(e) => setPhyloLabelPosition(e.target.value)}
+            style={{ marginLeft: '5px' }}
+          >
+            <option value="after-tree">After Tree</option>
+            <option value="after-tracks">After Tracks</option>
+          </select>
+        </label>
+
+        {/* Phylo Label Alignment Control */}
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          <input 
+            type="checkbox" 
+            checked={alignLabels} 
+            onChange={(e) => setAlignLabels(e.target.checked)}
+            style={{ marginRight: '5px' }}
+          />
+          Align phylo labels to same X coordinate
+        </label>
+
+        {/* Gene Arrowhead Height Control */}
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          Gene Arrowhead Height:
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            value={arrowheadHeight} 
+            onChange={(e) => setArrowheadHeight(Number(e.target.value))}
+            style={{ marginLeft: '5px', width: '100px' }}
+          />
+          <span style={{ marginLeft: '5px' }}>{arrowheadHeight}</span>
+        </label>
+
+        {/* Color Palette Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Color Palettes:</div>
+          
+          <ColorPaletteWidget
+            title="Gene Colors"
+            paletteConfig={genePalette}
+            onPaletteChange={setGenePalette}
+            showPreview={true}
+          />
+          
+          <ColorPaletteWidget
+            title="Domain Colors"
+            paletteConfig={domainPalette}
+            onPaletteChange={setDomainPalette}
+            showPreview={true}
+          />
+          
+          <ColorPaletteWidget
+            title="Phylo Label Colors"
+            paletteConfig={phyloPalette}
+            onPaletteChange={setPhyloPalette}
+            showPreview={true}
+          />
+        </div>
+        
+        {/* Alignment Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Alignment Controls:</div>
+          
+          {/* Cluster Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => setAlignCluster(1)}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Cluster 1
+            </button>
+            <button 
+              onClick={() => setAlignCluster(2)}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Cluster 2
+            </button>
+            <button 
+              onClick={() => setAlignCluster(null)}
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+            >
+              No Cluster
+            </button>
+          </div>
+          
+          {/* Traditional Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('start');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Start
+            </button>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('center');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Center
+            </button>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('end');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align End
+            </button>
+          </div>
+          
+          {/* Default Gene Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(true);
+              }}
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+            >
+              Default Gene Alignment
+            </button>
+          </div>
+        </div>
+
+
+
+        {/* Track Manipulation Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Track Controls:</div>
+          {['hood_A', 'hood_B', 'hood_C', 'hood_D', 'hood_E'].map(hoodId => (
+            <div key={hoodId} style={{ marginBottom: '3px', fontSize: '11px' }}>
+              <span style={{ display: 'inline-block', width: '60px', fontSize: '10px' }}>{hoodId}:</span>
+              <button 
+                onClick={() => handleTrackShiftMinus1kb(hoodId)}
+                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
+                title={`Shift ${hoodId} left by 1kb`}
+              >
+                -1kb
+              </button>
+              <button 
+                onClick={() => handleTrackShiftPlus1kb(hoodId)}
+                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
+                title={`Shift ${hoodId} right by 1kb`}
+              >
+                +1kb
+              </button>
+              <button 
+                onClick={() => handleTrackFlip(hoodId)}
+                style={{ padding: '1px 4px', fontSize: '10px' }}
+                title={`Flip ${hoodId}`}
+              >
+                Flip
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Tree Metadata Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Tree Display:</div>
+          
+          {/* Tree Label By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Tree Labels:
+            <select 
+              value={treeLabelBy} 
+              onChange={(e) => setTreeLabelBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              {treeMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+
+          {/* Tree Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Tree Colors:
+            <select 
+              value={treeColorBy} 
+              onChange={(e) => setTreeColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              {treeMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </div>
+      
       <PhyloTreeViewer
+        ref={phyloTreeViewerRef}
         newickStr={newickStr}
         gffFeatures={parsedGFF}
         proteinLinks={parsedProteinLinks}
         nucleotideLinks={parsedNucleotideLinks}
         domainsByGene={parsedDomains}
         baselines={parsedBaselines}
-        showScrollbar={false}
-        alignCluster={alignCluster} // Pass the cluster
-        defaultAlign='start'
+        showScrollbar={showScrollbar}
+        alignCluster={alignCluster}
+        defaultAlign={defaultAlign}
+        useDefaultGeneAlignment={useDefaultGeneAlignment}
+        showRuler={showRuler}
         onObjectClick={handleObjectClick}
-        showSVGWidget={false}
+        showSVGWidget={true}
         proteinMetadata={parsedProteinMetadata}
         colorBy="cluster"
-        labelBy="description"
+        labelBy="cluster"
         treeMetadata={parsedTreeMetadata}
-        treeLabelBy="species"
-        treeColorBy="species"
+        treeLabelBy={treeLabelBy}
+        treeColorBy={treeColorBy}
+        config={config}
+        ultrametric={ultrametric}
+        showConnectingLines={showConnectingLines}
+        phyloLabelPosition={phyloLabelPosition}
+        alignLabels={alignLabels}
+        genePalette={genePalette}
+        domainPalette={domainPalette}
+        phyloPalette={phyloPalette}
       />
+      <ThemeToggle />
     </div>
   );
 }
 
-export default App
+// Wrapper component with ThemeProvider
+function AppWithTheme() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}
+
+export default AppWithTheme;
