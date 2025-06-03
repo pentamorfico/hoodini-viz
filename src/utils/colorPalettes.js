@@ -75,11 +75,104 @@ export function getDivergingPalettes(minColors = 3, maxColors = 12) {
 // Get colors from a palette and convert to RGBA format
 export function getPaletteColors(paletteName, numColors, reverse = false) {
   try {
+    // First check if the palette exists and get its maximum supported colors
+    const palettes = getPalettes({ name: paletteName });
+    if (!palettes || palettes.length === 0) {
+      console.warn(`Palette ${paletteName} not found, using sequential fallback`);
+      return getSequentialColors(paletteName, numColors, reverse);
+    }
+
+    // Find the maximum number of colors this palette supports
+    const maxSupportedColors = Math.max(...palettes.map(p => p.number));
+    
+    // If requesting more colors than the palette supports, use sequential interpolation
+    if (numColors > maxSupportedColors) {
+      console.info(`Palette ${paletteName} supports max ${maxSupportedColors} colors, but ${numColors} requested. Using interpolated sequential colors.`);
+      return getSequentialColors(paletteName, numColors, reverse);
+    }
+
+    // Try to get colors normally for supported numbers
     const hexColors = getColors(paletteName, numColors, reverse);
-    return hexColors.map(hex => hexToRgba(hex));
+    if (!hexColors || !Array.isArray(hexColors) || hexColors.length === 0) {
+      console.warn(`Failed to get palette ${paletteName} with ${numColors} colors: palette not found or invalid`);
+      return getSequentialColors(paletteName, numColors, reverse);
+    }
+    
+    // Additional safety check for individual hex values
+    const validHexColors = hexColors.filter(hex => hex != null && typeof hex === 'string');
+    if (validHexColors.length === 0) {
+      console.warn(`All colors in palette ${paletteName} are invalid`);
+      return getSequentialColors(paletteName, numColors, reverse);
+    }
+    
+    return validHexColors.map(hex => hexToRgba(hex));
   } catch (error) {
     console.warn(`Failed to get palette ${paletteName} with ${numColors} colors:`, error);
-    // Fallback to a simple color sequence
+    // Fallback to sequential interpolation
+    return getSequentialColors(paletteName, numColors, reverse);
+  }
+}
+
+// Generate sequential colors by interpolating between palette colors
+export function getSequentialColors(paletteName, numColors, reverse = false) {
+  try {
+    // First try to get the maximum number of colors this palette supports
+    const palettes = getPalettes({ name: paletteName });
+    if (!palettes || palettes.length === 0) {
+      return generateFallbackColors(numColors);
+    }
+
+    // Find the palette with the highest number of colors
+    const maxColorsPalette = palettes.reduce((max, current) => 
+      current.number > max.number ? current : max
+    );
+    
+    // Get the base colors from the palette
+    const baseColors = getColors(paletteName, maxColorsPalette.number, reverse);
+    if (!baseColors || baseColors.length === 0) {
+      return generateFallbackColors(numColors);
+    }
+
+    // Convert hex colors to RGB
+    const baseRgbColors = baseColors.map(hex => hexToRgba(hex));
+
+    // If we need fewer or equal colors than available, just slice
+    if (numColors <= baseRgbColors.length) {
+      return baseRgbColors.slice(0, numColors);
+    }
+
+    // If we need more colors, interpolate between the base colors
+    const interpolatedColors = [];
+    
+    for (let i = 0; i < numColors; i++) {
+      // Map the index to the range of base colors
+      const position = (i / (numColors - 1)) * (baseRgbColors.length - 1);
+      const lowerIndex = Math.floor(position);
+      const upperIndex = Math.min(lowerIndex + 1, baseRgbColors.length - 1);
+      const fraction = position - lowerIndex;
+
+      if (lowerIndex === upperIndex) {
+        // At the boundary, just use the color
+        interpolatedColors.push([...baseRgbColors[lowerIndex]]);
+      } else {
+        // Interpolate between the two colors
+        const lowerColor = baseRgbColors[lowerIndex];
+        const upperColor = baseRgbColors[upperIndex];
+        
+        const interpolated = [
+          Math.round(lowerColor[0] + (upperColor[0] - lowerColor[0]) * fraction),
+          Math.round(lowerColor[1] + (upperColor[1] - lowerColor[1]) * fraction),
+          Math.round(lowerColor[2] + (upperColor[2] - lowerColor[2]) * fraction),
+          255
+        ];
+        
+        interpolatedColors.push(interpolated);
+      }
+    }
+
+    return interpolatedColors;
+  } catch (error) {
+    console.warn(`Failed to generate sequential colors for palette ${paletteName}:`, error);
     return generateFallbackColors(numColors);
   }
 }

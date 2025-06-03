@@ -38,10 +38,20 @@ function App() {
   const [alignLabels, setAlignLabels] = useState(true); // New state to control phylo label alignment
   const [arrowheadHeight, setArrowheadHeight] = useState(0); // New state to control gene arrowhead height
   
+  // Gene and domain selection states
+  const [geneColorBy, setGeneColorBy] = useState('cluster'); // Gene coloring field selection
+  const [geneLabelBy, setGeneLabelBy] = useState('cluster'); // Gene labeling field selection
+  const [domainColorBy, setDomainColorBy] = useState('domainName'); // Domain coloring field selection
+  
   // Color palette states
   const [genePalette, setGenePalette] = useState(DEFAULT_CONFIG.colorPalettes.genePalette);
   const [domainPalette, setDomainPalette] = useState(DEFAULT_CONFIG.colorPalettes.domainPalette);
   const [phyloPalette, setPhyloPalette] = useState(DEFAULT_CONFIG.colorPalettes.phyloPalette);
+  
+  // Handler for domain palette changes that updates enabled state
+  const handleDomainPaletteChange = (newPalette) => {
+    setDomainPalette(newPalette);
+  };
   
   // Reference to the PhyloTreeViewer to access genomeView for track manipulation
   const phyloTreeViewerRef = useRef(null);
@@ -62,6 +72,12 @@ function App() {
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
+  
+  // Extract gene metadata columns for dropdowns (from protein metadata)
+  const geneMetadataColumns = React.useMemo(() => {
+    const headerLine = defaultProteinMetadata.trim().split(/\r?\n/)[0];
+    return headerLine.split(/\t/).filter(col => col !== 'gene_id'); // Exclude gene_id from options
+  }, []);
 
   const handleObjectClick = (object) => {
     // object contains all metadata, etc.
@@ -173,7 +189,7 @@ function App() {
           <ColorPaletteWidget
             title="Domain Colors"
             paletteConfig={domainPalette}
-            onPaletteChange={setDomainPalette}
+            onPaletteChange={handleDomainPaletteChange}
             showPreview={true}
           />
           
@@ -324,6 +340,54 @@ function App() {
             </select>
           </label>
         </div>
+
+        {/* Gene Metadata Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Gene Metadata Display:</div>
+          
+          {/* Gene Label By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Gene Labels:
+            <select 
+              value={geneLabelBy} 
+              onChange={(e) => setGeneLabelBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              <option value="">None</option>
+              {geneMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+
+          {/* Gene Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Gene Colors:
+            <select 
+              value={geneColorBy} 
+              onChange={(e) => setGeneColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              {geneMetadataColumns.map(col => (
+                <option key={col} value={col}>{col}</option>
+              ))}
+            </select>
+          </label>
+          
+          {/* Domain Color By */}
+          <label style={{ display: 'block', marginBottom: '5px' }}>
+            Domain Colors:
+            <select 
+              value={domainColorBy} 
+              onChange={(e) => setDomainColorBy(e.target.value)}
+              style={{ marginLeft: '5px', padding: '2px', fontSize: '12px' }}
+            >
+              <option value="domainName">Domain Name</option>
+              <option value="evalue">E-value</option>
+              <option value="length">Length</option>
+            </select>
+          </label>
+        </div>
       </div>
       
       <PhyloTreeViewer
@@ -342,8 +406,9 @@ function App() {
         onObjectClick={handleObjectClick}
         showSVGWidget={true}
         proteinMetadata={parsedProteinMetadata}
-        colorBy="cluster"
-        labelBy="cluster"
+        colorBy={geneColorBy}
+        labelBy={geneLabelBy}
+        domainColorBy={domainColorBy}
         treeMetadata={parsedTreeMetadata}
         treeLabelBy={treeLabelBy}
         treeColorBy={treeColorBy}

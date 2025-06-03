@@ -22,26 +22,29 @@ const PhyloTreeViewer = React.forwardRef(({
   showScrollbar,
   setGenomeViewRef,
   alignCluster,
-  defaultAlign = 'start', // new prop, default to 'start'
-  useDefaultGeneAlignment = true, // new prop to control align_gene usage
-  showRuler = true, // new prop to control ruler visibility
-  onObjectClick, // new prop
+  defaultAlign = 'start',
+  useDefaultGeneAlignment = true,
+  showRuler = true,
+  onObjectClick,
   showSVGWidget = false,
-  proteinMetadata, // new prop
-  colorBy = 'cluster', // new prop
-  labelBy, // new prop
+  proteinMetadata,
+  colorBy = 'cluster',
+  labelBy,
   treeMetadata,
   treeLabelBy = 'leaf_id',
   treeColorBy = 'leaf_id',
-  config = DEFAULT_CONFIG, // configuration object
-  ultrametric = false, // new prop to control ultrametric tree conversion
-  showConnectingLines = false, // new prop to show dashed lines between tree leaves and genome tracks
-  forceUpdateCounter = 0, // new prop to trigger re-renders after manual track manipulations
-  phyloLabelPosition = 'after-tree', // new prop to control phylo label positioning: 'after-tree' or 'after-tracks'
-  alignLabels = true, // new prop to control whether phylo labels are aligned to the same X coordinate
-  genePalette, // color palette config for genes
-  domainPalette, // color palette config for domains
-  phyloPalette, // color palette config for phylo labels
+  config = DEFAULT_CONFIG,
+  ultrametric = false,
+  showConnectingLines = false,
+  forceUpdateCounter = 0,
+  phyloLabelPosition = 'after-tree',
+  alignLabels = true,
+  genePalette,
+  domainPalette,
+  phyloPalette,
+  geneColorBy,
+  geneLabelBy,
+  domainColorBy = 'domainName', // Add this prop
 }, ref) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -544,17 +547,38 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // --- DOMAIN PALETTE LOGIC ---
     if (domainPalette && domainPalette.enabled) {
-      // Use domain type as the key
-      const domainKeys = Array.from(new Set(domains.map(d => d.type || d.domain_id || d.name)));
+      // Use the selected domain color field instead of hardcoded domainName
+      const domainKeys = Array.from(new Set(domains.map(d => {
+        switch(domainColorBy) {
+          case 'domainName': return d.domainName;
+          case 'start': return d.start;
+          case 'end': return d.end;
+          case 'evalue': return d.evalue;
+          default: return d.domainName;
+        }
+      })));
+      
       const domainColors = getPaletteColors(
         domainPalette.name,
         Math.max(domainKeys.length, domainPalette.numColors || domainKeys.length),
         domainPalette.reverse || false
       );
+      
       const domainKeyToColor = {};
-      domainKeys.forEach((key, i) => { domainKeyToColor[key] = domainColors[i % domainColors.length]; });
+      domainKeys.forEach((key, i) => { 
+        domainKeyToColor[key] = domainColors[i % domainColors.length]; 
+      });
+      
       domains = domains.map(d => {
-        const key = d.type || d.domain_id || d.name;
+        const key = (() => {
+          switch(domainColorBy) {
+            case 'domainName': return d.domainName;
+            case 'start': return d.start;
+            case 'end': return d.end;
+            case 'evalue': return d.evalue;
+            default: return d.domainName;
+          }
+        })();
         return { ...d, fillColor: domainKeyToColor[key] };
       });
     }
@@ -955,7 +979,7 @@ const PhyloTreeViewer = React.forwardRef(({
     }
 
     return layers;
-  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette]);
+  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette, geneColorBy, geneLabelBy, domainColorBy]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);

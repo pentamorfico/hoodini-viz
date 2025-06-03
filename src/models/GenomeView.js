@@ -570,6 +570,7 @@ class GenomeView {
           alld.push({
             polygon: poly,
             fillColor: d.fillColor,
+            domainName: d.domainName, // Include domainName for palette logic
             metadata: d.metadata // Attach metadata for tooltip
           });
         }
