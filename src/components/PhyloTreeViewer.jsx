@@ -48,18 +48,20 @@ const PhyloTreeViewer = React.forwardRef(({
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
+  styleConfig, // Add styleConfig prop for layers
 }, ref) => {
   // Theme context
   const { getThemeColors, theme } = useTheme();
   const themeColors = React.useMemo(() => getThemeColors(), [theme]);
   
   // Visualization state
-  const [tree, setTree] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [manualUpdateTrigger, setManualUpdateTrigger] = useState(0); // Separate trigger for manual updates
+  const [alignmentVersion, setAlignmentVersion] = useState(0); // Trigger for alignment changes only
   const containerRef = React.useRef(null);
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
   const [treeLabelPadding, setTreeLabelPadding] = React.useState(100);
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true);
   const [viewState, setViewState] = useState({
     target: [0, 0, 0],
     zoom: -10
@@ -80,16 +82,142 @@ const PhyloTreeViewer = React.forwardRef(({
     }
   }), []);
 
-  // Only create genomeView when data changes
+
+  // Parse ncRNA metadata once
+  const nonCodingMetadata = React.useMemo(() => parseNonCodingMetadata(nonCodingMetadataText), []);
+
+  // Extract primitive values to break dependency on config object reference
+  const treeYSpacing = config.tree?.ySpacing;
+  const treeYScaleFactor = config.tree?.yScaleFactor;
+  const treeGap = config.tree?.gap;
+  const geneHeight = config.gene?.height;
+  const geneDefaultHeight = config.gene?.defaultHeight;
+  const geneTipWidthFactor = config.gene?.tipWidthFactor;
+  const genomeXScalePercent = config.genome?.xScalePercent;
+  const layoutPadding = config.layout?.padding;
+  const layoutGeneOffset = config.layout?.geneOffset;
+  const proteinLinkBezierSegments = config.proteinLink?.bezierSegments;
+
+  // Extract and memoize only the structural config values we actually need
+  // This prevents recreation when the config object reference changes but values are the same
+  const structuralConfigValues = React.useMemo(() => {
+    const result = {
+      treeYSpacing,
+      treeYScaleFactor, 
+      treeGap,
+      geneHeight,
+      geneDefaultHeight,
+      geneTipWidthFactor,
+      genomeXScalePercent,
+      layoutPadding,
+      layoutGeneOffset,
+      proteinLinkBezierSegments
+    };
+    
+    console.log('🔧 STRUCTURAL CONFIG VALUES MEMOIZATION:', {
+      result,
+      configReference: config === config, // This should always be true
+      arrowheadHeight: config.gene?.arrowheadHeight, // This should NOT trigger recreation
+    });
+    
+    return result;
+  }, [
+    treeYSpacing,
+    treeYScaleFactor, 
+    treeGap,
+    geneHeight,
+    geneDefaultHeight,
+    geneTipWidthFactor,
+    genomeXScalePercent,
+    layoutPadding,
+    layoutGeneOffset,
+    proteinLinkBezierSegments
+  ]);
+
+  // Memoize tree creation separately - ultrametric only affects tree, not genome
+  const tree = React.useMemo(() => {
+    console.log('🌲 RECREATING TREE - Only for newick changes or ultrametric toggle');
+    const newTree = new PhyloTree(newickStr, config, ultrametric);
+    const leavesToUse = newTree.getLeafNodes().map(n => n.name);
+    newTree.layout(leavesToUse);
+    return newTree;
+  }, [newickStr, ultrametric, structuralConfigValues]);
+
+  // Create a base tree for GenomeView that doesn't change with ultrametric
+  const baseTree = React.useMemo(() => {
+    console.log('🌳 RECREATING BASE TREE - Only for newick/structural changes');
+    const newTree = new PhyloTree(newickStr, config, false); // Always non-ultrametric for genome
+    const leavesToUse = newTree.getLeafNodes().map(n => n.name);
+    newTree.layout(leavesToUse);
+    return newTree;
+  }, [newickStr, structuralConfigValues]);
+
+  // Memoize core data processing to avoid recomputing on style changes
+  // Only depend on actual structural data and essential config properties
+  const genomeView = React.useMemo(() => {
+    console.log('🔥 RECREATING CORE DATA - This should only happen on data changes, not style changes!', {
+      newickStr: newickStr?.length,
+      gffFeatures: gffFeatures?.length,
+      proteinLinks: proteinLinks?.length,
+      nucleotideLinks: nucleotideLinks?.length,
+      domainsByGene: Object.keys(domainsByGene || {}).length,
+      baselines: baselines?.length,
+      // Log the extracted structural values to debug what's changing
+      structuralValues: structuralConfigValues
+    });
+    
+    // Use the base tree that doesn't change with ultrametric
+    const leavesToUse = baseTree.getLeafNodes().map(n => n.name);
+    
+    // Use full config for model creation but only depend on structural properties in useMemo
+    const newGenomeView = new GenomeView(leavesToUse, baseTree, config);
+    newGenomeView.addFeatures(gffFeatures);
+    if (baselines) newGenomeView.applyBaselines(baselines);
+    newGenomeView.initGenes();
+    newGenomeView.computeTrackPositions();
+    newGenomeView.addDomains(domainsByGene);
+    newGenomeView.addProteinLinks(proteinLinks);
+    newGenomeView.addNucleotideLinks(nucleotideLinks);
+
+    genomeViewRef.current = newGenomeView;
+    return newGenomeView;
+  }, [
+    // Only structural data dependencies - Use baseTree instead of tree
+    baseTree,
+    gffFeatures, 
+    proteinLinks, 
+    nucleotideLinks, 
+    domainsByGene, 
+    baselines, 
+    // Use the memoized structural config values instead of direct config access
+    structuralConfigValues
+  ]);
+
+  // Effect to update gene configs when arrowhead height changes (without recreating genome)
   useEffect(() => {
-    const tree = new PhyloTree(newickStr, config, ultrametric, themeColors);
-    const leavesToUse = tree.getLeafNodes().map(n => n.name);
-    tree.layout(leavesToUse);
-    const genomeView = new GenomeView(leavesToUse, tree, config);
-    genomeView.addFeatures(gffFeatures);
-    if (baselines) genomeView.applyBaselines(baselines);
-    genomeView.initGenes();
-    // Attach ncRNA metadata to ncRNA features
+    if (!genomeView) return;
+
+    // Update config on all gene objects
+    for (const uniqueGeneId in genomeView.genesById) {
+      const gene = genomeView.genesById[uniqueGeneId];
+      gene.config = config; // Update with current config including new arrowheadHeight
+    }
+
+    // Update config on all ncRNA objects
+    for (const uniqueNcId in genomeView.ncRNAsById) {
+      const nc = genomeView.ncRNAsById[uniqueNcId];
+      nc.config = config; // Update with current config
+    }
+
+    // Trigger layer data recomputation to show new arrowhead heights
+    setAlignmentVersion(prev => prev + 1);
+  }, [config, genomeView]);
+
+  // Effect for attaching metadata and clusters, runs when metadata-related props change
+  useEffect(() => {
+    if (!genomeView) return;
+
+    // Attach ncRNA metadata
     for (const uniqueNcId in genomeView.ncRNAsById) {
       const nc = genomeView.ncRNAsById[uniqueNcId];
       if (nc && nonCodingMetadata[nc.originalId]) {
@@ -99,25 +227,25 @@ const PhyloTreeViewer = React.forwardRef(({
         }
       }
     }
-    genomeView.computeTrackPositions();
-    genomeView.addDomains(domainsByGene);
-    genomeView.addProteinLinks(proteinLinks);
-    genomeView.addNucleotideLinks(nucleotideLinks);
-    // Attach protein metadata to gene objects
+
+    // Attach protein metadata
     if (proteinMetadata) {
       for (const uniqueGeneId in genomeView.genesById) {
         const gene = genomeView.genesById[uniqueGeneId];
         const originalGeneId = gene.originalGeneId;
         if (originalGeneId && proteinMetadata[originalGeneId]) {
           gene.metadata = proteinMetadata[originalGeneId];
+        } else {
+          gene.metadata = {}; // Clear old metadata
         }
       }
     }
+
     // Set clusters if available
     let clustersFromMetadata = null;
     if (proteinMetadata) {
       const entries = Object.values(proteinMetadata);
-      if (entries.length && entries[0][colorBy] !== undefined) {
+      if (entries.length > 0 && entries[0] && entries[0][colorBy] !== undefined) {
         clustersFromMetadata = {};
         for (const entry of entries) {
           if (entry.gene_id && entry[colorBy] !== undefined) {
@@ -126,13 +254,22 @@ const PhyloTreeViewer = React.forwardRef(({
         }
       }
     }
-    if (clustersFromMetadata) {
-      genomeView.setProteinClusters(clustersFromMetadata);
-    }
-    genomeViewRef.current = genomeView;
-    setTree(tree);
+    genomeView.setProteinClusters(clustersFromMetadata || {});
+
+    setManualUpdateTrigger(prev => prev + 1);
+  }, [proteinMetadata, colorBy, nonCodingMetadata, genomeView]);
+
+  // Effect for theme color updates
+  useEffect(() => {
+    if (!tree) return;
+    tree.themeColors = themeColors;
+    setManualUpdateTrigger(prev => prev + 1);
+  }, [themeColors, tree]);
+
+  // Reset selection when core data changes
+  useEffect(() => {
     setSelectedNode(null);
-  }, [newickStr, gffFeatures, proteinLinks, nucleotideLinks, domainsByGene, baselines, proteinMetadata, colorBy, config, ultrametric, themeColors]);
+  }, [tree]);
 
   // Force update effect for manual track manipulations
   useEffect(() => {
@@ -165,9 +302,6 @@ const PhyloTreeViewer = React.forwardRef(({
     const charWidth = config.tree.labelPadding.charWidth; // Use configurable char width
     setTreeLabelPadding(maxLen * charWidth);
   }, [tree, treeMetadata, treeLabelBy, config]);
-
-  // Parse ncRNA metadata once
-  const nonCodingMetadata = React.useMemo(() => parseNonCodingMetadata(nonCodingMetadataText), []);
 
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree') {
@@ -287,11 +421,6 @@ const PhyloTreeViewer = React.forwardRef(({
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
   }, []);
-
-  // Automatically fit view to bounds on data or container size changes
-  React.useEffect(() => {
-    fitViewToBounds(genomeViewRef.current, tree, containerSize, setViewState, phyloLabelPosition);
-  }, [containerSize, tree, phyloLabelPosition]);
 
   // Function to detect alignment and find the actual alignment reference point
   function getAlignmentReferencePoint(genomeView) {
@@ -536,6 +665,14 @@ const PhyloTreeViewer = React.forwardRef(({
   const layers = React.useMemo(() => {
     const genomeView = genomeViewRef.current;
     if (!genomeView || !tree) return [];
+    
+    // Use styleConfig if available, otherwise fall back to config and individual palette props
+    const effectiveConfig = styleConfig || config;
+    const effectiveGenePalette = genePalette || effectiveConfig.colorPalettes?.genePalette;
+    const effectiveDomainPalette = domainPalette || effectiveConfig.colorPalettes?.domainPalette;
+    const effectivePhyloPalette = phyloPalette || effectiveConfig.colorPalettes?.phyloPalette;
+    const effectiveNcRNAPalette = ncRNAPalette || effectiveConfig.colorPalettes?.ncRNAPalette;
+    
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
     const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
     const treeOffset = bounds.treeOffset || 0;
@@ -639,7 +776,7 @@ const PhyloTreeViewer = React.forwardRef(({
       return false;
     });
     // --- GENE PALETTE LOGIC ---
-    if (!genePalette || !genePalette.enabled) {
+    if (!effectiveGenePalette || !effectiveGenePalette.enabled) {
       genes = genes.map(g => {
         return { ...g, fillColor: themeColors.geneFill };
       });
@@ -653,9 +790,9 @@ const PhyloTreeViewer = React.forwardRef(({
       });
       const geneKeys = Array.from(new Set(genesWithValidKeys.map(g => g.metadata[geneKeyField])));
       const geneColors = getPaletteColors(
-        genePalette.name,
-        Math.max(geneKeys.length, genePalette.numColors || geneKeys.length),
-        genePalette.reverse || false
+        effectiveGenePalette.name,
+        Math.max(geneKeys.length, effectiveGenePalette.numColors || geneKeys.length),
+        effectiveGenePalette.reverse || false
       );
       const geneKeyToColor = {};
       geneKeys.forEach((key, i) => { geneKeyToColor[key] = geneColors[i % geneColors.length]; });
@@ -672,7 +809,7 @@ const PhyloTreeViewer = React.forwardRef(({
     }
 
     // --- DOMAIN PALETTE LOGIC ---
-    if (!domainPalette || !domainPalette.enabled) {
+    if (!effectiveDomainPalette || !effectiveDomainPalette.enabled) {
       domains = domains.map(d => {
         return { ...d, fillColor: themeColors.domainFill };
       });
@@ -702,9 +839,9 @@ const PhyloTreeViewer = React.forwardRef(({
       })));
       
       const domainColors = getPaletteColors(
-        domainPalette.name,
-        Math.max(domainKeys.length, domainPalette.numColors || domainKeys.length),
-        domainPalette.reverse || false
+        effectiveDomainPalette.name,
+        Math.max(domainKeys.length, effectiveDomainPalette.numColors || domainKeys.length),
+        effectiveDomainPalette.reverse || false
       );
       
       const domainKeyToColor = {};
@@ -771,11 +908,16 @@ const PhyloTreeViewer = React.forwardRef(({
         };
       });
 
-    // Use edges with metadata for tooltips
-    const phyloPaths = genomeView.buildEdgesWithMetadata().map(e => ({
-      ...e,
-      path: e.path.map(([y, x]) => [y + treeOffset, x]),
-      metadata: e.metadata
+    // Use edges with metadata for tooltips - use current tree, not baseTree from genomeView
+    const phyloPaths = tree.buildEdges().map(edge => ({
+      path: edge.path.map(([y, x]) => [y + treeOffset, x]),
+      metadata: {
+        source: edge.source.name || `internal_${edge.source.id}`,
+        target: edge.target.name || `internal_${edge.target.id}`,
+        length: edge.target.branchLength || 0,
+        type: 'phylo_edge'
+      },
+      color: edge.color
     }));
 
     // Phylo labels (shift X by treeOffset or position after tracks)
@@ -788,7 +930,7 @@ const PhyloTreeViewer = React.forwardRef(({
       if (label === undefined || label === null) label = l.name;
       if (typeof label !== 'string') label = String(label);
       let color;
-      if (phyloPalette && phyloPalette.enabled) {
+      if (effectivePhyloPalette && effectivePhyloPalette.enabled) {
         // Use colorBy value for coloring if palette is enabled - only if value exists
         const colorValue = meta[treeColorBy];
         if (colorValue !== null && colorValue !== undefined) {
@@ -865,8 +1007,8 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // Apply palette to phylo labels if enabled
     let finalPhyloLabels;
-    if (phyloPalette && phyloPalette.enabled && treeMetadata) {
-      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, phyloPalette).map(lbl => {
+    if (effectivePhyloPalette && effectivePhyloPalette.enabled && treeMetadata) {
+      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, effectivePhyloPalette).map(lbl => {
         // Ensure fallback to themeColors.geneFill for labels without valid metadata
         const colorValue = treeMetadata?.[lbl.leafNode.name]?.[treeColorBy];
         return colorValue !== null && colorValue !== undefined && colorValue !== ''
@@ -891,15 +1033,50 @@ const PhyloTreeViewer = React.forwardRef(({
     // Prune extra properties: meta and leaf removed
     const finalPhyloLabelsPruned = phyloLabels.map(({position,text,color,size,textAnchor}) => ({position,text,color,size,textAnchor}));
 
-    // Node points (shift X by treeOffset)
-    const nodePoints = genomeView.buildNodePoints(selectedNode).map(n => ({
-      ...n,
-      position: [n.position[0] + treeOffset, n.position[1]]
-    }));
+    // Node points (shift X by treeOffset) - use current tree, not baseTree from genomeView
+    const highlightLeaves = selectedNode ? new Set(genomeView.getNodeDescendantLeaves(selectedNode)) : null;
+    const nodeRadius = config?.tree?.nodeRadius || { internal: 4, leaf: 2 };
+    const nodePoints = tree.allNodes.map(n => {
+      const nodeLeaves = genomeView.getNodeDescendantLeaves(n);
+      const isDesc = !selectedNode || nodeLeaves.some(l => highlightLeaves.has(l));
+      let color;
+      if (n.branchset.length > 0) {
+        // Internal node: black
+        color = [0, 0, 0, 255];
+      } else {
+        // Leaf: color by metadata
+        const meta = n.metadata || {};
+        const colorValue = meta[treeColorBy];
+        if (colorValue) {
+          // Simple hash to color
+          const str = String(colorValue);
+          let hash = 0;
+          for (let i = 0; i < str.length; ++i) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+          const r = (hash >> 0) & 0xFF;
+          const g = (hash >> 8) & 0xFF;
+          const b = (hash >> 16) & 0xFF;
+          color = [Math.abs(r), Math.abs(g), Math.abs(b), 255];
+        } else {
+          color = [100, 100, 100, 255];
+        }
+      }
+      if (selectedNode && !isDesc) {
+        // Fade color for non-descendants
+        color = color.map((c, i) => i === 3 ? c : Math.floor(c * 0.1));
+      }
+      return {
+        id: n.id,
+        node: n,
+        position: [n.y + treeOffset, n.x], // Use current tree coordinates + offset
+        color: color,
+        radius: n.branchset.length > 0 ? nodeRadius.internal : nodeRadius.leaf,
+        metadata: n.metadata || { name: n.name, id: n.id }
+      };
+    });
 
     // Helper function to adjust gene edge color based on theme
     const getGeneEdgeColor = (gene) => {
-      const fillColor = gene.fillColor || config.gene.fillColor;
+      const fillColor = gene.fillColor || effectiveConfig.gene.fillColor;
       if (!Array.isArray(fillColor) || fillColor.length < 3) return fillColor;
 
       // Dynamically adjust color based on theme
@@ -924,8 +1101,8 @@ const PhyloTreeViewer = React.forwardRef(({
         data: nucleotideBaselines,
         getSourcePosition: d => [d.start, d.trackY],
         getTargetPosition: d => [d.end, d.trackY],
-        getColor: themeColors.baselines || config.colors.darkGray || [85, 85, 85, 255],
-        getWidth: config.stroke.baselineWidth || config.stroke.lineWidth,
+        getColor: themeColors.baselines || effectiveConfig.colors.darkGray || [85, 85, 85, 255],
+        getWidth: effectiveConfig.stroke.baselineWidth || effectiveConfig.stroke.lineWidth,
         pickable: false
       }),
       new PolygonLayer({
@@ -938,8 +1115,8 @@ const PhyloTreeViewer = React.forwardRef(({
         filled: true,
         pickable: true, // changed from false
         updateTriggers: {
-          getPolygon: proteinPolygons.map(p => p.polygon),
-          getFillColor: proteinPolygons.map(p => p.fillColor)
+          getPolygon: proteinPolygons,
+          getFillColor: proteinPolygons
         }
       }),
       // Nucleotide links polygons
@@ -953,8 +1130,8 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true, // changed from false
         updateTriggers: {
-          getPolygon: nucleotidePolygons.map(p => p.polygon),
-          getFillColor: nucleotidePolygons.map(p => p.fillColor)
+          getPolygon: nucleotidePolygons,
+          getFillColor: nucleotidePolygons
         }
       }),
       // Phylogenetic tree paths
@@ -962,16 +1139,16 @@ const PhyloTreeViewer = React.forwardRef(({
         id: 'phylo-tree',
         data: phyloPaths,
         getPath: d => d.path,
-        getColor: d => d.color || themeColors.treeEdges || config.tree.edgeColor,
+        getColor: d => d.color || themeColors.treeEdges || effectiveConfig.tree.edgeColor,
         autoHighlight: true,
         widthUnits: 'pixels',
         jointRounded: true,
         capRounded: true,
-        getWidth: () => config.tree.edgeWidth || 3,
+        getWidth: () => effectiveConfig.tree.edgeWidth || 3,
         pickable: true,
         updateTriggers: {
-          getPath: phyloPaths.map(p => p.path),
-          getColor: phyloPaths.map(p => p.color),
+          getPath: phyloPaths,
+          getColor: phyloPaths,
           getWidth: config.tree.edgeWidth
         }
       }),
@@ -980,21 +1157,21 @@ const PhyloTreeViewer = React.forwardRef(({
         id: 'genes',
         data: genes,
         getPolygon: d => d.polygon,
-        getFillColor: d => d.fillColor || themeColors.geneFill || config.gene.fillColor,
-        stroked: config.gene.edgeWidth > 0,
+        getFillColor: d => d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor,
+        stroked: effectiveConfig.gene.edgeWidth > 0,
         getLineColor: d => getGeneEdgeColor(d),
-        getLineWidth: () => config.gene.edgeWidth,
+        getLineWidth: () => effectiveConfig.gene.edgeWidth,
         lineWidthUnits: 'pixels',
         lineWidthMinPixels: 0,
         filled: true,
         pickable: true,
         autoHighlight: true,
         updateTriggers: {
-          getPolygon: genes.map(g => g.polygon),
-          getFillColor: genes.map(g => g.fillColor),
-          getLineColor: genes.map(g => getGeneEdgeColor(g)),
-          getLineWidth: config.gene.edgeWidth,
-          stroked: config.gene.edgeWidth
+          getPolygon: genes,
+          getFillColor: genes,
+          getLineColor: genes,
+          getLineWidth: effectiveConfig.gene.edgeWidth,
+          stroked: effectiveConfig.gene.edgeWidth
         }
       }),
       // Domains
@@ -1011,8 +1188,8 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: domains.map(d => d.polygon),
-          getFillColor: domains.map(d => d.fillColor),
+          getPolygon: domains,
+          getFillColor: domains,
           getLineWidth: config.domain.edgeWidth
         }
       }),
@@ -1030,8 +1207,8 @@ const PhyloTreeViewer = React.forwardRef(({
         getAlignmentBaseline: d => d.alignmentBaseline || 'top',
         pickable: false,
         updateTriggers: {
-          getPosition: geneLabels.map(l => l.position),
-          getText: geneLabels.map(l => l.text)
+          getPosition: geneLabels,
+          getText: geneLabels
         }
       }),
       // Phylo labels
@@ -1045,7 +1222,7 @@ const PhyloTreeViewer = React.forwardRef(({
         sizeUnits: 'meters',
         fontFamily: 'sans-serif',
         getTextAnchor: d => d.textAnchor || 'start',
-        getAlignmentBaseline: 'center',
+        getAlignmentBaseline: d => d.alignmentBaseline || 'center',
         getPixelOffset: d => [5, 0],
         // Add background when connecting lines are active
         background: showConnectingLines,
@@ -1058,9 +1235,9 @@ const PhyloTreeViewer = React.forwardRef(({
         backgroundPadding: showConnectingLines ? [2, 1, 2, 1] : [0, 0, 0, 0],
         pickable: false,
         updateTriggers: {
-          getPosition: finalPhyloLabels.map(l => l.position),
-          getText: finalPhyloLabels.map(l => l.text),
-          getColor: finalPhyloLabels.map(l => l.color),
+          getPosition: finalPhyloLabelsPruned,
+          getText: finalPhyloLabelsPruned,
+          getColor: finalPhyloLabelsPruned,
           background: showConnectingLines,
           getBackgroundColor: showConnectingLines,
           backgroundPadding: showConnectingLines
@@ -1080,8 +1257,8 @@ const PhyloTreeViewer = React.forwardRef(({
         stroked: false,
         pickable: true,
         updateTriggers: {
-          getPosition: nodePoints.map(n => n.position),
-          getFillColor: nodePoints.map(n => n.color)
+          getPosition: nodePoints,
+          getFillColor: nodePoints
         }
       })
     ];
@@ -1147,14 +1324,15 @@ const PhyloTreeViewer = React.forwardRef(({
             pickable: true,
             autoHighlight: false,
             updateTriggers: {
-              getSourcePosition: connectingLinesData.map(d => d.sourcePosition),
-              getTargetPosition: connectingLinesData.map(d => d.targetPosition)
+              getSourcePosition: connectingLinesData,
+              getTargetPosition: connectingLinesData
             }
           })
         );
       }
     }
 
+    /*
     // Tree ticks (for SVG export)
     const treeTicks = tree.leafNodes.map(leaf => {
       const tickLength = 10; // Length of the tick in pixels
@@ -1182,15 +1360,16 @@ const PhyloTreeViewer = React.forwardRef(({
         pickable: false,
         autoHighlight: false,
         updateTriggers: {
-          getSourcePosition: treeTicks.map(d => d.sourcePosition),
-          getTargetPosition: treeTicks.map(d => d.targetPosition)
+          getSourcePosition: treeTicks,
+          getTargetPosition: treeTicks
         }
       })
     );
+    */
 
     // --- NCRNA COLORING LOGIC ---
     let ncRNAs = Object.values(genomeView.ncRNAsById);
-    if (ncRNAPalette && ncRNAPalette.enabled) {
+    if (effectiveNcRNAPalette && effectiveNcRNAPalette.enabled) {
       // Use 'type' field from metadata for palette coloring
       const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
         const key = nc.metadata && nc.metadata.type;
@@ -1198,9 +1377,9 @@ const PhyloTreeViewer = React.forwardRef(({
       });
       const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => nc.metadata.type)));
       const ncRNAColors = getPaletteColors(
-        ncRNAPalette.name,
-        Math.max(ncRNATypeKeys.length, ncRNAPalette.numColors || ncRNATypeKeys.length),
-        ncRNAPalette.reverse || false
+        effectiveNcRNAPalette.name,
+        Math.max(ncRNATypeKeys.length, effectiveNcRNAPalette.numColors || ncRNATypeKeys.length),
+        effectiveNcRNAPalette.reverse || false
       );
       const ncRNATypeToColor = {};
       ncRNATypeKeys.forEach((key, i) => { ncRNATypeToColor[key] = ncRNAColors[i % ncRNAColors.length]; });
@@ -1236,9 +1415,9 @@ const PhyloTreeViewer = React.forwardRef(({
         pickable: true,
         autoHighlight: true,
         updateTriggers: {
-          getPolygon: ncRNAs.map(nc => nc.polygon),
-          getFillColor: ncRNAs.map(nc => nc.fillColor),
-          getLineColor: ncRNAs.map(nc => getGeneEdgeColor(nc)),
+          getPolygon: ncRNAs,
+          getFillColor: ncRNAs,
+          getLineColor: ncRNAs,
           getLineWidth: config.gene.edgeWidth,
           stroked: config.gene.edgeWidth
         }
@@ -1246,57 +1425,108 @@ const PhyloTreeViewer = React.forwardRef(({
     );
 
     return layers;
-  }, [manualUpdateTrigger, tree, selectedNode, viewState, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, config, genePalette, domainPalette, phyloPalette, ncRNAPalette, geneColorBy, geneLabelBy, domainColorBy]);
+  }, [manualUpdateTrigger, alignmentVersion, tree, selectedNode, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, styleConfig, geneColorBy, geneLabelBy, domainColorBy, themeColors]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);
+  const previousContainerSize = React.useRef(containerSize);
+  const previousAlignCluster = React.useRef(alignCluster);
+  const previousDefaultAlign = React.useRef(defaultAlign);
+  const previousUseDefaultGeneAlignment = React.useRef(useDefaultGeneAlignment);
+  
   useEffect(() => {
-    const genomeView = genomeViewRef.current;
-    if (!genomeView) return;
-    
+    const gv = genomeViewRef.current;
+    if (!gv || !tree) return;
+  
     // Skip alignment if we're in manual manipulation mode
     if (isManualManipulation.current) {
+      console.log('Alignment effect: Skipping due to manual manipulation mode');
       return;
     }
+
+    // Check if alignment-related props actually changed
+    const alignClusterChanged = alignCluster !== previousAlignCluster.current;
+    const defaultAlignChanged = defaultAlign !== previousDefaultAlign.current;
+    const useDefaultGeneAlignmentChanged = useDefaultGeneAlignment !== previousUseDefaultGeneAlignment.current;
     
-    if (alignCluster != null && alignCluster !== '') {
-      // alignCluster is set to a specific cluster number
-      genomeView.alignCluster(alignCluster);
-      // Recompute bounds and refit view after alignment
-      fitViewToBounds(genomeView, tree, containerSize, setViewState);
-    } else {
-      // No specific cluster alignment requested
-      // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
-      const hasDefaultGenes = Object.values(genomeView.hoodBaselines || {}).some(baseline => baseline.align_gene);
-      
-      if (useDefaultGeneAlignment && hasDefaultGenes) {
-        genomeView.alignByDefaultGenes();
-        // Recompute bounds and refit view after alignment
-        fitViewToBounds(genomeView, tree, containerSize, setViewState);
+    // Check if container size changed significantly (more than 10px in either dimension)
+    const containerSizeChanged = Math.abs(containerSize.width - previousContainerSize.current.width) > 10 ||
+                                 Math.abs(containerSize.height - previousContainerSize.current.height) > 10;
+
+    console.log('Alignment effect triggered:', {
+      alignClusterChanged,
+      defaultAlignChanged, 
+      useDefaultGeneAlignmentChanged,
+      containerSizeChanged,
+      isFirstRun: isFirstRun.current,
+      alignCluster,
+      defaultAlign,
+      useDefaultGeneAlignment,
+      containerSize: {width: containerSize.width, height: containerSize.height},
+      previousContainerSize: {width: previousContainerSize.current.width, height: previousContainerSize.current.height}
+    });
+  
+    // Only run alignment if alignment props changed or first run
+    let alignmentChanged = false;
+    if (alignClusterChanged || defaultAlignChanged || useDefaultGeneAlignmentChanged || isFirstRun.current) {
+      if (alignCluster != null && alignCluster !== '') {
+        // alignCluster is set to a specific cluster number
+        gv.alignCluster(alignCluster);
+        alignmentChanged = true;
+        console.log('Applied cluster alignment:', alignCluster);
       } else {
-        // Fall back to traditional alignment
-        if (defaultAlign === 'center') {
-          genomeView.alignAllToCenter();
-          // Recompute bounds and refit view after alignment
-          fitViewToBounds(genomeView, tree, containerSize, setViewState);
-        } else if (defaultAlign === 'end') {
-          genomeView.alignAllToEnd();
-          // Recompute bounds and refit view after alignment
-          fitViewToBounds(genomeView, tree, containerSize, setViewState);
+        // No specific cluster alignment requested
+        // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
+        const hasDefaultGenes = Object.values(gv.hoodBaselines || {}).some(baseline => baseline.align_gene);
+        
+        if (useDefaultGeneAlignment && hasDefaultGenes) {
+          gv.alignByDefaultGenes();
+          alignmentChanged = true;
+          console.log('Applied default gene alignment');
         } else {
-          genomeView.alignAllToStart();
-          // Recompute bounds and refit view after alignment
-          fitViewToBounds(genomeView, tree, containerSize, setViewState);
+          // Fall back to traditional alignment
+          if (defaultAlign === 'center') {
+            gv.alignAllToCenter();
+            alignmentChanged = true;
+            console.log('Applied center alignment');
+          } else if (defaultAlign === 'end') {
+            gv.alignAllToEnd();
+            alignmentChanged = true;
+            console.log('Applied end alignment');
+          } else {
+            gv.alignAllToStart();
+            alignmentChanged = true;
+            console.log('Applied start alignment');
+          }
         }
       }
     }
     
+    // Only reset view bounds if alignment changed or significant container size change or first run
+    if (alignmentChanged || containerSizeChanged || isFirstRun.current) {
+      console.log('Calling fitViewToBounds due to:', {alignmentChanged, containerSizeChanged, isFirstRun: isFirstRun.current});
+      fitViewToBounds(gv, tree, containerSize, setViewState, phyloLabelPosition);
+      
+      // Force layer data recomputation if alignment changed (positions changed)
+      if (alignmentChanged) {
+        setAlignmentVersion(prev => prev + 1);
+      }
+    } else {
+      console.log('Skipping fitViewToBounds - no significant changes detected');
+    }
+    
     if (isFirstRun.current) {
-      fitViewToBounds(genomeView, tree, containerSize, setViewState);
       isFirstRun.current = false;
     }
+    
+    // Update previous values
+    previousContainerSize.current = containerSize;
+    previousAlignCluster.current = alignCluster;
+    previousDefaultAlign.current = defaultAlign;
+    previousUseDefaultGeneAlignment.current = useDefaultGeneAlignment;
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [manualUpdateTrigger, genomeViewRef, alignCluster, defaultAlign, useDefaultGeneAlignment, tree, containerSize, config]);
+  }, [alignCluster, defaultAlign, useDefaultGeneAlignment, tree, containerSize]);
   
 
   const [rulerTicks, setRulerTicks] = React.useState([]);

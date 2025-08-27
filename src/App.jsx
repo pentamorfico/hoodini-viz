@@ -84,10 +84,15 @@ function App() {
   const phyloTreeViewerRef = useRef(null);
 
   // Always use DEFAULT_CONFIG directly, but merge with dynamic settings
-  const config = React.useMemo(() => ({
-    ...DEFAULT_CONFIG,
+  // Split config into core (affects data processing) and style (affects rendering only)
+  const coreConfig = React.useMemo(() => ({
+    ...DEFAULT_CONFIG
+  }), []);
+
+  const styleConfig = React.useMemo(() => ({
+    ...coreConfig,
     gene: {
-      ...DEFAULT_CONFIG.gene,
+      ...coreConfig.gene,
       arrowheadHeight: arrowheadHeight
     },
     colorPalettes: {
@@ -96,7 +101,7 @@ function App() {
       phyloPalette,
       ncRNAPalette
     }
-  }), [arrowheadHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette]);
+  }), [coreConfig, arrowheadHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette]);
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
@@ -133,14 +138,14 @@ function App() {
     }
   };
 
-  // Parse all data up front
-  const parsedGFF = parseGFF(defaultGFFStr);
-  const parsedProteinLinks = parseLinks(defaultProteinLinks);
-  const parsedNucleotideLinks = parseNucleotideLinks(defaultNucleotideLinks);
-  const parsedDomains = parseDomains(defaultDomains);
-  const parsedBaselines = parseBaselines(defaultBaselines);
-  const parsedProteinMetadata = parseProteinMetadata(defaultProteinMetadata);
-  const parsedTreeMetadata = parseTreeMetadata(defaultTreeMetadata);
+  // Parse all data up front - memoize to prevent recreation on every render
+  const parsedGFF = React.useMemo(() => parseGFF(defaultGFFStr), []);
+  const parsedProteinLinks = React.useMemo(() => parseLinks(defaultProteinLinks), []);
+  const parsedNucleotideLinks = React.useMemo(() => parseNucleotideLinks(defaultNucleotideLinks), []);
+  const parsedDomains = React.useMemo(() => parseDomains(defaultDomains), []);
+  const parsedBaselines = React.useMemo(() => parseBaselines(defaultBaselines), []);
+  const parsedProteinMetadata = React.useMemo(() => parseProteinMetadata(defaultProteinMetadata), []);
+  const parsedTreeMetadata = React.useMemo(() => parseTreeMetadata(defaultTreeMetadata), []);
 
   return (
     <div className="App" >
@@ -451,7 +456,7 @@ function App() {
         treeMetadata={parsedTreeMetadata}
         treeLabelBy={treeLabelBy}
         treeColorBy={treeColorBy}
-        config={config}
+        config={styleConfig}
         ultrametric={ultrametric}
         showConnectingLines={showConnectingLines}
         phyloLabelPosition={phyloLabelPosition}
@@ -460,6 +465,7 @@ function App() {
         domainPalette={domainPalette}
         phyloPalette={phyloPalette}
         ncRNAPalette={ncRNAPalette}
+        styleConfig={styleConfig}
       />
       <ThemeToggle />
     </div>
