@@ -22,8 +22,16 @@ class NonCodingFeature extends GFFFeature {
 
   // Returns a polygon for a half-arrow (upper or lower body)
   _buildHalfArrowPolygon(trackY, featureHeight) {
-    const start = this.start;
-    const end = this.end;
+    let start = this.start;
+    let end = this.end;
+    
+    // Normalize coordinates like Gene does - ensure start <= end
+    if (start > end) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+    
     const length = Math.abs(end - start);
     // Use config tipWidthFactor if available, else default to 0.2
     const tipWidth = length * (this.config?.gene?.tipWidthFactor ?? 0.2);

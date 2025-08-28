@@ -56,8 +56,9 @@ const PhyloTreeViewer = React.forwardRef(({
   
   // Visualization state
   const [selectedNode, setSelectedNode] = useState(null);
-  const [manualUpdateTrigger, setManualUpdateTrigger] = useState(0); // Separate trigger for manual updates
   const [alignmentVersion, setAlignmentVersion] = useState(0); // Trigger for alignment changes only
+  const [metadataVersion, setMetadataVersion] = useState(0); // Trigger when metadata is attached
+  const [metadataAttached, setMetadataAttached] = useState(false); // Track when metadata is ready
   const containerRef = React.useRef(null);
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
   const [treeLabelPadding, setTreeLabelPadding] = React.useState(100);
@@ -78,7 +79,7 @@ const PhyloTreeViewer = React.forwardRef(({
     get genomeView() { return genomeViewRef.current; },
     forceManualUpdate: () => {
       isManualManipulation.current = true;
-      setManualUpdateTrigger(prev => prev + 1);
+      setAlignmentVersion(prev => prev + 1);
     }
   }), []);
 
@@ -212,56 +213,36 @@ const PhyloTreeViewer = React.forwardRef(({
     structuralConfigValues
   ]);
 
-  // Effect to update configs and regenerate visual elements when visual-only properties change
+  // Separate effect to handle metadata attachment without recreating genomeView
   useEffect(() => {
     if (!genomeView) return;
-
-    window._visualConfigUpdateTime = performance.now();
-
-    // Update config on all gene objects and regenerate their polygons
-    // Process all genes synchronously (no batching)
-    for (const uniqueGeneId in genomeView.genesById) {
-      const gene = genomeView.genesById[uniqueGeneId];
-      gene.config = config;
-      gene.geneHeight = config.gene.height || config.gene.defaultHeight;
-      gene.updatePolygon();
-    }
     
-    // Update ncRNAs
-    for (const uniqueNcId in genomeView.ncRNAsById) {
-      const nc = genomeView.ncRNAsById[uniqueNcId];
-      nc.config = config;
-      if (nc.updatePolygon) nc.updatePolygon();
-    }
-    
-    // Update domains
-    genomeView.getAllDomains().forEach(domain => {
-      domain.config = config;
-      if (domain.updatePolygon) domain.updatePolygon();
-    });
-
-    // Update config on protein links for bezier segments changes
-    if (genomeView.proteinLinks) {
-      genomeView.proteinLinks.forEach(link => {
-        link.config = config;
-        if (link.updatePolygon) link.updatePolygon(); // Regenerate with new bezier segments
-      });
+    // Attach protein metadata
+    if (proteinMetadata && Object.keys(proteinMetadata).length > 0) {
+      for (const uniqueGeneId in genomeView.genesById) {
+        const gene = genomeView.genesById[uniqueGeneId];
+        const originalGeneId = gene.originalGeneId;
+        if (originalGeneId && proteinMetadata[originalGeneId]) {
+          gene.metadata = proteinMetadata[originalGeneId];
+        } else {
+          gene.metadata = {}; // Clear old metadata
+        }
+      }
     }
 
-    // Update config on nucleotide links
-    if (genomeView.nucleotideLinks) {
-      genomeView.nucleotideLinks.forEach(link => {
-        link.config = config;
-        if (link.updatePolygon) link.updatePolygon();
-      });
+    // Set protein clusters
+    if (clustersFromMetadata) {
+      genomeView.setProteinClusters(clustersFromMetadata);
     }
 
-    // Visual config updates complete - layers will rebuild automatically
-    // because config and related props are dependencies of the layers effect
-    const totalTime = performance.now() - window._visualConfigUpdateTime;
-  }, [config, genomeView]);
+    // Trigger color map recalculation after metadata attachment
+    setMetadataVersion(prev => prev + 1);
+  }, [genomeView, proteinMetadata, clustersFromMetadata]);
 
-  // Effect for attaching metadata and clusters, runs when metadata-related props change
+  // REMOVED INEFFICIENT EFFECT: Polygon updates now happen synchronously inside layers memoization
+  // This eliminates the timing issues and makes shape changes as instant as color changes
+
+  // Effect for attaching ncRNA metadata only (protein metadata is handled in genomeView creation)
   useEffect(() => {
     if (!genomeView) return;
     
@@ -275,35 +256,7 @@ const PhyloTreeViewer = React.forwardRef(({
         }
       }
     }
-
-    // Attach protein metadata - use memoized entries for better performance
-    if (proteinMetadataEntries.length > 0) {
-      const proteinMetadataStartTime = performance.now();
-      
-      for (const uniqueGeneId in genomeView.genesById) {
-        const gene = genomeView.genesById[uniqueGeneId];
-        const originalGeneId = gene.originalGeneId;
-        if (originalGeneId && proteinMetadata[originalGeneId]) {
-          gene.metadata = proteinMetadata[originalGeneId];
-        } else {
-          gene.metadata = {}; // Clear old metadata
-        }
-      }
-      
-      const proteinMetadataEndTime = performance.now();
-    }
-
-    // Use the memoized clusters instead of building them again! 🚀
-    const setProteinClustersStartTime = performance.now();
-    genomeView.setProteinClusters(clustersFromMetadata || {});
-    const setProteinClustersEndTime = performance.now();
-
-    const triggerStartTime = performance.now();
-    setManualUpdateTrigger(prev => prev + 1);
-    const triggerEndTime = performance.now();
-
-    const effectEndTime = performance.now();
-  }, [proteinMetadataEntries, clustersFromMetadata, nonCodingMetadata, genomeView]); // Use memoized values as dependencies
+  }, [nonCodingMetadata, genomeView]);
 
   // Effect for theme color updates - removed because we handle this directly in layers now
   // useEffect(() => {
@@ -317,21 +270,11 @@ const PhyloTreeViewer = React.forwardRef(({
     setSelectedNode(null);
   }, [tree]);
 
-  // Force update effect for manual track manipulations
-  useEffect(() => {
-    if (manualUpdateTrigger > 0) {
-      // Reset the manual manipulation flag after a short delay
-      setTimeout(() => {
-        isManualManipulation.current = false;
-      }, 100);
-    }
-  }, [manualUpdateTrigger]);
-
   // Effect that responds to forceUpdateCounter changes from parent
   useEffect(() => {
     if (forceUpdateCounter > 0) {
       isManualManipulation.current = true;
-      setManualUpdateTrigger(prev => prev + 1);
+      setAlignmentVersion(prev => prev + 1);
     }
   }, [forceUpdateCounter]);
 
@@ -699,6 +642,19 @@ const PhyloTreeViewer = React.forwardRef(({
     const proteinPolygons = genomeView.getProteinPolygons();
     const nucleotidePolygons = genomeView.getNucleotidePolygons();
     
+    console.log('🔍 Debug links - Total protein polygons:', proteinPolygons.length);
+    console.log('🔍 Debug links - Total nucleotide polygons:', nucleotidePolygons.length);
+    console.log('🔍 Debug links - Sample protein polygon:', proteinPolygons[0]);
+    console.log('🔍 Debug links - Sample nucleotide polygon:', nucleotidePolygons[0]);
+    console.log('🔍 Debug links - Tree leaves:', leaves);
+    
+    // TEMPORARILY DISABLE FILTERING TO DEBUG
+    // Just return all polygons to see if they appear
+    return { 
+      filteredProteinPolygons: proteinPolygons, 
+      filteredNucleotidePolygons: nucleotidePolygons 
+    };
+    
     // Build consecutive pairs once
     const consecutivePairs = new Set();
     for (let i = 0; i < leaves.length - 1; i++) {
@@ -752,7 +708,7 @@ const PhyloTreeViewer = React.forwardRef(({
       filteredProteinPolygons: filteredProtein, 
       filteredNucleotidePolygons: filteredNucleotide 
     };
-  }, [genomeView, proteinLinks, nucleotideLinks]);
+  }, [genomeView, proteinLinks, nucleotideLinks, alignmentVersion]);
 
   // Define effective palettes first
   const effectiveGenePalette = genePalette || config?.colorPalettes?.genePalette;
@@ -784,7 +740,7 @@ const PhyloTreeViewer = React.forwardRef(({
       colorMap.set(key, colors[i % colors.length]);
     });
     return colorMap;
-  }, [genomeView, effectiveGenePalette, colorBy, manualUpdateTrigger]);
+  }, [genomeView, effectiveGenePalette, colorBy, metadataVersion]);
 
   const domainColorMap = React.useMemo(() => {
     if (!genomeView || !effectiveDomainPalette?.enabled) return null;
@@ -816,7 +772,7 @@ const PhyloTreeViewer = React.forwardRef(({
       colorMap.set(key, colors[i % colors.length]);
     });
     return colorMap;
-  }, [genomeView, effectiveDomainPalette, domainColorBy, manualUpdateTrigger]);
+  }, [genomeView, effectiveDomainPalette, domainColorBy]);
 
   const layers = React.useMemo(() => {
     const layersStartTime = performance.now();
@@ -826,8 +782,54 @@ const PhyloTreeViewer = React.forwardRef(({
       return [];
     }
     
-    // Use styleConfig if available, otherwise fall back to config and individual palette props
+    // Use styleConfig if available, otherwise fall back to config
     const effectiveConfig = styleConfig || config;
+    
+    // 🚀 SYNCHRONOUS POLYGON UPDATES - This ensures fresh polygons are always available!
+    // Update all feature polygons directly here instead of using a separate effect
+    console.log('🔧 Synchronous polygon updates started - effectiveConfig.gene.height:', effectiveConfig.gene.height, 'effectiveConfig.gene.arrowheadHeight:', effectiveConfig.gene.arrowheadHeight);
+    
+    const polygonUpdateStart = performance.now();
+    
+    // Update gene polygons synchronously
+    for (const uniqueGeneId in genomeView.genesById) {
+      const gene = genomeView.genesById[uniqueGeneId];
+      gene.config = effectiveConfig;
+      gene.geneHeight = effectiveConfig.gene.height || effectiveConfig.gene.defaultHeight;
+      gene.updatePolygon(); // Fresh polygon immediately available
+    }
+    
+    // Update ncRNA polygons synchronously  
+    for (const uniqueNcId in genomeView.ncRNAsById) {
+      const nc = genomeView.ncRNAsById[uniqueNcId];
+      nc.config = effectiveConfig;
+      if (nc.updatePolygon) nc.updatePolygon();
+    }
+    
+    // Update domain polygons synchronously
+    genomeView.getAllDomains().forEach(domain => {
+      domain.config = effectiveConfig;
+      if (domain.updatePolygon) domain.updatePolygon();
+    });
+
+    // Update protein links polygons synchronously
+    if (genomeView.proteinLinks) {
+      genomeView.proteinLinks.forEach(link => {
+        link.config = effectiveConfig;
+        if (link.updatePolygon) link.updatePolygon();
+      });
+    }
+
+    // Update nucleotide links polygons synchronously
+    if (genomeView.nucleotideLinks) {
+      genomeView.nucleotideLinks.forEach(link => {
+        link.config = effectiveConfig;
+        if (link.updatePolygon) link.updatePolygon();
+      });
+    }
+    
+    const polygonUpdateTime = performance.now() - polygonUpdateStart;
+    console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
     
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
     const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
@@ -1169,9 +1171,9 @@ const PhyloTreeViewer = React.forwardRef(({
         pickable: true,
         autoHighlight: true,
         updateTriggers: {
-          getPolygon: [genes.length, manualUpdateTrigger], // Only trigger on data changes, not viewState
-          getFillColor: [genes.length, genePalette, geneColorBy, themeColors.geneFill, manualUpdateTrigger],
-          getLineColor: [genes.length, themeColors.geneFill, effectiveConfig.gene.edgeWidth, manualUpdateTrigger],
+          getPolygon: [genes.length, alignmentVersion, effectiveConfig.gene.height, effectiveConfig.gene.defaultHeight, effectiveConfig.gene.arrowheadHeight, effectiveConfig.gene.tipWidthFactor], // Use effectiveConfig for current values
+          getFillColor: [genes.length, genePalette, geneColorBy, themeColors.geneFill],
+          getLineColor: [genes.length, themeColors.geneFill, effectiveConfig.gene.edgeWidth, alignmentVersion],
           getLineWidth: effectiveConfig.gene.edgeWidth,
           stroked: effectiveConfig.gene.edgeWidth
         }
@@ -1190,9 +1192,9 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: [domains.length, manualUpdateTrigger],
-          getFillColor: [domains.length, domainPalette, domainColorBy, themeColors.domainFill, manualUpdateTrigger],
-          getLineWidth: config.domain.edgeWidth
+          getPolygon: [domains.length, alignmentVersion, effectiveConfig.domain.height], // Use effectiveConfig
+          getFillColor: [domains.length, domainPalette, domainColorBy, themeColors.domainFill],
+          getLineWidth: effectiveConfig.domain.edgeWidth
         }
       }),
       // Gene cluster TextLayer (below genes)
@@ -1408,20 +1410,20 @@ const PhyloTreeViewer = React.forwardRef(({
         data: ncRNAs,
         getPolygon: d => d.polygon,
         getFillColor: d => d.fillColor,
-        stroked: config.gene.edgeWidth > 0,
+        stroked: effectiveConfig.gene.edgeWidth > 0,
         getLineColor: d => getGeneEdgeColor(d),
-        getLineWidth: () => config.gene.edgeWidth,
+        getLineWidth: () => effectiveConfig.gene.edgeWidth,
         lineWidthUnits: 'pixels',
         lineWidthMinPixels: 0,
         filled: true,
         pickable: true,
         autoHighlight: true,
         updateTriggers: {
-          getPolygon: ncRNAs,
+          getPolygon: [ncRNAs.length, effectiveConfig.gene.height, effectiveConfig.gene.arrowheadHeight], // Include shape-affecting config
           getFillColor: ncRNAs,
           getLineColor: ncRNAs,
-          getLineWidth: config.gene.edgeWidth,
-          stroked: config.gene.edgeWidth
+          getLineWidth: effectiveConfig.gene.edgeWidth,
+          stroked: effectiveConfig.gene.edgeWidth
         }
       })
     );
@@ -1431,7 +1433,7 @@ const PhyloTreeViewer = React.forwardRef(({
     return layers;
   }, [
     // Core data dependencies only
-    manualUpdateTrigger, 
+    alignmentVersion,
     tree, 
     selectedNode, 
     // Color-specific dependencies
@@ -1443,10 +1445,16 @@ const PhyloTreeViewer = React.forwardRef(({
     showConnectingLines,
     phyloLabelPosition,
     alignLabels,
-    // Config that affects geometry
-    config.gene.edgeWidth,
-    config.domain.edgeWidth,
-    config.tree.edgeWidth
+    // Include styleConfig to capture debounced visual property changes (takes precedence)
+    styleConfig,
+    // Include specific config properties for instant updates
+    config.gene.height,
+    config.gene.defaultHeight, 
+    config.gene.arrowheadHeight,
+    config.gene.tipWidthFactor,
+    config.domain.height,
+    config.tree.edgeWidth,
+    config.gene.edgeWidth
   ]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
@@ -1620,7 +1628,7 @@ const PhyloTreeViewer = React.forwardRef(({
         {/* Debug button to test manual update trigger */}
         <button
           onClick={() => {
-            setManualUpdateTrigger(prev => prev + 1);
+            setAlignmentVersion(prev => prev + 1);
             requestAnimationFrame(() => {
             });
           }}
@@ -1633,9 +1641,9 @@ const PhyloTreeViewer = React.forwardRef(({
             cursor: 'pointer',
             fontSize: '11px'
           }}
-          title="Test manual update trigger performance"
+          title="Test alignment version trigger performance"
         >
-          Manual Update
+          Force Update
         </button>
         <button
           onClick={() => {

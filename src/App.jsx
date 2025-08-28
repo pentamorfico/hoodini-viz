@@ -269,6 +269,114 @@ function App() {
           />
           Show Connecting Lines
         </label>
+
+        
+        {/* Alignment Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Alignment Controls:</div>
+          
+          {/* Cluster Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => setAlignCluster(1)}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Cluster 1
+            </button>
+            <button 
+              onClick={() => setAlignCluster(2)}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Cluster 2
+            </button>
+            <button 
+              onClick={() => setAlignCluster(null)}
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+            >
+              No Cluster
+            </button>
+          </div>
+          
+          {/* Traditional Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('start');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Start
+            </button>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('center');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align Center
+            </button>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(false);
+                setDefaultAlign('end');
+              }}
+              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
+            >
+              Align End
+            </button>
+          </div>
+          
+          {/* Default Gene Alignment */}
+          <div style={{ marginBottom: '5px' }}>
+            <button 
+              onClick={() => {
+                setAlignCluster(null);
+                setUseDefaultGeneAlignment(true);
+              }}
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+            >
+              Default Gene Alignment
+            </button>
+          </div>
+        </div>
+
+
+
+        {/* Track Manipulation Controls */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Track Controls:</div>
+          {['hood_A', 'hood_B', 'hood_C', 'hood_D', 'hood_E'].map(hoodId => (
+            <div key={hoodId} style={{ marginBottom: '3px', fontSize: '11px' }}>
+              <span style={{ display: 'inline-block', width: '60px', fontSize: '10px' }}>{hoodId}:</span>
+              <button 
+                onClick={() => handleTrackShiftMinus1kb(hoodId)}
+                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
+                title={`Shift ${hoodId} left by 1kb`}
+              >
+                -1kb
+              </button>
+              <button 
+                onClick={() => handleTrackShiftPlus1kb(hoodId)}
+                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
+                title={`Shift ${hoodId} right by 1kb`}
+              >
+                +1kb
+              </button>
+              <button 
+                onClick={() => handleTrackFlip(hoodId)}
+                style={{ padding: '1px 4px', fontSize: '10px' }}
+                title={`Flip ${hoodId}`}
+              >
+                Flip
+              </button>
+            </div>
+          ))}
+        </div>
         
         {/* Phylo Label Position Control */}
         <label style={{ display: 'block', marginBottom: '5px' }}>
@@ -406,112 +514,6 @@ function App() {
           />
         </div>
         
-        {/* Alignment Controls */}
-        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Alignment Controls:</div>
-          
-          {/* Cluster Alignment */}
-          <div style={{ marginBottom: '5px' }}>
-            <button 
-              onClick={() => setAlignCluster(1)}
-              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
-            >
-              Align Cluster 1
-            </button>
-            <button 
-              onClick={() => setAlignCluster(2)}
-              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
-            >
-              Align Cluster 2
-            </button>
-            <button 
-              onClick={() => setAlignCluster(null)}
-              style={{ padding: '2px 8px', fontSize: '12px' }}
-            >
-              No Cluster
-            </button>
-          </div>
-          
-          {/* Traditional Alignment */}
-          <div style={{ marginBottom: '5px' }}>
-            <button 
-              onClick={() => {
-                setAlignCluster(null);
-                setUseDefaultGeneAlignment(false);
-                setDefaultAlign('start');
-              }}
-              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
-            >
-              Align Start
-            </button>
-            <button 
-              onClick={() => {
-                setAlignCluster(null);
-                setUseDefaultGeneAlignment(false);
-                setDefaultAlign('center');
-              }}
-              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
-            >
-              Align Center
-            </button>
-            <button 
-              onClick={() => {
-                setAlignCluster(null);
-                setUseDefaultGeneAlignment(false);
-                setDefaultAlign('end');
-              }}
-              style={{ marginRight: '5px', padding: '2px 8px', fontSize: '12px' }}
-            >
-              Align End
-            </button>
-          </div>
-          
-          {/* Default Gene Alignment */}
-          <div style={{ marginBottom: '5px' }}>
-            <button 
-              onClick={() => {
-                setAlignCluster(null);
-                setUseDefaultGeneAlignment(true);
-              }}
-              style={{ padding: '2px 8px', fontSize: '12px' }}
-            >
-              Default Gene Alignment
-            </button>
-          </div>
-        </div>
-
-
-
-        {/* Track Manipulation Controls */}
-        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-          <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Track Controls:</div>
-          {['hood_A', 'hood_B', 'hood_C', 'hood_D', 'hood_E'].map(hoodId => (
-            <div key={hoodId} style={{ marginBottom: '3px', fontSize: '11px' }}>
-              <span style={{ display: 'inline-block', width: '60px', fontSize: '10px' }}>{hoodId}:</span>
-              <button 
-                onClick={() => handleTrackShiftMinus1kb(hoodId)}
-                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
-                title={`Shift ${hoodId} left by 1kb`}
-              >
-                -1kb
-              </button>
-              <button 
-                onClick={() => handleTrackShiftPlus1kb(hoodId)}
-                style={{ marginRight: '2px', padding: '1px 4px', fontSize: '10px' }}
-                title={`Shift ${hoodId} right by 1kb`}
-              >
-                +1kb
-              </button>
-              <button 
-                onClick={() => handleTrackFlip(hoodId)}
-                style={{ padding: '1px 4px', fontSize: '10px' }}
-                title={`Flip ${hoodId}`}
-              >
-                Flip
-              </button>
-            </div>
-          ))}
-        </div>
 
         {/* Gene Label Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>

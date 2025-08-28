@@ -32,6 +32,29 @@ class GenomeView {
     this.hoodBaselines = {}; // Map hood_id to baseline info
   }
 
+  // Unified method to calculate anchor point for a hood_id
+  // This ensures consistent anchor calculation across all operations
+  getTrackAnchor(hood_id) {
+    const seqid = this.hoodToSeqidMap[hood_id];
+    if (!seqid) return 0;
+    
+    const nuc = this.nucleotidesBySeqid[seqid];
+    const hoodBaseline = this.hoodBaselines[hood_id];
+    
+    if (hoodBaseline) {
+      // Primary: Use hood baseline length as the reference
+      return hoodBaseline.length / 2;
+    } else if (nuc && nuc.baseline) {
+      // Secondary: Use nucleotide baseline
+      return (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
+    } else if (this.featuresBySeqid[seqid]) {
+      // Tertiary: Use feature bounds
+      return (this.featuresBySeqid[seqid].origMaxEnd - this.featuresBySeqid[seqid].origMinStart) / 2;
+    }
+    
+    return 0; // Ultimate fallback
+  }
+
   addFeatures(gffFeatures) {
     for (let f of gffFeatures) {
       if (!this.featuresBySeqid[f.seqid]) {
@@ -221,13 +244,7 @@ class GenomeView {
       if (!seqid) continue;
       const nuc = this.nucleotidesBySeqid[seqid];
       const offset = this.trackOffset[hood_id] || 0;
-      let anchor;
-      if (nuc && nuc.baseline) {
-        const hoodBaseline = this.hoodBaselines[hood_id];
-        anchor = hoodBaseline ? hoodBaseline.length / 2 : (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
-      } else {
-        anchor = (this.featuresBySeqid[seqid].origMaxEnd - this.featuresBySeqid[seqid].origMinStart) / 2;
-      }
+      const anchor = this.getTrackAnchor(hood_id); // Use unified anchor calculation
       const flipped = !!this.trackFlipped[hood_id];
       const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
       const xScale = xScalePercent / 100;
@@ -939,8 +956,38 @@ class GenomeView {
   }
 
   flipTrack(hood_id) {
-    // Only update the flip state; do not mutate any feature data
+    // Calculate current visual center before flipping
+    const currentOffset = this.trackOffset[hood_id] || 0;
+    const anchor = this.getTrackAnchor(hood_id);
+    const wasFlipped = !!this.trackFlipped[hood_id];
+    
+    // Calculate the current visual center position
+    const currentCenter = wasFlipped ? 
+      GenomeView.flipCoordinate(anchor + currentOffset, anchor) : 
+      anchor + currentOffset;
+    
+    // Toggle flip state
     this.trackFlipped[hood_id] = !this.trackFlipped[hood_id];
+    const nowFlipped = !!this.trackFlipped[hood_id];
+    
+    // Calculate new offset needed to maintain the same visual center
+    let newOffset;
+    if (nowFlipped) {
+      // Going from unflipped to flipped
+      // We want: flipCoordinate(anchor + newOffset, anchor) = currentCenter
+      // So: 2*anchor - (anchor + newOffset) = currentCenter
+      // So: anchor - newOffset = currentCenter
+      // So: newOffset = anchor - currentCenter
+      newOffset = anchor - currentCenter;
+    } else {
+      // Going from flipped to unflipped
+      // We want: anchor + newOffset = currentCenter
+      // So: newOffset = currentCenter - anchor
+      newOffset = currentCenter - anchor;
+    }
+    
+    this.trackOffset[hood_id] = newOffset;
+    
     // After flipping, recompute all positions from original values
     this.computeTrackPositions();
   }
@@ -949,6 +996,36 @@ class GenomeView {
   // Useful for batch operations where multiple tracks need to be flipped
   flipTrackState(hood_id) {
     this.trackFlipped[hood_id] = !this.trackFlipped[hood_id];
+  }
+
+  // Method to flip track state with centering logic but without recomputing positions
+  // Useful for batch operations where multiple tracks need to be flipped with proper centering
+  flipTrackStateWithCentering(hood_id) {
+    // Calculate current visual center before flipping
+    const currentOffset = this.trackOffset[hood_id] || 0;
+    const anchor = this.getTrackAnchor(hood_id);
+    const wasFlipped = !!this.trackFlipped[hood_id];
+    
+    // Calculate the current visual center position
+    const currentCenter = wasFlipped ? 
+      GenomeView.flipCoordinate(anchor + currentOffset, anchor) : 
+      anchor + currentOffset;
+    
+    // Toggle flip state
+    this.trackFlipped[hood_id] = !this.trackFlipped[hood_id];
+    const nowFlipped = !!this.trackFlipped[hood_id];
+    
+    // Calculate new offset needed to maintain the same visual center
+    let newOffset;
+    if (nowFlipped) {
+      // Going from unflipped to flipped
+      newOffset = anchor - currentCenter;
+    } else {
+      // Going from flipped to unflipped
+      newOffset = currentCenter - anchor;
+    }
+    
+    this.trackOffset[hood_id] = newOffset;
   }
 
   shiftTrack(hood_id, delta) {
@@ -1027,8 +1104,8 @@ class GenomeView {
       // If gene is negative strand after current flip state, flip the track
       const effectiveStrand = flipped ? (origStrand === '+' ? '-' : '+') : origStrand;
       if (effectiveStrand === '-') {
-        // Flip without recomputing positions immediately
-        this.flipTrackState(hood_id);
+        // Flip with centering logic without recomputing positions immediately
+        this.flipTrackStateWithCentering(hood_id);
       }
     }
 
@@ -1073,36 +1150,11 @@ class GenomeView {
       this.trackOffset[hood_id] = currentOffset + offsetAdjustment;
     }
 
-    // 9. Handle tracks that don't contain the alignment cluster - center them at the reference point
+    // 9. Skip tracks that don't contain the alignment cluster to prevent them from flying away
+    // Only align tracks that actually have genes from the selected cluster
     const tracksWithCluster = new Set(Object.keys(genesByTrack));
-    for (const hood_id of this.leaves) {
-      if (!tracksWithCluster.has(hood_id)) {
-        // This track doesn't have any genes from the alignment cluster
-        // Center it at the same visual X position as the reference gene
-        const seqid = this.hoodToSeqidMap[hood_id];
-        if (!seqid) continue;
-        
-        const nuc = this.nucleotidesBySeqid[seqid];
-        if (nuc && nuc.baseline) {
-          // Calculate current anchor using hood coordinates (consistent with computeTrackPositions)
-          let anchor;
-          const hoodBaseline = this.hoodBaselines[hood_id];
-          if (hoodBaseline) {
-            anchor = hoodBaseline.length / 2; // Center of hood
-          } else {
-            anchor = (nuc.baseline.origEnd - nuc.baseline.origStart) / 2; // Fallback
-          }
-          
-          // Center the track so its midpoint aligns with the reference gene's visual X
-          // We want: anchor + (hoodCenter + offset - anchor) * xScale = referenceVisualX
-          // Solving for offset: offset = (referenceVisualX - anchor) / xScale + anchor - hoodCenter
-          const hoodCenter = hoodBaseline ? hoodBaseline.length / 2 : anchor;
-          const requiredOffset = (referenceVisualX - anchor) / xScale + anchor - hoodCenter;
-          
-          this.trackOffset[hood_id] = requiredOffset;
-        }
-      }
-    }
+    // Remove this logic - don't move tracks that don't have the alignment gene
+    // This prevents tracks from "flying away" when they don't contain the alignment target
 
     // 10. Recompute positions after setting offsets
     this.computeTrackPositions();
@@ -1116,19 +1168,29 @@ class GenomeView {
     // Define global alignment target (coordinate 0 for start alignment)
     const globalAlignmentTarget = 0;
     
-    // For each track, set to original strand and shift so baseline start aligns to globalAlignmentTarget
+    // BATCH OPERATION: First flip all tracks to original strand without recomputing positions
     for (const hood_id of this.leaves) {
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
       
-      // 1. Flip to original strand if needed
+      // Flip to original strand if needed using batch method
       const flipped = !!this.trackFlipped[hood_id];
       const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.strand && flipped) {
-        this.flipTrack(hood_id); // flip back to original
+        this.flipTrackStateWithCentering(hood_id); // Use batch method
       }
+    }
+    
+    // Recompute positions ONCE after all flipping is done
+    this.computeTrackPositions();
+    
+    // For each track, shift so baseline start aligns to globalAlignmentTarget
+    for (const hood_id of this.leaves) {
+      const seqid = this.hoodToSeqidMap[hood_id];
+      if (!seqid) continue;
       
-      // 2. Calculate the offset needed to align baseline start to globalAlignmentTarget after scaling
+      // Calculate the offset needed to align baseline start to globalAlignmentTarget after scaling
+      const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.baseline) {
         // Calculate current anchor using hood coordinates (consistent with computeTrackPositions)
         let anchor;
@@ -1162,19 +1224,29 @@ class GenomeView {
     // Define global alignment target (coordinate 0 for end alignment)
     const globalAlignmentTarget = 0;
     
-    // For each track, set to original strand and shift so baseline end aligns to globalAlignmentTarget
+    // BATCH OPERATION: First flip all tracks to original strand without recomputing positions
     for (const hood_id of this.leaves) {
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
       
-      // 1. Flip to original strand if needed
+      // Flip to original strand if needed using batch method
       const flipped = !!this.trackFlipped[hood_id];
       const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.strand && flipped) {
-        this.flipTrack(hood_id); // flip back to original
+        this.flipTrackStateWithCentering(hood_id); // Use batch method
       }
+    }
+    
+    // Recompute positions ONCE after all flipping is done
+    this.computeTrackPositions();
+    
+    // For each track, shift so baseline end aligns to globalAlignmentTarget
+    for (const hood_id of this.leaves) {
+      const seqid = this.hoodToSeqidMap[hood_id];
+      if (!seqid) continue;
       
-      // 2. Calculate the offset needed to align baseline end to globalAlignmentTarget after scaling
+      // Calculate the offset needed to align baseline end to globalAlignmentTarget after scaling
+      const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.baseline) {
         // Calculate current anchor using hood coordinates (consistent with computeTrackPositions)
         let anchor;
@@ -1207,19 +1279,29 @@ class GenomeView {
     // Define global alignment target (coordinate 0 for center alignment)
     const globalAlignmentTarget = 0;
     
-    // For each track, set to original strand and shift so baseline center aligns to globalAlignmentTarget
+    // BATCH OPERATION: First flip all tracks to original strand without recomputing positions
     for (const hood_id of this.leaves) {
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
       
-      // 1. Flip to original strand if needed
+      // Flip to original strand if needed using batch method
       const flipped = !!this.trackFlipped[hood_id];
       const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.strand && flipped) {
-        this.flipTrack(hood_id); // flip back to original
+        this.flipTrackStateWithCentering(hood_id); // Use batch method
       }
+    }
+    
+    // Recompute positions ONCE after all flipping is done
+    this.computeTrackPositions();
+    
+    // For each track, shift so baseline center aligns to globalAlignmentTarget
+    for (const hood_id of this.leaves) {
+      const seqid = this.hoodToSeqidMap[hood_id];
+      if (!seqid) continue;
       
-      // 2. Calculate the offset needed to align baseline center to globalAlignmentTarget after scaling
+      // Calculate the offset needed to align baseline center to globalAlignmentTarget after scaling
+      const nuc = this.nucleotidesBySeqid[seqid];
       if (nuc && nuc.baseline) {
         // Calculate current anchor using hood coordinates (consistent with computeTrackPositions)
         let anchor;
@@ -1328,8 +1410,8 @@ class GenomeView {
       // If gene is negative strand after current flip state, flip the track
       const effectiveStrand = flipped ? (origStrand === '+' ? '-' : '+') : origStrand;
       if (effectiveStrand === '-') {
-        // Flip without recomputing positions immediately
-        this.flipTrackState(hood_id);
+        // Flip with centering logic without recomputing positions immediately
+        this.flipTrackStateWithCentering(hood_id);
       }
     }
     

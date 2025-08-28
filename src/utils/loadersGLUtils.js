@@ -144,16 +144,16 @@ export async function parseProteinLinksOptimized(linksText) {
       }
     });
     
-    // Convert to expected format
+    // Convert to expected format (array format for addProteinLinks)
     const data = [];
     if (result && result.data && Array.isArray(result.data)) {
       for (const row of result.data) {
         if (row.length >= 3) {
-          data.push({
-            geneA: row[0],
-            geneB: row[1],
-            score: parseFloat(row[2]) || 0
-          });
+          data.push([
+            row[0], // geneA
+            row[1], // geneB
+            parseFloat(row[2]) || 0 // score
+          ]);
         }
       }
     }
@@ -178,19 +178,19 @@ export async function parseNucleotideLinksOptimized(linksText) {
       }
     });
     
-    // Convert to expected format
+    // Convert to expected format (object format with seqid properties)
     const data = [];
     if (result && result.data && Array.isArray(result.data)) {
       for (const row of result.data) {
         if (row.length >= 7) {
           data.push({
-            hoodA: row[0],
+            seqidA: row[0],
             startA: parseInt(row[1], 10),
             endA: parseInt(row[2], 10),
-            hoodB: row[3],
+            seqidB: row[3],
             startB: parseInt(row[4], 10),
             endB: parseInt(row[5], 10),
-            score: parseFloat(row[6]) || 0
+            similarity: parseFloat(row[6]) || 0
           });
         }
       }
@@ -328,11 +328,11 @@ function parseProteinLinksFallback(str) {
   const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   return lines.map(line => {
     const parts = line.split(/\s+/);
-    return {
-      geneA: parts[0],
-      geneB: parts[1], 
-      score: parseFloat(parts[2]) || 0
-    };
+    return [
+      parts[0], // geneA
+      parts[1], // geneB
+      parseFloat(parts[2]) || 0 // score
+    ];
   });
 }
 
@@ -341,13 +341,13 @@ function parseNucleotideLinksFallback(str) {
   return lines.map(line => {
     const parts = line.split(/\s+/);
     return {
-      hoodA: parts[0],
+      seqidA: parts[0],
       startA: parseInt(parts[1], 10),
       endA: parseInt(parts[2], 10),
-      hoodB: parts[3],
+      seqidB: parts[3],
       startB: parseInt(parts[4], 10),
       endB: parseInt(parts[5], 10),
-      score: parseFloat(parts[6]) || 0
+      similarity: parseFloat(parts[6]) || 0
     };
   });
 }
