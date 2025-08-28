@@ -33,8 +33,8 @@ const PhyloTreeViewer = React.forwardRef(({
   colorBy = 'cluster',
   labelBy,
   treeMetadata,
-  treeLabelBy = 'leaf_id',
-  treeColorBy = 'leaf_id',
+  treeLabelBy,
+  treeColorBy, 
   config = DEFAULT_CONFIG,
   ultrametric = false,
   showConnectingLines = false,
@@ -86,100 +86,119 @@ const PhyloTreeViewer = React.forwardRef(({
   // Parse ncRNA metadata once
   const nonCodingMetadata = React.useMemo(() => parseNonCodingMetadata(nonCodingMetadataText), []);
 
-  // Extract primitive values to break dependency on config object reference
-  const treeYSpacing = config.tree?.ySpacing;
-  const treeYScaleFactor = config.tree?.yScaleFactor;
-  const treeGap = config.tree?.gap;
-  const geneHeight = config.gene?.height;
-  const geneDefaultHeight = config.gene?.defaultHeight;
-  const geneTipWidthFactor = config.gene?.tipWidthFactor;
-  const genomeXScalePercent = config.genome?.xScalePercent;
-  const layoutPadding = config.layout?.padding;
-  const layoutGeneOffset = config.layout?.geneOffset;
-  const proteinLinkBezierSegments = config.proteinLink?.bezierSegments;
+  // 🚀 PERFORMANCE: Memoize expensive proteinMetadata operations
+  const proteinMetadataEntries = React.useMemo(() => {
+    if (!proteinMetadata) return [];
+    return Object.values(proteinMetadata);
+  }, [proteinMetadata]);
 
-  // Extract and memoize only the structural config values we actually need
-  // This prevents recreation when the config object reference changes but values are the same
+  // 🚀 PERFORMANCE: Memoize cluster building to avoid expensive recomputation on every colorBy change
+  const clustersFromMetadata = React.useMemo(() => {
+    if (!proteinMetadata) return null;
+    
+    const entries = proteinMetadataEntries; // Use memoized entries
+    
+    if (entries.length > 0 && entries[0] && entries[0][colorBy] !== undefined) {
+      const clusters = {};
+      // Pre-filter valid entries for better performance
+      const validEntries = entries.filter(entry => entry.gene_id && entry[colorBy] !== undefined);
+      
+      for (const entry of validEntries) {
+        clusters[entry.gene_id] = entry[colorBy];
+      }
+      
+      return clusters;
+    }
+    
+    return null;
+  }, [proteinMetadataEntries, colorBy]);
+
+  // Extract primitive values to break dependency on config object reference  
+  // ALL config properties are now visual-only - they just affect polygon shapes and positioning,
+  // not the fundamental data structure (genes, proteins, links, domains stay the same)
+  // No structural properties needed anymore!
+
+  // Memoize only based on actual data changes - NO config dependencies
+  // All config properties are visual-only and handled by the visual update effect
   const structuralConfigValues = React.useMemo(() => {
     const result = {
-      treeYSpacing,
-      treeYScaleFactor, 
-      treeGap,
-      geneHeight,
-      geneDefaultHeight,
-      geneTipWidthFactor,
-      genomeXScalePercent,
-      layoutPadding,
-      layoutGeneOffset,
-      proteinLinkBezierSegments
+      // NO CONFIG PROPERTIES HERE - they're all visual-only!
+      // The data structure (genes, proteins, links, domains) only depends on the actual data,
+      // not on how it's displayed (tip width, bezier segments, heights, spacing, etc.)
     };
-    
-    console.log('🔧 STRUCTURAL CONFIG VALUES MEMOIZATION:', {
-      result,
-      configReference: config === config, // This should always be true
-      arrowheadHeight: config.gene?.arrowheadHeight, // This should NOT trigger recreation
-    });
     
     return result;
   }, [
-    treeYSpacing,
-    treeYScaleFactor, 
-    treeGap,
-    geneHeight,
-    geneDefaultHeight,
-    geneTipWidthFactor,
-    genomeXScalePercent,
-    layoutPadding,
-    layoutGeneOffset,
-    proteinLinkBezierSegments
+    // NO DEPENDENCIES - core data only depends on actual data, not visual config
   ]);
 
   // Memoize tree creation separately - ultrametric only affects tree, not genome
   const tree = React.useMemo(() => {
-    console.log('🌲 RECREATING TREE - Only for newick changes or ultrametric toggle');
+    const treeStartTime = performance.now();
     const newTree = new PhyloTree(newickStr, config, ultrametric);
     const leavesToUse = newTree.getLeafNodes().map(n => n.name);
     newTree.layout(leavesToUse);
+    const treeEndTime = performance.now();
     return newTree;
   }, [newickStr, ultrametric, structuralConfigValues]);
 
   // Create a base tree for GenomeView that doesn't change with ultrametric
   const baseTree = React.useMemo(() => {
-    console.log('🌳 RECREATING BASE TREE - Only for newick/structural changes');
+    const baseTreeStartTime = performance.now();
     const newTree = new PhyloTree(newickStr, config, false); // Always non-ultrametric for genome
     const leavesToUse = newTree.getLeafNodes().map(n => n.name);
     newTree.layout(leavesToUse);
+    const baseTreeEndTime = performance.now();
     return newTree;
   }, [newickStr, structuralConfigValues]);
 
   // Memoize core data processing to avoid recomputing on style changes
   // Only depend on actual structural data and essential config properties
   const genomeView = React.useMemo(() => {
-    console.log('🔥 RECREATING CORE DATA - This should only happen on data changes, not style changes!', {
-      newickStr: newickStr?.length,
-      gffFeatures: gffFeatures?.length,
-      proteinLinks: proteinLinks?.length,
-      nucleotideLinks: nucleotideLinks?.length,
-      domainsByGene: Object.keys(domainsByGene || {}).length,
-      baselines: baselines?.length,
-      // Log the extracted structural values to debug what's changing
-      structuralValues: structuralConfigValues
-    });
+    const genomeViewStartTime = performance.now();
     
     // Use the base tree that doesn't change with ultrametric
     const leavesToUse = baseTree.getLeafNodes().map(n => n.name);
     
     // Use full config for model creation but only depend on structural properties in useMemo
     const newGenomeView = new GenomeView(leavesToUse, baseTree, config);
+    
     newGenomeView.addFeatures(gffFeatures);
-    if (baselines) newGenomeView.applyBaselines(baselines);
+    
+    if (baselines) {
+      newGenomeView.applyBaselines(baselines);
+    }
+    
     newGenomeView.initGenes();
+    
+    // Compute initial track positions so genes have valid polygons
     newGenomeView.computeTrackPositions();
+    
+    // Apply initial alignment immediately to avoid double render
+    if (alignCluster != null && alignCluster !== '') {
+      newGenomeView.alignCluster(alignCluster);
+    } else {
+      const hasDefaultGenes = Object.values(newGenomeView.hoodBaselines || {}).some(baseline => baseline.align_gene);
+      if (useDefaultGeneAlignment && hasDefaultGenes) {
+        newGenomeView.alignByDefaultGenes();
+      } else {
+        if (defaultAlign === 'center') {
+          newGenomeView.alignAllToCenter();
+        } else if (defaultAlign === 'end') {
+          newGenomeView.alignAllToEnd();
+        } else {
+          newGenomeView.alignAllToStart();
+        }
+      }
+    }
+    
     newGenomeView.addDomains(domainsByGene);
     newGenomeView.addProteinLinks(proteinLinks);
     newGenomeView.addNucleotideLinks(nucleotideLinks);
 
     genomeViewRef.current = newGenomeView;
+    
+    const genomeViewEndTime = performance.now();
     return newGenomeView;
   }, [
     // Only structural data dependencies - Use baseTree instead of tree
@@ -193,30 +212,59 @@ const PhyloTreeViewer = React.forwardRef(({
     structuralConfigValues
   ]);
 
-  // Effect to update gene configs when arrowhead height changes (without recreating genome)
+  // Effect to update configs and regenerate visual elements when visual-only properties change
   useEffect(() => {
     if (!genomeView) return;
 
-    // Update config on all gene objects
+    window._visualConfigUpdateTime = performance.now();
+
+    // Update config on all gene objects and regenerate their polygons
+    // Process all genes synchronously (no batching)
     for (const uniqueGeneId in genomeView.genesById) {
       const gene = genomeView.genesById[uniqueGeneId];
-      gene.config = config; // Update with current config including new arrowheadHeight
+      gene.config = config;
+      gene.geneHeight = config.gene.height || config.gene.defaultHeight;
+      gene.updatePolygon();
     }
-
-    // Update config on all ncRNA objects
+    
+    // Update ncRNAs
     for (const uniqueNcId in genomeView.ncRNAsById) {
       const nc = genomeView.ncRNAsById[uniqueNcId];
-      nc.config = config; // Update with current config
+      nc.config = config;
+      if (nc.updatePolygon) nc.updatePolygon();
+    }
+    
+    // Update domains
+    genomeView.getAllDomains().forEach(domain => {
+      domain.config = config;
+      if (domain.updatePolygon) domain.updatePolygon();
+    });
+
+    // Update config on protein links for bezier segments changes
+    if (genomeView.proteinLinks) {
+      genomeView.proteinLinks.forEach(link => {
+        link.config = config;
+        if (link.updatePolygon) link.updatePolygon(); // Regenerate with new bezier segments
+      });
     }
 
-    // Trigger layer data recomputation to show new arrowhead heights
-    setAlignmentVersion(prev => prev + 1);
+    // Update config on nucleotide links
+    if (genomeView.nucleotideLinks) {
+      genomeView.nucleotideLinks.forEach(link => {
+        link.config = config;
+        if (link.updatePolygon) link.updatePolygon();
+      });
+    }
+
+    // Visual config updates complete - layers will rebuild automatically
+    // because config and related props are dependencies of the layers effect
+    const totalTime = performance.now() - window._visualConfigUpdateTime;
   }, [config, genomeView]);
 
   // Effect for attaching metadata and clusters, runs when metadata-related props change
   useEffect(() => {
     if (!genomeView) return;
-
+    
     // Attach ncRNA metadata
     for (const uniqueNcId in genomeView.ncRNAsById) {
       const nc = genomeView.ncRNAsById[uniqueNcId];
@@ -228,8 +276,10 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
 
-    // Attach protein metadata
-    if (proteinMetadata) {
+    // Attach protein metadata - use memoized entries for better performance
+    if (proteinMetadataEntries.length > 0) {
+      const proteinMetadataStartTime = performance.now();
+      
       for (const uniqueGeneId in genomeView.genesById) {
         const gene = genomeView.genesById[uniqueGeneId];
         const originalGeneId = gene.originalGeneId;
@@ -239,25 +289,21 @@ const PhyloTreeViewer = React.forwardRef(({
           gene.metadata = {}; // Clear old metadata
         }
       }
+      
+      const proteinMetadataEndTime = performance.now();
     }
 
-    // Set clusters if available
-    let clustersFromMetadata = null;
-    if (proteinMetadata) {
-      const entries = Object.values(proteinMetadata);
-      if (entries.length > 0 && entries[0] && entries[0][colorBy] !== undefined) {
-        clustersFromMetadata = {};
-        for (const entry of entries) {
-          if (entry.gene_id && entry[colorBy] !== undefined) {
-            clustersFromMetadata[entry.gene_id] = entry[colorBy];
-          }
-        }
-      }
-    }
+    // Use the memoized clusters instead of building them again! 🚀
+    const setProteinClustersStartTime = performance.now();
     genomeView.setProteinClusters(clustersFromMetadata || {});
+    const setProteinClustersEndTime = performance.now();
 
+    const triggerStartTime = performance.now();
     setManualUpdateTrigger(prev => prev + 1);
-  }, [proteinMetadata, colorBy, nonCodingMetadata, genomeView]);
+    const triggerEndTime = performance.now();
+
+    const effectEndTime = performance.now();
+  }, [proteinMetadataEntries, clustersFromMetadata, nonCodingMetadata, genomeView]); // Use memoized values as dependencies
 
   // Effect for theme color updates
   useEffect(() => {
@@ -386,27 +432,6 @@ const PhyloTreeViewer = React.forwardRef(({
   }
 
   // External function to fit view to bounds
-  function fitViewToBounds(genomeView, tree, containerSize, setViewState, phyloLabelPosition) {
-    if (!genomeView || !tree) return;
-    const { width: cw, height: ch } = containerSize;
-    if (!cw || !ch) return;
-    const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
-    const w = bounds.maxX - bounds.minX;
-    const h = bounds.maxY - bounds.minY;
-    const padding = config.layout.padding;
-    const scale = Math.min(
-      (cw - padding) / w,
-      (ch - padding) / h
-    );
-    const zoom = Math.log2(scale > 0 ? scale : 1);
-    setViewState({
-      target: [(bounds.minX + bounds.maxX) / 2, (bounds.minY + bounds.maxY) / 2, 0],
-      zoom,
-      treeOffset: bounds.treeOffset,
-      geneOffset: bounds.geneOffset
-    });
-  }
-
   // Update container size on mount and resize
   React.useEffect(() => {
     function updateSize() {
@@ -523,17 +548,21 @@ const PhyloTreeViewer = React.forwardRef(({
   const bounds = computeBounds(genomeViewRef.current, tree, phyloLabelPosition);
   const minY = bounds.minY;
   const maxY = bounds.maxY;
-  const alignmentReferencePoint = getAlignmentReferencePoint(genomeViewRef.current);
   // Normalized scrollbar state (0-100)
   const [scrollNorm, setScrollNorm] = React.useState(0);
   // Compute minY/maxY from bounds
-  // When viewState changes, update normalized scroll position
+  // When viewState changes, update normalized scroll position (but only when not actively scrolling)
   React.useEffect(() => {
-    if (viewState && isFinite(viewState.target[1]) && isFinite(minY) && isFinite(maxY) && maxY > minY) {
-      const norm = ((maxY - viewState.target[1]) / (maxY - minY)) * 100;
-      setScrollNorm(norm);
-    }
-  }, [viewState, minY, maxY]); 
+    // Add a small delay to avoid updating scroll position during active user interaction
+    const timer = setTimeout(() => {
+      if (viewState && isFinite(viewState.target[1]) && isFinite(minY) && isFinite(maxY) && maxY > minY) {
+        const norm = ((maxY - viewState.target[1]) / (maxY - minY)) * 100;
+        setScrollNorm(norm);
+      }
+    }, 50); // 50ms delay to avoid conflicts with rapid scrolling
+    
+    return () => clearTimeout(timer);
+  }, [viewState?.target?.[1], minY, maxY]); // Only track Y position, not entire viewState 
 
   // Compute visible Y range for DeckGL (based on zoom and container height)
   let visibleFraction = 1;
@@ -663,8 +692,12 @@ const PhyloTreeViewer = React.forwardRef(({
   }
 
   const layers = React.useMemo(() => {
+    const layersStartTime = performance.now();
+    
     const genomeView = genomeViewRef.current;
-    if (!genomeView || !tree) return [];
+    if (!genomeView || !tree) {
+      return [];
+    }
     
     // Use styleConfig if available, otherwise fall back to config and individual palette props
     const effectiveConfig = styleConfig || config;
@@ -676,10 +709,12 @@ const PhyloTreeViewer = React.forwardRef(({
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
     const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
     const treeOffset = bounds.treeOffset || 0;
+    
     // Genes
     let genes = Object.values(genomeView.genesById);
     // Domains
     let domains = genomeView.getAllDomains();
+    
     // Protein links
     let proteinPolygons = genomeView.getProteinPolygons();
     // Nucleotide links
@@ -688,9 +723,6 @@ const PhyloTreeViewer = React.forwardRef(({
     // --- FILTER LINKS TO ONLY CONSECUTIVE HOODS (ORDER-INSENSITIVE) ---
     // Build a set of valid consecutive hood pairs (order-insensitive)
     const leaves = genomeView.leaves;
-    // Debug: Check the structure of leaves array and mapping
-    // console.log('Leaves array:', leaves);
-    // console.log('Hood to seqid mapping:', genomeView.hoodToSeqidMap);
     const consecutivePairs = new Set();
     for (let i = 0; i < leaves.length - 1; ++i) {
       const a = leaves[i];
@@ -721,27 +753,22 @@ const PhyloTreeViewer = React.forwardRef(({
         validConsecutivePairs.push(`${seqidB}-${seqidA}`);
       }
     }
-    // console.log('Valid consecutive pairs (by seqid):', validConsecutivePairs);
     
     // Track which consecutive pairs have already been assigned a link
     const assignedPairs = new Set();
     
     nucleotidePolygons = nucleotidePolygons.filter((p, idx) => {
-      // console.log(`Nucleotide link ${idx}:`, p);
-      
       // Try to get the actual hoods (by hood ID) this link connects
       let hoodA = p.hoodA || (p.metadata && p.metadata.hoodA);
       let hoodB = p.hoodB || (p.metadata && p.metadata.hoodB);
-      // console.log(`  hoodA: ${hoodA}, hoodB: ${hoodB}`);
       
       if (hoodA && hoodB) {
         // Only allow if hoodA and hoodB are direct neighbors in leaves
         for (let i = 0; i < leaves.length - 1; ++i) {
           if ((leaves[i] === hoodA && leaves[i + 1] === hoodB) || (leaves[i] === hoodB && leaves[i + 1] === hoodA)) {
-            // console.log(`  Link ${idx}: KEEPING - ${hoodA} and ${hoodB} are neighbors at positions ${i} and
+            return true;
           }
         }
-        // console.log(`  Link ${idx}: REMOVING - ${hoodA} and ${hoodB} are not neighbors`);
         return false;
       }
       
@@ -752,23 +779,18 @@ const PhyloTreeViewer = React.forwardRef(({
         const linkKey = `${seqid1}-${seqid2}`;
         const linkKeyReverse = `${seqid2}-${seqid1}`;
         
-        // console.log(`  seqids: ${seqid1}, ${seqid2}, linkKey: ${linkKey}`);
-        
         // Check if this seqid pair corresponds to a valid consecutive pair
         if (validConsecutivePairs.includes(linkKey) || validConsecutivePairs.includes(linkKeyReverse)) {
           // Check if we've already assigned a link to this consecutive pair
           if (assignedPairs.has(linkKey) || assignedPairs.has(linkKeyReverse)) {
-            // console.log(`  Link ${idx}: REMOVING - pair ${linkKey} already assigned`);
             return false;
           }
           
           // Assign this link to the consecutive pair
           assignedPairs.add(linkKey);
           assignedPairs.add(linkKeyReverse);
-          // console.log(`  Link ${idx}: KEEPING - first link for consecutive pair ${linkKey}`);
           return true;
         } else {
-          // console.log(`  Link ${idx}: REMOVING - ${linkKey} is not a valid consecutive pair`);
           return false;
         }
       }
@@ -1167,9 +1189,9 @@ const PhyloTreeViewer = React.forwardRef(({
         pickable: true,
         autoHighlight: true,
         updateTriggers: {
-          getPolygon: genes,
-          getFillColor: genes,
-          getLineColor: genes,
+          getPolygon: [genes.length, manualUpdateTrigger], // Only trigger on data changes, not viewState
+          getFillColor: [genes.length, genePalette, geneColorBy, themeColors.geneFill, manualUpdateTrigger],
+          getLineColor: [genes.length, themeColors.geneFill, effectiveConfig.gene.edgeWidth, manualUpdateTrigger],
           getLineWidth: effectiveConfig.gene.edgeWidth,
           stroked: effectiveConfig.gene.edgeWidth
         }
@@ -1188,8 +1210,8 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: domains,
-          getFillColor: domains,
+          getPolygon: [domains.length, manualUpdateTrigger],
+          getFillColor: [domains.length, domainPalette, domainColorBy, themeColors.domainFill, manualUpdateTrigger],
           getLineWidth: config.domain.edgeWidth
         }
       }),
@@ -1424,23 +1446,33 @@ const PhyloTreeViewer = React.forwardRef(({
       })
     );
 
+    const layersEndTime = performance.now();
+    
     return layers;
-  }, [manualUpdateTrigger, alignmentVersion, tree, selectedNode, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, styleConfig, geneColorBy, geneLabelBy, domainColorBy, themeColors]);
+  }, [manualUpdateTrigger, alignmentVersion, tree, selectedNode, treeLabelPadding, treeMetadata, treeLabelBy, treeColorBy, showConnectingLines, phyloLabelPosition, alignLabels, styleConfig, config, genePalette, domainPalette, phyloPalette, ncRNAPalette, geneColorBy, geneLabelBy, domainColorBy, colorBy, themeColors]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);
-  const previousContainerSize = React.useRef(containerSize);
   const previousAlignCluster = React.useRef(alignCluster);
   const previousDefaultAlign = React.useRef(defaultAlign);
   const previousUseDefaultGeneAlignment = React.useRef(useDefaultGeneAlignment);
   
+  // Add protection against rapid re-triggers
+  const lastAlignmentTime = React.useRef(0);
+  const ALIGNMENT_DEBOUNCE_MS = 100; // Prevent alignment from running more than once per 100ms
+  
   useEffect(() => {
     const gv = genomeViewRef.current;
-    if (!gv || !tree) return;
+    if (!gv) return;
   
     // Skip alignment if we're in manual manipulation mode
     if (isManualManipulation.current) {
-      console.log('Alignment effect: Skipping due to manual manipulation mode');
+      return;
+    }
+
+    // Debounce rapid alignment triggers
+    const now = performance.now();
+    if (now - lastAlignmentTime.current < ALIGNMENT_DEBOUNCE_MS) {
       return;
     }
 
@@ -1448,88 +1480,121 @@ const PhyloTreeViewer = React.forwardRef(({
     const alignClusterChanged = alignCluster !== previousAlignCluster.current;
     const defaultAlignChanged = defaultAlign !== previousDefaultAlign.current;
     const useDefaultGeneAlignmentChanged = useDefaultGeneAlignment !== previousUseDefaultGeneAlignment.current;
-    
-    // Check if container size changed significantly (more than 10px in either dimension)
-    const containerSizeChanged = Math.abs(containerSize.width - previousContainerSize.current.width) > 10 ||
-                                 Math.abs(containerSize.height - previousContainerSize.current.height) > 10;
 
-    console.log('Alignment effect triggered:', {
-      alignClusterChanged,
-      defaultAlignChanged, 
-      useDefaultGeneAlignmentChanged,
-      containerSizeChanged,
-      isFirstRun: isFirstRun.current,
-      alignCluster,
-      defaultAlign,
-      useDefaultGeneAlignment,
-      containerSize: {width: containerSize.width, height: containerSize.height},
-      previousContainerSize: {width: previousContainerSize.current.width, height: previousContainerSize.current.height}
-    });
+    // Measure the delay between visual config update and alignment effect
+    if (window._visualConfigUpdateTime) {
+      const delay = performance.now() - window._visualConfigUpdateTime;
+      window._visualConfigUpdateTime = null;
+    }
   
-    // Only run alignment if alignment props changed or first run
+    // Only run alignment if alignment props changed or first run (NOT on container size changes)
     let alignmentChanged = false;
     if (alignClusterChanged || defaultAlignChanged || useDefaultGeneAlignmentChanged || isFirstRun.current) {
-      if (alignCluster != null && alignCluster !== '') {
-        // alignCluster is set to a specific cluster number
-        gv.alignCluster(alignCluster);
-        alignmentChanged = true;
-        console.log('Applied cluster alignment:', alignCluster);
+      // Check if the alignment we want to apply is already applied during GenomeView creation
+      if (isFirstRun.current) {
+        // Alignment was already applied during GenomeView creation, so skip it
+        alignmentChanged = false;
       } else {
-        // No specific cluster alignment requested
-        // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
-        const hasDefaultGenes = Object.values(gv.hoodBaselines || {}).some(baseline => baseline.align_gene);
+        const alignStartTime = performance.now();
         
-        if (useDefaultGeneAlignment && hasDefaultGenes) {
-          gv.alignByDefaultGenes();
+        if (alignCluster != null && alignCluster !== '') {
+          // alignCluster is set to a specific cluster number
+          gv.alignCluster(alignCluster);
           alignmentChanged = true;
-          console.log('Applied default gene alignment');
         } else {
-          // Fall back to traditional alignment
-          if (defaultAlign === 'center') {
-            gv.alignAllToCenter();
+          // No specific cluster alignment requested
+          // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
+          const hasDefaultGenes = Object.values(gv.hoodBaselines || {}).some(baseline => baseline.align_gene);
+          
+          if (useDefaultGeneAlignment && hasDefaultGenes) {
+            gv.alignByDefaultGenes();
             alignmentChanged = true;
-            console.log('Applied center alignment');
-          } else if (defaultAlign === 'end') {
-            gv.alignAllToEnd();
-            alignmentChanged = true;
-            console.log('Applied end alignment');
           } else {
-            gv.alignAllToStart();
-            alignmentChanged = true;
-            console.log('Applied start alignment');
+            // Fall back to traditional alignment
+            if (defaultAlign === 'center') {
+              gv.alignAllToCenter();
+              alignmentChanged = true;
+            } else if (defaultAlign === 'end') {
+              gv.alignAllToEnd();
+              alignmentChanged = true;
+            } else {
+              gv.alignAllToStart();
+              alignmentChanged = true;
+            }
           }
         }
+        
+        lastAlignmentTime.current = alignStartTime;
       }
     }
     
-    // Only reset view bounds if alignment changed or significant container size change or first run
-    if (alignmentChanged || containerSizeChanged || isFirstRun.current) {
-      console.log('Calling fitViewToBounds due to:', {alignmentChanged, containerSizeChanged, isFirstRun: isFirstRun.current});
-      fitViewToBounds(gv, tree, containerSize, setViewState, phyloLabelPosition);
-      
-      // Force layer data recomputation if alignment changed (positions changed)
-      if (alignmentChanged) {
-        setAlignmentVersion(prev => prev + 1);
-      }
-    } else {
-      console.log('Skipping fitViewToBounds - no significant changes detected');
+    // Handle view bounds - alignment changes need full recomputation, container changes just need viewport adjustment
+    if (alignmentChanged) {
+      // Force layer data recomputation since positions changed
+      setAlignmentVersion(prev => prev + 1);
+    } else if (isFirstRun.current) {
+      // On first run, alignment was already applied during GenomeView creation
+      // Don't call setAlignmentVersion() - layers will be computed anyway
     }
     
     if (isFirstRun.current) {
       isFirstRun.current = false;
     }
     
-    // Update previous values
-    previousContainerSize.current = containerSize;
+    // Always update previous values to prevent repeated triggers
     previousAlignCluster.current = alignCluster;
     previousDefaultAlign.current = defaultAlign;
     previousUseDefaultGeneAlignment.current = useDefaultGeneAlignment;
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alignCluster, defaultAlign, useDefaultGeneAlignment, tree, containerSize]);
+  }, [alignCluster, defaultAlign, useDefaultGeneAlignment]); // REMOVED tree to prevent circular dependencies
+  
+  // Separate effect to handle container size changes without triggering alignment
+  useEffect(() => {
+    const gv = genomeViewRef.current;
+    if (!gv) return;
+    
+    // Check if container size changed significantly (more than 10px in either dimension)
+    // Ignore changes from initial {0,0} size - this is just the component mounting
+    const isInitialSizeChange = containerSize.width === 0 && containerSize.height === 0;
+    if (isInitialSizeChange) return;
+    
+  }, [containerSize, phyloLabelPosition]); // REMOVED tree dependency
   
 
-  const [rulerTicks, setRulerTicks] = React.useState([]);
+  // Track user interaction to prevent fitViewToBounds conflicts
+  const isUserInteracting = React.useRef(false);
+  const interactionTimeout = React.useRef(null);
+  const viewStateDebounceTimeout = React.useRef(null);
+
+  // Stabilize the viewState change handler to prevent infinite re-renders
+  const handleViewStateChange = React.useCallback(({ viewState: vs }) => {
+    // Mark that user is interacting
+    isUserInteracting.current = true;
+    
+    // Clear existing timeout
+    if (interactionTimeout.current) {
+      clearTimeout(interactionTimeout.current);
+    }
+    
+    // Set timeout to mark interaction as finished
+    interactionTimeout.current = setTimeout(() => {
+      isUserInteracting.current = false;
+    }, 500); // 500ms after last interaction
+    
+    // Immediate update for responsive feel
+    setViewState(vs);
+    
+    // Debounce expensive operations during rapid pan/zoom
+    if (viewStateDebounceTimeout.current) {
+      clearTimeout(viewStateDebounceTimeout.current);
+    }
+    
+    viewStateDebounceTimeout.current = setTimeout(() => {
+      // Any expensive operations that should only happen after pan/zoom stops
+      // Currently none, but placeholder for future optimizations
+    }, 150);
+  }, []);
 
   return (
     <div id="phylo-tree-viewer-container" ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -1549,26 +1614,200 @@ const PhyloTreeViewer = React.forwardRef(({
           viewState,
           alignmentReferencePoint: getAlignmentReferencePoint(genomeViewRef.current),
           bounds,
-          genomeView: genomeViewRef.current,
-          precomputedTicks: rulerTicks // <-- pass ticks to SVG export
+          genomeView: genomeViewRef.current
         } : undefined}
       />
       {/* Overlay buttons (top-left) */}
       <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 10, display: 'flex', gap: '10px' }}>
+        {/* Debug button to test manual update trigger */}
+        <button
+          onClick={() => {
+            setManualUpdateTrigger(prev => prev + 1);
+            requestAnimationFrame(() => {
+            });
+          }}
+          style={{
+            padding: '6px 8px',
+            backgroundColor: '#ff4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+          title="Test manual update trigger performance"
+        >
+          Manual Update
+        </button>
+        <button
+          onClick={() => {
+            const genomeView = genomeViewRef.current;
+            if (!genomeView || !proteinMetadata) {
+              return;
+            }
+            
+            const startTime = performance.now();
+            
+            for (const uniqueGeneId in genomeView.genesById) {
+              const gene = genomeView.genesById[uniqueGeneId];
+              const originalGeneId = gene.originalGeneId;
+              if (originalGeneId && proteinMetadata[originalGeneId]) {
+                gene.metadata = proteinMetadata[originalGeneId];
+              } else {
+                gene.metadata = {};
+              }
+            }
+            
+            const endTime = performance.now();
+          }}
+          style={{
+            padding: '6px 8px',
+            backgroundColor: '#ffaa00',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+          title="Test protein metadata attachment performance"
+        >
+          Protein Metadata
+        </button>
+        <button
+          onClick={() => {
+            const genomeView = genomeViewRef.current;
+            if (!genomeView || !proteinMetadata) {
+              return;
+            }
+            
+            const startTime = performance.now();
+            
+            const entries = Object.values(proteinMetadata);
+            let clustersFromMetadata = null;
+            if (entries.length > 0 && entries[0] && entries[0][colorBy] !== undefined) {
+              clustersFromMetadata = {};
+              for (const entry of entries) {
+                if (entry.gene_id && entry[colorBy] !== undefined) {
+                  clustersFromMetadata[entry.gene_id] = entry[colorBy];
+                }
+              }
+            }
+            
+            const endTime = performance.now();
+          }}
+          style={{
+            padding: '6px 8px',
+            backgroundColor: '#00aa44',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+          title="Test cluster building performance"
+        >
+          Build Clusters
+        </button>
+        <button
+          onClick={() => {
+            const genomeView = genomeViewRef.current;
+            if (!genomeView || !proteinMetadata) {
+              return;
+            }
+            
+            const startTime = performance.now();
+            
+            // Build clusters first (same as colorBy effect)
+            const entries = Object.values(proteinMetadata);
+            let clustersFromMetadata = null;
+            if (entries.length > 0 && entries[0] && entries[0][colorBy] !== undefined) {
+              clustersFromMetadata = {};
+              for (const entry of entries) {
+                if (entry.gene_id && entry[colorBy] !== undefined) {
+                  clustersFromMetadata[entry.gene_id] = entry[colorBy];
+                }
+              }
+            }
+            
+            // Call setProteinClusters
+            genomeView.setProteinClusters(clustersFromMetadata || {});
+            
+            const endTime = performance.now();
+          }}
+          style={{
+            padding: '6px 8px',
+            backgroundColor: '#0066cc',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+          title="Test setProteinClusters performance"
+        >
+          Set Clusters
+        </button>
+        <button
+          onClick={() => {
+            const genomeView = genomeViewRef.current;
+            if (!genomeView) {
+              return;
+            }
+            const startTime = performance.now();
+            
+            // Force layers to rebuild by updating alignmentVersion 
+            // (this is what happens after setManualUpdateTrigger)
+            setAlignmentVersion(prev => prev + 1);
+            
+            requestAnimationFrame(() => {
+              const endTime = performance.now();
+            });
+          }}
+          style={{
+            padding: '6px 8px',
+            backgroundColor: '#aa00cc',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+          title="Test layers rebuild performance"
+        >
+          Layers Rebuild
+        </button>
         {/* ...other overlay buttons can go here... */}
       </div>
       <DeckGL
         views={[new OrthographicView({ flipY: false })]}
-        controller={true}
+        controller={{
+          dragPan: true,
+          dragRotate: false,
+          scrollZoom: true,
+          doubleClickZoom: false,  // Disable double-click zoom to reduce conflicts
+          keyboard: false,         // Disable keyboard to reduce conflicts
+          inertia: true,           // Enable inertia for smoother interactions
+          transitionDuration: 0, // Short transition for smoother feel
+          transitionInterpolator: null, // Use default interpolator for better performance
+          scrollZoomSpeed: 2,    // Reduce scroll sensitivity for more controlled zoom
+          touchZoom: true,         // Enable touch zoom
+          touchRotate: false       // Disable touch rotation
+        }}
         viewState={viewState}
         layers={layers}
         pickingRadius={10}
         style={{ width: '100%', height: '100%' }}
-        onViewStateChange={({ viewState: vs }) => setViewState(vs)}
+        onViewStateChange={handleViewStateChange}
         getTooltip={getTooltip}
+        // Performance optimizations
+        useDevicePixels={true}  // Reduce rendering resolution for better performance
+        _animate={false}         // Disable internal animations
+        // 🚀 ZOOM FIX: Add key to prevent DeckGL from reinitializing with default viewState during re-renders
+        key="stable-deckgl-instance"
         onClick={({object}) => {
           if (object && onObjectClick) onObjectClick(object);
         }}
+     
       />
       {/* Custom CSS vertical scrollbar overlay, now as a widget */}
       {showScrollbar && isFinite(minY) && isFinite(maxY) && (
@@ -1597,7 +1836,6 @@ const PhyloTreeViewer = React.forwardRef(({
           alignmentReferencePoint={getAlignmentReferencePoint(genomeViewRef.current)}
           bounds={bounds}
           config={config}
-          onTicksComputed={setRulerTicks} // <-- capture ticks
         />
       )}
     </div>

@@ -13,8 +13,7 @@ const RulerWidget = ({
   genomeView,
   alignmentReferencePoint = null,
   bounds,
-  config = DEFAULT_CONFIG,
-  onTicksComputed // <-- NEW PROP
+  config = DEFAULT_CONFIG
 }) => {
   // Theme context
   const { getThemeColors } = useTheme();
@@ -353,18 +352,10 @@ const RulerWidget = ({
     return ticks;
   };
 
-  // Generate all ticks
+  // Generate all ticks (this should update on every zoom/pan for correct coordinates)
   const geneTicks = generateGeneTicks(constrainedMinX, constrainedMaxX);
   const treeTicks = generateTreeTicks();
   const allTicks = [...geneTicks, ...treeTicks];
-
-  // --- NEW: Call onTicksComputed if provided ---
-  React.useEffect(() => {
-    if (typeof onTicksComputed === 'function') {
-      onTicksComputed(allTicks);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(allTicks)]); // Only call when ticks change
 
   // Format coordinate labels for gene ticks
   const formatCoordinate = (coord) => {

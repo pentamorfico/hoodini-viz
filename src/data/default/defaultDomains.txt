@@ -1,0 +1,5 @@
+gene_A_1 DomainX 10 100 1e-6
+gene_A_1 DomainY 120 200 2e-6
+gene_B_2 DomainV 100 1000 1e-6 
+gene_C_2 DomainZ 210 300 1e-3
+gene_C_2 DomainW 310 400 5e-4

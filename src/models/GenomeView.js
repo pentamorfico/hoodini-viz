@@ -196,6 +196,23 @@ class GenomeView {
   }
 
   computeTrackPositions() {
+    let processedGenes = 0;
+    let processedNcRNAs = 0;
+    
+    // 🚀 OPTIMIZATION: Pre-group genes and ncRNAs by hood_id to avoid O(n×m) complexity
+    const genesByHood = {};
+    const ncRNAsByHood = {};
+    
+    for (const gene of Object.values(this.genesById)) {
+      if (!genesByHood[gene.hood_id]) genesByHood[gene.hood_id] = [];
+      genesByHood[gene.hood_id].push(gene);
+    }
+    
+    for (const nc of Object.values(this.ncRNAsById)) {
+      if (!ncRNAsByHood[nc.hood_id]) ncRNAsByHood[nc.hood_id] = [];
+      ncRNAsByHood[nc.hood_id].push(nc);
+    }
+    
     for (let hood_id of this.leaves) {
       const leafNode = this.tree.leafNodes.find(d => d.name === hood_id);
       if (!leafNode) continue;
@@ -214,10 +231,10 @@ class GenomeView {
       const flipped = !!this.trackFlipped[hood_id];
       const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
       const xScale = xScalePercent / 100;
-      // ---
-      // Transform genes for this hood
-      for (const gene of Object.values(this.genesById)) {
-        if (gene.hood_id !== hood_id) continue;
+      
+      // 🚀 OPTIMIZATION: Process only genes that belong to this hood
+      const hoodGenes = genesByHood[hood_id] || [];
+      for (const gene of hoodGenes) {
         gene.trackY = trackY;
         gene.geneHeight = this.geneHeight;
         const hoodBaseline = this.hoodBaselines[hood_id];
@@ -241,10 +258,12 @@ class GenomeView {
           d.end = domainEndX - gene.start;
         }
         gene.updatePolygon();
+        processedGenes++;
       }
-      // Transform ncRNAs for this hood (no domains)
-      for (const nc of Object.values(this.ncRNAsById)) {
-        if (nc.hood_id !== hood_id) continue;
+      
+      // 🚀 OPTIMIZATION: Process only ncRNAs that belong to this hood
+      const hoodNcRNAs = ncRNAsByHood[hood_id] || [];
+      for (const nc of hoodNcRNAs) {
         nc.trackY = trackY;
         nc.featureHeight = this.geneHeight;
         // Always use origStart/origEnd as the source for transformation
@@ -258,6 +277,7 @@ class GenomeView {
         nc.end = endX;
         nc.strand = flipped ? (nc.origStrand === '+' ? '-' : '+') : nc.origStrand;
         nc.updatePolygon();
+        processedNcRNAs++;
       }
       // Baseline and nucleotide region
       if (nuc && nuc.baseline) {
@@ -283,6 +303,7 @@ class GenomeView {
     }
     this.updateLinkPositions();
     this.updateGlobalBounds();
+    
   }
 
   // Static method to calculate the visual X coordinate of a gene's starting edge
@@ -338,96 +359,6 @@ class GenomeView {
       return GenomeView.flipCoordinate(shifted, anchor);
     }
     return shifted;
-  }
-
-  computeTrackPositions() {
-    for (let hood_id of this.leaves) {
-      const leafNode = this.tree.leafNodes.find(d => d.name === hood_id);
-      if (!leafNode) continue;
-      const trackY = leafNode.x + (this.config?.layout?.geneOffset || 0);
-      const seqid = this.hoodToSeqidMap[hood_id];
-      if (!seqid) continue;
-      const nuc = this.nucleotidesBySeqid[seqid];
-      const offset = this.trackOffset[hood_id] || 0;
-      let anchor;
-      if (nuc && nuc.baseline) {
-        const hoodBaseline = this.hoodBaselines[hood_id];
-        anchor = hoodBaseline ? hoodBaseline.length / 2 : (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
-      } else {
-        anchor = (this.featuresBySeqid[seqid].origMaxEnd - this.featuresBySeqid[seqid].origMinStart) / 2;
-      }
-      const flipped = !!this.trackFlipped[hood_id];
-      const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
-      const xScale = xScalePercent / 100;
-      // ---
-      // Transform genes for this hood
-      for (const gene of Object.values(this.genesById)) {
-        if (gene.hood_id !== hood_id) continue;
-        gene.trackY = trackY;
-        gene.geneHeight = this.geneHeight;
-        const hoodBaseline = this.hoodBaselines[hood_id];
-        let geneStartHood = gene.origStart;
-        let geneEndHood = gene.origEnd;
-        let startX = GenomeView.getTransformedXUnified(geneStartHood, anchor, offset, flipped);
-        let endX = GenomeView.getTransformedXUnified(geneEndHood, anchor, offset, flipped);
-        startX = anchor + (startX - anchor) * xScale;
-        endX = anchor + (endX - anchor) * xScale;
-        gene.start = startX;
-        gene.end = endX;
-        gene.strand = flipped ? (gene.origStrand === '+' ? '-' : '+') : gene.origStrand;
-        for (let d of gene.domains) {
-          let domainStartHood = geneStartHood + d.origStart;
-          let domainEndHood = geneStartHood + d.origEnd;
-          let domainStartX = GenomeView.getTransformedXUnified(domainStartHood, anchor, offset, flipped);
-          let domainEndX = GenomeView.getTransformedXUnified(domainEndHood, anchor, offset, flipped);
-          domainStartX = anchor + (domainStartX - anchor) * xScale;
-          domainEndX = anchor + (domainEndX - anchor) * xScale;
-          d.start = domainStartX - gene.start;
-          d.end = domainEndX - gene.start;
-        }
-        gene.updatePolygon();
-      }
-      // Transform ncRNAs for this hood (no domains)
-      for (const nc of Object.values(this.ncRNAsById)) {
-        if (nc.hood_id !== hood_id) continue;
-        nc.trackY = trackY;
-        nc.featureHeight = this.geneHeight;
-        // Always use origStart/origEnd as the source for transformation
-        const ncStartHood = nc.origStart;
-        const ncEndHood = nc.origEnd;
-        let startX = GenomeView.getTransformedXUnified(ncStartHood, anchor, offset, flipped);
-        let endX = GenomeView.getTransformedXUnified(ncEndHood, anchor, offset, flipped);
-        startX = anchor + (startX - anchor) * xScale;
-        endX = anchor + (endX - anchor) * xScale;
-        nc.start = startX;
-        nc.end = endX;
-        nc.strand = flipped ? (nc.origStrand === '+' ? '-' : '+') : nc.origStrand;
-        nc.updatePolygon();
-      }
-      // Baseline and nucleotide region
-      if (nuc && nuc.baseline) {
-        const hoodBaseline = this.hoodBaselines[hood_id];
-        const baseStartHood = 0;
-        const baseEndHood = hoodBaseline ? hoodBaseline.length : (nuc.baseline.origEnd - nuc.baseline.origStart);
-        let baseStart = GenomeView.getTransformedXUnified(baseStartHood, anchor, offset, flipped);
-        let baseEnd = GenomeView.getTransformedXUnified(baseEndHood, anchor, offset, flipped);
-        baseStart = anchor + (baseStart - anchor) * xScale;
-        baseEnd = anchor + (baseEnd - anchor) * xScale;
-        nuc.baseline.start = baseStart;
-        nuc.baseline.end = baseEnd;
-      }
-      if (nuc) {
-        const hoodBaseline = this.hoodBaselines[hood_id];
-        let regionStart = GenomeView.getTransformedXUnified(0, anchor, offset, flipped);
-        let regionEnd = GenomeView.getTransformedXUnified(hoodBaseline ? hoodBaseline.length : 0, anchor, offset, flipped);
-        regionStart = anchor + (regionStart - anchor) * xScale;
-        regionEnd = anchor + (regionEnd - anchor) * xScale;
-        nuc.start = regionStart;
-        nuc.end = regionEnd;
-      }
-    }
-    this.updateLinkPositions();
-    this.updateGlobalBounds();
   }
 
   // Method to update global bounds based on transformed feature positions
@@ -874,34 +805,69 @@ class GenomeView {
   }
 
   setProteinClusters(clusterMap) {
-    this.proteinClusters = {};
-    for (const originalGeneId in clusterMap) {
-      const cluster = clusterMap[originalGeneId];
-      const matchingGenes = Object.entries(this.genesById)
-        .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneId);
 
-      for (const [uniqueId, gene] of matchingGenes) {
-        this.proteinClusters[uniqueId] = cluster;
+    
+    // Early return if no cluster data
+    if (!clusterMap || Object.keys(clusterMap).length === 0) {
+      this.proteinClusters = {};
+      return;
+    }
+    
+    this.proteinClusters = {};
+    
+    // OPTIMIZATION 1: Build reverse index once instead of filtering for each cluster entry
+    // This changes complexity from O(n*m) to O(m) where n=clusters, m=genes
+    const genesByOriginalId = {};
+    const genesById = this.genesById; // Cache reference to avoid repeated property access
+    
+    for (const uniqueId in genesById) {
+      const gene = genesById[uniqueId];
+      const originalId = gene.originalGeneId;
+      if (originalId) {
+        if (!genesByOriginalId[originalId]) {
+          genesByOriginalId[originalId] = [];
+        }
+        genesByOriginalId[originalId].push(uniqueId);
       }
     }
+    
+    
+    // OPTIMIZATION 2: Process clusters using the reverse index (much faster!)
+    // Also cache cluster keys to avoid repeated Object.keys() calls
+    const clusterKeys = Object.keys(clusterMap);
+    for (let i = 0; i < clusterKeys.length; i++) {
+      const originalGeneId = clusterKeys[i];
+      const cluster = clusterMap[originalGeneId];
+      const matchingGenes = genesByOriginalId[originalGeneId];
 
-    // Skip assigning colors if no palette is provided
+      if (matchingGenes) {
+        for (let j = 0; j < matchingGenes.length; j++) {
+          this.proteinClusters[matchingGenes[j]] = cluster;
+        }
+      }
+    }
+    
+
+    // OPTIMIZATION 3: Skip color assignment if no palette is provided
     if (!this.clusterColors) {
       return;
     }
 
-    // Update gene colors and metadata
-    for (const uniqueGeneId in this.genesById) {
-      const gene = this.genesById[uniqueGeneId];
+    // OPTIMIZATION 4: Batch color and metadata updates with minimal iterations
+    // Use for...in loop which is faster for object iteration than Object.keys()
+    const clusterColors = this.clusterColors; // Cache reference
+    for (const uniqueGeneId in genesById) {
+      const gene = genesById[uniqueGeneId];
       const cluster = this.proteinClusters[uniqueGeneId];
-      if (cluster && this.clusterColors[cluster]) {
-        gene.fillColor = this.clusterColors[cluster];
-      } else {
-        gene.fillColor = null; // Do not assign any fallback color
-      }
+      
+      // Update fillColor
+      gene.fillColor = (cluster && clusterColors[cluster]) ? clusterColors[cluster] : null;
+      
+      // Update metadata (create if needed, but avoid unnecessary object creation)
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
     }
+    
   }
 
   // Enhanced method to set protein clusters with color palette support

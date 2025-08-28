@@ -13,6 +13,9 @@
     "@deck.gl/core": "9.1.10",
     "@deck.gl/layers": "9.1.10",
     "@deck.gl/react": "9.1.10",
+    "@loaders.gl/core": "^4.3.4",
+    "@loaders.gl/csv": "^4.3.4",
+    "@loaders.gl/gis": "^4.3.4",
     "deck.gl": "9.1.10",
     "dicopal": "^0.8.1",
     "polygon-clipping": "^0.15.7",
@@ -28,6 +31,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "react-scan": "^0.4.3",
     "vite": "^6.3.1"
   }
 }

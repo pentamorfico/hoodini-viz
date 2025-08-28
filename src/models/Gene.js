@@ -13,7 +13,7 @@ class Gene extends GFFFeature {
     this.fillColor = this.config.gene.fillColor;
     this.polygon = null;
     this.trackY = null;
-    this.geneHeight = this.config.gene.defaultHeight;
+    this.geneHeight = this.config.gene.height || this.config.gene.defaultHeight;
     this.centerLine = [];
     this.metadata = { seqid, start, end, strand, attributes };
   }
