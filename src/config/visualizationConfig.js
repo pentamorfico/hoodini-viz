@@ -34,7 +34,7 @@ export const DEFAULT_CONFIG = {
 
   // Genome-wide (non-tree) X scaling
   genome: {
-    xScalePercent: 10 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
+    xScalePercent: 90 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
   },
 
   // Theme Configuration
@@ -187,7 +187,7 @@ export const DEFAULT_CONFIG = {
   // Export Parameters
   export: {
     svg: {
-      minFontSize: 8,         // Minimum font size for SVG export
+      minFontSize: 1,         // Minimum font size for SVG export
       fontSizeScale: 1000     // Scale factor for font size calculation
     }
   }

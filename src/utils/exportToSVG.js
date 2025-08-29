@@ -30,6 +30,134 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     const y = (1 - normalise(point[1], min_y, max_y)) * height;
     return [x, y];
   };
+  // Clamp a world-space point to the current view bounds so exported geometry doesn't extend outside viewport
+  // Helper: bbox of world points
+  const bboxOfPoints = (pts) => {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of pts) {
+      minX = Math.min(minX, p[0]); minY = Math.min(minY, p[1]);
+      maxX = Math.max(maxX, p[0]); maxY = Math.max(maxY, p[1]);
+    }
+    return { minX, minY, maxX, maxY };
+  };
+
+  // Liang-Barsky line clipping in world coordinates against rect
+  const liangBarsky = (x0, y0, x1, y1, xmin, xmax, ymin, ymax) => {
+    let t0 = 0, t1 = 1;
+    const dx = x1 - x0, dy = y1 - y0;
+    const checks = [
+      { p: -dx, q: x0 - xmin }, // left
+      { p:  dx, q: xmax - x0 }, // right
+      { p: -dy, q: y0 - ymin }, // bottom
+      { p:  dy, q: ymax - y0 }  // top
+    ];
+    for (const c of checks) {
+      const { p, q } = c;
+      if (p === 0) {
+        if (q < 0) return null; // parallel and outside
+      } else {
+        const r = q / p;
+        if (p < 0) {
+          if (r > t1) return null;
+          if (r > t0) t0 = r;
+        } else {
+          if (r < t0) return null;
+          if (r < t1) t1 = r;
+        }
+      }
+    }
+    return [x0 + dx * t0, y0 + dy * t0, x0 + dx * t1, y0 + dy * t1];
+  };
+
+  // Clip polyline (array of points) to rect by clipping each segment and concatenating
+  const clipPolylineToRect = (pts, xmin, xmax, ymin, ymax) => {
+    const out = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i+1];
+      const seg = liangBarsky(a[0], a[1], b[0], b[1], xmin, xmax, ymin, ymax);
+      if (seg) {
+        const [cx0, cy0, cx1, cy1] = seg;
+        if (out.length === 0) {
+          out.push([cx0, cy0]);
+        } else {
+          const last = out[out.length - 1];
+          if (Math.abs(last[0] - cx0) > 1e-6 || Math.abs(last[1] - cy0) > 1e-6) {
+            out.push([cx0, cy0]);
+          }
+        }
+        out.push([cx1, cy1]);
+      }
+    }
+    return out;
+  };
+
+  // Sutherland-Hodgman polygon clipping to rect (world coords)
+  const clipPolygonToRect = (poly, xmin, xmax, ymin, ymax) => {
+    const clipAgainst = (pts, edge) => {
+      const res = [];
+      for (let i = 0; i < pts.length; i++) {
+        const a = pts[i];
+        const b = pts[(i + 1) % pts.length];
+        const aIn = edge(a);
+        const bIn = edge(b);
+        if (aIn && bIn) {
+          res.push(b);
+        } else if (aIn && !bIn) {
+          // leaving: add intersection
+          const ip = intersect(a, b, edge);
+          if (ip) res.push(ip);
+        } else if (!aIn && bIn) {
+          // entering: add intersection then b
+          const ip = intersect(a, b, edge);
+          if (ip) res.push(ip);
+          res.push(b);
+        }
+      }
+      return res;
+    };
+    const intersect = (a, b, edge) => {
+      const x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
+      const dx = x2 - x1, dy = y2 - y1;
+      // determine which edge and compute intersection accordingly
+      if (edge === left) {
+        const x = xmin; const t = (x - x1) / dx; return [x, y1 + dy * t];
+      }
+      if (edge === right) {
+        const x = xmax; const t = (x - x1) / dx; return [x, y1 + dy * t];
+      }
+      if (edge === bottom) {
+        const y = ymin; const t = (y - y1) / dy; return [x1 + dx * t, y];
+      }
+      if (edge === top) {
+        const y = ymax; const t = (y - y1) / dy; return [x1 + dx * t, y];
+      }
+      return null;
+    };
+    const left = (p) => p[0] >= xmin;
+    const right = (p) => p[0] <= xmax;
+    const bottom = (p) => p[1] >= ymin;
+    const top = (p) => p[1] <= ymax;
+    let out = poly.slice();
+    out = clipAgainst(out, left);
+    if (!out.length) return [];
+    out = clipAgainst(out, right);
+    if (!out.length) return [];
+    out = clipAgainst(out, bottom);
+    if (!out.length) return [];
+    out = clipAgainst(out, top);
+    return out;
+  };
+  // Helpers to avoid rendering things entirely outside the SVG viewport
+  const isPointOnScreen = (p) => (p[0] >= -1 && p[0] <= width + 1 && p[1] >= -1 && p[1] <= height + 1);
+  const isBBoxOnScreen = (pts) => {
+    if (!pts || pts.length === 0) return false;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of pts) {
+      minX = Math.min(minX, p[0]); minY = Math.min(minY, p[1]);
+      maxX = Math.max(maxX, p[0]); maxY = Math.max(maxY, p[1]);
+    }
+    return !(maxX < 0 || maxY < 0 || minX > width || minY > height);
+  };
   let svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'>`;
   
   // Add background rectangle with theme background color
@@ -60,10 +188,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           strokeAttr = colorToStr(lineColor);
           strokeWidth = config?.domain?.edgeWidth || 1;
         }
-        const fill = colorToStr(fillColor);
-        const pathPoints = polygon.map(p => applyBounds(p));
-        let d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ') + 'Z';
-        svg += `<path d='${d}' fill='${fill}' stroke='${strokeAttr}' stroke-width='${strokeWidth}'/>`;
+  const fill = colorToStr(fillColor);
+  // clip polygon in world coords first
+  const clippedPoly = clipPolygonToRect(polygon, min_x, max_x, min_y, max_y);
+  if (!clippedPoly || clippedPoly.length === 0) continue;
+  const pathPoints = clippedPoly.map(p => applyBounds(p));
+  let d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ') + 'Z';
+  svg += `<path d='${d}' fill='${fill}' stroke='${strokeAttr}' stroke-width='${strokeWidth}'/>`;
       }
     }
     // Path/Line layers (tree, baselines, etc.)
@@ -92,10 +223,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           }
         }
         
-        const stroke = colorToStr(color);
-        const pathPoints = path.map(p => applyBounds(p));
-        const d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ');
-        svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='1'/>`;
+  const stroke = colorToStr(color);
+  // clip path (polyline) in world coords
+  const clippedPath = clipPolylineToRect(path, min_x, max_x, min_y, max_y);
+  if (!clippedPath || clippedPath.length === 0) continue;
+  const pathPoints = clippedPath.map(p => applyBounds(p));
+  const d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ');
+  svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='1'/>`;
       }
     }
     // LineLayer (connecting lines only, no per-leaf tree-ticks)
@@ -142,9 +276,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           }
         }
         const stroke = colorToStr(color);
-        const [x1, y1] = applyBounds(sourcePos);
-        const [x2, y2] = applyBounds(targetPos);
-        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}" />`;
+  // clip connecting line in world coords
+  const clippedSeg = liangBarsky(sourcePos[0], sourcePos[1], targetPos[0], targetPos[1], min_x, max_x, min_y, max_y);
+  if (!clippedSeg) continue;
+  const [cx0, cy0, cx1, cy1] = clippedSeg;
+  const [x1, y1] = applyBounds([cx0, cy0]);
+  const [x2, y2] = applyBounds([cx1, cy1]);
+  svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${width}" />`;
       }
     }
     // ScatterplotLayer (tree nodes)
@@ -153,9 +291,11 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         const pos = feature.position || (props.getPosition ? props.getPosition(feature) : [0,0]);
         const fillColor = feature.color || (props.getFillColor ? props.getFillColor(feature) : [0,0,0,255]);
         const radius = feature.radius || (props.getRadius ? props.getRadius(feature) : 5);
-        const [x, y] = applyBounds(pos);
-        const fill = colorToStr(fillColor);
-        svg += `<circle cx="${x}" cy="${y}" r="${radius / 10}" fill="${fill}" />`;
+  const [x, y] = applyBounds(pos);
+  // skip nodes off-screen
+  if (!isPointOnScreen([x, y])) continue;
+  const fill = colorToStr(fillColor);
+  svg += `<circle cx="${x}" cy="${y}" r="${radius / 10}" fill="${fill}" />`;
       }
     }    // TextLayer (labels)
     if(layer.id === 'phylo-labels' || layer.id === 'gene-labels' || layer.id === 'scale-labels') {
@@ -165,7 +305,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         const color = feature.color || (props.getColor ? (typeof props.getColor === 'function' ? props.getColor(feature) : props.getColor) : [0,0,0,255]);
         const size = feature.size || (props.getSize ? (typeof props.getSize === 'function' ? props.getSize(feature) : props.getSize) : 14);
         const fill = colorToStr(color);
-        let [x, y] = applyBounds(pos);
+  let [x, y] = applyBounds(pos);
+  // skip text off-screen
+  if (!isPointOnScreen([x, y])) continue;
         const textAnchor = feature.textAnchor || (props.getTextAnchor ? (typeof props.getTextAnchor === 'function' ? props.getTextAnchor(feature) : props.getTextAnchor) : 'start');
 
         // Handle pixelOffset if present
@@ -187,13 +329,14 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         if (layer.id === 'phylo-labels') {
           dominantBaseline = 'central'; // DeckGL 'center' maps to SVG 'central'
         } else if (layer.id === 'gene-labels') {
-          // Gene labels use alignmentBaseline which defaults to 'top'
+          // Gene labels: use a baseline that more closely matches DeckGL "top" rendering
           const alignmentBaseline = feature.alignmentBaseline || (props.getAlignmentBaseline ? (typeof props.getAlignmentBaseline === 'function' ? props.getAlignmentBaseline(feature) : props.getAlignmentBaseline) : 'top');
-          dominantBaseline = alignmentBaseline === 'center' ? 'central' : 'hanging';
+          dominantBaseline = alignmentBaseline === 'center' ? 'central' : 'text-before-edge';
         }
         
         // Make font-size proportional to SVG height (viewport size)
-        const proportionalSize = Math.max(8, (size / 1000) * height); // 1000 is a typical data-space height
+  // Scale font by view zoom so exported SVG text matches visual size in deck.gl
+  const proportionalSize = Math.max(8, (size / 1000) * height * scale); // 1000 is a typical data-space height
         
         // Handle background for phylo labels when enabled
         if (layer.id === 'phylo-labels' && props.background) {
@@ -226,22 +369,43 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
   }
   // --- RULER SVG EXPORT ---
-  if (rulerOptions && rulerOptions.config && rulerOptions.width && rulerOptions.height) {
+  if (rulerOptions && rulerOptions.config && typeof rulerOptions.width === 'number' && typeof rulerOptions.height === 'number') {
     // Use precomputed ticks from rulerOptions if available
-    const { minX, maxX, width, height, config: rulerConfig, viewState: rulerViewState, alignmentReferencePoint, bounds, genomeView, precomputedTicks } = rulerOptions;
+    const { minX, maxX, config: rulerConfig, viewState: rulerViewState, alignmentReferencePoint, bounds, genomeView, precomputedTicks } = rulerOptions;
+    // avoid shadowing main svg width/height
+    const rulerWidth = rulerOptions.width;
+    const rulerHeightLocal = rulerOptions.height;
     const configToUse = rulerConfig || config;
     // If precomputed ticks are provided (from RulerWidget), use them directly
     if (precomputedTicks && Array.isArray(precomputedTicks)) {
       const geneTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
       const geneLabelColor = themeColors.text || (themeColors.background === '#ffffff' ? '#333' : '#ccc');
       const treeTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
-      const _rulerHeight = configToUse.ruler.height;
-      const _rulerTop = height - _rulerHeight;
+  const _rulerHeight = configToUse.ruler.height;
+  const _rulerTop = rulerHeightLocal - _rulerHeight;
       const _tickHeight = configToUse.ruler.tickHeight;
       const _labelOffset = configToUse.ruler.labelOffset;
-      svg += `<rect x='0' y='${_rulerTop}' width='${width}' height='${_rulerHeight}' fill='${themeColors.background || '#ffffff'}' stroke='${themeColors.background === '#ffffff' ? '#ccc' : '#555'}' stroke-width='1'/>`;
-      // Main ticks and labels
-      for (const tick of precomputedTicks) {
+  svg += `<rect x='0' y='${_rulerTop}' width='${rulerWidth}' height='${_rulerHeight}' fill='${themeColors.background || '#ffffff'}' stroke='${themeColors.background === '#ffffff' ? '#ccc' : '#555'}' stroke-width='1'/>`;
+      // Main ticks and labels — filter out invalid/infinite/out-of-range ticks
+      const validPreTicks = precomputedTicks.filter(t => {
+        if (!t || !t.type) return false;
+        if (t.type === 'gene') {
+          // require finite coordinate and screenX
+          if (typeof t.x !== 'number' || !isFinite(t.x)) return false;
+          if (typeof t.screenX !== 'number' || !isFinite(t.screenX)) return false;
+          if (t.screenX < -1 || t.screenX > rulerWidth + 1) return false;
+          // If minX/maxX (gene bounds) are provided in rulerOptions, enforce them
+          if (typeof minX === 'number' && typeof maxX === 'number') {
+            if (t.x < minX || t.x > maxX) return false;
+          }
+          return true;
+        }
+        if (t.type === 'tree') {
+          return (typeof t.screenX === 'number' && isFinite(t.screenX) && t.screenX >= -1 && t.screenX <= rulerWidth + 1);
+        }
+        return false;
+      });
+      for (const tick of validPreTicks) {
         if (tick.type === 'gene') {
           svg += `<line x1='${tick.screenX}' y1='${_rulerTop}' x2='${tick.screenX}' y2='${_rulerTop + _tickHeight}' stroke='${geneTickColor}' stroke-width='1'/>`;
           svg += `<text x='${tick.screenX}' y='${_rulerTop + _labelOffset}' text-anchor='middle' font-size='11px' fill='${geneLabelColor}' font-family='Helvetica, Arial, sans-serif'>${formatCoordinate(tick.x)}</text>`;
@@ -251,7 +415,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         }
       }
       // --- Minor ticks (only for gene area) ---
-      const geneTicks = precomputedTicks.filter(t => t.type === 'gene');
+      const geneTicks = validPreTicks.filter(t => t.type === 'gene');
       if (geneTicks.length > 1) {
         for (let i = 0; i < geneTicks.length - 1; i++) {
           const tick = geneTicks[i];
@@ -260,7 +424,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           if (tickSpacing > 20) { // Only if spacing is large enough
             const nextX = tick.x + tickSpacing / 2;
             const nextScreenX = tick.screenX + (nextTick.screenX - tick.screenX) / 2;
-            if (nextScreenX >= 0 && nextScreenX <= width) {
+            if (nextScreenX >= 0 && nextScreenX <= rulerWidth) {
               svg += `<line x1='${nextScreenX}' y1='${_rulerTop}' x2='${nextScreenX}' y2='${_rulerTop + _tickHeight / 2}' stroke='${geneTickColor}' stroke-width='0.5'/>`;
             }
           }
@@ -269,10 +433,10 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
       svg += `</svg>`;
       return svg;
     }
-    const centerX = rulerViewState?.target?.[0] || 0;
-    const zoom = rulerViewState?.zoom || 0;
-    const scale = Math.pow(2, zoom);
-    const visibleWidth = width / scale;
+  const centerX = rulerViewState?.target?.[0] || 0;
+  const zoom = rulerViewState?.zoom || 0;
+  const scale = Math.pow(2, zoom);
+  const visibleWidth = rulerWidth / scale;
     let geneVisibleMinX = centerX - visibleWidth / 2 - (alignmentReferencePoint || 0);
     let geneVisibleMaxX = centerX + visibleWidth / 2 - (alignmentReferencePoint || 0);
     
@@ -319,15 +483,15 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     // Calculate treeBoundaryScreen for clipping
     if (treeBoundary !== null) {
       const leftEdgeWorld = centerX - visibleWidth / 2;
-      treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * width;
+      treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * rulerWidth;
     }
     for (let x = firstTick; x <= scaledGeneVisibleMaxX; x += tickSpacing) {
       // Convert back to scaled coordinate space for screen positioning
-      const scaledX = x * genomeXScale;
-      const worldX = scaledX + (alignmentReferencePoint || 0);
-      const screenX = ((worldX - (centerX - visibleWidth / 2)) / visibleWidth) * width;
+  const scaledX = x * genomeXScale;
+  const worldX = scaledX + (alignmentReferencePoint || 0);
+  const screenX = ((worldX - (centerX - visibleWidth / 2)) / visibleWidth) * rulerWidth;
       // Only include gene ticks right of tree boundary
-      if (screenX >= (treeBoundaryScreen || 0) && screenX <= width) {
+  if (screenX >= (treeBoundaryScreen || 0) && screenX <= rulerWidth) {
         geneTicks.push({ x, screenX });
       }
     }
@@ -349,9 +513,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
     // Tree area: from left edge to treeBoundary
     if (treeBoundary !== null && bounds && genomeView && genomeView.tree) {
-      const leftEdgeWorld = centerX - visibleWidth / 2;
-      const rightEdgeWorld = treeBoundary;
-      const treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * width;
+  const leftEdgeWorld = centerX - visibleWidth / 2;
+  const rightEdgeWorld = treeBoundary;
+  const treeBoundaryScreen = ((treeBoundary - leftEdgeWorld) / visibleWidth) * rulerWidth;
       // Allow tree ticks even for very small tree areas
       if (treeBoundaryScreen >= 1) {
         const treeOffset = bounds.treeOffset || 0;
@@ -380,7 +544,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           const visibleTreeMaxY = Math.min(treeMaxY, rightEdgeWorld);
           if (visibleTreeMinY < visibleTreeMaxY) {
             const convertTreeYToScreen = (treeY) => {
-              return ((treeY - leftEdgeWorld) / visibleWidth) * width;
+              return ((treeY - leftEdgeWorld) / visibleWidth) * rulerWidth;
             };
             const visibleTreeRange = visibleTreeMaxY - visibleTreeMinY;
             const numTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100)));
@@ -432,7 +596,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     // Draw ruler background with theme-aware colors (opaque)
     const rulerBgColor = themeColors.background || '#ffffff';
     const rulerBorderColor = themeColors.background === '#ffffff' ? '#ccc' : '#555';
-    svg += `<rect x='0' y='${rulerTop}' width='${width}' height='${rulerHeight}' fill='${rulerBgColor}' stroke='${rulerBorderColor}' stroke-width='1'/>`;
+  svg += `<rect x='0' y='${rulerTop}' width='${rulerWidth}' height='${rulerHeight}' fill='${rulerBgColor}' stroke='${rulerBorderColor}' stroke-width='1'/>`;
     
     // Draw gene ticks and labels (only in gene area) with theme-aware colors
     const geneTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
@@ -445,7 +609,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     // Draw tree ticks and labels (only in tree area) with theme-aware colors  
     const treeTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
     for (const tick of treeTicks) {
-      if (tick.screenX < (treeBoundaryScreen || width)) {
+      if (tick.screenX < (treeBoundaryScreen || rulerWidth)) {
         if (tick.isScale) {
           svg += `<line x1='${tick.screenX}' y1='${rulerTop}' x2='${tick.screenX}' y2='${rulerTop + tickHeight / 2}' stroke='${treeTickColor}' stroke-width='1'/>`;
         }

@@ -1327,7 +1327,23 @@ class GenomeView {
   }
 
   applyBaselines(baselines) {
+    // Filter out orphaned baselines (baselines for hoods not in the phylogenetic tree)
+    const validHoodIds = new Set(this.leaves);
+    const filteredBaselines = [];
+    let orphanCount = 0;
+    
     for (const b of baselines) {
+      if (validHoodIds.has(b.hood_id)) {
+        filteredBaselines.push(b);
+      } else {
+        console.warn('⚠️  Skipping orphan baseline (not in tree):', {hood_id: b.hood_id, seqid: b.seqid});
+        orphanCount++;
+      }
+    }
+    
+    console.log(`📊 Baseline filtering: ${filteredBaselines.length}/${baselines.length} baselines processed (${orphanCount} orphans skipped)`);
+    
+    for (const b of filteredBaselines) {
       // Set up hood to seqid mapping
       if (b.hood_id && b.seqid) {
         this.hoodToSeqidMap[b.hood_id] = b.seqid;

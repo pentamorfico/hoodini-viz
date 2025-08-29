@@ -50,6 +50,41 @@ function App() {
   const [arrowheadHeight, setArrowheadHeight] = useState(0); // New state to control gene arrowhead height
   const [geneHeight, setGeneHeight] = useState(60); // New state to control gene height
   
+  // Debounced display values for sliders
+  const [arrowheadHeightDisplay, setArrowheadHeightDisplay] = useState(0);
+  const [geneHeightDisplay, setGeneHeightDisplay] = useState(60);
+  
+  // Debounce timers
+  const arrowheadHeightTimeoutRef = useRef(null);
+  const geneHeightTimeoutRef = useRef(null);
+  
+  // Debounced handlers for sliders
+  const handleArrowheadHeightChange = (value) => {
+    setArrowheadHeightDisplay(value);
+    if (arrowheadHeightTimeoutRef.current) {
+      clearTimeout(arrowheadHeightTimeoutRef.current);
+    }
+    arrowheadHeightTimeoutRef.current = setTimeout(() => {
+      setArrowheadHeight(value);
+    }, 150); // 150ms debounce
+  };
+  
+  const handleGeneHeightChange = (value) => {
+    setGeneHeightDisplay(value);
+    if (geneHeightTimeoutRef.current) {
+      clearTimeout(geneHeightTimeoutRef.current);
+    }
+    geneHeightTimeoutRef.current = setTimeout(() => {
+      setGeneHeight(value);
+    }, 150); // 150ms debounce
+  };
+  
+  // Initialize display values on mount
+  useEffect(() => {
+    setArrowheadHeightDisplay(arrowheadHeight);
+    setGeneHeightDisplay(geneHeight);
+  }, [arrowheadHeight, geneHeight]);
+  
   // Gene and domain selection states
   const [geneColorBy, setGeneColorBy] = useState('cluster'); // Gene coloring field selection
   const [geneLabelBy, setGeneLabelBy] = useState('cluster'); // Gene labeling field selection
@@ -249,8 +284,7 @@ function App() {
         </div>
       )}
       
-      Simple controls for demonstration
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+      <div style={{ position: 'absolute', top: 10, right: 60, zIndex: 1000, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
         <label style={{ display: 'block', marginBottom: '5px' }}>
           <input 
             type="checkbox" 
@@ -270,7 +304,17 @@ function App() {
           Show Connecting Lines
         </label>
 
-        
+        {/* Turn on/off the scroll bar */}
+        <label style={{ display: 'block', marginBottom: '5px' }}>
+          <input 
+            type="checkbox" 
+            checked={showScrollbar} 
+            onChange={(e) => setShowScrollbar(e.target.checked)}
+            style={{ marginRight: '5px' }}
+          />
+          Show Scrollbar
+        </label>
+
         {/* Alignment Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
           <div style={{ marginBottom: '5px', fontWeight: 'bold' }}>Alignment Controls:</div>
@@ -409,11 +453,11 @@ function App() {
             type="range" 
             min="0" 
             max="100" 
-            value={arrowheadHeight} 
-            onChange={(e) => setArrowheadHeight(Number(e.target.value))}
+            value={arrowheadHeightDisplay} 
+            onChange={(e) => handleArrowheadHeightChange(Number(e.target.value))}
             style={{ marginLeft: '5px', width: '100px' }}
           />
-          <span style={{ marginLeft: '5px' }}>{arrowheadHeight}</span>
+          <span style={{ marginLeft: '5px' }}>{arrowheadHeightDisplay}</span>
         </label>
 
         {/* Gene Height Control */}
@@ -423,11 +467,11 @@ function App() {
             type="range" 
             min="10" 
             max="200" 
-            value={geneHeight} 
-            onChange={(e) => setGeneHeight(Number(e.target.value))}
+            value={geneHeightDisplay} 
+            onChange={(e) => handleGeneHeightChange(Number(e.target.value))}
             style={{ marginLeft: '5px', width: '100px' }}
           />
-          <span style={{ marginLeft: '5px' }}>{geneHeight}</span>
+          <span style={{ marginLeft: '5px' }}>{geneHeightDisplay}</span>
         </label>
 
         {/* Field Selection Controls */}
@@ -514,6 +558,7 @@ function App() {
           />
         </div>
         
+
 
         {/* Gene Label Controls */}
         <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>

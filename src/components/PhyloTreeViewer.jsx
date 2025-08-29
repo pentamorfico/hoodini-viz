@@ -70,6 +70,7 @@ const PhyloTreeViewer = React.forwardRef(({
 
   // Use a ref for genomeView so it persists across renders
   const genomeViewRef = useRef(null);
+  const rulerWidgetRef = useRef(null); // Ref to access ruler ticks for SVG export
   
   // Track whether we're in manual manipulation mode to prevent alignment reset
   const isManualManipulation = useRef(false);
@@ -302,7 +303,9 @@ const PhyloTreeViewer = React.forwardRef(({
     if (genomeView.globalMin !== Infinity && genomeView.globalMax !== -Infinity) {
       minX = genomeView.globalMin;
       maxX = genomeView.globalMax;
+      console.log('🎯 computeBounds: Using GenomeView global bounds:', minX, 'to', maxX);
     } else {
+      console.log('⚠️ computeBounds: GenomeView global bounds not available, using fallback calculation');
       // Fallback: manually calculate X bounds from genes, ncRNAs, and domains
       Object.values(genomeView.genesById).forEach(g => {
         if (g.polygon) g.polygon.forEach(([x, y]) => {
@@ -370,7 +373,9 @@ const PhyloTreeViewer = React.forwardRef(({
     if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
       const fallback = config.layout.containerFallback;
       minX = fallback.minX; minY = fallback.minY; maxX = fallback.maxX; maxY = fallback.maxY;
+      console.log('⚠️ computeBounds: Using fallback bounds:', minX, 'to', maxX);
     }
+    console.log('📏 computeBounds: Final bounds returned:', { minX, maxX, minY, maxY, treeOffset, geneOffset });
     return { minX, minY, maxX, maxY, treeOffset, geneOffset };
   }
 
@@ -1571,36 +1576,6 @@ const PhyloTreeViewer = React.forwardRef(({
   // Track user interaction to prevent fitViewToBounds conflicts
   const isUserInteracting = React.useRef(false);
   const interactionTimeout = React.useRef(null);
-  const viewStateDebounceTimeout = React.useRef(null);
-
-  // Stabilize the viewState change handler to prevent infinite re-renders
-  const handleViewStateChange = React.useCallback(({ viewState: vs }) => {
-    // Mark that user is interacting
-    isUserInteracting.current = true;
-    
-    // Clear existing timeout
-    if (interactionTimeout.current) {
-      clearTimeout(interactionTimeout.current);
-    }
-    
-    // Set timeout to mark interaction as finished
-    interactionTimeout.current = setTimeout(() => {
-      isUserInteracting.current = false;
-    }, 500); // 500ms after last interaction
-    
-    // Immediate update for responsive feel
-    setViewState(vs);
-    
-    // Debounce expensive operations during rapid pan/zoom
-    if (viewStateDebounceTimeout.current) {
-      clearTimeout(viewStateDebounceTimeout.current);
-    }
-    
-    viewStateDebounceTimeout.current = setTimeout(() => {
-      // Any expensive operations that should only happen after pan/zoom stops
-      // Currently none, but placeholder for future optimizations
-    }, 150);
-  }, []);
 
   return (
     <div id="phylo-tree-viewer-container" ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -1789,21 +1764,27 @@ const PhyloTreeViewer = React.forwardRef(({
         controller={{
           dragPan: true,
           dragRotate: false,
-          scrollZoom: true,
+          scrollZoom: {
+            smooth: false,
+            speed: 0.01
+          },
           doubleClickZoom: false,  // Disable double-click zoom to reduce conflicts
           keyboard: false,         // Disable keyboard to reduce conflicts
           inertia: true,           // Enable inertia for smoother interactions
           transitionDuration: 0, // Short transition for smoother feel
-          transitionInterpolator: null, // Use default interpolator for better performance
-          scrollZoomSpeed: 2,    // Reduce scroll sensitivity for more controlled zoom
           touchZoom: true,         // Enable touch zoom
           touchRotate: false       // Disable touch rotation
         }}
-        viewState={viewState}
+        // Only use controlled viewState when scrollbar is enabled
+        {...(showScrollbar ? { viewState: viewState } : {})}
         layers={layers}
+        initialViewState={{
+          target: [0, 0, 0],
+          zoom: -10
+        }}
         pickingRadius={10}
         style={{ width: '100%', height: '100%' }}
-        onViewStateChange={handleViewStateChange}
+        onViewStateChange={e => setViewState(e.viewState)}
         getTooltip={getTooltip}
         // Performance optimizations
         useDevicePixels={true}  // Reduce rendering resolution for better performance
