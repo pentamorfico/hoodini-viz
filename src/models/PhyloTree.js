@@ -103,11 +103,19 @@ class PhyloTree {
   }
 
   scaleY() {
-    const rootDists=this.allNodes.map(n=>n.rootDist);
-    const maxDist=Math.max(...rootDists);
-    const yScaleFactor=this.config.tree.yScaleFactor/(maxDist>0?maxDist:1);
-    for(let n of this.allNodes) {
-      n.y=n.rootDist*yScaleFactor;
+    const rootDists = this.allNodes.map(n => n.rootDist);
+    const maxDist = Math.max(...rootDists);
+    
+    // Use fixed coordinate width instead of yScaleFactor for normalization
+    // All trees will span from 0 to fixedCoordinateWidth, regardless of their evolutionary distance range
+    const fixedWidth = this.config.tree.fixedCoordinateWidth || 2000;
+    const yScaleFactor = maxDist > 0 ? fixedWidth / maxDist : 1;
+    
+    // Store maxEvolutionaryDistance for ruler calculations
+    this.maxEvolutionaryDistance = maxDist;
+    
+    for (let n of this.allNodes) {
+      n.y = n.rootDist * yScaleFactor;
     }
   }
 

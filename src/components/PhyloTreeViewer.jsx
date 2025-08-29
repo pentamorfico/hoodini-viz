@@ -347,11 +347,12 @@ const PhyloTreeViewer = React.forwardRef(({
         minBaselineX = Math.min(minBaselineX, nuc.baseline.start, nuc.baseline.end);
       }
     });
-    // Tree paths: get maxX
+    // Tree paths: get maxX with scaling
     let treeMaxX = -Infinity;
+    const treeXScale = (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
     if (tree) tree.buildEdges().forEach(e => {
       e.path.forEach(([x, y]) => {
-        treeMaxX = Math.max(treeMaxX, x);
+        treeMaxX = Math.max(treeMaxX, x * treeXScale);
       });
     });
     // Set geneOffset so that minX is at configurable position
@@ -918,8 +919,10 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // Use edges with metadata for tooltips - use current tree, not baseTree from genomeView
     // Apply current theme colors directly instead of relying on tree.themeColors
+    // Apply tree X-scaling
+    const treeXScale = (effectiveConfig.tree && typeof effectiveConfig.tree.xScalePercent === 'number') ? effectiveConfig.tree.xScalePercent / 100 : 1;
     const phyloPaths = tree.buildEdges().map(edge => ({
-      path: edge.path.map(([y, x]) => [y + treeOffset, x]),
+      path: edge.path.map(([y, x]) => [y * treeXScale + treeOffset, x]),
       metadata: {
         source: edge.source.name || `internal_${edge.source.id}`,
         target: edge.target.name || `internal_${edge.target.id}`,
@@ -980,7 +983,7 @@ const PhyloTreeViewer = React.forwardRef(({
         
         // If we couldn't find a rightmost position, fallback to tree position
         if (!isFinite(rightmostX)) {
-          rightmostX = l.y + treeOffset + (config.tree?.labelOffset || 10);
+          rightmostX = l.y * treeXScale + treeOffset + (config.tree?.labelOffset || 10);
         } else {
           // Add offset after the rightmost genome feature
           rightmostX += (config.tree?.labelOffset || 10);
@@ -989,7 +992,7 @@ const PhyloTreeViewer = React.forwardRef(({
         position = [rightmostX, l.x];
       } else {
         // Default: position after tree nodes (current behavior)
-        position = [l.y + treeOffset + (config.tree?.labelOffset || 10), l.x];
+        position = [l.y * treeXScale + treeOffset + (config.tree?.labelOffset || 10), l.x];
       }
       
       return {
@@ -1076,7 +1079,7 @@ const PhyloTreeViewer = React.forwardRef(({
       return {
         id: n.id,
         node: n,
-        position: [n.y + treeOffset, n.x], // Use current tree coordinates + offset
+        position: [n.y * treeXScale + treeOffset, n.x], // Use current tree coordinates + offset + scaling
         color: color,
         radius: n.branchset.length > 0 ? nodeRadius.internal : nodeRadius.leaf,
         metadata: n.metadata || { name: n.name, id: n.id }
@@ -1283,7 +1286,7 @@ const PhyloTreeViewer = React.forwardRef(({
         })
         .map(leaf => {
           const trackY = genomeView.getTrackYByHoodId(leaf.name);
-          const leafX = leaf.y + treeOffset;
+          const leafX = leaf.y * treeXScale + treeOffset;
           const leafY = leaf.x;
           
           // Find the leftmost point of the genome track for this leaf

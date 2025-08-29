@@ -6,6 +6,8 @@ export const DEFAULT_CONFIG = {
   tree: {
     ySpacing: 200,           // Vertical spacing between tree leaves
     yScaleFactor: 1000,       // Base scale factor for tree Y coordinates (will be divided by maxDist)
+    xScalePercent: 100,      // X scale of the tree section (100 = actual, 50 = compress, 200 = stretch)
+    fixedCoordinateWidth: 2000, // Fixed coordinate width for all trees (normalized before xScale is applied)
     nodeRadius: {
       internal: 0,          // Radius for internal nodes
       leaf: 20              // Radius for leaf nodes
@@ -34,7 +36,7 @@ export const DEFAULT_CONFIG = {
 
   // Genome-wide (non-tree) X scaling
   genome: {
-    xScalePercent: 90 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
+    xScalePercent: 20 // X scale of the entire genome section (100 = actual, 0 = collapse, >100 = stretch)
   },
 
   // Theme Configuration
@@ -187,7 +189,7 @@ export const DEFAULT_CONFIG = {
   // Export Parameters
   export: {
     svg: {
-      minFontSize: 1,         // Minimum font size for SVG export
+      minFontSize: 0,         // Minimum font size for SVG export
       fontSizeScale: 1000     // Scale factor for font size calculation
     }
   }

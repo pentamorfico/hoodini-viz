@@ -43,7 +43,8 @@ const RulerWidget = ({
     // use the tree's actual rightmost position instead
     if (treeBoundary !== null && treeBoundary <= 50 && genomeView.tree && bounds.treeOffset !== undefined) {
       const treeOffset = bounds.treeOffset || 0;
-      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y + treeOffset);
+      const treeXScale = (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
+      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y * treeXScale + treeOffset);
       const treeMaxY = Math.max(...allTreeYCoords);
       // Use tree's rightmost position as boundary, ensuring there's space for tree ticks
       treeBoundary = Math.max(treeMaxY + 100, 200); // At least 200 units for tree area
@@ -236,14 +237,13 @@ const RulerWidget = ({
     if (genomeView && genomeView.tree) {
       // Get the actual tree coordinates (Y coordinates in tree space represent evolutionary distance)
       const treeOffset = bounds.treeOffset || 0;
-      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y + treeOffset);
+      const treeXScale = (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
+      const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y * treeXScale + treeOffset);
       const treeMinY = Math.min(...allTreeYCoords);
       const treeMaxY = Math.max(...allTreeYCoords);
       
-      // Get evolutionary distances
-      const rootDistances = genomeView.tree.allNodes.map(n => n.rootDist || 0);
-      const maxEvolutionaryDistance = Math.max(...rootDistances);
-      const minEvolutionaryDistance = Math.min(...rootDistances);
+      // Get evolutionary distances from the tree object
+      const maxEvolutionaryDistance = genomeView.tree.maxEvolutionaryDistance || 1;
       
       // Calculate which portion of the tree is actually visible
       const visibleTreeMinY = Math.max(treeMinY, leftEdgeWorld);
@@ -279,9 +279,9 @@ const RulerWidget = ({
         const screenX = convertTreeYToScreen(treeY);
         
         // Convert tree Y coordinate back to evolutionary distance
-        // Since tree.scaleY() uses: n.y = n.rootDist * yScaleFactor
-        const yScaleFactor = maxEvolutionaryDistance > 0 ? 800 / maxEvolutionaryDistance : 1;
-        const evolutionaryDist = (treeY - treeOffset) / yScaleFactor;
+        // With the new fixed coordinate system: n.y = n.rootDist * (fixedWidth / maxEvolutionaryDistance)
+        const fixedWidth = config.tree?.fixedCoordinateWidth || 2000;
+        const evolutionaryDist = ((treeY - treeOffset) / treeXScale) * (maxEvolutionaryDistance / fixedWidth);
         
         // Format the evolutionary distance label
         let label;

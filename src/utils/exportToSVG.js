@@ -1,4 +1,6 @@
 // Utility to convert color array to SVG color string
+import { DEFAULT_CONFIG } from '../config/visualizationConfig';
+
 function colorToStr(cArr){
   if(!cArr)return 'none';
   const[r,g,b,a=255]=cArr;
@@ -534,12 +536,16 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           visibleLeaves = genomeView.tree.leafNodes;
         }
         if (visibleLeaves.length > 0) {
-          const visibleTreeYCoords = visibleLeaves.map(leaf => leaf.y + treeOffset);
-          const treeMinY = Math.min(...visibleTreeYCoords);
-          const treeMaxY = Math.max(...visibleTreeYCoords);
-          const rootDistances = visibleLeaves.map(leaf => leaf.rootDist || 0);
-          const maxEvolutionaryDistance = Math.max(...rootDistances);
-          const minEvolutionaryDistance = Math.min(...rootDistances);
+          // Use all nodes like RulerWidget does, not just leaves
+          const treeOffset = bounds.treeOffset || 0;
+          const treeXScale = (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
+          const allTreeYCoords = genomeView.tree.allNodes.map(n => n.y * treeXScale + treeOffset);
+          const treeMinY = Math.min(...allTreeYCoords);
+          const treeMaxY = Math.max(...allTreeYCoords);
+          
+          // Get evolutionary distances from the tree object (now stored during scaleY)
+          const maxEvolutionaryDistance = genomeView.tree.maxEvolutionaryDistance || 1;
+          
           const visibleTreeMinY = Math.max(treeMinY, leftEdgeWorld);
           const visibleTreeMaxY = Math.min(treeMaxY, rightEdgeWorld);
           if (visibleTreeMinY < visibleTreeMaxY) {
@@ -547,12 +553,19 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
               return ((treeY - leftEdgeWorld) / visibleWidth) * rulerWidth;
             };
             const visibleTreeRange = visibleTreeMaxY - visibleTreeMinY;
-            const numTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100)));
+            
+            // Match RulerWidget's tick calculation exactly
+            const minPixelsPerTreeTick = 60;
+            const maxTicksBasedOnScreen = Math.floor(treeBoundaryScreen / minPixelsPerTreeTick);
+            const baseNumTicks = Math.min(4, Math.max(2, Math.floor(visibleTreeRange / 100)));
+            const numTicks = Math.min(baseNumTicks, maxTicksBasedOnScreen, 6);
+            
             for (let i = 0; i < numTicks; i++) {
               const treeY = visibleTreeMinY + (i / (numTicks - 1)) * (visibleTreeMaxY - visibleTreeMinY);
               const screenX = convertTreeYToScreen(treeY);
-              const yScaleFactor = maxEvolutionaryDistance > 0 ? 800 / maxEvolutionaryDistance : 1;
-              const evolutionaryDist = (treeY - treeOffset) / yScaleFactor;
+              // Convert tree Y coordinate back to evolutionary distance using fixed coordinate system
+              const fixedWidth = DEFAULT_CONFIG.tree?.fixedCoordinateWidth || 2000;
+              const evolutionaryDist = ((treeY - treeOffset) / treeXScale) * (maxEvolutionaryDistance / fixedWidth);
               let label;
               if (maxEvolutionaryDistance < 0.001) {
                 label = evolutionaryDist.toExponential(1);
@@ -575,6 +588,32 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
                 });
               }
             }
+            
+            // Filter tree ticks that are too close together on screen (match RulerWidget)
+            const minTreeScreenDistance = 50;
+            const filteredTreeTicks = [];
+            
+            for (let i = 0; i < treeTicks.length; i++) {
+              const currentTick = treeTicks[i];
+              let tooClose = false;
+              
+              for (let j = 0; j < filteredTreeTicks.length; j++) {
+                const existingTick = filteredTreeTicks[j];
+                const screenDistance = Math.abs(currentTick.screenX - existingTick.screenX);
+                
+                if (screenDistance < minTreeScreenDistance) {
+                  tooClose = true;
+                  break;
+                }
+              }
+              
+              if (!tooClose) {
+                filteredTreeTicks.push(currentTick);
+              }
+            }
+            
+            // Replace treeTicks with filtered version
+            treeTicks = filteredTreeTicks;
           }
         }
       }
