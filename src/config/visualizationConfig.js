@@ -55,7 +55,11 @@ export const DEFAULT_CONFIG = {
       buttonBorder: '#cccccc',
       tooltipBackground: '#ffffff',
       tooltipText: '#222222',
-      tooltipBorder: '#cccccc'
+      tooltipBorder: '#cccccc',
+      widgetBackground: '#f8f9fa',
+      border: '#dee2e6',
+      textSecondary: '#6c757d',
+      sliderTrack: '#e9ecef'
     },
     dark: {
       background: '#000000',
@@ -70,7 +74,11 @@ export const DEFAULT_CONFIG = {
       buttonBorder: '#555555',
       tooltipBackground: '#333333',
       tooltipText: '#ffffff',
-      tooltipBorder: '#555555'
+      tooltipBorder: '#555555',
+      widgetBackground: '#212529',
+      border: '#495057',
+      textSecondary: '#adb5bd',
+      sliderTrack: '#495057'
     }
   },
 

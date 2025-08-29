@@ -1,1 +1,11 @@
-NMC60375.1 WP_081611832.1 20
+gene_A_8 gene_B_2 20
+gene_C_2 gene_D_2 30
+gene_B_2 gene_C_3 50
+gene_D_1 gene_E_1 10
+gene_F_1 gene_G_1 20
+gene_H_3 gene_I_5 30
+gene_J_1 gene_K_1 70
+gene_L_1 gene_M_1 30
+gene_N_1 gene_O_1 10
+gene_P_1 gene_Q_1 30
+gene_R_1 gene_S_1 50

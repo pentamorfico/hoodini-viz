@@ -36,7 +36,7 @@ import defaultNonCodingMetadata from './data/defaultNonCodingMetadata.txt?raw';
 
 function App() {
   const [newickStr, setNewickStr] = useState(defaultNewick);
-  const [showScrollbar, setShowScrollbar] = useState(true);
+  const [showScrollbar, setShowScrollbar] = useState(false);
   const [alignCluster, setAlignCluster] = useState(null); // Set to null by default - no cluster alignment
   const [useDefaultGeneAlignment, setUseDefaultGeneAlignment] = useState(true); // Enable default gene alignment by default
   const [showRuler, setShowRuler] = useState(true); // New state to control ruler visibility

@@ -8,6 +8,7 @@ import {OrthographicView} from '@deck.gl/core';
 import ScrollbarWidget from '../widgets/ScrollbarWidget';
 import ExportSVGWidget from '../widgets/ExportSVGWidget';
 import RulerWidget from '../widgets/RulerWidget';
+import TreeScaleWidget from '../widgets/TreeScaleWidget';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 import { useTheme } from '../contexts/ThemeContext.jsx';
 import { getPaletteColors } from '../utils/colorPalettes';
@@ -63,6 +64,7 @@ const PhyloTreeViewer = React.forwardRef(({
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
   const [treeLabelPadding, setTreeLabelPadding] = React.useState(100);
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
+  const [treeXScalePercent, setTreeXScalePercent] = useState(config?.tree?.xScalePercent || 100);
   const [viewState, setViewState] = useState({
     target: [0, 0, 0],
     zoom: -10
@@ -294,7 +296,7 @@ const PhyloTreeViewer = React.forwardRef(({
   }, [tree, treeMetadata, treeLabelBy, config]);
 
   // Utility to compute bounding box from all polygons/paths
-  function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree') {
+  function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree', treeXScaleOverride = null) {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     let minBaselineX = Infinity;
     if (!genomeView) return config.layout.containerFallback; // Use configurable fallback
@@ -349,7 +351,8 @@ const PhyloTreeViewer = React.forwardRef(({
     });
     // Tree paths: get maxX with scaling
     let treeMaxX = -Infinity;
-    const treeXScale = (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
+    const treeXScale = treeXScaleOverride !== null ? treeXScaleOverride / 100 : 
+                      (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
     if (tree) tree.buildEdges().forEach(e => {
       e.path.forEach(([x, y]) => {
         treeMaxX = Math.max(treeMaxX, x * treeXScale);
@@ -494,7 +497,7 @@ const PhyloTreeViewer = React.forwardRef(({
   }
   
   // Add after viewState and bounds are available
-  const bounds = computeBounds(genomeViewRef.current, tree, phyloLabelPosition);
+  const bounds = computeBounds(genomeViewRef.current, tree, phyloLabelPosition, treeXScalePercent);
   const minY = bounds.minY;
   const maxY = bounds.maxY;
   // Normalized scrollbar state (0-100)
@@ -780,6 +783,51 @@ const PhyloTreeViewer = React.forwardRef(({
     return colorMap;
   }, [genomeView, effectiveDomainPalette, domainColorBy]);
 
+  // 🚀 PERFORMANCE: Pre-compute rightmost positions for 'after-tracks' mode (O(N+M) instead of O(N×M))
+  const rightmostPositionsByLeaf = React.useMemo(() => {
+    const genomeView = genomeViewRef.current;
+    if (!genomeView || !tree) return new Map();
+    
+    const effectivePhyloLabelPosition = phyloLabelPosition || config.tree?.phyloLabelPosition || 'after-tree';
+    if (effectivePhyloLabelPosition !== 'after-tracks') return new Map();
+    
+    const positions = new Map();
+    
+    // Initialize with -Infinity for all leaf names
+    tree.leafNodes.forEach(leaf => {
+      positions.set(leaf.name, -Infinity);
+    });
+    
+    // Single pass through all genes (O(M) instead of O(N×M))
+    Object.values(genomeView.genesById).forEach(gene => {
+      const leafName = gene.hood_id || genomeView.getHoodIdFromSeqid(gene.seqid);
+      if (leafName && positions.has(leafName)) {
+        const currentMax = positions.get(leafName);
+        positions.set(leafName, Math.max(currentMax, Math.max(gene.start, gene.end)));
+      }
+    });
+    
+    // Single pass through all ncRNAs
+    Object.values(genomeView.ncRNAsById).forEach(ncRNA => {
+      const leafName = ncRNA.hood_id || genomeView.getHoodIdFromSeqid(ncRNA.seqid);
+      if (leafName && positions.has(leafName)) {
+        const currentMax = positions.get(leafName);
+        positions.set(leafName, Math.max(currentMax, Math.max(ncRNA.start, ncRNA.end)));
+      }
+    });
+    
+    // Process baselines
+    const nucleotideBaselines = genomeView.nucleotideLinks.filter(link => link.baseline);
+    nucleotideBaselines.forEach(baseline => {
+      if (baseline.hood_id && positions.has(baseline.hood_id)) {
+        const currentMax = positions.get(baseline.hood_id);
+        positions.set(baseline.hood_id, Math.max(currentMax, Math.max(baseline.start, baseline.end)));
+      }
+    });
+    
+    return positions;
+  }, [genomeViewRef.current, tree, phyloLabelPosition, config.tree?.phyloLabelPosition, alignmentVersion]);
+
   const layers = React.useMemo(() => {
     const layersStartTime = performance.now();
     
@@ -789,7 +837,16 @@ const PhyloTreeViewer = React.forwardRef(({
     }
     
     // Use styleConfig if available, otherwise fall back to config
-    const effectiveConfig = styleConfig || config;
+    const baseConfig = styleConfig || config;
+    
+    // Create effectiveConfig with tree X-scale override from state
+    const effectiveConfig = {
+      ...baseConfig,
+      tree: {
+        ...baseConfig.tree,
+        xScalePercent: treeXScalePercent
+      }
+    };
     
     // 🚀 SYNCHRONOUS POLYGON UPDATES - This ensures fresh polygons are always available!
     // Update all feature polygons directly here instead of using a separate effect
@@ -838,7 +895,7 @@ const PhyloTreeViewer = React.forwardRef(({
     console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
     
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
-    const bounds = computeBounds(genomeView, tree, phyloLabelPosition);
+    const bounds = computeBounds(genomeView, tree, phyloLabelPosition, treeXScalePercent);
     const treeOffset = bounds.treeOffset || 0;
     
     // Use pre-filtered and pre-computed data
@@ -956,30 +1013,8 @@ const PhyloTreeViewer = React.forwardRef(({
       }
       let position;
       if (effectivePhyloLabelPosition === 'after-tracks') {
-        // Position phylo labels after the rightmost edge of genome tracks
-        // Find the rightmost X coordinate for this leaf's track
-        const trackY = genomeView.getTrackYByHoodId(l.name);
-        let rightmostX = -Infinity;
-        
-        // Check all genes for this leaf to find the rightmost position
-        Object.values(genomeView.genesById).forEach(gene => {
-          if (gene.hood_id === l.name || genomeView.getHoodIdFromSeqid(gene.seqid) === l.name) {
-            rightmostX = Math.max(rightmostX, Math.max(gene.start, gene.end));
-          }
-        });
-        
-        // Check all ncRNAs for this leaf to find the rightmost position
-        Object.values(genomeView.ncRNAsById).forEach(ncRNA => {
-          if (ncRNA.hood_id === l.name || genomeView.getHoodIdFromSeqid(ncRNA.seqid) === l.name) {
-            rightmostX = Math.max(rightmostX, Math.max(ncRNA.start, ncRNA.end));
-          }
-        });
-        
-        // Check baselines for this leaf
-        const baselineForLeaf = nucleotideBaselines.find(baseline => baseline.hood_id === l.name);
-        if (baselineForLeaf) {
-          rightmostX = Math.max(rightmostX, Math.max(baselineForLeaf.start, baselineForLeaf.end));
-        }
+        // Use pre-computed rightmost position (O(1) lookup instead of O(M) scan)
+        let rightmostX = rightmostPositionsByLeaf.get(l.name);
         
         // If we couldn't find a rightmost position, fallback to tree position
         if (!isFinite(rightmostX)) {
@@ -1453,6 +1488,9 @@ const PhyloTreeViewer = React.forwardRef(({
     showConnectingLines,
     phyloLabelPosition,
     alignLabels,
+    // Label dependencies
+    labelBy,
+    treeLabelBy,
     // Include styleConfig to capture debounced visual property changes (takes precedence)
     styleConfig,
     // Include specific config properties for instant updates
@@ -1462,7 +1500,8 @@ const PhyloTreeViewer = React.forwardRef(({
     config.gene.tipWidthFactor,
     config.domain.height,
     config.tree.edgeWidth,
-    config.gene.edgeWidth
+    config.gene.edgeWidth,
+    treeXScalePercent
   ]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
@@ -1594,7 +1633,13 @@ const PhyloTreeViewer = React.forwardRef(({
           maxX: bounds.maxX,
           width: containerSize.width,
           height: containerSize.height,
-          config,
+          config: {
+            ...config,
+            tree: {
+              ...config.tree,
+              xScalePercent: treeXScalePercent
+            }
+          },
           viewState,
           alignmentReferencePoint: getAlignmentReferencePoint(genomeViewRef.current),
           bounds,
@@ -1778,8 +1823,9 @@ const PhyloTreeViewer = React.forwardRef(({
           touchZoom: true,         // Enable touch zoom
           touchRotate: false       // Disable touch rotation
         }}
-        // Only use controlled viewState when scrollbar is enabled
-        {...(showScrollbar ? { viewState: viewState } : {})}
+        onViewStateChange={e => setViewState(e.viewState)}
+        //if showScrollBar is true, define viewState. if switching back to false, reset viewState
+        viewState={showScrollbar ? viewState : undefined}
         layers={layers}
         initialViewState={{
           target: [0, 0, 0],
@@ -1787,18 +1833,24 @@ const PhyloTreeViewer = React.forwardRef(({
         }}
         pickingRadius={10}
         style={{ width: '100%', height: '100%' }}
-        onViewStateChange={e => setViewState(e.viewState)}
         getTooltip={getTooltip}
         // Performance optimizations
         useDevicePixels={true}  // Reduce rendering resolution for better performance
         _animate={false}         // Disable internal animations
         // 🚀 ZOOM FIX: Add key to prevent DeckGL from reinitializing with default viewState during re-renders
-        key="stable-deckgl-instance"
         onClick={({object}) => {
           if (object && onObjectClick) onObjectClick(object);
         }}
      
       />
+      {/* Tree Scale Control Widget (top-right) */}
+      <div style={{ position: 'absolute', top: 70, right: 10, zIndex: 10, width: '200px' }}>
+        <TreeScaleWidget
+          treeXScale={treeXScalePercent}
+          onTreeXScaleChange={setTreeXScalePercent}
+          title="Tree X-Scale"
+        />
+      </div>
       {/* Custom CSS vertical scrollbar overlay, now as a widget */}
       {showScrollbar && isFinite(minY) && isFinite(maxY) && (
         <ScrollbarWidget
@@ -1825,7 +1877,13 @@ const PhyloTreeViewer = React.forwardRef(({
           genomeView={genomeViewRef.current}
           alignmentReferencePoint={getAlignmentReferencePoint(genomeViewRef.current)}
           bounds={bounds}
-          config={config}
+          config={{
+            ...config,
+            tree: {
+              ...config.tree,
+              xScalePercent: treeXScalePercent
+            }
+          }}
         />
       )}
     </div>
