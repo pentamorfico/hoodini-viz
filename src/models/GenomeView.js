@@ -1547,18 +1547,26 @@ class GenomeView {
       }
     });
     
-    // Check baseline positions
-    Object.values(this.nucleotidesBySeqid).forEach(nuc => {
-      if (nuc.baseline) {
-        minX = Math.min(minX, nuc.baseline.start, nuc.baseline.end);
-        maxX = Math.max(maxX, nuc.baseline.start, nuc.baseline.end);
-      }
-      // Check nucleotide region bounds
-      if (nuc.start !== undefined && nuc.end !== undefined) {
-        minX = Math.min(minX, nuc.start, nuc.end);
-        maxX = Math.max(maxX, nuc.start, nuc.end);
-      }
-    });
+    // Check baseline positions - Skip baselines for bounds if alignment is active
+    // because alignment sets baselines to specific coordinates (0) which artificially limits bounds
+    const hasAlignment = this.leaves.some(hood_id => 
+      this.trackOffset && this.trackOffset[hood_id] !== undefined
+    );
+    
+    if (!hasAlignment) {
+      // Only use baselines for bounds when no alignment is active
+      Object.values(this.nucleotidesBySeqid).forEach(nuc => {
+        if (nuc.baseline) {
+          minX = Math.min(minX, nuc.baseline.start, nuc.baseline.end);
+          maxX = Math.max(maxX, nuc.baseline.start, nuc.baseline.end);
+        }
+        // Check nucleotide region bounds
+        if (nuc.start !== undefined && nuc.end !== undefined) {
+          minX = Math.min(minX, nuc.start, nuc.end);
+          maxX = Math.max(maxX, nuc.start, nuc.end);
+        }
+      });
+    }
     
     // Update global bounds if valid values found
     if (isFinite(minX) && isFinite(maxX)) {

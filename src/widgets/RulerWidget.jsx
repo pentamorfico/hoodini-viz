@@ -74,41 +74,23 @@ const RulerWidget = ({
   let visibleMinX = centerX - visibleWidth / 2;
   let visibleMaxX = centerX + visibleWidth / 2;
   
-  // Apply alignment offset to show coordinates relative to alignment point
+  // Apply alignment offset to show coordinates relative to alignment point (matching exportToSVG logic exactly)
   let geneVisibleMinX = visibleMinX - (alignmentReferencePoint || 0);
   let geneVisibleMaxX = visibleMaxX - (alignmentReferencePoint || 0);
 
-  // Scale visible range to match gene boundary coordinate space (original coordinates)
+  // Apply inverse genome scaling to get the coordinate values that should be displayed on ruler
+  // When genome is scaled down (e.g., 20%), the visible range appears compressed but should show original coordinates
   const scaledGeneVisibleMinX = geneVisibleMinX / genomeXScale;
   const scaledGeneVisibleMaxX = geneVisibleMaxX / genomeXScale;
 
-  // Keep gene boundaries in original coordinate space (with scaling division)
-  // This way ruler shows original coordinates that match the data
+  // CONSTRAINT: Limit tick generation to actual gene boundaries
+  // Convert gene boundaries to the same coordinate space as the visible range
   const geneBoundaryMinX = (minX - (alignmentReferencePoint || 0)) / genomeXScale;
   const geneBoundaryMaxX = (maxX - (alignmentReferencePoint || 0)) / genomeXScale;
-
-  // Debug coordinate transformation
-  console.log('🔍 RulerWidget coordinate transformation:', {
-    originalMaxX: maxX,
-    alignmentReferencePoint,
-    genomeXScale,
-    transformedMaxX: geneBoundaryMaxX,
-    calculation: `(${maxX} - ${alignmentReferencePoint || 0}) / ${genomeXScale} = ${geneBoundaryMaxX}`
-  });
   
   // Constrain the tick range to the intersection of visible range and gene boundaries
   const constrainedMinX = Math.max(scaledGeneVisibleMinX, geneBoundaryMinX);
   const constrainedMaxX = Math.min(scaledGeneVisibleMaxX, geneBoundaryMaxX);
-  
-  // Debug constraint calculation
-  console.log('🎯 RulerWidget constraint calculation:', {
-    scaledGeneVisibleMinX,
-    scaledGeneVisibleMaxX, 
-    geneBoundaryMinX,
-    geneBoundaryMaxX,
-    constrainedMinX,
-    constrainedMaxX
-  });
   
   // Ruler dimensions and positioning
   const rulerHeight = config.ruler.height;
@@ -374,30 +356,6 @@ const RulerWidget = ({
   const geneTicks = generateGeneTicks(constrainedMinX, constrainedMaxX);
   const treeTicks = generateTreeTicks();
   const allTicks = [...geneTicks, ...treeTicks];
-  // Final safety filter: never show gene ticks outside real gene boundaries
-  const safeAllTicks = allTicks.filter(t => {
-    if (t.type === 'gene') {
-      const eps = 1e-6;
-      return (t.x + eps >= geneBoundaryMinX && t.x - eps <= geneBoundaryMaxX);
-    }
-    return true;
-  });
-
-  // Debug: log relative max gene position and the maximum gene tick shown
-  try {
-    const maxGenePositionRelative = geneBoundaryMaxX;
-    const geneTickXs = safeAllTicks.filter(t => t.type === 'gene').map(t => t.x).filter(isFinite);
-    const maxTickShown = geneTickXs.length ? Math.max(...geneTickXs) : null;
-    // eslint-disable-next-line no-console
-    console.log('RulerWidget: maxGenePositionRelative=', maxGenePositionRelative, 'maxTickShown=', maxTickShown, {
-      constrainedMinX,
-      constrainedMaxX,
-      geneTicksCount: geneTickXs.length
-    });
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn('RulerWidget: debug log failed', e);
-  }
 
   // Format coordinate labels for gene ticks
   const formatCoordinate = (coord) => {
@@ -468,7 +426,7 @@ const RulerWidget = ({
           left: 0
         }}
       >
-  {safeAllTicks.map((tick, index) => {
+        {allTicks.map((tick, index) => {
           return (
             <g key={index}>
               {/* Tick line for gene coordinates only */}
@@ -509,7 +467,7 @@ const RulerWidget = ({
         })}
         
         {/* Minor ticks (only for gene area) */}
-    {geneTicks.length > 1 && geneTicks.map((tick, index) => {
+        {geneTicks.length > 1 && geneTicks.map((tick, index) => {
           if (index < geneTicks.length - 1) {
             const nextTick = geneTicks[index + 1];
             const tickSpacing = nextTick.x - tick.x;
@@ -519,8 +477,7 @@ const RulerWidget = ({
               const scaledNextX = nextX * genomeXScale;
               const worldNextX = scaledNextX + (alignmentReferencePoint || 0);
               const nextScreenX = ((worldNextX - (centerX - visibleWidth / 2)) / visibleWidth) * containerWidth;
-      // ensure minor tick falls within the gene boundaries as well
-      if (nextX >= constrainedMinX && nextX <= constrainedMaxX && nextScreenX >= 0 && nextScreenX <= containerWidth) {
+              if (nextScreenX >= 0 && nextScreenX <= containerWidth) {
                 return (
                   <line
                     key={`minor-${index}`}
