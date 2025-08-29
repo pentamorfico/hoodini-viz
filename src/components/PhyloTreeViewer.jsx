@@ -46,6 +46,7 @@ const PhyloTreeViewer = React.forwardRef(({
   domainPalette,
   phyloPalette,
   ncRNAPalette,
+  regionPalette,
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
@@ -783,6 +784,36 @@ const PhyloTreeViewer = React.forwardRef(({
     return colorMap;
   }, [genomeView, effectiveDomainPalette, domainColorBy]);
 
+  // Region color map for palette coloring
+  const regionColorMap = React.useMemo(() => {
+    if (!genomeView) return null;
+    
+    const regions = genomeView.getAllRegions();
+    if (regions.length === 0) return null;
+    
+    const effectiveRegionPalette = regionPalette || config?.colorPalettes?.regionPalette;
+    if (!effectiveRegionPalette?.enabled) return null;
+    
+    const validKeys = regions
+      .map(r => r.getColorKey())
+      .filter(key => key !== null && key !== undefined && key !== '');
+    
+    const uniqueKeys = [...new Set(validKeys)];
+    if (uniqueKeys.length === 0) return null;
+    
+    const colors = getPaletteColors(
+      effectiveRegionPalette.name,
+      Math.max(uniqueKeys.length, effectiveRegionPalette.numColors || uniqueKeys.length),
+      effectiveRegionPalette.reverse || false
+    );
+    
+    const colorMap = new Map();
+    uniqueKeys.forEach((key, i) => {
+      colorMap.set(key, colors[i % colors.length]);
+    });
+    return colorMap;
+  }, [genomeView, regionPalette, config?.colorPalettes?.regionPalette]);
+
   // 🚀 PERFORMANCE: Pre-compute rightmost positions for 'after-tracks' mode (O(N+M) instead of O(N×M))
   const rightmostPositionsByLeaf = React.useMemo(() => {
     const genomeView = genomeViewRef.current;
@@ -890,9 +921,22 @@ const PhyloTreeViewer = React.forwardRef(({
         if (link.updatePolygon) link.updatePolygon();
       });
     }
+
+    // Update region polygons synchronously
+    genomeView.getAllRegions().forEach(region => {
+      region.config = effectiveConfig;
+      // Get genes in this region for polygon calculation
+      const genesInRegion = Object.values(genomeView.genesById).filter(gene => 
+        region.containsGene && region.containsGene(gene)
+      );
+      const trackY = genomeView.getTrackYByHoodId(region.hood_id);
+      if (trackY !== null && trackY !== undefined) {
+        region.updatePolygon(genesInRegion, trackY);
+      }
+    });
     
     const polygonUpdateTime = performance.now() - polygonUpdateStart;
-    console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
+    console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length + genomeView.getAllRegions().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
     
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
     const bounds = computeBounds(genomeView, tree, phyloLabelPosition, treeXScalePercent);
@@ -901,6 +945,26 @@ const PhyloTreeViewer = React.forwardRef(({
     // Use pre-filtered and pre-computed data
     const proteinPolygons = filteredProteinPolygons;
     const nucleotidePolygons = filteredNucleotidePolygons;
+    
+    // --- OPTIMIZED REGION COLORING ---
+    const regionPolygons = genomeView.getRegionPolygons().map(r => {
+      let strokeColor = r.strokeColor; // Already computed stroke color
+      
+      if (regionColorMap && r.metadata) {
+        // Extract region type from metadata for palette lookup
+        const regionType = (r.metadata.region_type || r.metadata.type || 'region').toLowerCase();
+        const paletteColor = regionColorMap.get(regionType);
+        if (paletteColor) {
+          strokeColor = paletteColor;
+        }
+      }
+      
+      return { 
+        ...r, 
+        fillColor: r.fillColor, // Already transparent
+        strokeColor 
+      };
+    });
     // --- OPTIMIZED GENE COLORING ---
     const genes = Object.values(genomeView.genesById).map(g => {
       let fillColor = themeColors.geneFill;
@@ -1151,6 +1215,26 @@ const PhyloTreeViewer = React.forwardRef(({
         getColor: themeColors.baselines || effectiveConfig.colors.darkGray || [85, 85, 85, 255],
         getWidth: effectiveConfig.stroke.baselineWidth || effectiveConfig.stroke.lineWidth,
         pickable: false
+      }),
+      // Region polygons (highlighting genomic regions like phage, operons, etc.)
+      new PolygonLayer({
+        id: 'region-polygons',
+        data: regionPolygons,
+        getPolygon: d => d.polygon,
+        getFillColor: d => d.fillColor, // Always transparent
+        stroked: true,
+        filled: false, // Disable fill, only show stroke
+        getLineColor: d => d.strokeColor,
+        getLineWidth: d => d.strokeWidth || 2,
+        lineWidthUnits: 'pixels',
+        autoHighlight: true,
+        pickable: true,
+        updateTriggers: {
+          getPolygon: regionPolygons,
+          getFillColor: regionPolygons,
+          getLineColor: regionPolygons,
+          getLineWidth: regionPolygons
+        }
       }),
       new PolygonLayer({
         id: 'protein-polygons',
@@ -1481,7 +1565,8 @@ const PhyloTreeViewer = React.forwardRef(({
     selectedNode, 
     // Color-specific dependencies
     geneColorMap,
-    domainColorMap, 
+    domainColorMap,
+    regionColorMap, 
     // Theme colors
     themeColors,
     // Essential UI state

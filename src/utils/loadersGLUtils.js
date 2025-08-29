@@ -90,7 +90,7 @@ export async function parseBaselinesOptimized(csvText) {
 // =============================================================================
 
 // Optimized GFF parsing (764KB) - tab-separated, no headers
-export async function parseGFFOptimized(gffText) {
+export async function parseGFFOptimized(gffText, config = null) {
   try {
     const result = await parse(gffText, CSVLoader, {
       csv: {
@@ -102,12 +102,12 @@ export async function parseGFFOptimized(gffText) {
       }
     });
     
-    // Convert to expected GFF format
+    // Convert to expected GFF format and create appropriate feature objects
     const data = [];
     if (result && result.data && Array.isArray(result.data)) {
       for (const row of result.data) {
         if (row.length >= 9) {
-          data.push({
+          const gffData = {
             seqid: row[0],
             source: row[1], 
             type: row[2],
@@ -116,8 +116,19 @@ export async function parseGFFOptimized(gffText) {
             score: row[5],
             strand: row[6],
             phase: row[7],
-            attributes: row[8] || ""
-          });
+            attributes: parseAttributes(row[8] || "")
+          };
+          
+          // Create RegionFeature for region-type features, otherwise regular GFFFeature
+          if (gffData.type === 'region') {
+            // Import RegionFeature dynamically
+            const { default: RegionFeature } = await import('../models/RegionFeature');
+            data.push(new RegionFeature(gffData.seqid, gffData.start, gffData.end, gffData.strand, gffData.type, gffData.attributes, config));
+          } else {
+            // Import GFFFeature dynamically  
+            const { default: GFFFeature } = await import('../models/GFFFeature');
+            data.push(new GFFFeature(gffData.seqid, gffData.start, gffData.end, gffData.strand, gffData.type, gffData.attributes));
+          }
         }
       }
     }
@@ -127,8 +138,36 @@ export async function parseGFFOptimized(gffText) {
     console.warn('loaders.gl GFF parsing failed, falling back:', error);
     // Import the original function dynamically to avoid circular imports
     const { parseGFF } = await import('./parseGFF');
-    return parseGFF(gffText);
+    return parseGFF(gffText, config);
   }
+}
+
+// Helper function to parse GFF attributes
+function parseAttributes(attributesStr) {
+  const attributes = {};
+  if (!attributesStr || attributesStr === '.') {
+    return attributes;
+  }
+  
+  // Handle both semicolon-separated and single attribute formats
+  const pairs = attributesStr.includes(';') ? attributesStr.split(';') : [attributesStr];
+  
+  pairs.forEach(pair => {
+    const trimmedPair = pair.trim();
+    if (!trimmedPair) return;
+    
+    if (trimmedPair.includes('=')) {
+      // Key=Value format
+      const [key, ...valueParts] = trimmedPair.split('=');
+      const value = valueParts.join('=').trim();
+      attributes[key.trim()] = value;
+    } else {
+      // Assume it's an ID if no equals sign
+      attributes.ID = trimmedPair;
+    }
+  });
+  
+  return attributes;
 }
 
 // Optimized protein links parsing (space-separated, no headers)

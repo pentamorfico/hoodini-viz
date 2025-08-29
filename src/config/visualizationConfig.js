@@ -93,6 +93,22 @@ export const DEFAULT_CONFIG = {
     color: [100, 100, 100, 255] // Default color for baselines
   },
 
+  // Region Feature Parameters
+  region: {
+    padding: 5,               // Padding around genes within regions
+    fillOpacity: 0.2,         // Opacity of region fill color
+    strokeOpacity: 0.6,       // Opacity of region stroke color
+    strokeWidth: 2,           // Width of region outline
+    colors: {                 // Default colors by region type
+      region: [100, 150, 200, 255],     // Blue for generic regions
+      operon: [150, 100, 200, 255],     // Purple for operons
+      phage: [200, 100, 100, 255],      // Red for phage regions
+      island: [100, 200, 100, 255],     // Green for genomic islands
+      cluster: [200, 150, 100, 255],    // Orange for gene clusters
+      default: [128, 128, 128, 255]     // Gray for unknown types
+    }
+  },
+
   // UI Layout and Spacing
   layout: {
     padding: 0,           // General padding for view bounds calculations
@@ -176,6 +192,13 @@ export const DEFAULT_CONFIG = {
       numColors: 9,
       reverse: false,
       enabled: false          // For coloring phylo labels by species/metadata
+    },
+    regionPalette: {
+      type: 'qualitative',
+      name: 'Dark2',
+      numColors: 8,
+      reverse: false,
+      enabled: true           // Enable palette coloring for regions by default
     }
   },
 

@@ -1,12 +1,24 @@
-// Utility to convert color array to SVG color string
+// Utility to convert color array to SVG color string (Illustrator-compatible)
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
-function colorToStr(cArr){
+function colorToStr(cArr, forceOpacity = false){
   if(!cArr)return 'none';
   const[r,g,b,a=255]=cArr;
   if(a===0)return 'none';
+  
+  // For Illustrator compatibility, use separate fill-opacity attribute instead of rgba()
+  if(a < 255 && !forceOpacity) {
+    return `rgb(${r},${g},${b})`;
+  }
   if(a<255)return `rgba(${r},${g},${b},${a/255})`;
   return `rgb(${r},${g},${b})`;
+}
+
+// Get opacity value for separate opacity attribute (Illustrator-compatible)
+function getOpacity(cArr) {
+  if(!cArr) return 1;
+  const[r,g,b,a=255]=cArr;
+  return a / 255;
 }
 
 function normalise(value,min,max){
@@ -14,8 +26,13 @@ function normalise(value,min,max){
 }
 
 export function exportToSVG(layers, viewState, containerSize, config, rulerOptions, themeColors = {}) {
+  console.log('🖼️ exportToSVG called with:', { layers: layers?.length, viewState, containerSize, config: !!config });
+  
   const { width, height } = containerSize;
-  if (!width || !height) return;
+  if (!width || !height) {
+    console.error('❌ SVG Export failed: Invalid container size', { width, height });
+    return;
+  }
   const scale = Math.pow(2, viewState.zoom || 0);
   const centerX = viewState.target[0];
   const centerY = viewState.target[1];
@@ -167,16 +184,16 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   svg += `<rect width='${width}' height='${height}' fill='${backgroundColor}'/>`;
   for(const layer of layers) {
     const props = layer.props;
-    // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains)
-    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || layer.id === 'domains') {
+    // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains, regions, ncRNA)
+    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || layer.id === 'domains' || layer.id === 'region-polygons' || layer.id === 'ncrna-features') {
       for(const feature of props.data) {
         const polygon = props.getPolygon(feature);
         const fillColor = props.getFillColor(feature);
-        // Only genes and domains have a stroke, others should have no stroke
+        // Only genes, domains, regions, and ncRNAs have a stroke, others should have no stroke
         let lineColor = [0,0,0,255];
         let strokeAttr = 'none';
         let strokeWidth = 1;
-        if (layer.id === 'genes') {
+        if (layer.id === 'genes' || layer.id === 'ncrna-features') {
           if (typeof props.getLineColor === 'function') {
             lineColor = props.getLineColor(feature);
           } else if (Array.isArray(props.getLineColor)) {
@@ -189,14 +206,32 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           lineColor = themeColors.text || config?.colors?.black || [0,0,0,255];
           strokeAttr = colorToStr(lineColor);
           strokeWidth = config?.domain?.edgeWidth || 1;
+        } else if (layer.id === 'region-polygons') {
+          if (typeof props.getLineColor === 'function') {
+            lineColor = props.getLineColor(feature);
+          } else if (Array.isArray(props.getLineColor)) {
+            lineColor = props.getLineColor;
+          }
+          strokeAttr = colorToStr(lineColor);
+          strokeWidth = feature.strokeWidth || config?.region?.strokeWidth || 2;
         }
+        
   const fill = colorToStr(fillColor);
+  const fillOpacity = getOpacity(fillColor);
+  const strokeOpacity = getOpacity(lineColor);
+  
   // clip polygon in world coords first
   const clippedPoly = clipPolygonToRect(polygon, min_x, max_x, min_y, max_y);
   if (!clippedPoly || clippedPoly.length === 0) continue;
   const pathPoints = clippedPoly.map(p => applyBounds(p));
   let d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ') + 'Z';
-  svg += `<path d='${d}' fill='${fill}' stroke='${strokeAttr}' stroke-width='${strokeWidth}'/>`;
+  
+  // Build opacity attributes for Illustrator compatibility
+  let opacityAttrs = '';
+  if (fillOpacity < 1) opacityAttrs += ` fill-opacity='${fillOpacity}'`;
+  if (strokeOpacity < 1) opacityAttrs += ` stroke-opacity='${strokeOpacity}'`;
+  
+  svg += `<path d='${d}' fill='${fill}' stroke='${strokeAttr}' stroke-width='${strokeWidth}'${opacityAttrs}/>`;
       }
     }
     // Path/Line layers (tree, baselines, etc.)
@@ -307,6 +342,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         const color = feature.color || (props.getColor ? (typeof props.getColor === 'function' ? props.getColor(feature) : props.getColor) : [0,0,0,255]);
         const size = feature.size || (props.getSize ? (typeof props.getSize === 'function' ? props.getSize(feature) : props.getSize) : 14);
         const fill = colorToStr(color);
+        const textOpacity = getOpacity(color);
   let [x, y] = applyBounds(pos);
   // skip text off-screen
   if (!isPointOnScreen([x, y])) continue;
@@ -327,18 +363,28 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         }
         
         // Determine the correct dominant-baseline based on layer type and feature properties
-        let dominantBaseline = 'hanging'; // default fallback
-        if (layer.id === 'phylo-labels') {
-          dominantBaseline = 'central'; // DeckGL 'center' maps to SVG 'central'
-        } else if (layer.id === 'gene-labels') {
-          // Gene labels: use a baseline that more closely matches DeckGL "top" rendering
-          const alignmentBaseline = feature.alignmentBaseline || (props.getAlignmentBaseline ? (typeof props.getAlignmentBaseline === 'function' ? props.getAlignmentBaseline(feature) : props.getAlignmentBaseline) : 'top');
-          dominantBaseline = alignmentBaseline === 'center' ? 'central' : 'text-before-edge';
-        }
-        
         // Make font-size proportional to SVG height (viewport size)
-  // Scale font by view zoom so exported SVG text matches visual size in deck.gl
-  const proportionalSize = Math.max(8, (size / 1000) * height * scale); // 1000 is a typical data-space height
+        // Scale font by view zoom so exported SVG text matches visual size in deck.gl
+        const proportionalSize = Math.max(8, (size / 1000) * height * scale); // 1000 is a typical data-space height
+        
+        // Illustrator-compatible text positioning
+        let dominantBaseline = 'alphabetic'; // More reliable baseline for Illustrator
+        let dyOffset = 0; // Manual Y offset for better positioning
+        
+        if (layer.id === 'phylo-labels') {
+          dominantBaseline = 'middle'; // Use middle for centered text
+          dyOffset = 0;
+        } else if (layer.id === 'gene-labels') {
+          // Gene labels: positioned below genes, so use hanging baseline
+          const alignmentBaseline = feature.alignmentBaseline || (props.getAlignmentBaseline ? (typeof props.getAlignmentBaseline === 'function' ? props.getAlignmentBaseline(feature) : props.getAlignmentBaseline) : 'top');
+          if (alignmentBaseline === 'top') {
+            dominantBaseline = 'hanging';
+            dyOffset = proportionalSize * 0.2; // Small offset for better visual alignment
+          } else {
+            dominantBaseline = 'middle';
+            dyOffset = 0;
+          }
+        }
         
         // Handle background for phylo labels when enabled
         if (layer.id === 'phylo-labels' && props.background) {
@@ -366,7 +412,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           svg += `<rect x="${rectX}" y="${rectY}" width="${rectWidth}" height="${rectHeight}" fill="${backgroundFill}" />`;
         }
         
-        svg += `<text x="${x}" y="${y}" fill="${fill}" font-size="${proportionalSize}px" font-family="sans-serif" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}">${text}</text>`;
+        // Apply Y offset for better Illustrator compatibility
+        const adjustedY = y + dyOffset;
+        
+        // Add opacity attribute for Illustrator compatibility
+        const opacityAttr = textOpacity < 1 ? ` fill-opacity="${textOpacity}"` : '';
+        
+        svg += `<text x="${x}" y="${adjustedY}" fill="${fill}"${opacityAttr} font-size="${proportionalSize}px" font-family="sans-serif" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}">${text}</text>`;
       }
     }
   }

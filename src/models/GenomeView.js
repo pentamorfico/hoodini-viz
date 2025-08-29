@@ -159,8 +159,15 @@ class GenomeView {
   }
 
   getGeneIdFromAttributes(attrs) {
-    const match = attrs.match(/ID=([^;]+)/);
-    return match ? match[1] : null;
+    // Handle both string and object formats
+    if (typeof attrs === 'string') {
+      const match = attrs.match(/ID=([^;]+)/);
+      return match ? match[1] : null;
+    } else if (typeof attrs === 'object' && attrs !== null) {
+      // attrs is already a parsed object
+      return attrs.ID || null;
+    }
+    return null;
   }
 
   // Static method to calculate the visual X coordinate of a gene's starting edge
@@ -296,6 +303,27 @@ class GenomeView {
         nc.updatePolygon();
         processedNcRNAs++;
       }
+      
+      // 🚀 OPTIMIZATION: Process regions that belong to this hood
+      const hoodRegions = Object.values(this.regionsById).filter(region => region.hood_id === hood_id);
+      for (const region of hoodRegions) {
+        region.trackY = trackY;
+        // Always use origStart/origEnd as the source for transformation
+        const regionStartHood = region.origStart;
+        const regionEndHood = region.origEnd;
+        let startX = GenomeView.getTransformedXUnified(regionStartHood, anchor, offset, flipped);
+        let endX = GenomeView.getTransformedXUnified(regionEndHood, anchor, offset, flipped);
+        startX = anchor + (startX - anchor) * xScale;
+        endX = anchor + (endX - anchor) * xScale;
+        region.start = startX;
+        region.end = endX;
+        region.strand = flipped ? (region.origStrand === '+' ? '-' : '+') : region.origStrand;
+        
+        // Find genes within this region for polygon calculation
+        const genesInRegion = hoodGenes.filter(gene => region.containsGene(gene));
+        region.updatePolygon(genesInRegion, trackY);
+      }
+      
       // Baseline and nucleotide region
       if (nuc && nuc.baseline) {
         const hoodBaseline = this.hoodBaselines[hood_id];
@@ -687,6 +715,27 @@ class GenomeView {
 
   getAllNcRNAs() {
     return Object.values(this.ncRNAsById);
+  }
+
+  getAllRegions() {
+    return Object.values(this.regionsById);
+  }
+
+  getRegionPolygons() {
+    let allRegions = [];
+    for (let regionId in this.regionsById) {
+      const region = this.regionsById[regionId];
+      if (region.polygon && Array.isArray(region.polygon) && region.polygon.length > 0) {
+        allRegions.push({
+          polygon: region.polygon,
+          fillColor: region.getFillColor(),
+          strokeColor: region.getStrokeColor(),
+          strokeWidth: region.strokeWidth,
+          metadata: region.metadata // Attach metadata for tooltip
+        });
+      }
+    }
+    return allRegions;
   }
 
   getNodeDescendantLeaves(node) {

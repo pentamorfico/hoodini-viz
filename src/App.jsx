@@ -121,6 +121,15 @@ function App() {
     reverse: false,
     enabled: true
   });
+
+  // Region Palette state
+  const [regionPalette, setRegionPalette] = useState({
+    type: 'qualitative',
+    name: 'Dark2',
+    numColors: 8,
+    reverse: false,
+    enabled: true
+  });
   
   // Handler for domain palette changes that updates enabled state
   const handleDomainPaletteChange = (newPalette) => {
@@ -148,10 +157,11 @@ function App() {
         genePalette,
         domainPalette,
         phyloPalette,
-        ncRNAPalette
+        ncRNAPalette,
+        regionPalette
       }
     };
-  }, [coreConfig, arrowheadHeight, geneHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette]);
+  }, [coreConfig, arrowheadHeight, geneHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette, regionPalette]);
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
@@ -212,7 +222,7 @@ function App() {
 
         
         const [gff, proteinLinks, nucleotideLinks, domains, baselines, proteinMeta, treeMeta, nonCodingMeta] = await Promise.all([
-          parseGFFOptimized(defaultGFFStr),
+          parseGFFOptimized(defaultGFFStr, coreConfig),
           parseProteinLinksOptimized(defaultProteinLinks),
           parseNucleotideLinksOptimized(defaultNucleotideLinks),
           parseDomainsOptimized(defaultDomains),
@@ -241,7 +251,7 @@ function App() {
       } catch (error) {
         console.error('❌ Data loading failed:', error);
         // Fallback to synchronous parsing
-        setParsedGFF(parseGFF(defaultGFFStr));
+        setParsedGFF(parseGFF(defaultGFFStr, coreConfig));
         setParsedProteinLinks(parseLinks(defaultProteinLinks));
         setParsedNucleotideLinks(parseNucleotideLinks(defaultNucleotideLinks));
         setParsedDomains(parseDomains(defaultDomains));
@@ -255,7 +265,7 @@ function App() {
     };
     
     loadData();
-  }, []);
+  }, [coreConfig]);
 
   return (
     <div className="App" >
@@ -556,6 +566,14 @@ function App() {
             title="ncRNA Palette (by type)"
             showPreview={true}
           />
+
+          {/* Region Palette */}
+          <ColorPaletteWidget 
+            paletteConfig={regionPalette}
+            onPaletteChange={setRegionPalette}
+            title="Region Palette (by region type)"
+            showPreview={true}
+          />
         </div>
         
 
@@ -628,6 +646,7 @@ function App() {
         domainPalette={domainPalette}
         phyloPalette={phyloPalette}
         ncRNAPalette={ncRNAPalette}
+        regionPalette={regionPalette}
         styleConfig={styleConfig}
       />
       )}
