@@ -198,8 +198,8 @@ const PhyloTreeViewer = React.forwardRef(({
     }
     
     newGenomeView.addDomains(domainsByGene);
-    newGenomeView.addProteinLinks(proteinLinks);
-    newGenomeView.addNucleotideLinks(nucleotideLinks);
+    newGenomeView.addProteinLinks(proteinLinks, config.proteinLink?.color || [50, 100, 220]);
+    newGenomeView.addNucleotideLinks(nucleotideLinks, config.nucleotideLink?.color || [220, 50, 50]);
 
     genomeViewRef.current = newGenomeView;
     
@@ -1728,7 +1728,8 @@ const PhyloTreeViewer = React.forwardRef(({
           viewState,
           alignmentReferencePoint: getAlignmentReferencePoint(genomeViewRef.current),
           bounds,
-          genomeView: genomeViewRef.current
+          genomeView: genomeViewRef.current,
+          precomputedTicks: rulerWidgetRef.current ? rulerWidgetRef.current.getTicks() : undefined
         } : undefined}
       />
       {/* Overlay buttons (top-left) */}
@@ -1953,6 +1954,7 @@ const PhyloTreeViewer = React.forwardRef(({
       {/* Ruler widget showing nucleotide coordinates */}
       {showRuler && (
         <RulerWidget
+          ref={rulerWidgetRef}
           minX={bounds.minX}
           maxX={bounds.maxX}
           viewState={viewState}

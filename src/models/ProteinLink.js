@@ -9,7 +9,9 @@ class ProteinLink extends Link {
     this.similarity = similarity;
     // Use provided color, alpha based on similarity
     const alpha = Math.round(255 * (similarity / 100));
-    this.fillColor = [...color, alpha];
+    // Take only RGB values from color (first 3 elements) and add similarity-based alpha
+    const baseColor = Array.isArray(color) && color.length >= 3 ? color.slice(0, 3) : [50, 100, 220];
+    this.fillColor = [...baseColor, alpha];
     this.metadata = { gAId, gBId, similarity };
   }
 

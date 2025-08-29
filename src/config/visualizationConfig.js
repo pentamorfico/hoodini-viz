@@ -160,7 +160,13 @@ export const DEFAULT_CONFIG = {
 
   // Protein Link Parameters
   proteinLink: {
-    bezierSegments: 120     // Number of segments for Bézier curve rendering
+    bezierSegments: 120,    // Number of segments for Bézier curve rendering
+    color: [100, 0, 220, 255]  // Default blue color for protein links
+  },
+
+  // Nucleotide Link Parameters
+  nucleotideLink: {
+    color: [220, 150, 150, 255]    // Default red color for nucleotide links
   },
 
   // Connecting Lines Parameters (between tree leaves and genome tracks)
@@ -256,6 +262,7 @@ export const {
   ruler: RULER_CONFIG,
   scrollbar: SCROLLBAR_CONFIG,
   proteinLink: PROTEIN_LINK_CONFIG,
+  nucleotideLink: NUCLEOTIDE_LINK_CONFIG,
   colors: COLORS_CONFIG,
   animation: ANIMATION_CONFIG,
   export: EXPORT_CONFIG
