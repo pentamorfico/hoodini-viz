@@ -7,6 +7,7 @@ import Baseline from './Baseline';
 import NonCodingFeature from './NonCodingFeature';
 import RegionFeature from './RegionFeature';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
+import { getPaletteColors } from '../utils/colorPalettes';
 
 class GenomeView {
   constructor(leaves, tree, config = DEFAULT_CONFIG) {
@@ -573,6 +574,105 @@ class GenomeView {
           this.nucleotideLinks.push(link);
         }
       }
+    }
+  }
+
+  // Method to apply protein link colors using configuration
+  applyProteinLinkColors(colorConfig) {
+    console.log('🔗 applyProteinLinkColors called with config:', colorConfig);
+    if (!this.proteinLinks || this.proteinLinks.length === 0) {
+      console.log('🔗 No protein links to color');
+      return;
+    }
+    
+    // Build color palette if needed for identity_gradient mode
+    let paletteColors = null;
+    if (colorConfig?.colorBy === 'identity_gradient' && colorConfig?.palette?.enabled) {
+      try {
+        paletteColors = getPaletteColors(
+          colorConfig.palette.name, 
+          colorConfig.palette.numColors, 
+          colorConfig.palette.reverse
+        );
+        console.log('🔗 Got palette colors:', paletteColors);
+      } catch (error) {
+        console.warn('Failed to load palette for protein links:', error);
+        paletteColors = null;
+      }
+    }
+    
+    console.log('🔗 Applying colors with palette:', paletteColors ? 'yes' : 'no');
+    this._applyProteinLinkColorsWithPalette(colorConfig, paletteColors);
+  }
+
+  // Helper method for applying protein link colors
+  _applyProteinLinkColorsWithPalette(colorConfig, paletteColors) {
+    console.log('🔗 _applyProteinLinkColorsWithPalette called with colorBy:', colorConfig?.colorBy);
+    console.log('🔗 Processing', this.proteinLinks.length, 'protein links');
+    
+    for (const link of this.proteinLinks) {
+      const geneA = this.genesById[link.gAId];
+      const geneB = this.genesById[link.gBId];
+      
+      let sourceGeneColor = null;
+      let targetGeneColor = null;
+      let paletteColor = null;
+
+      // Get gene colors for source_gene or target_gene modes - use fillColor which contains the palette-applied color
+      if (colorConfig?.colorBy === 'source_gene' || colorConfig?.colorBy === 'target_gene') {
+        sourceGeneColor = geneA?.fillColor;
+        targetGeneColor = geneB?.fillColor;
+        console.log('🔗 Gene colors - A:', sourceGeneColor, 'B:', targetGeneColor);
+      }
+
+      // Get palette color for identity_gradient mode
+      if (colorConfig?.colorBy === 'identity_gradient' && paletteColors) {
+        const normalizedSimilarity = Math.max(0, Math.min(1, link.similarity / 100));
+        const colorIndex = Math.floor(normalizedSimilarity * (paletteColors.length - 1));
+        paletteColor = paletteColors[colorIndex];
+      }
+
+      const oldColor = [...link.fillColor];
+      link.updateColor(colorConfig, sourceGeneColor, targetGeneColor, paletteColor);
+      console.log('🔗 Link color changed from', oldColor, 'to', link.fillColor);
+    }
+  }
+
+  // Method to apply nucleotide link colors using configuration
+  applyNucleotideLinkColors(colorConfig) {
+    if (!this.nucleotideLinks || this.nucleotideLinks.length === 0) return;
+    
+    // Build color palette if needed for identity_gradient mode
+    let paletteColors = null;
+    if (colorConfig?.colorBy === 'identity_gradient' && colorConfig?.palette?.enabled) {
+      try {
+        paletteColors = getPaletteColors(
+          colorConfig.palette.name, 
+          colorConfig.palette.numColors, 
+          colorConfig.palette.reverse
+        );
+      } catch (error) {
+        console.warn('Failed to load palette for nucleotide links:', error);
+        paletteColors = null;
+      }
+    }
+    
+    this._applyNucleotideLinkColorsWithPalette(colorConfig, paletteColors);
+  }
+
+  // Helper method for applying nucleotide link colors
+  _applyNucleotideLinkColorsWithPalette(colorConfig, paletteColors) {
+    for (const link of this.nucleotideLinks) {
+      let paletteColor = null;
+
+      // Get palette color for identity_gradient mode
+      if (colorConfig?.colorBy === 'identity_gradient' && paletteColors) {
+        const normalizedSimilarity = Math.max(0, Math.min(1, link.similarity / 100));
+        const colorIndex = Math.floor(normalizedSimilarity * (paletteColors.length - 1));
+        paletteColor = paletteColors[colorIndex];
+      }
+
+      link.updateColor(colorConfig, paletteColor);
     }
   }
 

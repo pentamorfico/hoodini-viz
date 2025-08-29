@@ -161,12 +161,36 @@ export const DEFAULT_CONFIG = {
   // Protein Link Parameters
   proteinLink: {
     bezierSegments: 120,    // Number of segments for Bézier curve rendering
-    color: [100, 0, 220, 255]  // Default blue color for protein links
+    color: [100, 0, 220, 255],  // Default blue color for protein links
+    colorBy: 'source_gene', // 'source_gene', 'target_gene', 'identity_solid', 'identity_gradient'
+    solidColor: [100, 0, 220, 255],
+    useAlpha: false,
+    minAlpha: 0.2,
+    maxAlpha: 1.0,
+    palette: {
+      type: 'sequential',
+      name: 'Blues',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    }
   },
 
   // Nucleotide Link Parameters
   nucleotideLink: {
-    color: [220, 150, 150, 255]    // Default red color for nucleotide links
+    color: [200, 200, 200, 255],    // Default gray color for nucleotide links
+    colorBy: 'solid', // 'solid', 'identity_gradient'
+    solidColor: [200, 200, 200, 255],
+    useAlpha: false,
+    minAlpha: 0.2,
+    maxAlpha: 1.0,
+    palette: {
+      type: 'sequential',
+      name: 'Reds',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    }
   },
 
   // Connecting Lines Parameters (between tree leaves and genome tracks)

@@ -3,6 +3,7 @@ import './App.css'
 import PhyloTreeViewer from './components/PhyloTreeViewer';
 import ThemeToggle from './components/ThemeToggle';
 import ColorPaletteWidget from './widgets/ColorPaletteWidget';
+import LinkColorWidget from './widgets/LinkColorWidget';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext.jsx';
 import { parseGFF } from './utils/parseGFF';
 import { parseLinks } from './utils/parseLinks';
@@ -129,6 +130,37 @@ function App() {
     numColors: 8,
     reverse: false,
     enabled: true
+  });
+
+  // Link color configuration states
+  const [proteinLinkConfig, setProteinLinkConfig] = useState({
+    colorBy: 'source_gene', // 'source_gene', 'target_gene', 'identity_solid', 'identity_gradient'
+    solidColor: [100, 0, 220, 255],
+    useAlpha: false,
+    minAlpha: 0.2,
+    maxAlpha: 1.0,
+    palette: {
+      type: 'sequential',
+      name: 'Blues',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    }
+  });
+
+  const [nucleotideLinkConfig, setNucleotideLinkConfig] = useState({
+    colorBy: 'solid', // 'solid', 'identity_gradient'
+    solidColor: [200, 200, 200, 255],
+    useAlpha: false,
+    minAlpha: 0.2,
+    maxAlpha: 1.0,
+    palette: {
+      type: 'sequential',
+      name: 'Reds',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    }
   });
   
   // Handler for domain palette changes that updates enabled state
@@ -574,6 +606,15 @@ function App() {
             title="Region Palette (by region type)"
             showPreview={true}
           />
+
+          {/* Link Color Controls */}
+          <LinkColorWidget
+            proteinLinkConfig={proteinLinkConfig}
+            nucleotideLinkConfig={nucleotideLinkConfig}
+            onProteinLinkConfigChange={setProteinLinkConfig}
+            onNucleotideLinkConfigChange={setNucleotideLinkConfig}
+            title="Link Colors"
+          />
         </div>
         
 
@@ -647,6 +688,8 @@ function App() {
         phyloPalette={phyloPalette}
         ncRNAPalette={ncRNAPalette}
         regionPalette={regionPalette}
+        proteinLinkConfig={proteinLinkConfig}
+        nucleotideLinkConfig={nucleotideLinkConfig}
         styleConfig={styleConfig}
       />
       )}

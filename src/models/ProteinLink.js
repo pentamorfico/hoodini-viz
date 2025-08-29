@@ -7,12 +7,64 @@ class ProteinLink extends Link {
     this.gAId = gAId;
     this.gBId = gBId;
     this.similarity = similarity;
+    // Store original color for later use
+    this.baseColor = Array.isArray(color) && color.length >= 3 ? color.slice(0, 3) : [50, 100, 220];
     // Use provided color, alpha based on similarity
     const alpha = Math.round(255 * (similarity / 100));
-    // Take only RGB values from color (first 3 elements) and add similarity-based alpha
-    const baseColor = Array.isArray(color) && color.length >= 3 ? color.slice(0, 3) : [50, 100, 220];
-    this.fillColor = [...baseColor, alpha];
+    this.fillColor = [...this.baseColor, alpha];
     this.metadata = { gAId, gBId, similarity };
+  }
+
+  // Method to update color based on coloring configuration
+  updateColor(colorConfig, sourceGeneColor = null, targetGeneColor = null, paletteColor = null) {
+    if (!colorConfig) {
+      // Default behavior - use similarity-based alpha
+      const alpha = Math.round(255 * (this.similarity / 100));
+      this.fillColor = [...this.baseColor, alpha];
+      return;
+    }
+
+    let baseColor = this.baseColor;
+    let alpha = 255;
+
+    switch (colorConfig.colorBy) {
+      case 'source_gene':
+        // Use source gene color
+        if (sourceGeneColor) {
+          baseColor = sourceGeneColor.slice(0, 3);
+        }
+        break;
+      case 'target_gene':
+        // Use target gene color
+        if (targetGeneColor) {
+          baseColor = targetGeneColor.slice(0, 3);
+        }
+        break;
+      case 'identity_solid':
+        baseColor = colorConfig.solidColor ? colorConfig.solidColor.slice(0, 3) : this.baseColor;
+        break;
+      case 'identity_gradient':
+        if (paletteColor) {
+          baseColor = paletteColor.slice(0, 3);
+        }
+        break;
+      default:
+        baseColor = this.baseColor;
+    }
+
+    // Calculate alpha based on configuration
+    if (colorConfig.useAlpha) {
+      // Interpolate alpha based on similarity
+      const normalizedSimilarity = this.similarity / 100; // 0-1 range
+      const alphaRange = colorConfig.maxAlpha - colorConfig.minAlpha;
+      const calculatedAlpha = colorConfig.minAlpha + (normalizedSimilarity * alphaRange);
+      alpha = Math.round(calculatedAlpha * 255);
+    } else {
+      // Use full alpha or existing alpha from color config
+      alpha = colorConfig.colorBy === 'identity_solid' ? 255 : Math.round(255 * (this.similarity / 100));
+    }
+
+    this.fillColor = [...baseColor, alpha];
   }
 
   bezierCurve(p0, p1, p2, p3, segments = 120) {

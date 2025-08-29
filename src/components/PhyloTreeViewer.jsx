@@ -50,6 +50,8 @@ const PhyloTreeViewer = React.forwardRef(({
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
+  proteinLinkConfig, // Add protein link configuration prop
+  nucleotideLinkConfig, // Add nucleotide link configuration prop
   styleConfig, // Add styleConfig prop for layers
 }, ref) => {
   // Theme context
@@ -198,8 +200,8 @@ const PhyloTreeViewer = React.forwardRef(({
     }
     
     newGenomeView.addDomains(domainsByGene);
-    newGenomeView.addProteinLinks(proteinLinks, config.proteinLink?.color || [50, 100, 220]);
-    newGenomeView.addNucleotideLinks(nucleotideLinks, config.nucleotideLink?.color || [220, 50, 50]);
+    newGenomeView.addProteinLinks(proteinLinks, [200, 200, 200, 255]); // Use neutral gray initially
+    newGenomeView.addNucleotideLinks(nucleotideLinks, [200, 200, 200, 255]); // Use neutral gray initially
 
     genomeViewRef.current = newGenomeView;
     
@@ -658,6 +660,8 @@ const PhyloTreeViewer = React.forwardRef(({
     console.log('🔍 Debug links - Sample nucleotide polygon:', nucleotidePolygons[0]);
     console.log('🔍 Debug links - Tree leaves:', leaves);
     
+    // NOTE: Link colors will be applied later in the layers section after genes are colored
+    
     // TEMPORARILY DISABLE FILTERING TO DEBUG
     // Just return all polygons to see if they appear
     return { 
@@ -813,6 +817,33 @@ const PhyloTreeViewer = React.forwardRef(({
     });
     return colorMap;
   }, [genomeView, regionPalette, config?.colorPalettes?.regionPalette]);
+
+  // Ensure link colors are applied to GenomeView objects as soon as color maps/configs are ready
+  // and force a layers recompute by bumping alignmentVersion so DeckGL picks up the new colors.
+  useEffect(() => {
+    const gv = genomeViewRef.current || genomeView;
+    if (!gv) return;
+
+    // Apply gene-dependent link colors if requested
+    if (proteinLinkConfig && proteinLinkConfig.colorBy) {
+      try {
+        gv.applyProteinLinkColors(proteinLinkConfig);
+      } catch (e) {
+        console.warn('Error applying protein link colors in effect', e);
+      }
+    }
+
+    if (nucleotideLinkConfig && nucleotideLinkConfig.colorBy) {
+      try {
+        gv.applyNucleotideLinkColors(nucleotideLinkConfig);
+      } catch (e) {
+        console.warn('Error applying nucleotide link colors in effect', e);
+      }
+    }
+
+    // Force a re-evaluation of memoized layers (alignmentVersion is already used in layers deps)
+    setAlignmentVersion(v => v + 1);
+  }, [genomeView, proteinLinkConfig, nucleotideLinkConfig, geneColorMap, colorBy]);
 
   // 🚀 PERFORMANCE: Pre-compute rightmost positions for 'after-tracks' mode (O(N+M) instead of O(N×M))
   const rightmostPositionsByLeaf = React.useMemo(() => {
@@ -974,8 +1005,23 @@ const PhyloTreeViewer = React.forwardRef(({
         fillColor = geneColorMap.get(key) || themeColors.geneFill;
       }
       
+      // UPDATE THE ACTUAL GENE OBJECT in GenomeView so link coloring can access it
+      g.fillColor = fillColor;
+      
       return { ...g, fillColor };
     });
+
+    // Apply link colors AFTER genes have their colors applied and updated in GenomeView
+    if (proteinLinkConfig) {
+      console.log('🔗 Applying protein link colors:', proteinLinkConfig.colorBy);
+      console.log('🔗 Sample gene colors:', Object.values(genomeView.genesById).slice(0, 2).map(g => ({ id: g.id, fillColor: g.fillColor })));
+      genomeView.applyProteinLinkColors(proteinLinkConfig);
+    }
+    
+    if (nucleotideLinkConfig) {
+      console.log('🧬 Applying nucleotide link colors:', nucleotideLinkConfig.colorBy);
+      genomeView.applyNucleotideLinkColors(nucleotideLinkConfig);
+    }
 
     // --- OPTIMIZED DOMAIN COLORING ---
     const domains = genomeView.getAllDomains().map(d => {
@@ -1586,7 +1632,10 @@ const PhyloTreeViewer = React.forwardRef(({
     config.domain.height,
     config.tree.edgeWidth,
     config.gene.edgeWidth,
-    treeXScalePercent
+    treeXScalePercent,
+    // Link coloring dependencies
+    proteinLinkConfig,
+    nucleotideLinkConfig
   ]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
