@@ -23,6 +23,7 @@ import {
   parseNonCodingMetadataOptimized
 } from './utils/loadersGLUtils';
 import { DEFAULT_CONFIG } from './config/visualizationConfig';
+import { getPaletteColors } from './utils/colorPalettes';
 
 import defaultNewick from './data/defaultNewick.txt?raw';
 import defaultGFFStr from './data/defaultGFF.gff?raw';
@@ -170,6 +171,7 @@ function App() {
   
   // Reference to the PhyloTreeViewer to access genomeView for track manipulation
   const phyloTreeViewerRef = useRef(null);
+  const [viewerLegend, setViewerLegend] = useState(null);
 
   // Always use DEFAULT_CONFIG directly, but merge with dynamic settings
   // Split config into core (affects data processing) and style (affects rendering only)
@@ -194,6 +196,9 @@ function App() {
       }
     };
   }, [coreConfig, arrowheadHeight, geneHeight, genePalette, domainPalette, phyloPalette, ncRNAPalette, regionPalette]);
+
+  // Dedicated tree X-scale state (percent) so slider controls are explicit and reactive
+  const [treeXScale, setTreeXScale] = React.useState(styleConfig.tree?.xScalePercent || 100);
 
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
@@ -326,7 +331,7 @@ function App() {
         </div>
       )}
       
-      <div style={{ position: 'absolute', top: 10, right: 60, zIndex: 1000, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+  <div style={{ position: 'absolute', top: 10, right: 60, zIndex: 1000, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px', maxHeight: '80vh', overflow: 'auto', width: '320px' }}>
         <label style={{ display: 'block', marginBottom: '5px' }}>
           <input 
             type="checkbox" 
@@ -616,6 +621,492 @@ function App() {
             title="Link Colors"
           />
         </div>
+
+        {/* Tree X-scale slider and Legend */}
+        <div style={{ marginTop: '10px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: '6px' }}>Tree & Legend</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ flex: '1' }}>
+              <label style={{ display: 'block', fontSize: '12px' }}>Tree X-Scale</label>
+              <input type="range" min="10" max="300" value={treeXScale} onChange={(e) => setTreeXScale(Number(e.target.value))} style={{ width: '100%' }} />
+            </div>
+          </div>
+
+          {/* Legend: strictly data-driven from viewer when available */}
+          <div style={{ maxHeight: '40vh', overflow: 'auto', paddingTop: '6px' }}>
+            <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '6px', textAlign: 'center', width: '100%' }}>Legend</div>
+            {(() => {
+              const legend = viewerLegend || (phyloTreeViewerRef.current && typeof phyloTreeViewerRef.current.getLegendData === 'function'
+                ? phyloTreeViewerRef.current.getLegendData()
+                : null);
+
+              // Helpers: convert color formats and render SVG swatches that match on-canvas shapes
+              const colorToCss = (color, alphaOverride = null) => {
+                if (!color) return '#eee';
+                if (Array.isArray(color)) {
+                  const a = typeof alphaOverride === 'number' ? alphaOverride : (color.length > 3 ? (color[3] / 255) : 1);
+                  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${a})`;
+                }
+                return String(color);
+              };
+
+              // Compare helper: numeric when both parse to numbers, otherwise locale string compare
+              const compareAny = (a, b) => {
+                const na = Number(a);
+                const nb = Number(b);
+                const isNumA = !Number.isNaN(na) && String(a).trim() !== '';
+                const isNumB = !Number.isNaN(nb) && String(b).trim() !== '';
+                if (isNumA && isNumB) return na - nb;
+                return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
+              };
+
+              const sortItemsByValue = (items) => {
+                if (!items || !Array.isArray(items)) return items;
+                try {
+                  return [...items].sort((x, y) => compareAny(x.value ?? x.label ?? x[0], y.value ?? y.label ?? y[0]));
+                } catch (e) { return items; }
+              };
+
+              const svgSwatch = (color, type = 'rect', w = 18, h = 12, strokeColor = null) => {
+                const fill = colorToCss(color);
+                const stroke = strokeColor ? colorToCss(strokeColor) : '#555';
+                if (type === 'arrow') {
+              const basePad = 1.0;        // visual padding (px)
+              const strokeW = 1;          // matches polygon strokeWidth below
+              const strokePad = strokeW / 2;
+              const pY = basePad + strokePad; // vertical pad
+              const pX = basePad + strokePad; // horizontal pad to prevent tip clip
+
+              const TIP_WIDTH_FACTOR = styleConfig?.gene?.tipWidthFactor ?? 0.1;
+              const geneHeightWorld = styleConfig?.gene?.height ?? 60;            // world px
+              const arrowheadWorld  = styleConfig?.gene?.arrowheadHeight ?? 0;    // world px (0..100 if you pipe that directly)
+
+              // --- Gene.js logic in "world" Y (trackY = 0 centered) ---
+              const halfH_world = geneHeightWorld / 2;
+              const arrowHalf_world = halfH_world + (arrowheadWorld / 2); // EXACT Gene._buildPolygon
+
+              // X in swatch space; keep the tip INSIDE by pX
+              const tipW = Math.max(2, Math.round(w * TIP_WIDTH_FACTOR));
+              const startX = pX;
+              let   endX   = w - pX;           // tip apex is inside box (prevents clipping)
+              let   baseX  = endX - tipW;
+
+              // Map world Y → swatch Y so the **body height** fits h - 2*pY
+              const sY   = (h - 2 * pY) / geneHeightWorld;
+              const midY = pY + (h - 2 * pY) / 2;
+              const toSwY = (yW) => midY + yW * sY;
+
+              // Build 7-pt forward polygon exactly like Gene._buildPolygon
+              let pts = [
+                [startX, toSwY(-halfH_world)],
+                [baseX,  toSwY(-halfH_world)],
+                [baseX,  toSwY(-arrowHalf_world)],
+                [endX,   toSwY(0)],
+                [baseX,  toSwY( arrowHalf_world)],
+                [baseX,  toSwY( halfH_world)],
+                [startX, toSwY( halfH_world)],
+              ];
+
+              // ---- Vertical bounds & grow height if needed (top/bottom padding) ----
+              let minY = Infinity, maxY = -Infinity;
+              for (const [, y] of pts) { if (y < minY) minY = y; if (y > maxY) maxY = y; }
+              const shiftDown = Math.max(0, pY - minY);        // ensure top ≥ pY
+              if (shiftDown) pts = pts.map(([x, y]) => [x, y + shiftDown]);
+
+              minY += shiftDown; maxY += shiftDown;
+              const wantBottom = h - pY;
+              const extraH = Math.max(0, Math.ceil(maxY - wantBottom)); // overflow at bottom
+              const svgH = h + extraH;
+
+              // ---- Horizontal bounds & grow width if needed (right padding) ----
+              let minX = Infinity, maxX = -Infinity;
+              for (const [x] of pts) { if (x < minX) minX = x; if (x > maxX) maxX = x; }
+
+              // If due to rounding/miter we still exceed the right edge, expand width
+              const wantRight = w - basePad;           // leave basePad at right
+              const extraW = Math.max(0, Math.ceil(maxX - wantRight));
+              const svgW = w + extraW;
+
+              // If left edge is tighter than basePad, shift right
+              const needLeftShift = Math.max(0, basePad - minX);
+              if (extraW || needLeftShift) {
+                const dx = needLeftShift;              // shift everything right if needed
+                if (dx) pts = pts.map(([x, y]) => [x + dx, y]);
+              }
+
+              const polygonPoints = pts.map(([x, y]) => `${Math.round(x)},${Math.round(y)}`).join(' ');
+
+              return (
+                <svg
+                  width={svgW}
+                  height={svgH}
+                  viewBox={`0 0 ${svgW} ${svgH}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polygon
+                    points={polygonPoints}
+                    fill={fill}
+                    stroke={stroke}
+                    strokeWidth={strokeW}
+                    strokeLinejoin="miter"   // keep crisp corners
+                    strokeMiterlimit={10}
+                    strokeLinecap="butt"
+                  />
+                </svg>
+              );
+            }
+
+
+            if (type === 'half-arrow') {
+              // ncRNA upper-half: filled upper polygon + mitered outline,
+              // with padding and dynamic container size to avoid clipping.
+
+              const basePad = 1.0;           // visual padding
+              const strokeW = 1;             // must match strokeWidth below
+              const strokePad = strokeW / 2;
+              const pX = basePad + strokePad;  // horizontal padding
+              const pY = basePad + strokePad;  // vertical padding
+
+              // --- Gene.js geometry (world Y around trackY = 0) ---
+              const TIP_WIDTH_FACTOR = styleConfig?.gene?.tipWidthFactor ?? 0.1;
+              const geneHeightWorld  = styleConfig?.gene?.height ?? 60;            // world px
+              const arrowheadWorld   = styleConfig?.gene?.arrowheadHeight ?? 0;    // world px (0..100 if you pass it directly)
+
+              const halfH_world   = geneHeightWorld / 2;
+              const arrowHalf_w   = halfH_world + (arrowheadWorld / 2);            // EXACT Gene._buildPolygon logic
+
+              // X in swatch space; keep tip inside by pX so stroke/miter isn't clipped
+              const tipW   = Math.max(2, Math.round(w * TIP_WIDTH_FACTOR));
+              const startX = pX;
+              let   endX   = w - pX;          // tip apex x (inside the box)
+              let   baseX  = endX - tipW;     // vertical base x
+
+              // World Y -> swatch Y so the **body** fits exactly into (h - 2*pY)
+              const sY   = (h - 2 * pY) / geneHeightWorld;
+              const midY = pY + (h - 2 * pY) / 2;
+              const toSwY = (yW) => midY + yW * sY;
+
+              // Build UPPER half polygon (forward strand), closing at midline:
+              // (start, topBody) → (base, topBody) → (base, topBase) → (tip, midY) → (base, midY) → (start, midY)
+              let pts = [
+                [startX, toSwY(-halfH_world)],
+                [baseX,  toSwY(-halfH_world)],
+                [baseX,  toSwY(-arrowHalf_w)],
+                [endX,   toSwY(0)],
+                [baseX,  midY],
+                [startX, midY],
+              ];
+
+              // ---- Vertical bounds: ensure top ≥ pY and grow height if bottom overflows ----
+              let minY = Infinity, maxY = -Infinity;
+              for (const [, y] of pts) { if (y < minY) minY = y; if (y > maxY) maxY = y; }
+
+              // Shift down if the top goes above padding
+              const shiftDown = Math.max(0, pY - minY);
+              if (shiftDown) pts = pts.map(([x, y]) => [x, y + shiftDown]);
+
+              minY += shiftDown; maxY += shiftDown;
+
+              const wantBottom = h - pY;                  // we want at least pY padding at bottom
+              const extraH = Math.max(0, Math.ceil(maxY - wantBottom));
+              const svgH = h + extraH;
+
+              // ---- Horizontal bounds: keep padding at right; grow width if needed ----
+              let minX = Infinity, maxX = -Infinity;
+              for (const [x] of pts) { if (x < minX) minX = x; if (x > maxX) maxX = x; }
+
+              const wantRight = w - basePad;
+              const extraW = Math.max(0, Math.ceil(maxX - wantRight));
+              const svgW = w + extraW;
+
+              // If left edge tighter than basePad, shift right a bit
+              const needLeftShift = Math.max(0, basePad - minX);
+              if (extraW || needLeftShift) {
+                const dx = needLeftShift; // only shift if needed on the left
+                if (dx) pts = pts.map(([x, y]) => [x + dx, y]);
+              }
+
+              const fillPts = pts.map(([x, y]) => `${Math.round(x)},${Math.round(y)}`).join(' ');
+
+              return (
+                <svg
+                  width={svgW}
+                  height={svgH}
+                  viewBox={`0 0 ${svgW} ${svgH}`}
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <polygon points={fillPts} fill={fill} stroke="none" />
+                  <polygon
+                    points={fillPts}
+                    fill="none"
+                    stroke={stroke}
+                    strokeWidth={strokeW}
+                    strokeLinejoin="miter"
+                    strokeMiterlimit={10}
+                    strokeLinecap="butt"
+                  />
+                </svg>
+              );
+            }
+
+                // default: unfilled rectangle (for regions) or filled small rect for simple colors
+                if (type === 'region') {
+                  // region: empty fill, stroke uses the provided color
+                  const strokeColor = colorToCss(color);
+                  return (
+                    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg">
+                      <rect x={0.5} y={0.5} width={w-1} height={h-1} fill="none" stroke={strokeColor || colorToCss(color)} strokeWidth={1.5} />
+                    </svg>
+                  );
+                }
+                return <div style={{ width: w, height: h, background: fill, border: '1px solid #ccc' }} />;
+              };
+
+              const formatSim = (v) => {
+                if (v === null || v === undefined || v === '') return '';
+                if (typeof v === 'number') {
+                  if (v >= 0 && v <= 1) return `${Math.round(v * 100)}%`;
+                  if (Math.abs(v) < 100) return v.toFixed(2);
+                  return `${Math.round(v)}`;
+                }
+                return String(v);
+              };
+
+              const gradientSwatchWithEndpoints = (paletteArray, minVal, maxVal, label) => {
+                if (!Array.isArray(paletteArray) || paletteArray.length === 0) return null;
+                const stopsCss = paletteArray.map((c, i) => `${colorToCss(c)} ${Math.round(100*(i/(paletteArray.length-1)||0))}%`).join(', ');
+                const hasEndpoints = (minVal !== undefined && minVal !== null && minVal !== '') || (maxVal !== undefined && maxVal !== null && maxVal !== '');
+                return (
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${stopsCss})`, border: '1px solid #ccc' }} />
+                      <div style={{ fontSize: '11px' }}>{label}</div>
+                    </div>
+                    {hasEndpoints && (
+                      <div style={{ width: '120px', display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <div style={{ width: 1, height: 8, background: '#333', marginBottom: 2 }} />
+                          <div style={{ fontSize: '10px', color: '#666' }}>{formatSim(minVal)}</div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <div style={{ width: 1, height: 8, background: '#333', marginBottom: 2 }} />
+                          <div style={{ fontSize: '10px', color: '#666' }}>{formatSim(maxVal)}</div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              };
+
+              const parts = [];
+
+              // Genes
+              if (genePalette && genePalette.enabled) {
+                const items = (legend && legend.genes && Array.isArray(legend.genes)) ? legend.genes : null;
+                const sortedGenes = items ? sortItemsByValue(items) : items;
+                if (sortedGenes && sortedGenes.length > 0) {
+                  parts.push(
+                    <div key="genes" style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600' }}>Gene families</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center' }}>
+                        {sortedGenes.slice(0,24).map((it, i) => (
+                          <div key={`gene-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {svgSwatch(it.color, 'arrow', 18, 12, it.stroke)}
+                            <div style={{ fontSize: '11px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it.value)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+              }
+
+              // Phylo labels
+              if (phyloPalette && phyloPalette.enabled) {
+                const items = (legend && legend.phylo && Array.isArray(legend.phylo)) ? legend.phylo : null;
+                const sortedPhylo = items ? sortItemsByValue(items) : items;
+                if (sortedPhylo && sortedPhylo.length > 0) {
+                  parts.push(
+                    <div key="phylo" style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600' }}>Phylo labels</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center' }}>
+                        {sortedPhylo.slice(0,24).map((it, i) => (
+                          <div key={`phylo-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {svgSwatch(it.color, 'rect', 18, 12, it.stroke)}
+                            <div style={{ fontSize: '11px', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it.value)}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+              }
+
+              // ncRNAs - prefer live legend.ncRNAs
+              const ncItemsLive = legend && legend.ncRNAs ? legend.ncRNAs : null;
+              if (ncItemsLive && Array.isArray(ncItemsLive) && ncItemsLive.length > 0) {
+                const normalizedNc = ncItemsLive.map(x => ({ label: x.label, color: x.color, stroke: x.stroke }));
+                const sortedNc = sortItemsByValue(normalizedNc);
+                parts.push(
+                  <div key="ncrna-live" style={{ marginBottom: '8px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600' }}>ncRNAs</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center' }}>
+                        {sortedNc.slice(0,24).map((it, i) => (
+                        <div key={`ncrna-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          {svgSwatch(it.color, 'half-arrow', 18, 12, it.stroke)}
+                          <div style={{ fontSize: '11px' }}>{String(it.label)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+
+              // Regions - prefer live legend.regions when provided
+              if (regionPalette && regionPalette.enabled) {
+                const regions = legend && legend.regions ? legend.regions : null;
+                if (regions && typeof regions === 'object') {
+                  // regions may be an object mapping name->color array
+                  const entries = Array.isArray(regions) ? regions : Object.entries(regions);
+                  // normalize to [label,color]
+                  const normalized = Array.isArray(regions)
+                    ? regions
+                    : Object.entries(regions).map(([k, c]) => [k, c]);
+                  if (normalized.length > 0) {
+                    parts.push(
+                      <div key="regions" style={{ marginBottom: '8px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600' }}>Regions</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center' }}>
+                          {normalized.sort((a,b) => compareAny(a[0], b[0])).slice(0,24).map(([k, c], i) => (
+                            <div key={`region-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {svgSwatch(c, 'region', 18, 12, c && c.stroke ? c.stroke : null)}
+                              <div style={{ fontSize: '11px' }}>{String(k)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                }
+              }
+
+              // Links - grouped under a Links title with Protein and Nucleotide subsections
+              
+                const protParts = [];
+                const nucParts = [];
+
+                if (proteinLinkConfig) {
+                  const cfg = proteinLinkConfig;
+                  if (cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene') {
+                    // when coloring by source/target gene show the palette derived from mapping colors
+                    const mapping = legend && legend.proteinLinks && Array.isArray(legend.proteinLinks.mapping) ? legend.proteinLinks.mapping : null;
+                    if (mapping && mapping.length > 0) {
+                      const pal = mapping.map(m => Array.isArray(m.color) ? m.color : (typeof m.color === 'string' ? m.color : [0,0,0,255]));
+                      protParts.push(
+                        <div key="prot-gene-pal">
+                          {gradientSwatchWithEndpoints(pal, '', '', cfg.colorBy === 'source_gene' ? 'AA align' : 'AA align')}
+                        </div>
+                      );
+                    }
+                  } else {
+                  if (!(cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene')) {
+                    if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+                      const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
+                      const legendLabel = 'AA align';
+                      protParts.push(
+                        <div key="prot-grad">
+                          {gradientSwatchWithEndpoints(pal, legend && legend.proteinLinks ? legend.proteinLinks.minSim : '', legend && legend.proteinLinks ? legend.proteinLinks.maxSim : '', legendLabel)}
+                        </div>
+                      );
+                    } else if (cfg.colorBy === 'identity_solid' || cfg.colorBy === 'solid' || cfg.solidColor) {
+                      const base = cfg.solidColor || [200,200,200,255];
+                      if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
+                        const c0 = colorToCss(base, cfg.minAlpha);
+                        const c1 = colorToCss(base, cfg.maxAlpha);
+                        protParts.push(
+                          <div key="prot-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                            <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc' }} />
+                            <div style={{ fontSize: '11px' }}>AA align</div>
+                          </div>
+                        );
+                      } else {
+                        protParts.push(
+                          <div key="prot-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                            {svgSwatch(base, 'rect', 24, 12)}
+                            <div style={{ fontSize: '11px' }}>AA align</div>
+                          </div>
+                        );
+                      }
+                    }
+                  }
+                }
+
+                if (nucleotideLinkConfig) {
+                  const cfg = nucleotideLinkConfig;
+                  if (!(cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene')) {
+                    if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+                      const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
+                      const legendLabel = 'NT align';
+                      nucParts.push(
+                        <div key="nuc-grad">
+                          {gradientSwatchWithEndpoints(pal, legend && legend.nucleotideLinks ? legend.nucleotideLinks.minSim : '', legend && legend.nucleotideLinks ? legend.nucleotideLinks.maxSim : '', legendLabel)}
+                        </div>
+                      );
+                    } else {
+                      const base = cfg.solidColor || [200,200,200,255];
+                      if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
+                        const c0 = colorToCss(base, cfg.minAlpha);
+                        const c1 = colorToCss(base, cfg.maxAlpha);
+                        nucParts.push(
+                          <div key="nuc-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                            <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc' }} />
+                            <div style={{ fontSize: '11px' }}>NT align</div>
+                          </div>
+                        );
+                      } else {
+                        nucParts.push(
+                          <div key="nuc-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
+                            {svgSwatch(base, 'rect', 24, 12)}
+                            <div style={{ fontSize: '11px' }}>NT align</div>
+                          </div>
+                        );
+                      }
+                    }
+                  }
+                }
+
+                if (protParts.length > 0 || nucParts.length > 0) {
+                  parts.push(
+                    <div key="links" style={{ marginBottom: '8px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600' }}>Links</div>
+                      <div style={{ marginTop: '6px' }}>
+                        {protParts.length > 0 && (
+                          <div style={{ marginBottom: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ fontSize: '11px', fontWeight: '600' }}>Protein links</div>
+                            <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>{protParts}</div>
+                          </div>
+                        )}
+                        {nucParts.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ fontSize: '11px', fontWeight: '600' }}>Nucleotide links</div>
+                            <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>{nucParts}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+              }
+
+              if (parts.length === 0) return <div style={{ fontSize: '11px', color: '#666', textAlign: 'center' }}>No legend entries available</div>;
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+                  {parts}
+                </div>
+              );
+            })()}
+          </div>
+        </div>
         
 
 
@@ -656,7 +1147,7 @@ function App() {
       
       {/* Only render PhyloTreeViewer when data is loaded */}
       {!dataLoading && (
-        <PhyloTreeViewer
+  <PhyloTreeViewer
           ref={phyloTreeViewerRef}
           newickStr={newickStr}
           gffFeatures={parsedGFF}
@@ -680,7 +1171,7 @@ function App() {
           treeColorBy={treeColorBy}
           config={styleConfig}
           ultrametric={ultrametric}
-        showConnectingLines={showConnectingLines}
+  showConnectingLines={showConnectingLines}
         phyloLabelPosition={phyloLabelPosition}
         alignLabels={alignLabels}
         genePalette={genePalette}
@@ -690,7 +1181,9 @@ function App() {
         regionPalette={regionPalette}
         proteinLinkConfig={proteinLinkConfig}
         nucleotideLinkConfig={nucleotideLinkConfig}
-        styleConfig={styleConfig}
+          styleConfig={styleConfig}
+          treeXScale={treeXScale}
+    onLegendChange={(legend) => setViewerLegend(legend)}
       />
       )}
       <ThemeToggle />

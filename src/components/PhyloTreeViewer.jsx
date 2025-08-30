@@ -24,6 +24,7 @@ const PhyloTreeViewer = React.forwardRef(({
   baselines,
   showScrollbar,
   setGenomeViewRef,
+  onLegendChange,
   alignCluster,
   defaultAlign = 'start',
   useDefaultGeneAlignment = true,
@@ -53,6 +54,7 @@ const PhyloTreeViewer = React.forwardRef(({
   proteinLinkConfig, // Add protein link configuration prop
   nucleotideLinkConfig, // Add nucleotide link configuration prop
   styleConfig, // Add styleConfig prop for layers
+  treeXScale, // external tree X-scale percent (optional)
 }, ref) => {
   // Theme context
   const { getThemeColors, theme } = useTheme();
@@ -68,6 +70,7 @@ const PhyloTreeViewer = React.forwardRef(({
   const [treeLabelPadding, setTreeLabelPadding] = React.useState(100);
   const [isInitialLoad, setIsInitialLoad] = React.useState(true);
   const [treeXScalePercent, setTreeXScalePercent] = useState(config?.tree?.xScalePercent || 100);
+  const effectiveTreeXScale = (treeXScale !== undefined && treeXScale !== null) ? treeXScale : treeXScalePercent;
   const [viewState, setViewState] = useState({
     target: [0, 0, 0],
     zoom: -10
@@ -80,14 +83,209 @@ const PhyloTreeViewer = React.forwardRef(({
   // Track whether we're in manual manipulation mode to prevent alignment reset
   const isManualManipulation = useRef(false);
 
-  // Expose genomeView and forceManualUpdate method to parent
+  // Builder for live legend data (reads from genomeView and tree)
+  function buildLegendData() {
+    const gv = genomeViewRef.current;
+    const legend = {
+      genes: null,
+      phylo: null,
+      regions: null,
+  ncRNAs: null,
+      proteinLinks: null,
+      nucleotideLinks: null
+    };
+
+    try {
+      // Genes: prefer the computed geneColorMap (palette-derived) when available so legend matches rendering
+      if (typeof geneColorMap !== 'undefined' && geneColorMap && geneColorMap.size > 0) {
+        const items = Array.from(geneColorMap.entries()).map(([k, color]) => ({ value: String(k), color, stroke: (Array.isArray(color) ? darkenColor(color) : null) }));
+        legend.genes = items;
+      } else if (gv && gv.genesById) {
+        const geneVals = new Map();
+        const field = geneColorBy || colorBy || 'cluster';
+    Object.values(gv.genesById).forEach(g => {
+          const val = (g.metadata && g.metadata[field]) ? g.metadata[field] : null;
+          if (val !== null && val !== undefined) {
+            const key = String(val);
+            if (!geneVals.has(key)) {
+      const fill = Array.isArray(g.fillColor) ? g.fillColor.slice(0,4) : null;
+      const stroke = Array.isArray(g.strokeColor) ? g.strokeColor.slice(0,4) : (fill ? darkenColor(fill) : null);
+      geneVals.set(key, { value: key, color: fill, stroke });
+            }
+          }
+        });
+        legend.genes = Array.from(geneVals.values());
+      }
+
+      // Phylo labels
+      if (tree && tree.leafNodes && tree.leafNodes.length > 0) {
+        const phyloVals = new Map();
+        const field = treeColorBy || 'species';
+        const values = new Set();
+        tree.leafNodes.forEach(n => {
+          const meta = n.metadata || {};
+          const val = meta[field] !== undefined ? meta[field] : null;
+          if (val !== null && val !== undefined && val !== '') values.add(String(val));
+        });
+        const sorted = Array.from(values).sort();
+        if (sorted.length > 0 && ((phyloPalette && phyloPalette.enabled) || config?.colorPalettes?.phyloPalette)) {
+          let paletteColors = [];
+          try {
+            const palCfg = phyloPalette || config.colorPalettes.phyloPalette;
+            paletteColors = getPaletteColors(palCfg.name, Math.max(sorted.length, palCfg.numColors || sorted.length), palCfg.reverse || false);
+          } catch (e) { paletteColors = []; }
+          sorted.forEach((v,i) => {
+            const color = paletteColors[i % (paletteColors.length || 1)] || [0,0,0,255];
+            const stroke = Array.isArray(color) ? darkenColor(color) : null;
+            phyloVals.set(v, { value: v, color, stroke });
+          });
+        } else {
+          sorted.forEach(v => {
+            let hash = 0; for (let i = 0; i < v.length; ++i) hash = v.charCodeAt(i) + ((hash << 5) - hash);
+            const r = (hash >> 0) & 0xFF; const g = (hash >> 8) & 0xFF; const b = (hash >> 16) & 0xFF;
+            phyloVals.set(v, { value: v, color: [Math.abs(r), Math.abs(g), Math.abs(b), 255] });
+          });
+        }
+    legend.phylo = Array.from(phyloVals.values());
+      }
+
+      // Protein links
+      if (gv && Array.isArray(gv.proteinLinks) && gv.proteinLinks.length > 0) {
+        const cfg = proteinLinkConfig || {};
+        if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+          const sims = gv.proteinLinks.map(l => (typeof l.similarity === 'number' ? l.similarity : 0));
+          const minSim = Math.min(...sims);
+          const maxSim = Math.max(...sims);
+          let palette = [];
+          try { palette = getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false); } catch(e) { palette = []; }
+          legend.proteinLinks = { mode: 'identity_gradient', minSim, maxSim, palette };
+        } else if (cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene') {
+          const list = [];
+          gv.proteinLinks.forEach(l => {
+            const gA = gv.genesById && gv.genesById[l.gAId];
+            const gB = gv.genesById && gv.genesById[l.gBId];
+            if (cfg.colorBy === 'source_gene' && gA) {
+                list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: gA.fillColor, stroke: gA.strokeColor || (Array.isArray(gA.fillColor) ? darkenColor(gA.fillColor) : null) });
+            }
+            if (cfg.colorBy === 'target_gene' && gB) {
+                list.push({ id: l.gBId, label: gB.metadata ? gB.metadata[geneColorBy || colorBy] : gB.id, color: gB.fillColor, stroke: gB.strokeColor || (Array.isArray(gB.fillColor) ? darkenColor(gB.fillColor) : null) });
+            }
+          });
+          const uniq = new Map(); list.forEach(li => { if (li && li.id && !uniq.has(li.id)) uniq.set(li.id, li); });
+          legend.proteinLinks = { mode: cfg.colorBy, mapping: Array.from(uniq.values()) };
+        } else {
+          legend.proteinLinks = { mode: cfg.colorBy, solidColor: cfg.solidColor || null, useAlpha: cfg.useAlpha, minAlpha: cfg.minAlpha, maxAlpha: cfg.maxAlpha };
+        }
+      }
+
+      // Nucleotide links
+      if (gv && Array.isArray(gv.nucleotideLinks) && gv.nucleotideLinks.length > 0) {
+        const cfg = nucleotideLinkConfig || {};
+        if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+          const sims = gv.nucleotideLinks.map(l => (typeof l.similarity === 'number' ? l.similarity : 0));
+          const minSim = Math.min(...sims);
+          const maxSim = Math.max(...sims);
+          let palette = [];
+          try { palette = getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false); } catch(e) { palette = []; }
+          legend.nucleotideLinks = { mode: 'identity_gradient', minSim, maxSim, palette };
+        } else if (cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene') {
+          const list = [];
+          gv.nucleotideLinks.forEach(l => {
+            const gA = gv.genesById && gv.genesById[l.gAId];
+            const gB = gv.genesById && gv.genesById[l.gBId];
+            if (cfg.colorBy === 'source_gene' && gA) {
+                list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: gA.fillColor, stroke: gA.strokeColor || (Array.isArray(gA.fillColor) ? darkenColor(gA.fillColor) : null) });
+            }
+            if (cfg.colorBy === 'target_gene' && gB) {
+                list.push({ id: l.gBId, label: gB.metadata ? gB.metadata[geneColorBy || colorBy] : gB.id, color: gB.fillColor, stroke: gB.strokeColor || (Array.isArray(gB.fillColor) ? darkenColor(gB.fillColor) : null) });
+            }
+          });
+          const uniq = new Map(); list.forEach(li => { if (li && li.id && !uniq.has(li.id)) uniq.set(li.id, li); });
+          legend.nucleotideLinks = { mode: cfg.colorBy, mapping: Array.from(uniq.values()) };
+        } else {
+          legend.nucleotideLinks = { mode: cfg.colorBy, solidColor: cfg.solidColor || null, useAlpha: cfg.useAlpha, minAlpha: cfg.minAlpha, maxAlpha: cfg.maxAlpha };
+        }
+      }
+
+      // Regions: prefer regionColorMap (palette-derived) when available
+      try {
+        if (typeof regionColorMap !== 'undefined' && regionColorMap && regionColorMap.size > 0) {
+          const obj = {};
+          Array.from(regionColorMap.entries()).forEach(([k, c]) => { obj[String(k)] = c; });
+          legend.regions = obj;
+        } else {
+          const regions = gv ? gv.getAllRegions() : [];
+          if (regions && regions.length > 0) {
+            const regionMap = {};
+            regions.forEach(r => {
+              const key = (r.metadata && (r.metadata.region_type || r.metadata.type)) ? String(r.metadata.region_type || r.metadata.type) : (r.name || r.id || 'region');
+              const fill = r.fillColor || r.color || null;
+              const stroke = r.strokeColor || (Array.isArray(fill) ? darkenColor(fill) : null);
+              regionMap[key] = { color: fill, stroke };
+            });
+            legend.regions = regionMap;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // ncRNAs: sample types and colors — compute using effectiveNcRNAPalette to match rendering
+      try {
+        if (gv && gv.ncRNAsById) {
+          const ncArray = Object.values(gv.ncRNAsById);
+          let ncItems = [];
+          if (effectiveNcRNAPalette && effectiveNcRNAPalette.enabled) {
+            // collect types
+            const typeKeys = Array.from(new Set(ncArray.map(nc => (nc.metadata && nc.metadata.type) ? nc.metadata.type : null).filter(k => k)));
+            const palette = (typeKeys.length > 0) ? getPaletteColors(effectiveNcRNAPalette.name, Math.max(typeKeys.length, effectiveNcRNAPalette.numColors || typeKeys.length), effectiveNcRNAPalette.reverse || false) : [];
+            const typeToColor = {};
+            typeKeys.forEach((key, i) => { typeToColor[key] = palette[i % (palette.length || 1)] || [0,0,0,255]; });
+            ncItems = ncArray.slice(0,40).map(nc => {
+              const fill = (nc.metadata && nc.metadata.type && typeToColor[nc.metadata.type]) ? typeToColor[nc.metadata.type] : (nc.fillColor || nc.color || themeColors.geneFill);
+              const stroke = nc.strokeColor || (Array.isArray(fill) ? darkenColor(fill) : null);
+              return { label: nc.name || nc.originalId || nc.id || 'ncRNA', color: fill, stroke };
+            });
+          } else {
+            ncItems = ncArray.slice(0,40).map(nc => {
+              const fill = nc.fillColor || nc.color || themeColors.geneFill;
+              const stroke = nc.strokeColor || (Array.isArray(fill) ? darkenColor(fill) : null);
+              return { label: nc.name || nc.originalId || nc.id || 'ncRNA', color: fill, stroke };
+            });
+          }
+          if (ncItems.length > 0) legend.ncRNAs = ncItems;
+        }
+      } catch (e) {
+        // ignore
+      }
+    } catch (e) {
+      console.warn('buildLegendData failed:', e);
+    }
+
+    return legend;
+  }
+
+  // Expose genomeView and some methods via imperative handle
   React.useImperativeHandle(ref, () => ({
     get genomeView() { return genomeViewRef.current; },
     forceManualUpdate: () => {
       isManualManipulation.current = true;
       setAlignmentVersion(prev => prev + 1);
+    },
+    getLegendData: () => buildLegendData()
+  }), [geneColorBy, colorBy, proteinLinkConfig, nucleotideLinkConfig, treeColorBy, phyloPalette, regionPalette, metadataVersion]);
+
+  // Emit legend updates to parent when metadataVersion or relevant configs change
+  useEffect(() => {
+    if (typeof onLegendChange === 'function') {
+      try {
+        const legend = buildLegendData();
+        onLegendChange(legend);
+      } catch (e) {
+        // ignore errors
+      }
     }
-  }), []);
+  }, [metadataVersion, alignmentVersion, proteinLinkConfig, nucleotideLinkConfig, geneColorBy, treeColorBy, regionPalette, phyloPalette]);
 
 
   // Parse ncRNA metadata once
@@ -500,7 +698,7 @@ const PhyloTreeViewer = React.forwardRef(({
   }
   
   // Add after viewState and bounds are available
-  const bounds = computeBounds(genomeViewRef.current, tree, phyloLabelPosition, treeXScalePercent);
+  const bounds = computeBounds(genomeViewRef.current, tree, phyloLabelPosition, effectiveTreeXScale);
   const minY = bounds.minY;
   const maxY = bounds.maxY;
   // Normalized scrollbar state (0-100)
@@ -818,6 +1016,118 @@ const PhyloTreeViewer = React.forwardRef(({
     return colorMap;
   }, [genomeView, regionPalette, config?.colorPalettes?.regionPalette]);
 
+  // Build legend entries for display (gene families, phylo labels, ncRNAs, regions, links)
+  const colorArrayToCss = (c) => {
+    if (!Array.isArray(c)) return 'rgba(0,0,0,1)';
+    const [r,g,b,a] = c;
+    const alpha = typeof a === 'number' ? (a/255) : 1;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  const legendEntries = React.useMemo(() => {
+    const entries = [];
+
+    // Gene families (from geneColorMap)
+    if (geneColorMap && geneColorMap.size > 0) {
+      const items = Array.from(geneColorMap.entries()).slice(0, 20).map(([k, color]) => ({ label: String(k), color }));
+      entries.push({ id: 'genes', title: 'Gene families', items });
+    }
+
+    // Phylogenetic labels (from effectivePhyloPalette + treeMetadata)
+    if (effectivePhyloPalette && effectivePhyloPalette.enabled && tree && treeMetadata && treeColorBy) {
+      const values = new Set();
+      tree.leafNodes.forEach(l => {
+        const meta = treeMetadata[l.name] || {};
+        const v = meta[treeColorBy];
+        if (v !== undefined && v !== null && v !== '') values.add(String(v));
+      });
+      const sorted = Array.from(values).sort();
+      if (sorted.length > 0) {
+        let paletteColors = [];
+        try {
+          paletteColors = getPaletteColors(
+            effectivePhyloPalette.name,
+            Math.max(sorted.length, effectivePhyloPalette.numColors || sorted.length),
+            effectivePhyloPalette.reverse || false
+          );
+        } catch (e) {
+          paletteColors = [];
+        }
+        const items = sorted.map((v, i) => ({ label: v, color: paletteColors[i % (paletteColors.length || 1)] || [0,0,0,255] }));
+        entries.push({ id: 'phylo', title: 'Phylo labels', items });
+      }
+    }
+
+    // ncRNAs (show a sample set)
+    const ncItems = [];
+    if (genomeView) {
+      Object.values(genomeView.ncRNAsById || {}).slice(0, 20).forEach(nc => {
+        const label = nc.name || nc.originalId || nc.id || 'ncRNA';
+        const color = nc.fillColor || nc.color || [0,0,0,255];
+        ncItems.push({ label: String(label), color });
+      });
+    }
+    if (ncItems.length > 0) entries.push({ id: 'ncrna', title: 'ncRNAs', items: ncItems });
+
+    // Regions (from regionColorMap)
+    if (regionColorMap && regionColorMap.size > 0) {
+      const items = Array.from(regionColorMap.entries()).map(([k, c]) => ({ label: String(k), color: c }));
+      entries.push({ id: 'regions', title: 'Regions', items });
+    }
+
+    // Protein links legend
+    if (proteinLinkConfig) {
+      if ((proteinLinkConfig.palette && proteinLinkConfig.palette.enabled) || proteinLinkConfig.colorBy === 'identity_gradient') {
+        // show palette samples
+        let pal = [];
+        try {
+          pal = getPaletteColors(
+            proteinLinkConfig.palette?.name || DEFAULT_CONFIG.proteinLink.palette.name,
+            Math.max(proteinLinkConfig.palette?.numColors || 6, 6),
+            proteinLinkConfig.palette?.reverse || false
+          );
+        } catch (e) { pal = []; }
+        const items = (pal.length > 0 ? pal : [[100,0,220,255]]).slice(0, 12).map((c, i) => ({ label: `${i+1}`, color: c }));
+        entries.push({ id: 'proteinLinks', title: 'Protein links (palette)', items });
+      } else if (proteinLinkConfig.colorBy === 'source_gene' || proteinLinkConfig.colorBy === 'target_gene') {
+        entries.push({ id: 'proteinLinks', title: 'Protein links', note: `Colored by ${proteinLinkConfig.colorBy.replace('_', ' ')}` });
+      } else {
+        entries.push({ id: 'proteinLinks', title: 'Protein links', items: [{ label: 'solid', color: proteinLinkConfig.solidColor || DEFAULT_CONFIG.proteinLink.solidColor }] });
+      }
+    }
+
+    // Nucleotide links legend
+    if (nucleotideLinkConfig) {
+      if ((nucleotideLinkConfig.palette && nucleotideLinkConfig.palette.enabled) || nucleotideLinkConfig.colorBy === 'identity_gradient') {
+        let pal = [];
+        try {
+          pal = getPaletteColors(
+            nucleotideLinkConfig.palette?.name || DEFAULT_CONFIG.nucleotideLink.palette.name,
+            Math.max(nucleotideLinkConfig.palette?.numColors || 6, 6),
+            nucleotideLinkConfig.palette?.reverse || false
+          );
+        } catch (e) { pal = []; }
+        const items = (pal.length > 0 ? pal : [[200,200,200,255]]).slice(0, 12).map((c, i) => ({ label: `${i+1}`, color: c }));
+        entries.push({ id: 'nucleotideLinks', title: 'Nucleotide links (palette)', items });
+      } else {
+        entries.push({ id: 'nucleotideLinks', title: 'Nucleotide links', items: [{ label: 'solid', color: nucleotideLinkConfig.solidColor || DEFAULT_CONFIG.nucleotideLink.solidColor }] });
+      }
+    }
+
+    return entries;
+  }, [
+    geneColorMap,
+    effectivePhyloPalette,
+    tree,
+    treeMetadata,
+    treeColorBy,
+    genomeView,
+    regionColorMap,
+    proteinLinkConfig,
+    nucleotideLinkConfig,
+    themeColors
+  ]);
+
   // Ensure link colors are applied to GenomeView objects as soon as color maps/configs are ready
   // and force a layers recompute by bumping alignmentVersion so DeckGL picks up the new colors.
   useEffect(() => {
@@ -888,7 +1198,7 @@ const PhyloTreeViewer = React.forwardRef(({
     });
     
     return positions;
-  }, [genomeViewRef.current, tree, phyloLabelPosition, config.tree?.phyloLabelPosition, alignmentVersion]);
+  }, [genomeViewRef.current, tree, phyloLabelPosition, config.tree?.phyloLabelPosition, alignmentVersion, effectiveTreeXScale]);
 
   const layers = React.useMemo(() => {
     const layersStartTime = performance.now();
@@ -906,7 +1216,7 @@ const PhyloTreeViewer = React.forwardRef(({
       ...baseConfig,
       tree: {
         ...baseConfig.tree,
-        xScalePercent: treeXScalePercent
+        xScalePercent: effectiveTreeXScale
       }
     };
     
@@ -970,7 +1280,7 @@ const PhyloTreeViewer = React.forwardRef(({
     console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length + genomeView.getAllRegions().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
     
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
-    const bounds = computeBounds(genomeView, tree, phyloLabelPosition, treeXScalePercent);
+  const bounds = computeBounds(genomeView, tree, phyloLabelPosition, effectiveTreeXScale);
     const treeOffset = bounds.treeOffset || 0;
     
     // Use pre-filtered and pre-computed data
@@ -1250,6 +1560,95 @@ const PhyloTreeViewer = React.forwardRef(({
     
     // Gene cluster labels (below genes)
     const geneLabels = buildGeneLabels(genes);
+
+    // Helper: build segmented centerline paths for gradient approximation
+    const SEGMENT_COUNT = 8;
+    const clamp = (v, a = 0, b = 255) => Math.max(a, Math.min(b, v));
+    const adjustBrightness = (col, factor) => {
+      return [
+        clamp(Math.round(col[0] * factor)),
+        clamp(Math.round(col[1] * factor)),
+        clamp(Math.round(col[2] * factor)),
+        col[3] !== undefined ? clamp(Math.round(col[3])) : 255
+      ];
+    };
+
+    const lerpColor = (c0, c1, t) => {
+      return [
+        Math.round(c0[0] + (c1[0] - c0[0]) * t),
+        Math.round(c0[1] + (c1[1] - c0[1]) * t),
+        Math.round(c0[2] + (c1[2] - c0[2]) * t),
+        Math.round(( (c0[3] || 255) + ((c1[3] || 255) - (c0[3] || 255)) * t ))
+      ];
+    };
+
+    const buildSegmentedPathsFromPolygons = (polygons, linkConfig) => {
+      if (!polygons || polygons.length === 0) return [];
+      if (!linkConfig) return [];
+
+      // Only build gradients when colorBy requests identity_gradient and palette enabled
+      if (!(linkConfig.colorBy === 'identity_gradient' && linkConfig.palette && linkConfig.palette.enabled)) {
+        return [];
+      }
+
+      let palette = [];
+      try {
+        palette = getPaletteColors(linkConfig.palette.name, linkConfig.palette.numColors || 8, linkConfig.palette.reverse || false);
+      } catch (e) {
+        palette = [];
+      }
+
+      const out = [];
+      for (const p of polygons) {
+        const ring = p.polygon || [];
+        if (!ring || ring.length < 4) continue;
+
+        // quick centerline: pair first half with second half
+        const half = Math.floor(ring.length / 2);
+        const center = [];
+        for (let i = 0; i < half; i++) {
+          const a = ring[i];
+          const b = ring[i + half] || ring[ring.length - 1];
+          center.push([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
+        }
+        if (center.length < 2) continue;
+
+        // Determine palette color based on similarity if available
+        const sim = (p.metadata && typeof p.metadata.similarity === 'number') ? p.metadata.similarity : 0;
+        const idx = palette.length > 0 ? Math.floor(Math.max(0, Math.min(1, sim / 100)) * (palette.length - 1)) : 0;
+        const paletteColor = palette.length > 0 ? palette[idx] : (p.fillColor || [150,150,150,255]);
+
+        // Create a slight contrast between ends for visible gradient
+        const startColor = adjustBrightness(paletteColor.slice(0,4), 0.9);
+        const endColor = adjustBrightness(paletteColor.slice(0,4), 1.1);
+
+        const N = Math.max(2, SEGMENT_COUNT);
+        for (let s = 0; s < N - 1; s++) {
+          const t0 = s / (N - 1);
+          const t1 = (s + 1) / (N - 1);
+          // simple interpolation along center polyline
+          const interp = (t) => {
+            const f = t * (center.length - 1);
+            const i = Math.floor(f);
+            const a = center[i];
+            const b = center[Math.min(center.length - 1, i + 1)];
+            const local = f - i;
+            return [a[0] + (b[0] - a[0]) * local, a[1] + (b[1] - a[1]) * local];
+          };
+          const p0 = interp(t0);
+          const p1 = interp(t1);
+          const c0 = lerpColor(startColor, endColor, t0);
+          const c1 = lerpColor(startColor, endColor, t1);
+          const avg = lerpColor(c0, c1, 0.5);
+          out.push({ path: [p0, p1], color: avg, width: Math.max(1, (linkConfig.strokeWidth || 2)) });
+        }
+      }
+      return out;
+
+    };
+
+    const proteinSegmentedPaths = buildSegmentedPathsFromPolygons(proteinPolygons, proteinLinkConfig);
+    const nucleotideSegmentedPaths = buildSegmentedPathsFromPolygons(nucleotidePolygons, nucleotideLinkConfig);
 
     // Create the base layers array
     const layers = [
@@ -1632,7 +2031,7 @@ const PhyloTreeViewer = React.forwardRef(({
     config.domain.height,
     config.tree.edgeWidth,
     config.gene.edgeWidth,
-    treeXScalePercent,
+  effectiveTreeXScale,
     // Link coloring dependencies
     proteinLinkConfig,
     nucleotideLinkConfig
@@ -1771,7 +2170,7 @@ const PhyloTreeViewer = React.forwardRef(({
             ...config,
             tree: {
               ...config.tree,
-              xScalePercent: treeXScalePercent
+              xScalePercent: effectiveTreeXScale
             }
           },
           viewState,
@@ -1978,14 +2377,7 @@ const PhyloTreeViewer = React.forwardRef(({
         }}
      
       />
-      {/* Tree Scale Control Widget (top-right) */}
-      <div style={{ position: 'absolute', top: 70, right: 10, zIndex: 10, width: '200px' }}>
-        <TreeScaleWidget
-          treeXScale={treeXScalePercent}
-          onTreeXScaleChange={setTreeXScalePercent}
-          title="Tree X-Scale"
-        />
-      </div>
+  {/* Tree scale and legend are rendered by App for a consolidated control panel */}
       {/* Custom CSS vertical scrollbar overlay, now as a widget */}
       {showScrollbar && isFinite(minY) && isFinite(maxY) && (
         <ScrollbarWidget
@@ -2017,7 +2409,7 @@ const PhyloTreeViewer = React.forwardRef(({
             ...config,
             tree: {
               ...config.tree,
-              xScalePercent: treeXScalePercent
+              xScalePercent: effectiveTreeXScale
             }
           }}
         />
