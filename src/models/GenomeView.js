@@ -78,8 +78,9 @@ class GenomeView {
         const feats = this.featuresBySeqid[f.seqid];
         const minStart = Math.min(...feats.map(ff => ff.start));
         const maxEnd = Math.max(...feats.map(ff => ff.end));
-        // Use strand of first gene or default '+'
-        const strand = (feats.find(ff => ff.type === 'gene')?.strand) || '+';
+  // Use strand of first gene or CDS (accept CDS as gene) or default '+'
+  const strandFeature = feats.find(ff => ff.type === 'gene' || ff.type === 'CDS');
+  const strand = (strandFeature && strandFeature.strand) ? strandFeature.strand : '+';
         this.nucleotidesBySeqid[f.seqid] = new Nucleotide(f.seqid, minStart, maxEnd, strand);
       }
     }
@@ -100,7 +101,7 @@ class GenomeView {
       
       const feats = this.featuresBySeqid[seqid] || [];
       for (let f of feats) {
-        if (f.type === 'gene') {
+      if (f.type === 'gene' || f.type === 'CDS') {
           // Only include genes that are COMPLETELY within the hood's GFF range
           const geneCompletelyWithinHood = (f.start >= hoodStart && f.end <= hoodEnd);
           if (!geneCompletelyWithinHood) continue;
