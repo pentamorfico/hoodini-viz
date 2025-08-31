@@ -25,8 +25,8 @@ function normalise(value,min,max){
   return (max===min)?0.5:(value - min)/(max - min);
 }
 
-export function exportToSVG(layers, viewState, containerSize, config, rulerOptions, themeColors = {}, exportScale = 5, nodeScale = 1) {
-  console.log('🖼️ exportToSVG called with:', { layers: layers?.length, viewState, containerSize, config: !!config, exportScale, nodeScale });
+export function exportToSVG(layers, viewState, containerSize, config, rulerOptions, themeColors = {}, textScale = 5, nodeScale = 1) {
+  console.log('🖼️ exportToSVG called with:', { layers: layers?.length, viewState, containerSize, config: !!config, textScale, nodeScale });
   
   const { width, height } = containerSize;
   if (!width || !height) {
@@ -52,10 +52,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   // World -> pixel conversion (pixels per world unit along X).
   // Use viewport mapping: width pixels spans (max_x - min_x) world units.
   const worldSpan = Math.max(1e-9, (max_x - min_x));
-  // exportScale allows tuning how many screen pixels correspond to one world unit
-  // Default is 5 to match on-screen deck.gl visual scale when exporting.
-  const scaleFactor = (typeof exportScale === 'number' && isFinite(exportScale) && exportScale > 0) ? exportScale : 1;
-  const worldToPixel = (width / worldSpan) * scaleFactor;
+  // textScale/nodeScale allow tuning how many screen pixels correspond to one world unit
+  // Default textScale is 5 (matches text), nodeScale defaults to 1 and can be used to boost/shrink nodes.
+  const basePixelsPerWorld = width / worldSpan;
+  const textScaleFactor = (typeof textScale === 'number' && isFinite(textScale) && textScale > 0) ? textScale : 1;
+  const nodeScaleFactor = (typeof nodeScale === 'number' && isFinite(nodeScale) && nodeScale > 0) ? nodeScale : 1;
+  const worldToPixelText = basePixelsPerWorld * textScaleFactor;
+  const worldToPixelNode = basePixelsPerWorld * nodeScaleFactor;
   // Clamp a world-space point to the current view bounds so exported geometry doesn't extend outside viewport
   // Helper: bbox of world points
   const bboxOfPoints = (pts) => {
@@ -342,7 +345,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   // Convert logical radius to screen pixels using worldToPixel.
   // Always convert by worldToPixel so exported radii follow the current view zoom.
   // Apply nodeScale to allow independent tuning of node circle size in exports
-  const screenRadius = Math.max(0.1, (radius || 1) * worldToPixel * nodeScale);
+  // Use worldToPixelNode for node radius conversion and do not clamp to a minimum
+  const screenRadius = (radius || 1) * worldToPixelNode;
   svg += `<circle cx="${x}" cy="${y}" r="${screenRadius}" fill="${fill}" />`;
       }
     }    // TextLayer (labels)
@@ -376,8 +380,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         // Determine the correct dominant-baseline based on layer type and feature properties
   // Determine font-size in screen pixels by converting size (logical/world units) using worldToPixel.
   // This avoids double-scaling and keeps exported text visually consistent with on-screen rendering.
-  // Convert text size (logical/world units) to screen pixels using worldToPixel so text scales with zoom.
-  const proportionalSize = Math.max(0.1, (size || 12) * worldToPixel);
+  // Convert text size (logical/world units) to screen pixels using worldToPixelText so text scales with zoom.
+  const proportionalSize = Math.max(0.1, (size || 12) * worldToPixelText);
         
         // Illustrator-compatible text positioning
         let dominantBaseline = 'alphabetic'; // More reliable baseline for Illustrator
