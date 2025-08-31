@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "embed-data": "node scripts/embed_data.js public/data src/embeddedData.js",
+    "build": "npm run embed-data && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -13,14 +14,12 @@
     "@deck.gl/core": "9.1.10",
     "@deck.gl/layers": "9.1.10",
     "@deck.gl/react": "9.1.10",
-    "@loaders.gl/core": "^4.3.4",
-    "@loaders.gl/csv": "^4.3.4",
-    "@loaders.gl/gis": "^4.3.4",
-    "deck.gl": "9.1.10",
     "dicopal": "^0.8.1",
+    "hyparquet": "^1.17.4",
     "polygon-clipping": "^0.15.7",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "vite-plugin-singlefile": "^2.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

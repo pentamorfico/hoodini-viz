@@ -10,7 +10,7 @@ export default function parseTreeMetadata(str) {
     for (let j = 0; j < header.length; ++j) {
       entry[header[j]] = row[j];
     }
-    if (entry.leaf_id) out[entry.leaf_id] = entry;
+  if (entry.leaf_id != null) out[entry.leaf_id] = entry;
   }
   return out;
 }

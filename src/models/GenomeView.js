@@ -58,6 +58,11 @@ class GenomeView {
 
   addFeatures(gffFeatures) {
     for (let f of gffFeatures) {
+      // Validate required fields
+      if (!f.seqid || typeof f.start !== 'number' || isNaN(f.start) || typeof f.end !== 'number' || isNaN(f.end)) {
+        console.warn('[GenomeView] Skipping feature with invalid fields:', f);
+        continue;
+      }
       if (!this.featuresBySeqid[f.seqid]) {
         this.featuresBySeqid[f.seqid] = [];
         // Store original minStart/maxEnd for robust shifting/flipping
@@ -76,11 +81,12 @@ class GenomeView {
       if (!this.nucleotidesBySeqid[f.seqid]) {
         // Find all features for this seqid to determine region bounds
         const feats = this.featuresBySeqid[f.seqid];
-        const minStart = Math.min(...feats.map(ff => ff.start));
-        const maxEnd = Math.max(...feats.map(ff => ff.end));
-  // Use strand of first gene or CDS (accept CDS as gene) or default '+'
-  const strandFeature = feats.find(ff => ff.type === 'gene' || ff.type === 'CDS');
-  const strand = (strandFeature && strandFeature.strand) ? strandFeature.strand : '+';
+        // Coerce all start/end to numbers before Math.min/Math.max
+        const minStart = Math.min(...feats.map(ff => typeof ff.start === 'bigint' ? Number(ff.start) : ff.start));
+        const maxEnd = Math.max(...feats.map(ff => typeof ff.end === 'bigint' ? Number(ff.end) : ff.end));
+        // Use strand of first gene or CDS (accept CDS as gene) or default '+'
+        const strandFeature = feats.find(ff => ff.type === 'gene' || ff.type === 'CDS');
+        const strand = (strandFeature && strandFeature.strand) ? strandFeature.strand : '+';
         this.nucleotidesBySeqid[f.seqid] = new Nucleotide(f.seqid, minStart, maxEnd, strand);
       }
     }
@@ -527,9 +533,17 @@ class GenomeView {
     this.tree.leafNodes.forEach((n, idx) => { leafIndex[n.name] = idx; });
 
     for (let l of links) {
-      const originalGeneIdA = l[0];
-      const originalGeneIdB = l[1];
-      const similarity = l[2];
+      // Support both array and object formats
+      let originalGeneIdA, originalGeneIdB, similarity;
+      if (Array.isArray(l)) {
+        originalGeneIdA = l[0];
+        originalGeneIdB = l[1];
+        similarity = l[2];
+      } else if (l && typeof l === 'object') {
+        originalGeneIdA = l.geneA ?? l.gAId;
+        originalGeneIdB = l.geneB ?? l.gBId;
+        similarity = l.score ?? l.similarity;
+      }
       // Find all genes with these original gene IDs
       const genesA = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneIdA)
@@ -1505,19 +1519,32 @@ class GenomeView {
 
   applyBaselines(baselines) {
     // Filter out orphaned baselines (baselines for hoods not in the phylogenetic tree)
-    const validHoodIds = new Set(this.leaves);
+    // Normalize: compare string forms so numeric/string mismatches don't drop valid rows.
+    const validHoodIds = new Set(this.leaves.map(id => String(id)));
     const filteredBaselines = [];
     let orphanCount = 0;
-    
+
     for (const b of baselines) {
-      if (validHoodIds.has(b.hood_id)) {
+      const rawHood = b.hood_id != null ? String(b.hood_id).trim() : null;
+      const rawSeqid = b.seqid != null ? String(b.seqid).trim() : null;
+
+      // Accept baseline if either hood_id matches a leaf or seqid matches a leaf name
+      let matchedHood = null;
+      if (rawHood && validHoodIds.has(rawHood)) {
+        matchedHood = rawHood;
+      } else if (rawSeqid && validHoodIds.has(rawSeqid)) {
+        matchedHood = rawSeqid;
+      }
+
+      if (matchedHood) {
+        // Ensure hood_id stored is normalized string
+        b.hood_id = matchedHood;
         filteredBaselines.push(b);
       } else {
-        console.warn('⚠️  Skipping orphan baseline (not in tree):', {hood_id: b.hood_id, seqid: b.seqid});
         orphanCount++;
       }
     }
-    
+
     console.log(`📊 Baseline filtering: ${filteredBaselines.length}/${baselines.length} baselines processed (${orphanCount} orphans skipped)`);
     
     for (const b of filteredBaselines) {

@@ -549,9 +549,7 @@ const PhyloTreeViewer = React.forwardRef(({
     if (genomeView.globalMin !== Infinity && genomeView.globalMax !== -Infinity) {
       minX = genomeView.globalMin;
       maxX = genomeView.globalMax;
-      console.log('🎯 computeBounds: Using GenomeView global bounds:', minX, 'to', maxX);
     } else {
-      console.log('⚠️ computeBounds: GenomeView global bounds not available, using fallback calculation');
       // Fallback: manually calculate X bounds from genes, ncRNAs, and domains
       Object.values(genomeView.genesById).forEach(g => {
         if (g.polygon) g.polygon.forEach(([x, y]) => {
@@ -621,9 +619,7 @@ const PhyloTreeViewer = React.forwardRef(({
     if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
       const fallback = config.layout.containerFallback;
       minX = fallback.minX; minY = fallback.minY; maxX = fallback.maxX; maxY = fallback.maxY;
-      console.log('⚠️ computeBounds: Using fallback bounds:', minX, 'to', maxX);
     }
-    console.log('📏 computeBounds: Final bounds returned:', { minX, maxX, minY, maxY, treeOffset, geneOffset });
     return { minX, minY, maxX, maxY, treeOffset, geneOffset };
   }
 
@@ -774,9 +770,11 @@ const PhyloTreeViewer = React.forwardRef(({
     if (!object) return null;
     // Show metadata for nodes (tree), genes, domains, protein links, nucleotide links
     if (object.metadata) {
-      // Format metadata as HTML table
+      // Format metadata as HTML table, but exclude 'sequence' field (case-insensitive)
       const meta = object.metadata;
-      const html = `<table>${Object.entries(meta).map(([k,v]) => `<tr><td><b>${k}</b></td><td>${v}</td></tr>`).join('')}</table>`;
+      const entries = Object.entries(meta).filter(([k]) => k && String(k).toLowerCase() !== 'sequence');
+      if (entries.length === 0) return null;
+      const html = `<table>${entries.map(([k,v]) => `<tr><td><b>${k}</b></td><td>${v}</td></tr>`).join('')}</table>`;
       return { html };
     }
     // Fallback for legacy or missing metadata
@@ -894,12 +892,6 @@ const PhyloTreeViewer = React.forwardRef(({
     const leaves = genomeView.leaves;
     const proteinPolygons = genomeView.getProteinPolygons();
     const nucleotidePolygons = genomeView.getNucleotidePolygons();
-    
-    console.log('🔍 Debug links - Total protein polygons:', proteinPolygons.length);
-    console.log('🔍 Debug links - Total nucleotide polygons:', nucleotidePolygons.length);
-    console.log('🔍 Debug links - Sample protein polygon:', proteinPolygons[0]);
-    console.log('🔍 Debug links - Sample nucleotide polygon:', nucleotidePolygons[0]);
-    console.log('🔍 Debug links - Tree leaves:', leaves);
     
     // NOTE: Link colors will be applied later in the layers section after genes are colored
     
@@ -1265,7 +1257,6 @@ const PhyloTreeViewer = React.forwardRef(({
     
     // 🚀 SYNCHRONOUS POLYGON UPDATES - This ensures fresh polygons are always available!
     // Update all feature polygons directly here instead of using a separate effect
-    console.log('🔧 Synchronous polygon updates started - effectiveConfig.gene.height:', effectiveConfig.gene.height, 'effectiveConfig.gene.arrowheadHeight:', effectiveConfig.gene.arrowheadHeight);
     
     const polygonUpdateStart = performance.now();
     
@@ -1320,7 +1311,6 @@ const PhyloTreeViewer = React.forwardRef(({
     });
     
     const polygonUpdateTime = performance.now() - polygonUpdateStart;
-    console.log(`🔧 Synchronous polygon updates completed: ${Object.keys(genomeView.genesById).length + Object.keys(genomeView.ncRNAsById).length + genomeView.getAllDomains().length + genomeView.getAllRegions().length} features in ${polygonUpdateTime.toFixed(2)}ms`);
     
     // Use treeOffset and geneOffset for all tree-related and genome-related X shifts
   const bounds = computeBounds(genomeView, tree, phyloLabelPosition, effectiveTreeXScale);
@@ -1366,13 +1356,10 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // Apply link colors AFTER genes have their colors applied and updated in GenomeView
     if (proteinLinkConfig) {
-      console.log('🔗 Applying protein link colors:', proteinLinkConfig.colorBy);
-      console.log('🔗 Sample gene colors:', Object.values(genomeView.genesById).slice(0, 2).map(g => ({ id: g.id, fillColor: g.fillColor })));
       genomeView.applyProteinLinkColors(proteinLinkConfig);
     }
     
     if (nucleotideLinkConfig) {
-      console.log('🧬 Applying nucleotide link colors:', nucleotideLinkConfig.colorBy);
       genomeView.applyNucleotideLinkColors(nucleotideLinkConfig);
     }
 

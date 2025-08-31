@@ -1,6 +1,0 @@
-# Example ncRNA metadata file
-# Format: ID<TAB>type<TAB>description<TAB
-ncRNA_A_1	snoRNA	Small nucleolar RNA
-ncRNA_A_2	miRNA	Micro RNA
-ncRNA_B_1	snRNA	Small nuclear RNA
-ncRNA_B_2	lncRNA	Long non-coding RNA
