@@ -518,8 +518,13 @@ class GenomeView {
     }
   }
 
-  addProteinLinks(links, color = [50, 100, 220]) {
+  // Add protein links with optional adjacency filtering. adjacencyN defaults to Infinity (no filtering)
+  addProteinLinks(links, color = [50, 100, 220], adjacencyN = Infinity) {
     this.proteinLinks = [];
+    // Build an index of leaf positions for quick hood distance checks
+    const leafIndex = {};
+    this.tree.leafNodes.forEach((n, idx) => { leafIndex[n.name] = idx; });
+
     for (let l of links) {
       const originalGeneIdA = l[0];
       const originalGeneIdB = l[1];
@@ -531,17 +536,34 @@ class GenomeView {
       const genesB = Object.entries(this.genesById)
         .filter(([uniqueId, gene]) => gene.originalGeneId === originalGeneIdB)
         .map(([uniqueId, gene]) => uniqueId);
-      // Create links between all combinations
+      // Create links between combinations but only if hood distance <= adjacencyN
       for (const geneIdA of genesA) {
         for (const geneIdB of genesB) {
-          this.proteinLinks.push(new ProteinLink(geneIdA, geneIdB, similarity, color));
+          const gA = this.genesById[geneIdA];
+          const gB = this.genesById[geneIdB];
+          if (!gA || !gB) continue;
+          const idxA = leafIndex[gA.hood_id];
+          const idxB = leafIndex[gB.hood_id];
+          if (idxA === undefined || idxB === undefined) {
+            // If positions unknown, conservatively include the link
+            this.proteinLinks.push(new ProteinLink(geneIdA, geneIdB, similarity, color));
+          } else {
+            if (Math.abs(idxA - idxB) <= adjacencyN) {
+              this.proteinLinks.push(new ProteinLink(geneIdA, geneIdB, similarity, color));
+            }
+          }
         }
       }
     }
   }
 
-  addNucleotideLinks(links, color = [220, 50, 50]) {
+  // Add nucleotide links with optional adjacency filtering. adjacencyN defaults to Infinity (no filtering)
+  addNucleotideLinks(links, color = [220, 50, 50], adjacencyN = Infinity) {
     this.nucleotideLinks = [];
+    // Build an index of leaf positions for quick hood distance checks
+    const leafIndex = {};
+    this.tree.leafNodes.forEach((n, idx) => { leafIndex[n.name] = idx; });
+
     for (let l of links) {
       const seqidA = l.seqidA;
       const seqidB = l.seqidB;
@@ -563,15 +585,20 @@ class GenomeView {
           const baselineB = this.hoodBaselines[hoodB];
           if (!baselineB) continue;
           if (!(startB >= baselineB.origStart && endB <= baselineB.origEnd)) continue;
-          const link = new NucleotideLink(seqidA, startA, endA, seqidB, startB, endB, similarity, color);
-          // Set hood and hood-relative coordinates for rendering
-          link.hoodA = hoodA;
-          link.hoodB = hoodB;
-          link.hoodStartA = startA - baselineA.origStart;
-          link.hoodEndA = endA - baselineA.origStart;
-          link.hoodStartB = startB - baselineB.origStart;
-          link.hoodEndB = endB - baselineB.origStart;
-          this.nucleotideLinks.push(link);
+          // Adjacency filter based on leaf index distance
+          const idxA = leafIndex[hoodA];
+          const idxB = leafIndex[hoodB];
+          if (idxA === undefined || idxB === undefined || Math.abs(idxA - idxB) <= adjacencyN) {
+            const link = new NucleotideLink(seqidA, startA, endA, seqidB, startB, endB, similarity, color);
+            // Set hood and hood-relative coordinates for rendering
+            link.hoodA = hoodA;
+            link.hoodB = hoodB;
+            link.hoodStartA = startA - baselineA.origStart;
+            link.hoodEndA = endA - baselineA.origStart;
+            link.hoodStartB = startB - baselineB.origStart;
+            link.hoodEndB = endB - baselineB.origStart;
+            this.nucleotideLinks.push(link);
+          }
         }
       }
     }

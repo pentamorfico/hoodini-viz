@@ -55,10 +55,29 @@ const PhyloTreeViewer = React.forwardRef(({
   nucleotideLinkConfig, // Add nucleotide link configuration prop
   styleConfig, // Add styleConfig prop for layers
   treeXScale, // external tree X-scale percent (optional)
+  adjacencyN = 1,
 }, ref) => {
   // Theme context
   const { getThemeColors, theme } = useTheme();
   const themeColors = React.useMemo(() => getThemeColors(), [theme]);
+
+  // Helper: robustly resolve metadata for a leaf name. treeMetadata may be keyed
+  // by leaf_id or another id, so try direct key first then search common id fields.
+  const getMetaForLeaf = (leafName) => {
+    if (!treeMetadata) return {};
+    if (treeMetadata[leafName]) return treeMetadata[leafName];
+    const vals = Object.values(treeMetadata);
+    for (let i = 0; i < vals.length; ++i) {
+      const e = vals[i];
+      if (!e) continue;
+      if (e.leaf_id == leafName || e.leaf_id === leafName) return e;
+      if (e.leaf_name == leafName || e.leaf_name === leafName) return e;
+      if (e.id == leafName || e.id === leafName) return e;
+      if (e.name == leafName || e.name === leafName) return e;
+      if (e.originalId == leafName || e.original_id == leafName) return e;
+    }
+    return {};
+  };
   
   // Visualization state
   const [selectedNode, setSelectedNode] = useState(null);
@@ -124,7 +143,12 @@ const PhyloTreeViewer = React.forwardRef(({
         const values = new Set();
         tree.leafNodes.forEach(n => {
           const meta = n.metadata || {};
-          const val = meta[field] !== undefined ? meta[field] : null;
+          // Prefer the configured metadata field, but if it's missing fall back to the leaf name/label
+          let val = meta[field] !== undefined ? meta[field] : null;
+          if (val === null || val === undefined || val === '') {
+            // prefer an explicit label field if available, then the node name
+            val = (meta[treeLabelBy] !== undefined && meta[treeLabelBy] !== null && meta[treeLabelBy] !== '') ? meta[treeLabelBy] : (n.name || null);
+          }
           if (val !== null && val !== undefined && val !== '') values.add(String(val));
         });
         const sorted = Array.from(values).sort();
@@ -397,9 +421,10 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
     
-    newGenomeView.addDomains(domainsByGene);
-    newGenomeView.addProteinLinks(proteinLinks, [200, 200, 200, 255]); // Use neutral gray initially
-    newGenomeView.addNucleotideLinks(nucleotideLinks, [200, 200, 200, 255]); // Use neutral gray initially
+  newGenomeView.addDomains(domainsByGene);
+  // Pass adjacencyN so links are filtered to nearby leaves (N=1 -> adjacent only)
+  newGenomeView.addProteinLinks(proteinLinks, [200, 200, 200, 255], adjacencyN);
+  newGenomeView.addNucleotideLinks(nucleotideLinks, [200, 200, 200, 255], adjacencyN);
 
     genomeViewRef.current = newGenomeView;
     
@@ -485,8 +510,26 @@ const PhyloTreeViewer = React.forwardRef(({
   // Recompute treeLabelPadding based on the longest leaf label length
   React.useEffect(() => {
     if (!tree) return;
+    // Helper: robustly resolve metadata for a leaf name. treeMetadata may be keyed
+    // by leaf_id or another id, so try direct key first then search common id fields.
+    const getMetaForLeaf = (leafName) => {
+      if (!treeMetadata) return {};
+      if (treeMetadata[leafName]) return treeMetadata[leafName];
+      const vals = Object.values(treeMetadata);
+      for (let i = 0; i < vals.length; ++i) {
+        const e = vals[i];
+        if (!e) continue;
+        if (e.leaf_id == leafName || e.leaf_id === leafName) return e;
+        if (e.leaf_name == leafName || e.leaf_name === leafName) return e;
+        if (e.id == leafName || e.id === leafName) return e;
+        if (e.name == leafName || e.name === leafName) return e;
+        if (e.originalId == leafName || e.original_id == leafName) return e;
+      }
+      return {};
+    };
+
     const labels = tree.leafNodes.map(l => {
-      const meta = treeMetadata?.[l.name] || {};
+      const meta = getMetaForLeaf(l.name) || {};
       let label = meta[treeLabelBy];
       if (label === undefined || label === null) label = l.name;
       return String(label);
@@ -799,7 +842,7 @@ const PhyloTreeViewer = React.forwardRef(({
     // Collect unique values for the color-by field
     const colorValues = new Set();
     for (const label of treeLabels) {
-      const metadata = treeMetadata[label.leafNode.name] || {};
+      const metadata = getMetaForLeaf(label.leafNode.name) || {};
       const colorValue = metadata[treeColorBy];
       if (colorValue !== undefined && colorValue !== null && colorValue !== '') {
         colorValues.add(String(colorValue));
@@ -826,7 +869,7 @@ const PhyloTreeViewer = React.forwardRef(({
     });
     // Apply palette colors to labels
     return treeLabels.map(label => {
-      const metadata = treeMetadata[label.leafNode.name] || {};
+      const metadata = getMetaForLeaf(label.leafNode.name) || {};
       const colorValue = metadata[treeColorBy];
       // Only apply palette color if colorValue is valid, otherwise use default black color
       if (colorValue !== null && colorValue !== undefined) {
@@ -1414,7 +1457,7 @@ const PhyloTreeViewer = React.forwardRef(({
     const effectiveAlignLabels = alignLabels !== undefined ? alignLabels : (config.tree?.alignLabels !== undefined ? config.tree.alignLabels : true);
     
     let rawPhyloLabels = tree.leafNodes.map(l => {
-      const meta = treeMetadata?.[l.name] || {};
+      const meta = (typeof getMetaForLeaf === 'function') ? getMetaForLeaf(l.name) : (treeMetadata?.[l.name] || {});
       let label = meta[treeLabelBy];
       if (label === undefined || label === null) label = l.name;
       if (typeof label !== 'string') label = String(label);
