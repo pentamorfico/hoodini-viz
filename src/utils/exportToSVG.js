@@ -25,8 +25,8 @@ function normalise(value,min,max){
   return (max===min)?0.5:(value - min)/(max - min);
 }
 
-export function exportToSVG(layers, viewState, containerSize, config, rulerOptions, themeColors = {}) {
-  console.log('🖼️ exportToSVG called with:', { layers: layers?.length, viewState, containerSize, config: !!config });
+export function exportToSVG(layers, viewState, containerSize, config, rulerOptions, themeColors = {}, exportScale = 5, nodeScale = 1) {
+  console.log('🖼️ exportToSVG called with:', { layers: layers?.length, viewState, containerSize, config: !!config, exportScale, nodeScale });
   
   const { width, height } = containerSize;
   if (!width || !height) {
@@ -49,6 +49,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     const y = (1 - normalise(point[1], min_y, max_y)) * height;
     return [x, y];
   };
+  // World -> pixel conversion (pixels per world unit along X).
+  // Use viewport mapping: width pixels spans (max_x - min_x) world units.
+  const worldSpan = Math.max(1e-9, (max_x - min_x));
+  // exportScale allows tuning how many screen pixels correspond to one world unit
+  // Default is 5 to match on-screen deck.gl visual scale when exporting.
+  const scaleFactor = (typeof exportScale === 'number' && isFinite(exportScale) && exportScale > 0) ? exportScale : 1;
+  const worldToPixel = (width / worldSpan) * scaleFactor;
   // Clamp a world-space point to the current view bounds so exported geometry doesn't extend outside viewport
   // Helper: bbox of world points
   const bboxOfPoints = (pts) => {
@@ -332,7 +339,11 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   // skip nodes off-screen
   if (!isPointOnScreen([x, y])) continue;
   const fill = colorToStr(fillColor);
-  svg += `<circle cx="${x}" cy="${y}" r="${radius / 10}" fill="${fill}" />`;
+  // Convert logical radius to screen pixels using worldToPixel.
+  // Always convert by worldToPixel so exported radii follow the current view zoom.
+  // Apply nodeScale to allow independent tuning of node circle size in exports
+  const screenRadius = Math.max(0.1, (radius || 1) * worldToPixel * nodeScale);
+  svg += `<circle cx="${x}" cy="${y}" r="${screenRadius}" fill="${fill}" />`;
       }
     }    // TextLayer (labels)
     if(layer.id === 'phylo-labels' || layer.id === 'gene-labels' || layer.id === 'scale-labels') {
@@ -363,9 +374,10 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         }
         
         // Determine the correct dominant-baseline based on layer type and feature properties
-        // Make font-size proportional to SVG height (viewport size)
-        // Scale font by view zoom so exported SVG text matches visual size in deck.gl
-        const proportionalSize = Math.max(8, (size / 1000) * height * scale); // 1000 is a typical data-space height
+  // Determine font-size in screen pixels by converting size (logical/world units) using worldToPixel.
+  // This avoids double-scaling and keeps exported text visually consistent with on-screen rendering.
+  // Convert text size (logical/world units) to screen pixels using worldToPixel so text scales with zoom.
+  const proportionalSize = Math.max(0.1, (size || 12) * worldToPixel);
         
         // Illustrator-compatible text positioning
         let dominantBaseline = 'alphabetic'; // More reliable baseline for Illustrator

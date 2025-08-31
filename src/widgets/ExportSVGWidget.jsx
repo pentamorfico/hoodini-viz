@@ -28,7 +28,8 @@ export default function ExportSVGWidget({ layers, viewState, containerSize, conf
         zIndex: 30
       }}
       onClick={() => {
-        const svg = exportToSVG(layers, viewState, containerSize, config, showRuler ? rulerProps : undefined, themeColors);
+  // Use an exportScale to better match on-screen deck.gl sizing; default tuned to 5
+  const svg = exportToSVG(layers, viewState, containerSize, config, showRuler ? rulerProps : undefined, themeColors, 5);
         if (!svg) return;
         const blob = new Blob([svg], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(blob);

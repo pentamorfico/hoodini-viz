@@ -4,6 +4,7 @@
 
 # Fix misalignment of tracks without aligned gene
 
+# Add domains
 # Add genomad as regions to GFF
 # Add ncrnas as regions to GFF
 # Add blast as regions to GFF
