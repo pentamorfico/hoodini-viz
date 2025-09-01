@@ -41,6 +41,8 @@ for fname in os.listdir(SRC_DIR):
         with open(inpath, "r", encoding="utf-8") as fh:
             lines = [l.rstrip("\n") for l in fh]
         df = pd.DataFrame({"raw": lines})
+    print(df)
+
     # Ensure column names are strings (required by parquet writers)
     try:
         df.columns = [str(c) for c in df.columns]
