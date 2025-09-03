@@ -85,10 +85,10 @@ async function tryLoadParquet(url) {
 
 function App() {
   const [newickStr, setNewickStr] = useState(defaultNewick);
-  const [showScrollbar, setShowScrollbar] = useState(false);
+  const [showScrollbar, setShowScrollbar] = useState(true);
   const [alignCluster, setAlignCluster] = useState(null); // Set to null by default - no cluster alignment
   const [useDefaultGeneAlignment, setUseDefaultGeneAlignment] = useState(true); // Enable default gene alignment by default
-  const [showRuler, setShowRuler] = useState(true); // New state to control ruler visibility
+  const [showRuler, setShowRuler] = useState(false); // New state to control ruler visibility
   const [treeLabelBy, setTreeLabelBy] = useState("species");
   const [treeColorBy, setTreeColorBy] = useState("species");
   const [ultrametric, setUltrametric] = useState(false); // New state to control ultrametric tree conversion
