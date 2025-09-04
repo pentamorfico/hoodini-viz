@@ -16,6 +16,18 @@ export function parseGFF(gff, config = null) {
     const strand = parts[6] === '.' ? '+' : parts[6];
     const phase = parts[7] === '.' ? null : parts[7];
     const attributes = parseAttributes(parts[8] || "");
+    // Normalize ncRNA type from attributes if present
+    if (type === 'ncRNA' && attributes) {
+      // attributes.ID may be like 'tracrRNA' or 'ID=tracrRNA' or 'tracrRNA;'
+      let id = attributes.ID || attributes.id || null;
+      if (typeof id === 'string') {
+        id = id.replace(/^ID=/, '').replace(/;$/, '').trim();
+        attributes.ID = id;
+        attributes.ncrna_type = id;
+      } else {
+        attributes.ncrna_type = null;
+      }
+    }
     
     // Create RegionFeature for region-type features
     if (type === 'region') {

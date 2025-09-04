@@ -10,7 +10,8 @@ export default function ScrollbarWidget({
   setViewState,
   containerHeight,
   viewState,
-  config = DEFAULT_CONFIG
+  config = DEFAULT_CONFIG,
+  themeColors = {}
 }) {
   // Helper to get the thumb's top position and height for the custom scrollbar
   function getThumbMetrics(norm, barHeight, visibleFraction) {
@@ -26,6 +27,15 @@ export default function ScrollbarWidget({
 
   const scrollBarRef = useRef(null);
 
+  // Theme-aware colors
+  const trackColor = themeColors.widgetBackground || '#f8f9fa';
+  const trackBorder = themeColors.border || '#dee2e6';
+  const thumbColor = themeColors.textSecondary || '#6c757d';
+  const thumbShadow = themeColors.border || '#aaa';
+  const containerBg = themeColors.background ? 
+    `${themeColors.background}0D` : // Add 5% opacity (0D in hex)
+    'rgba(255,255,255,0.05)';
+
   return (
     <div
       style={{
@@ -39,7 +49,7 @@ export default function ScrollbarWidget({
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'auto',
-        background: 'rgba(255,255,255,0.05)'
+        background: containerBg
       }}
     >
       <div
@@ -49,13 +59,13 @@ export default function ScrollbarWidget({
           position: 'relative',
           width: config.scrollbar.barWidth,
           height: '96%',
-          background: '#eee',
+          background: trackColor,
           borderRadius: 0, // force square
           WebkitBorderRadius: 0,
           MozBorderRadius: 0,
           margin: config.scrollbar.margin,
           cursor: 'pointer',
-          boxShadow: '0 0 2px #aaa',
+          boxShadow: `0 0 2px ${trackBorder}`,
           userSelect: 'none',
         }}
         onMouseDown={e => {
@@ -98,11 +108,11 @@ export default function ScrollbarWidget({
               const { thumbTop, thumbHeight } = getThumbMetrics(scrollNorm, barHeight, visibleFraction);
               return { top: thumbTop, height: thumbHeight };
             })(),
-            background: '#bbb',
-            borderRadius: 0, // force square
+            background: thumbColor,
+            borderRadius: 20, // force square
             WebkitBorderRadius: 0,
             MozBorderRadius: 0,
-            boxShadow: '0 1px 4px #888',
+            boxShadow: `0 1px 4px ${thumbShadow}`,
             cursor: 'grab',
             transition: 'background 0.1s',
           }}

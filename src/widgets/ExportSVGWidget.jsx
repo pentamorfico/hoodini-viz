@@ -1,11 +1,11 @@
 import React from 'react';
 import { exportToSVG } from '../utils/exportToSVG';
 import { useTheme } from '../contexts/ThemeContext.jsx';
-import imageIcon from '../assets/image.svg?url';
+import imageIcon from '../assets/image.svg';
 
 export default function ExportSVGWidget({ layers, viewState, containerSize, config, showRuler, rulerProps }) {
-  const { getThemeColors } = useTheme();
-  const themeColors = getThemeColors();
+  const { getThemeColors, resolvedTheme } = useTheme();
+  const themeColors = getThemeColors(resolvedTheme);
 
   return (
     <button

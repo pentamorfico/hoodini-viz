@@ -9,8 +9,8 @@ const TreeScaleWidget = ({
   onTreeXScaleChange, 
   title = "Tree X-Scale" 
 }) => {
-  const { getThemeColors } = useTheme();
-  const themeColors = getThemeColors();
+  const { getThemeColors, resolvedTheme } = useTheme();
+  const themeColors = getThemeColors(resolvedTheme);
 
   const handleScaleChange = (event) => {
     const newScale = parseFloat(event.target.value);

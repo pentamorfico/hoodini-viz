@@ -15,9 +15,9 @@ const RulerWidget = ({
   bounds,
   config = DEFAULT_CONFIG
 }) => {
-  // Theme context
-  const { getThemeColors } = useTheme();
-  const themeColors = getThemeColors();
+  // Theme context — use resolvedTheme so colors reflect system resolution immediately
+  const { getThemeColors, resolvedTheme } = useTheme();
+  const themeColors = getThemeColors(resolvedTheme);
   
   if (!visible || !isFinite(minX) || !isFinite(maxX) || maxX <= minX) {
     return null;

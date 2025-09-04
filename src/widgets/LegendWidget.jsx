@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { getPaletteColors } from '../utils/colorPalettes.js';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const LegendWidget = ({ 
   legend, 
@@ -9,9 +13,9 @@ const LegendWidget = ({
   regionPalette,
   proteinLinkConfig,
   nucleotideLinkConfig,
-  title = "Legend",
-  width = "320px",
-  height = "400px",
+  title = "",
+  width = undefined,
+  height = undefined,
   className,
   style
 }) => {
@@ -21,6 +25,41 @@ const LegendWidget = ({
       console.log('LegendWidget props', { hasLegend: !!legend, legendKeys: legend ? Object.keys(legend) : [], phyloSample: legend && legend.phylo ? legend.phylo.slice(0,6) : undefined, phyloPalette });
     } catch (e) { /* ignore */ }
   }, [legend, phyloPalette]);
+
+  // Theme: prefer ThemeContext via `useTheme()` hook, fall back to styleConfig.legend, then sane defaults
+  let themeObj = {};
+  try {
+    const ctx = useTheme();
+    if (ctx && typeof ctx.getThemeColors === 'function') themeObj = ctx.getThemeColors();
+    else themeObj = ctx || {};
+  } catch (e) {
+    themeObj = {};
+  }
+
+  // DEFAULT_CONFIG uses `widgetBackground` and `text` keys for colors
+  // Prefer CSS theme vars so the widget always matches Tailwind / root variables
+  // Fallback to JS theme object for font family and sizes if provided
+  const fontFamily = themeObj?.fontFamily ?? styleConfig?.legend?.fontFamily ?? 'var(--font-sans, Inter, system-ui, -apple-system, "Segoe UI", Roboto)';
+  const baseFontSize = themeObj?.fontSize ?? styleConfig?.legend?.fontSize ?? 11;
+  // Use CSS variables for colors so CSS-driven theme changes (via .dark/.light) take effect
+  const containerBackgroundCss = 'var(--color-card, var(--widgetBackground, var(--background, white)))';
+  const containerTextCss = 'var(--color-card-foreground, var(--foreground, #333))';
+
+  const itemTextStyle = {
+    fontSize: `${baseFontSize}px`,
+    color: 'inherit', // inherit from container which uses CSS var
+    fontFamily,
+  };
+
+  // Helper function to truncate text to maximum character length
+  const truncateText = (text, maxLength = 30) => {
+    const str = String(text || '');
+    if (str.length <= maxLength) return str;
+    return str.substring(0, maxLength - 3) + '...';
+  };
+
+  const headerTextStyle = { fontSize: `${Math.max(12, baseFontSize + 2)}px`, color: 'inherit', fontFamily, fontWeight: 600 };
+  // No top-level measurement here: let VirtualGrid measure its own container
   // Helpers: convert color formats and render SVG swatches that match on-canvas shapes
   const colorToCss = (color, alphaOverride = null) => {
     if (!color) return '#eee';
@@ -32,12 +71,12 @@ const LegendWidget = ({
   };
 
   // Lightweight virtualized grid for legend items
-  const VirtualGrid = ({ items = [], renderItem, cellWidth = 2040, cellHeight = 28, gap = 6, containerHeight = 96, className, minContentWidth = 220, getItemLabel = null, charWidthEstimate = 7, labelPadding = 36 }) => {
-    const containerRef = useRef(null);
-    const [width, setWidth] = useState(0);
+  const VirtualGrid = ({ items = [], renderItem, cellWidth = 2040, cellHeight = 28, gap = 6, containerHeight = undefined, className, minContentWidth = 80, getItemLabel = null, charWidthEstimate = 7, labelPadding = 36, columns: columnsProp = undefined }) => {
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
-    const [columns, setColumns] = useState(1);
-    const draggingRef = useRef(false);
+  const draggingRef = useRef(false);
     const dragStartY = useRef(0);
     const dragStartScroll = useRef(0);
 
@@ -45,11 +84,16 @@ const LegendWidget = ({
       const el = containerRef.current;
       if (!el) return;
       const ro = new ResizeObserver(entries => {
-        const w = entries[0].contentRect.width;
-        setWidth(w);
+        const { width: w, height: h } = entries[0].contentRect;
+        setWidth(Math.floor(w));
+        setHeight(Math.floor(h));
       });
       ro.observe(el);
-      setTimeout(() => setWidth(el.clientWidth || 0), 0);
+      // ensure initial measurement
+      setTimeout(() => {
+        setWidth(el.clientWidth || 0);
+        setHeight(el.clientHeight || 0);
+      }, 0);
       return () => ro.disconnect();
     }, []);
 
@@ -73,13 +117,12 @@ const LegendWidget = ({
     const measuredLabelPx = Math.ceil(maxLabelLen * (charWidthEstimate || 7) + (labelPadding || 36));
     const effectiveCellWidth = Math.max(40, Math.min(cellWidth || 2040, measuredLabelPx || cellWidth));
 
-    useEffect(() => {
-      const avail = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
-      const cols = Math.max(1, Math.min(items.length || 1, Math.floor((avail + gap) / (effectiveCellWidth + gap))));
-      setColumns(cols);
-    }, [width, effectiveCellWidth, gap, items.length, minContentWidth]);
+  // compute columns: prefer explicit columnsProp, otherwise compute from available width
+  const availForCols = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
+  const computedCols = Math.max(1, Math.min(items.length || 1, Math.floor((availForCols + gap) / (effectiveCellWidth + gap))));
+  const columns = (typeof columnsProp === 'number' && columnsProp >= 1) ? Math.max(1, Math.min(items.length || 1, Math.floor(columnsProp))) : computedCols;
 
-    const totalRows = Math.max(1, Math.ceil(items.length / columns));
+  const totalRows = Math.max(1, Math.ceil(items.length / columns));
     const rowHeight = cellHeight + gap;
     const totalHeight = totalRows * rowHeight;
 
@@ -88,13 +131,16 @@ const LegendWidget = ({
     const colsUsed = Math.max(1, columns);
     const cellWidthActual = Math.floor((Math.max(0, availW - (colsUsed - 1) * gap)) / colsUsed) || cellWidth;
 
-    const maxScroll = Math.max(0, totalHeight - containerHeight);
+  // If no explicit containerHeight is provided, let the grid expand to content height
+  const measuredHeight = (height && height > 0) ? height : 0;
+  const effectiveContainerHeight = (typeof containerHeight === 'number' && containerHeight > 0) ? containerHeight : (measuredHeight > 0 ? measuredHeight : totalHeight);
+    const maxScroll = Math.max(0, totalHeight - effectiveContainerHeight);
     useEffect(() => {
       setScrollTop(prev => Math.min(prev, maxScroll));
     }, [maxScroll]);
 
     const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - 1);
-    const endRow = Math.min(totalRows - 1, startRow + Math.ceil(containerHeight / rowHeight) + 3);
+    const endRow = Math.min(totalRows - 1, startRow + Math.ceil(effectiveContainerHeight / rowHeight) + 3);
 
     const visible = [];
     for (let r = startRow; r <= endRow; r++) {
@@ -107,21 +153,40 @@ const LegendWidget = ({
 
     const onWheel = (e) => {
       e.preventDefault();
+      e.stopPropagation(); // Prevent wheel events from bubbling up to parent scroll containers
       const delta = e.deltaY;
       setScrollTop(s => Math.max(0, Math.min(maxScroll, s + delta)));
     };
 
-    const showScrollbar = totalHeight > containerHeight + 1;
-    const thumbHeight = showScrollbar ? Math.max(20, Math.round((containerHeight / totalHeight) * containerHeight)) : containerHeight;
-    const thumbMaxTop = Math.max(0, containerHeight - thumbHeight);
-    const thumbTop = showScrollbar && maxScroll > 0 ? Math.round((scrollTop / maxScroll) * thumbMaxTop) : 0;
+    // Register wheel event listener as non-passive to allow preventDefault
+    useEffect(() => {
+      const container = containerRef.current;
+      if (!container) return;
 
+      const handleWheel = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const delta = e.deltaY;
+        setScrollTop(s => Math.max(0, Math.min(maxScroll, s + delta)));
+      };
+
+      container.addEventListener('wheel', handleWheel, { passive: false });
+      
+      return () => {
+        container.removeEventListener('wheel', handleWheel);
+      };
+    }, [maxScroll]);
+
+  const showScrollbar = typeof containerHeight === 'number' && totalHeight > effectiveContainerHeight + 1;
+  const thumbHeight = showScrollbar ? Math.max(20, Math.round((effectiveContainerHeight / totalHeight) * effectiveContainerHeight)) : effectiveContainerHeight;
+  const thumbMaxTop = Math.max(0, effectiveContainerHeight - thumbHeight);
+  const thumbTop = showScrollbar && maxScroll > 0 ? Math.round((scrollTop / maxScroll) * thumbMaxTop) : 0;
     useEffect(() => {
       const onMove = (ev) => {
         if (!draggingRef.current) return;
-        const clientY = ev.clientY || (ev.touches && ev.touches[0] && ev.touches[0].clientY) || 0;
+        const clientY = (ev && ev.clientY) || (ev.touches && ev.touches[0] && ev.touches[0].clientY) || 0;
         const dy = clientY - dragStartY.current;
-        const ratio = maxScroll > 0 ? dy / thumbMaxTop : 0;
+        const ratio = thumbMaxTop > 0 ? dy / thumbMaxTop : 0;
         const newScroll = Math.max(0, Math.min(maxScroll, Math.round(dragStartScroll.current + ratio * maxScroll)));
         setScrollTop(newScroll);
       };
@@ -136,24 +201,26 @@ const LegendWidget = ({
         window.removeEventListener('touchmove', onMove);
         window.removeEventListener('touchend', onUp);
       };
-    }, [maxScroll, thumbMaxTop]);
+    }, [thumbMaxTop, maxScroll]);
 
-    const onThumbMouseDown = (ev) => {
-      ev.preventDefault();
+    // Scrollbar handlers
+    const onThumbMouseDown = (e) => {
+      e.preventDefault();
       draggingRef.current = true;
-      dragStartY.current = ev.clientY || (ev.touches && ev.touches[0] && ev.touches[0].clientY) || 0;
+      dragStartY.current = (e && e.clientY) || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
       dragStartScroll.current = scrollTop;
     };
 
-    const onTrackClick = (ev) => {
-      const rect = ev.currentTarget.getBoundingClientRect();
-      const clickY = (ev.clientY || 0) - rect.top;
-      const ratio = Math.max(0, Math.min(1, clickY / Math.max(1, containerHeight - thumbHeight)));
-      setScrollTop(Math.round(ratio * maxScroll));
+    const onTrackClick = (e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0) - rect.top;
+      const ratio = thumbMaxTop > 0 ? (y - Math.round(thumbHeight / 2)) / thumbMaxTop : 0;
+      const newScroll = Math.max(0, Math.min(maxScroll, Math.round(ratio * maxScroll)));
+      setScrollTop(newScroll);
     };
 
     return (
-      <div ref={containerRef} className={className} style={{ width: '100%', height: containerHeight, overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }} onWheel={onWheel}>
+      <div ref={containerRef} className={className} style={{ width: '100%', height: effectiveContainerHeight, overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
         <div style={{ height: totalHeight, position: 'relative' }}>
           {visible.map(v => {
             const left = v.col * (cellWidthActual + gap);
@@ -161,15 +228,17 @@ const LegendWidget = ({
             const style = { position: 'absolute', left, top, width: cellWidthActual, height: cellHeight, boxSizing: 'border-box' };
             return (
               <div key={v.idx} style={style}>
-                {renderItem(v.item, v.idx)}
+                <div style={{ height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
+                  {renderItem(v.item, v.idx)}
+                </div>
               </div>
             );
           })}
         </div>
 
         {showScrollbar && (
-          <div style={{ position: 'absolute', right: 2, top: 2, bottom: 2, width: 10, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
-            <div onClick={onTrackClick} style={{ width: 8, height: containerHeight - 4, background: 'rgba(0,0,0,0.06)', borderRadius: 6, position: 'relative', cursor: 'pointer' }}>
+            <div style={{ position: 'absolute', right: 2, top: 2, bottom: 2, width: 10, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+            <div onClick={onTrackClick} style={{ width: 8, height: effectiveContainerHeight - 4, background: 'rgba(0,0,0,0.06)', borderRadius: 6, position: 'relative', cursor: 'pointer' }}>
               <div onMouseDown={onThumbMouseDown} onTouchStart={onThumbMouseDown} style={{ position: 'absolute', left: 1, width: 6, top: thumbTop + 2, height: thumbHeight, background: 'rgba(0,0,0,0.35)', borderRadius: 6, cursor: 'grab' }} />
             </div>
           </div>
@@ -353,6 +422,40 @@ const LegendWidget = ({
       );
     }
 
+    if (type === 'phylo') {
+      const lineColor = '#000'; // Black line
+      const circleColor = fill; // Circle uses the same color as text
+      const padding = 1;
+      const lineStart = padding;
+      const lineEnd = w - h/2 - padding; // Leave space for circle
+      const midY = h / 2;
+      const circleX = w - h/2;
+      const circleRadius = Math.max(2, (h - 2*padding) / 2 - 1);
+      
+      return (
+        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} xmlns="http://www.w3.org/2000/svg">
+          {/* Black line */}
+          <line 
+            x1={lineStart} 
+            y1={midY} 
+            x2={lineEnd} 
+            y2={midY} 
+            stroke={lineColor} 
+            strokeWidth={1.5} 
+          />
+          {/* Colored circle */}
+          <circle 
+            cx={circleX} 
+            cy={midY} 
+            r={circleRadius} 
+            fill={circleColor} 
+            stroke="#333" 
+            strokeWidth={0.5} 
+          />
+        </svg>
+      );
+    }
+
     return <div style={{ width: w, height: h, background: fill, border: '1px solid #ccc' }} />;
   };
 
@@ -371,23 +474,42 @@ const LegendWidget = ({
     const stopsCss = paletteArray.map((c, i) => `${colorToCss(c)} ${Math.round(100*(i/(paletteArray.length-1)||0))}%`).join(', ');
     const hasEndpoints = (minVal !== undefined && minVal !== null && minVal !== '') || (maxVal !== undefined && maxVal !== null && maxVal !== '');
     return (
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${stopsCss})`, border: '1px solid #ccc' }} />
-          <div style={{ fontSize: '11px' }}>{label}</div>
-        </div>
-        {hasEndpoints && (
-          <div style={{ width: '120px', display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: 1, height: 8, background: '#333', marginBottom: 2 }} />
-              <div style={{ fontSize: '10px', color: '#666' }}>{formatSim(minVal)}</div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ width: 1, height: 8, background: '#333', marginBottom: 2 }} />
-              <div style={{ fontSize: '10px', color: '#666' }}>{formatSim(maxVal)}</div>
-            </div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '10px', flexDirection: 'column', paddingLeft: '8px', paddingRight: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%', justifyContent: 'flex-start' }}>
+          <div style={{ position: 'relative', width: '100%', height: '14px', background: `linear-gradient(90deg, ${stopsCss})`, border: '1px solid #ccc', boxSizing: 'border-box', marginLeft: '4px', marginRight: '4px' }}>
+            {hasEndpoints && (
+              <>
+                <div style={{ 
+                  position: 'absolute', 
+                  left: '0px', 
+                  bottom: '-16px', 
+                  fontSize: '8px', 
+                  color: itemTextStyle.color || '#666', 
+                  opacity: 0.7,
+                  lineHeight: '1',
+                  transform: 'translateX(-50%)',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {formatSim(minVal)}
+                </div>
+                <div style={{ 
+                  position: 'absolute', 
+                  right: '0px', 
+                  bottom: '-16px', 
+                  fontSize: '8px', 
+                  color: itemTextStyle.color || '#666', 
+                  opacity: 0.7,
+                  lineHeight: '1',
+                  transform: 'translateX(50%)',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {formatSim(maxVal)}
+                </div>
+              </>
+            )}
           </div>
-        )}
+          <div style={{ ...itemTextStyle, whiteSpace: 'nowrap', minWidth: 'fit-content' }}>{label}</div>
+        </div>
       </div>
     );
   };
@@ -395,51 +517,150 @@ const LegendWidget = ({
   // Build legend parts
   const parts = [];
 
-  // Genes
-  if (genePalette && genePalette.enabled && legend && legend.genes && Array.isArray(legend.genes)) {
-    const sortedGenes = sortItemsByValue(legend.genes);
-    if (sortedGenes && sortedGenes.length > 0) {
-      parts.push(
-        <div key="genes" style={{ marginBottom: '8px', width: '90%' }}>
-          <div style={{ fontSize: '12px', fontWeight: '600', width: '100%' }}>Gene families</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center', width: '100%' }}>
-            <VirtualGrid
-              items={sortedGenes}
-              cellWidth={140}
-              cellHeight={20}
-              containerHeight={160}
-              minContentWidth={280}
-              renderItem={(it, i) => (
-                <div key={`gene-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', minWidth: 0 }}>
-                  {svgSwatch(it.color, 'arrow', 18, 12, it.stroke)}
-                  <div style={{ fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it.value)}</div>
-                </div>
-              )}
-            />
-          </div>
-        </div>
-      );
-    }
+  // Tree leaves (try several likely keys/shapes in the legend payload)
+  const leavesRaw = legend?.leaves ?? legend?.leafLabels ?? legend?.leafs ?? legend?.treeLeaves ?? null;
+  // Also support an explicit mapping field (common pattern)
+  const leavesMapping = legend?.leaves?.mapping ?? legend?.leafMapping ?? legend?.leafs?.mapping ?? null;
+  let normalizedLeaves = null;
+  if (Array.isArray(leavesMapping) && leavesMapping.length > 0) {
+    normalizedLeaves = leavesMapping.map(x => (typeof x === 'string' ? { label: x, color: null } : ({ label: x.label ?? x.value ?? x[0], color: x.color ?? x.fill ?? null, stroke: x.stroke ?? null })));
+  } else if (Array.isArray(leavesRaw) && leavesRaw.length > 0) {
+    normalizedLeaves = leavesRaw.map(x => (typeof x === 'string' ? { label: x, color: null } : ({ label: x.label ?? x.value ?? x[0], color: x.color ?? x.fill ?? null, stroke: x.stroke ?? null })));
+  } else if (leavesRaw && typeof leavesRaw === 'object') {
+    // object mapping: { label: color } or { label: { color, stroke } }
+    normalizedLeaves = Object.entries(leavesRaw).map(([k, v]) => {
+      if (v == null) return { label: k, color: null };
+      if (typeof v === 'string' || Array.isArray(v)) return { label: k, color: v, stroke: null };
+      return { label: k, color: v.color ?? v.fill ?? null, stroke: v.stroke ?? null };
+    });
   }
 
+  if (normalizedLeaves && normalizedLeaves.length > 0) {
+    const sortedLeaves = sortItemsByValue(normalizedLeaves);
+    parts.push(
+      <div key="leaves" style={{ marginBottom: '8px', width: '100%' }}>
+        <div style={{ width: '100%' }}><Label className="text-xs font-medium" style={headerTextStyle}>Tree leaves</Label></div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'flex-start', width: '100%' }}>
+          <VirtualGrid
+            items={sortedLeaves}
+            cellWidth={140}
+            cellHeight={20}
+            /* render row-by-row like gene legend */
+            minContentWidth={120}
+            columns={1}
+            renderItem={(it, i) => (
+              <div key={`leaf-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', minWidth: 0 }}>
+                {svgSwatch(it.color, 'arrow', 18, 12, it.stroke)}
+                <div style={{ ...itemTextStyle, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>{String(it.label)}</div>
+              </div>
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Genes
+  // Genes
+if (legend && legend.genes && Array.isArray(legend.genes)) {
+  const sortedGenes = sortItemsByValue(legend.genes);
+  if (sortedGenes && sortedGenes.length > 0) {
+    parts.push(
+      <div key="genes" style={{ marginBottom: '8px', width: '100%', maxWidth: '100%' }}>
+        <div style={{ width: '100%' }}>
+          <Label className="text-xs font-medium">Gene families</Label>
+        </div>
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '6px', 
+          marginTop: '6px', 
+          justifyContent: 'flex-start', 
+          width: '100%', 
+          boxSizing: 'border-box',
+          maxHeight: 600,            // Optional: visually constrain outer div too
+          overflow: 'hidden'         // Ensure extra content doesn't spill
+        }}>
+          <VirtualGrid
+            items={sortedGenes}
+            cellWidth={140}
+            cellHeight={20}
+            containerHeight={100}         // 👈 This activates virtualization (scrolling)
+            minContentWidth={120}
+            renderItem={(it, i) => (
+              <div key={`gene-${i}`} style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                width: '100%', 
+                minWidth: 0 
+              }}>
+                {svgSwatch(it.color, 'arrow', 18, 12, it.stroke)}
+                <div style={{ 
+                  ...itemTextStyle, 
+                  flex: 1, 
+                  overflow: 'hidden', 
+                  textOverflow: 'ellipsis', 
+                  whiteSpace: 'normal', 
+                  wordBreak: 'break-word' 
+                }}>
+                  {truncateText(it.value, 30)}
+                </div>
+              </div>
+            )}
+          />
+        </div>
+      </div>
+    );
+  }
+}
+
+
   // Phylo labels
-  if (phyloPalette && phyloPalette.enabled && legend && legend.phylo && Array.isArray(legend.phylo)) {
+  if (legend && legend.phylo && Array.isArray(legend.phylo)) {
     const sortedPhylo = sortItemsByValue(legend.phylo);
     if (sortedPhylo && sortedPhylo.length > 0) {
       parts.push(
-        <div key="phylo" style={{ marginBottom: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: '600' }}>Phylo labels</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center', width: '100%' }}>
+        <div key="phylo" style={{ marginBottom: '8px', width: '100%', maxWidth: '100%' }}>
+          <div style={{ width: '100%' }}>
+            <Label className="text-xs font-medium">Phylo labels</Label>
+          </div>
+          <div style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: '6px', 
+            marginTop: '6px', 
+            justifyContent: 'flex-start', 
+            width: '100%', 
+            boxSizing: 'border-box',
+            maxHeight: 600,            // Optional: visually constrain outer div too
+            overflow: 'hidden'         // Ensure extra content doesn't spill
+          }}>
             <VirtualGrid
               items={sortedPhylo}
               cellWidth={140}
               cellHeight={20}
-              containerHeight={120}
-              minContentWidth={280}
+              containerHeight={100}         // 👈 This activates virtualization (scrolling)
+              minContentWidth={120}
               renderItem={(it, i) => (
-                <div key={`phylo-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', minWidth: 0 }}>
-                  {svgSwatch(it.color, 'rect', 18, 12, it.stroke)}
-                  <div style={{ fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it?.value ?? it?.label ?? it ?? '')}</div>
+                <div key={`phylo-${i}`} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '6px', 
+                  width: '100%', 
+                  minWidth: 0 
+                }}>
+                  {svgSwatch(it.color, 'phylo', 18, 12, it.stroke)}
+                  <div style={{ 
+                    ...itemTextStyle, 
+                    flex: 1, 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    whiteSpace: 'normal', 
+                    wordBreak: 'break-word' 
+                  }}>
+                    {truncateText(it?.value ?? it?.label ?? it ?? '', 30)}
+                  </div>
                 </div>
               )}
             />
@@ -456,18 +677,18 @@ const LegendWidget = ({
     const sortedNc = sortItemsByValue(normalizedNc);
     parts.push(
       <div key="ncrna-live" style={{ marginBottom: '8px' }}>
-        <div style={{ fontSize: '12px', fontWeight: '600' }}>ncRNAs</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center', width: '100%' }}>
+        <div style={{ width: '100%' }}><Label className="text-xs font-medium">ncRNAs</Label></div>
+  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'flex-start', width: '100%' }}>
           <VirtualGrid
             items={sortedNc}
-            cellWidth={160}
-            cellHeight={20}
-            containerHeight={120}
-            minContentWidth={280}
+            cellWidth={140}
+            cellHeight={16}
+            /* containerHeight omitted so VirtualGrid measures its own height */
+            minContentWidth={120}
             renderItem={(it, i) => (
               <div key={`ncrna-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', minWidth: 0 }}>
-                {svgSwatch(it.color, 'half-arrow', 18, 12, it.stroke)}
-                <div style={{ fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it.label)}</div>
+                {svgSwatch(it.color, 'half-arrow', 12, 10, it.stroke)}
+                <div style={{ ...itemTextStyle, flex: 1, lineHeight: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>{String(it.label)}</div>
               </div>
             )}
           />
@@ -477,25 +698,25 @@ const LegendWidget = ({
   }
 
   // Regions
-  if (regionPalette && regionPalette.enabled && legend && legend.regions && typeof legend.regions === 'object') {
+  if (legend && legend.regions && typeof legend.regions === 'object') {
     const normalized = Array.isArray(legend.regions) 
       ? legend.regions 
       : Object.entries(legend.regions).map(([k, c]) => [k, c]);
     if (normalized.length > 0) {
       parts.push(
         <div key="regions" style={{ marginBottom: '8px' }}>
-          <div style={{ fontSize: '12px', fontWeight: '600' }}>Regions</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'center', width: '100%' }}>
+          <div style={{ width: '100%' }}><Label className="text-xs font-medium">Regions</Label></div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px', justifyContent: 'flex-start', width: '100%' }}>
             <VirtualGrid
               items={normalized.sort((a,b) => compareAny(a[0], b[0]))}
               cellWidth={160}
               cellHeight={20}
-              containerHeight={120}
-              minContentWidth={280}
+              /* containerHeight omitted so VirtualGrid measures its own height */
+              minContentWidth={120}
               renderItem={(it, i) => (
                 <div key={`region-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', maxWidth: '100%' }}>
                   {svgSwatch(it[1], 'region', 18, 12, it[1] && it[1].stroke ? it[1].stroke : null)}
-                  <div style={{ fontSize: '11px', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(it[0])}</div>
+                  <div style={{ ...itemTextStyle, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>{String(it[0])}</div>
                 </div>
               )}
             />
@@ -505,84 +726,135 @@ const LegendWidget = ({
     }
   }
 
-  // Links
+  // Links: render from provided config if available, otherwise fall back to legend payload
   const protParts = [];
   const nucParts = [];
 
+  // Helper to render mapping array (id/label/color entries)
+  const renderMappingList = (mapping = [], keyPrefix = 'map') => {
+    if (!Array.isArray(mapping) || mapping.length === 0) return null;
+    // Render a compact horizontal color tile bar (don't list each item)
+    const colors = mapping.map(m => Array.isArray(m.color) ? colorToCss(m.color) : (m.color ? String(m.color) : '#ccc'));
+    const maxShow = 8;
+    const show = colors.slice(0, maxShow);
+    const extra = Math.max(0, colors.length - show.length);
+    return (
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '2px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {show.map((c, i) => (
+            <div key={`${keyPrefix}-sw-${i}`} style={{ width: 18, height: 12, background: c, border: '1px solid #ccc', boxSizing: 'border-box' }} />
+          ))}
+          {extra > 0 && <div style={{ ...itemTextStyle, opacity: 0.8 }}>+{extra}</div>}
+        </div>
+        <div style={{ ...itemTextStyle }}>{mapping.length} categories</div>
+      </div>
+    );
+  };
+
+  // Preferred: honor explicit config (controls in Sidebar). Fallback: use legend payload.
   if (proteinLinkConfig) {
     const cfg = proteinLinkConfig;
     if (cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene') {
       const mapping = legend && legend.proteinLinks && Array.isArray(legend.proteinLinks.mapping) ? legend.proteinLinks.mapping : null;
       if (mapping && mapping.length > 0) {
-        const pal = mapping.map(m => Array.isArray(m.color) ? m.color : (typeof m.color === 'string' ? m.color : [0,0,0,255]));
         protParts.push(
-          <div key="prot-gene-pal">
-            {gradientSwatchWithEndpoints(pal, '', '', cfg.colorBy === 'source_gene' ? 'AA align' : 'AA align')}
+          <div key="prot-gene-pal" style={{ width: '100%' }}>
+            {renderMappingList(mapping, 'prot')}
           </div>
         );
       }
-    } else {
-      if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
-        const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
-        const legendLabel = 'AA align';
+    } else if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+      const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
+      const legendLabel = 'AA align';
         protParts.push(
-          <div key="prot-grad">
+          <div key="prot-grad" style={{ width: '100%' }}>
             {gradientSwatchWithEndpoints(pal, legend && legend.proteinLinks ? legend.proteinLinks.minSim : '', legend && legend.proteinLinks ? legend.proteinLinks.maxSim : '', legendLabel)}
           </div>
         );
-      } else if (cfg.colorBy === 'identity_solid' || cfg.colorBy === 'solid' || cfg.solidColor) {
-        const base = cfg.solidColor || [200,200,200,255];
-        if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
-          const c0 = colorToCss(base, cfg.minAlpha);
-          const c1 = colorToCss(base, cfg.maxAlpha);
-          protParts.push(
-            <div key="prot-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
-              <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc' }} />
-              <div style={{ fontSize: '11px' }}>AA align</div>
-            </div>
-          );
-        } else {
-          protParts.push(
-            <div key="prot-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
-              {svgSwatch(base, 'rect', 24, 12)}
-              <div style={{ fontSize: '11px' }}>AA align</div>
-            </div>
-          );
-        }
+    } else if (cfg.colorBy === 'identity_solid' || cfg.colorBy === 'solid' || cfg.solidColor) {
+      const base = cfg.solidColor || [200,200,200,255];
+      if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
+        const c0 = colorToCss(base, cfg.minAlpha);
+        const c1 = colorToCss(base, cfg.maxAlpha);
+        protParts.push(
+          <div key="prot-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', paddingLeft: '8px', paddingRight: '8px' }}>
+            <div style={{ width: '100%', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc', marginLeft: '4px', marginRight: '4px' }} />
+            <div style={{ ...itemTextStyle, whiteSpace: 'nowrap', minWidth: 'fit-content' }}>AA align</div>
+          </div>
+        );
+      } else {
+        protParts.push(
+          <div key="prot-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', paddingLeft: '8px', paddingRight: '8px' }}>
+            <div style={{ marginLeft: '4px', marginRight: '4px' }}>{svgSwatch(base, 'rect', 24, 12)}</div>
+            <div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>AA align</div>
+          </div>
+        );
+      }
+    }
+  } else if (legend && legend.proteinLinks) {
+    // Fallback: render based on legend payload
+    const lp = legend.proteinLinks;
+    if (lp.mapping && Array.isArray(lp.mapping) && lp.mapping.length > 0) {
+      protParts.push(<div key="prot-mapping" style={{ width: '100%' }}>{renderMappingList(lp.mapping, 'prot')}</div>);
+    } else if (lp.mode === 'identity_gradient' && lp.palette) {
+      protParts.push(<div key="prot-grad-payload">{gradientSwatchWithEndpoints(lp.palette, lp.minSim, lp.maxSim, 'AA align')}</div>);
+    } else if (lp.solidColor || lp.useAlpha) {
+      const base = lp.solidColor || [200,200,200,255];
+      if (lp.useAlpha && typeof lp.minAlpha === 'number' && typeof lp.maxAlpha === 'number' && lp.minAlpha !== lp.maxAlpha) {
+        const c0 = colorToCss(base, lp.minAlpha);
+        const c1 = colorToCss(base, lp.maxAlpha);
+        protParts.push(<div key="prot-alpha-payload" style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingLeft: '8px', paddingRight: '8px' }}><div style={{ width: '100%', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc', marginLeft: '4px', marginRight: '4px' }} /><div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>AA align</div></div>);
+      } else {
+        protParts.push(<div key="prot-solid-payload" style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingLeft: '8px', paddingRight: '8px' }}><div style={{ marginLeft: '4px', marginRight: '4px' }}>{svgSwatch(base, 'rect', 24, 12)}</div><div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>AA align</div></div>);
       }
     }
   }
 
+  // Nucleotide links - same fallback behavior
   if (nucleotideLinkConfig) {
     const cfg = nucleotideLinkConfig;
-    if (!(cfg.colorBy === 'source_gene' || cfg.colorBy === 'target_gene')) {
-      if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
-        const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
-        const legendLabel = 'NT align';
+    if (cfg.colorBy === 'identity_gradient' && cfg.palette && cfg.palette.enabled) {
+      const pal = cfg.palette ? getPaletteColors(cfg.palette.name, cfg.palette.numColors || 8, cfg.palette.reverse || false) : [];
+      const legendLabel = 'NT align';
         nucParts.push(
-          <div key="nuc-grad">
-            {gradientSwatchWithEndpoints(pal, legend && legend.nucleotideLinks ? legend.nucleotideLinks.minSim : '', legend && legend.nucleotideLinks ? legend.nucleotideLinks.maxSim : '', legendLabel)}
+        <div key="nuc-grad" style={{ width: '100%' }}>
+          {gradientSwatchWithEndpoints(pal, legend && legend.nucleotideLinks ? legend.nucleotideLinks.minSim : '', legend && legend.nucleotideLinks ? legend.nucleotideLinks.maxSim : '', legendLabel)}
+        </div>
+      );
+    } else {
+      const base = cfg.solidColor || [200,200,200,255];
+      if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
+        const c0 = colorToCss(base, cfg.minAlpha);
+        const c1 = colorToCss(base, cfg.maxAlpha);
+        nucParts.push(
+          <div key="nuc-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', paddingLeft: '8px', paddingRight: '8px' }}>
+            <div style={{ width: '100%', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc', marginLeft: '4px', marginRight: '4px' }} />
+            <div style={{ ...itemTextStyle, whiteSpace: 'nowrap', minWidth: 'fit-content' }}>NT align</div>
           </div>
         );
       } else {
-        const base = cfg.solidColor || [200,200,200,255];
-        if (cfg.useAlpha && typeof cfg.minAlpha === 'number' && typeof cfg.maxAlpha === 'number' && cfg.minAlpha !== cfg.maxAlpha) {
-          const c0 = colorToCss(base, cfg.minAlpha);
-          const c1 = colorToCss(base, cfg.maxAlpha);
-          nucParts.push(
-            <div key="nuc-alpha" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
-              <div style={{ width: '120px', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc' }} />
-              <div style={{ fontSize: '11px' }}>NT align</div>
-            </div>
-          );
-        } else {
-          nucParts.push(
-            <div key="nuc-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px' }}>
-              {svgSwatch(base, 'rect', 24, 12)}
-              <div style={{ fontSize: '11px' }}>NT align</div>
-            </div>
-          );
-        }
+        nucParts.push(
+          <div key="nuc-solid" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', paddingLeft: '8px', paddingRight: '8px' }}>
+            <div style={{ marginLeft: '4px', marginRight: '4px' }}>{svgSwatch(base, 'rect', 24, 12)}</div>
+            <div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>NT align</div>
+          </div>
+        );
+      }
+    }
+  } else if (legend && legend.nucleotideLinks) {
+    const lp = legend.nucleotideLinks;
+    if (lp.mapping && Array.isArray(lp.mapping) && lp.mapping.length > 0) {
+      nucParts.push(<div key="nuc-mapping" style={{ width: '100%' }}>{renderMappingList(lp.mapping, 'nuc')}</div>);
+    } else if (lp.mode === 'identity_gradient' && lp.palette) {
+      nucParts.push(<div key="nuc-grad-payload">{gradientSwatchWithEndpoints(lp.palette, lp.minSim, lp.maxSim, 'NT align')}</div>);
+    } else if (lp.solidColor || lp.useAlpha) {
+      const base = lp.solidColor || [200,200,200,255];
+      if (lp.useAlpha && typeof lp.minAlpha === 'number' && typeof lp.maxAlpha === 'number' && lp.minAlpha !== lp.maxAlpha) {
+        const c0 = colorToCss(base, lp.minAlpha);
+        const c1 = colorToCss(base, lp.maxAlpha);
+        nucParts.push(<div key="nuc-alpha-payload" style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingLeft: '8px', paddingRight: '8px' }}><div style={{ width: '100%', height: '14px', background: `linear-gradient(90deg, ${c0}, ${c1})`, border: '1px solid #ccc', marginLeft: '4px', marginRight: '4px' }} /><div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>NT align</div></div>);
+      } else {
+        nucParts.push(<div key="nuc-solid-payload" style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingLeft: '8px', paddingRight: '8px' }}><div style={{ marginLeft: '4px', marginRight: '4px' }}>{svgSwatch(base, 'rect', 24, 12)}</div><div style={{ fontSize: '11px', whiteSpace: 'nowrap', minWidth: 'fit-content' }}>NT align</div></div>);
       }
     }
   }
@@ -590,18 +862,18 @@ const LegendWidget = ({
   if (protParts.length > 0 || nucParts.length > 0) {
     parts.push(
       <div key="links" style={{ marginBottom: '8px' }}>
-        <div style={{ fontSize: '12px', fontWeight: '600' }}>Links</div>
+        <div style={{ width: '100%' }}><Label className="text-xs font-medium">Links</Label></div>
         <div style={{ marginTop: '6px' }}>
           {protParts.length > 0 && (
-            <div style={{ marginBottom: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: '600' }}>Protein links</div>
-              <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>{protParts}</div>
+            <div style={{ marginBottom: '6px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+              <div style={{ ...headerTextStyle }}>Protein links</div>
+              <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>{protParts}</div>
             </div>
           )}
           {nucParts.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ fontSize: '11px', fontWeight: '600' }}>Nucleotide links</div>
-              <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>{nucParts}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+              <div style={{ ...headerTextStyle }}>Nucleotide links</div>
+              <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>{nucParts}</div>
             </div>
           )}
         </div>
@@ -609,25 +881,40 @@ const LegendWidget = ({
     );
   }
 
+  // Debug: if there were link payloads but no rendered parts, log for diagnostics
+  try {
+    if ((legend && legend.proteinLinks && !Array.isArray(legend.proteinLinks.mapping) && !legend.proteinLinks.palette && !legend.proteinLinks.solidColor) && protParts.length === 0) {
+      console.debug('[LegendWidget] proteinLinks payload present but no protParts rendered:', legend.proteinLinks);
+    }
+    if ((legend && legend.nucleotideLinks && !Array.isArray(legend.nucleotideLinks.mapping) && !legend.nucleotideLinks.palette && !legend.nucleotideLinks.solidColor) && nucParts.length === 0) {
+      console.debug('[LegendWidget] nucleotideLinks payload present but no nucParts rendered:', legend.nucleotideLinks);
+    }
+  } catch (e) {}
+
   const containerStyle = {
-    background: 'white',
-    border: '1px solid #ccc',
+    background: containerBackgroundCss,
+  border: 'none',
     borderRadius: '5px',
     padding: '10px',
-    width,
-    height,
+    width: width ?? '100%',
+    maxWidth: '100%',
+    height: height ?? 'auto',
+    color: containerTextCss,
+    fontFamily: fontFamily,
     overflow: 'auto',
     boxSizing: 'border-box',
     ...style
   };
 
   return (
-    <div className={className} style={containerStyle}>
-      <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '10px', textAlign: 'center' }}>{title}</div>
+  <div className={className} style={containerStyle}>
+  <div style={{ marginBottom: '10px', textAlign: 'center' }}><span style={headerTextStyle}>{title}</span></div>
       {parts.length === 0 ? (
-        <div style={{ fontSize: '11px', color: '#666', textAlign: 'center' }}>No legend entries available</div>
+        (() => { try { console.debug('[LegendWidget] no parts built, legend prop keys=', legend ? Object.keys(legend) : null, 'props genePalette=', genePalette, 'phyloPalette=', phyloPalette); } catch (e) {} return (
+    <div style={{ ...itemTextStyle, color: itemTextStyle.color ? itemTextStyle.color : '#666', textAlign: 'center' }}>No legend entries available</div>
+        ); })()
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', width: '100%' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '8px', width: '100%', boxSizing: 'border-box' }}>
           {parts}
         </div>
       )}

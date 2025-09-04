@@ -1,7 +1,7 @@
 // ColorPaletteWidget.jsx
 // Widget for selecting and configuring color palettes using dicopal
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   getQualitativePalettes, 
   getSequentialPalettes, 
@@ -10,251 +10,250 @@ import {
   getPaletteColorCounts,
   RECOMMENDED_PALETTES
 } from '../utils/colorPalettes';
+import { useTheme } from '@/contexts/ThemeContext.jsx';
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 const ColorPaletteWidget = ({ 
-  paletteConfig, 
-  onPaletteChange, 
-  title = "Color Palette",
-  showPreview = true 
+  title = "Color Palette", 
+  palette, 
+  onChange,
+  showPreview = true,
+  availableLayers = [],
+  selectedLayer = null,
+  onLayerChange = null
 }) => {
-  const [availablePalettes, setAvailablePalettes] = useState([]);
-  const [colorCounts, setColorCounts] = useState([]);
-  const [previewColors, setPreviewColors] = useState([]);
+  const effectivePalette = palette || {};
+  const effectiveOnChange = onChange || (() => {});
 
-  // Ensure paletteConfig is not null to avoid errors
-  const safePaletteConfig = paletteConfig || { enabled: false };
+  const { resolvedTheme, getThemeColors } = useTheme();
+  const themeColors = useMemo(() => getThemeColors(resolvedTheme), [resolvedTheme]);
 
-  // Load available palettes when type changes
-  useEffect(() => {
-    let palettes = [];
+  const safePaletteConfig = { ...effectivePalette };
+
+  const layersWithData = availableLayers.filter(layer => layer.hasData);
+
+  const availablePalettes = useMemo(() => {
     switch (safePaletteConfig.type) {
       case 'qualitative':
-        palettes = getQualitativePalettes();
-        break;
+        return getQualitativePalettes();
       case 'sequential':
-        palettes = getSequentialPalettes();
-        break;
+        return getSequentialPalettes();
       case 'diverging':
-        palettes = getDivergingPalettes();
-        break;
+        return getDivergingPalettes();
       default:
-        palettes = getQualitativePalettes();
+        return getQualitativePalettes();
     }
-    setAvailablePalettes(palettes);
   }, [safePaletteConfig.type]);
 
-  // Update available color counts when palette name changes
-  useEffect(() => {
+  const uniquePaletteNames = useMemo(() => {
+    return [...new Set(availablePalettes.map(p => p.name))].sort();
+  }, [availablePalettes]);
+
+  const colorCounts = useMemo(() => {
     if (safePaletteConfig.name) {
       const counts = getPaletteColorCounts(safePaletteConfig.name);
-      setColorCounts(counts);
 
-      // If current numColors is not available, use the first available count
       if (counts.length > 0 && !counts.includes(safePaletteConfig.numColors)) {
-        onPaletteChange({
+        effectiveOnChange({
           ...safePaletteConfig,
           numColors: counts[0]
         });
       }
-    } else {
-      setColorCounts([]);
-    }
-  }, [safePaletteConfig.name]);
 
-  // Update preview colors when palette config changes
-  useEffect(() => {
-    if (safePaletteConfig.enabled && safePaletteConfig.name && safePaletteConfig.numColors) {
+      return counts;
+    }
+    return [];
+  }, [safePaletteConfig.name, safePaletteConfig.numColors]);
+
+  const previewColors = useMemo(() => {
+    if (safePaletteConfig.name && safePaletteConfig.numColors) {
       try {
-        const colors = getPaletteColors(safePaletteConfig.name, safePaletteConfig.numColors, safePaletteConfig.reverse);
-        setPreviewColors(colors);
+        return getPaletteColors(safePaletteConfig.name, safePaletteConfig.numColors, safePaletteConfig.reverse);
       } catch (error) {
         console.warn('Failed to load palette preview:', error);
-        setPreviewColors([]);
+        return [];
       }
-    } else {
-      setPreviewColors([]);
     }
-  }, [safePaletteConfig]);
+    return [];
+  }, [safePaletteConfig.name, safePaletteConfig.numColors, safePaletteConfig.reverse]);
 
-  // Get unique palette names from available palettes
-  const uniquePaletteNames = paletteConfig ? [...new Set(availablePalettes.map(p => p.name))].sort() : [];
+  const palettePreviewCache = useMemo(() => {
+    const cache = {};
+    if (safePaletteConfig.type && availablePalettes.length > 0) {
+      uniquePaletteNames.forEach(name => {
+        try {
+          const bestMatch = availablePalettes
+            .filter(p => p.name === name)
+            .reduce((best, current) => current.number > best.number ? current : best);
+          const colors = getPaletteColors(name, bestMatch.number, false);
+          cache[name] = colors.slice(0, 4);
+        } catch (error) {
+          console.warn(`Failed to get preview for ${name}:`, error);
+          cache[name] = [];
+        }
+      });
+    }
+    return cache;
+  }, [safePaletteConfig.type, availablePalettes, uniquePaletteNames]);
 
   const handleConfigChange = (updates) => {
     if (updates === null) {
-      onPaletteChange(null); // Pass null to apply default theme coloring
+      effectiveOnChange(null);
     } else {
-      onPaletteChange({
-        ...paletteConfig,
+      effectiveOnChange({
+        ...safePaletteConfig,
         ...updates
       });
     }
   };
 
-  const handleRecommendedPalette = (recommended) => {
-    const matchingPalettes = availablePalettes.filter(p => p.name === recommended.name);
-    if (matchingPalettes.length > 0) {
-      const bestMatch = matchingPalettes.reduce((best, current) => 
-        current.number > best.number ? current : best
-      );
-
-      handleConfigChange({
-        name: recommended.name,
-        numColors: bestMatch.number,
-        enabled: true
-      });
-    }
-  };
-
   return (
-    <div style={{ 
-      border: '1px solid #ddd', 
-      borderRadius: '5px', 
-      padding: '10px', 
-      marginBottom: '10px',
-      backgroundColor: '#f9f9f9'
-    }}>
-      <div style={{ fontWeight: 'bold', marginBottom: '8px', fontSize: '14px' }}>
-        {title}
-      </div>
+    <Card className="mb-2">
+      <CardContent className="space-y-3">
 
-      {/* Enable/Disable Toggle */}
-      <label style={{ display: 'block', marginBottom: '8px' }}>
-        <input
-          type="checkbox"
-          checked={paletteConfig.enabled}
-          onChange={(e) => handleConfigChange({ enabled: e.target.checked })}
-          style={{ marginRight: '5px' }}
-        />
-        Enable color palette
-      </label>
+        {/* Palette Type */}
+        <div className="space-y-1">
+          <Label className="text-xs">Palette Type:</Label>
+          <Select
+            value={safePaletteConfig?.type || ''}
+            onValueChange={(value) => handleConfigChange({ type: value })}
+          >
+            <SelectTrigger className="w-full text-xs" style={{ height: '20px', minHeight: '20px' }}>
+              <SelectValue placeholder="Select a type..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="qualitative">Qualitative (Categorical)</SelectItem>
+              <SelectItem value="sequential">Sequential (Continuous)</SelectItem>
+              <SelectItem value="diverging">Diverging (Comparative)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      {paletteConfig.enabled && (
-        <>
-          {/* Palette Type */}
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>
-              Palette Type:
-            </label>
-            <select
-              value={paletteConfig?.type || ''}
-              onChange={(e) => handleConfigChange({ type: e.target.value })}
-              style={{ width: '100%', padding: '3px', fontSize: '12px' }}
-              disabled={!paletteConfig}
+        {/* Palette Name */}
+        <div className="space-y-1">
+          <Label className="text-xs">Palette Name:</Label>
+          <Select
+            value={safePaletteConfig?.name || ''}
+            onValueChange={(value) => handleConfigChange({ name: value })}
+          >
+            <SelectTrigger className="w-full text-xs" style={{ height: '20px', minHeight: '20px' }}>
+              <SelectValue placeholder="Select a palette..." />
+            </SelectTrigger>
+            <SelectContent>
+              {RECOMMENDED_PALETTES[safePaletteConfig.type] &&
+                RECOMMENDED_PALETTES[safePaletteConfig.type]
+                  .filter(rec => uniquePaletteNames.includes(rec.name))
+                  .map((rec) => {
+                    const previewColors = palettePreviewCache[rec.name] || [];
+                    return (
+                      <SelectItem key={`rec-${rec.name}`} value={rec.name}>
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-3 w-8 border border-border rounded overflow-hidden">
+                            {previewColors.map((color, idx) => (
+                              <div
+                                key={idx}
+                                className="flex-1"
+                                style={{
+                                  backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`,
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span>{rec.name} (recommended)</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })
+              }
+
+              {RECOMMENDED_PALETTES[safePaletteConfig.type] &&
+                RECOMMENDED_PALETTES[safePaletteConfig.type].some(rec => uniquePaletteNames.includes(rec.name)) && (
+                <SelectSeparator />
+              )}
+
+              {uniquePaletteNames
+                .filter(name =>
+                  !RECOMMENDED_PALETTES[safePaletteConfig.type] ||
+                  !RECOMMENDED_PALETTES[safePaletteConfig.type].some(rec => rec.name === name)
+                )
+                .map(name => {
+                  const previewColors = palettePreviewCache[name] || [];
+                  return (
+                    <SelectItem key={name} value={name}>
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-3 w-8 border border-border rounded overflow-hidden">
+                          {previewColors.map((color, idx) => (
+                            <div
+                              key={idx}
+                              className="flex-1"
+                              style={{
+                                backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <span>{name}</span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Number of Colors */}
+        {colorCounts.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">Number of Colors:</Label>
+            <Select
+              value={safePaletteConfig?.numColors?.toString() || ''}
+              onValueChange={(value) => handleConfigChange({ numColors: parseInt(value) })}
             >
-              <option value="" disabled>Select a type...</option>
-              <option value="qualitative">Qualitative (Categorical)</option>
-              <option value="sequential">Sequential (Continuous)</option>
-              <option value="diverging">Diverging (Comparative)</option>
-            </select>
-          </div>
-
-          {/* Recommended Palettes */}
-          {RECOMMENDED_PALETTES[paletteConfig.type] && (
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>
-                Recommended:
-              </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {RECOMMENDED_PALETTES[paletteConfig.type].map((rec, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleRecommendedPalette(rec)}
-                    style={{
-                      padding: '2px 6px',
-                      fontSize: '10px',
-                      border: '1px solid #ccc',
-                      borderRadius: '3px',
-                      backgroundColor: paletteConfig.name === rec.name ? '#007acc' : '#fff',
-                      color: paletteConfig.name === rec.name ? '#fff' : '#333',
-                      cursor: 'pointer'
-                    }}
-                    title={rec.description}
-                  >
-                    {rec.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Palette Name */}
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>
-              Palette Name:
-            </label>
-            <select
-              value={paletteConfig?.name || ''}
-              onChange={(e) => handleConfigChange({ name: e.target.value })}
-              style={{ width: '100%', padding: '3px', fontSize: '12px' }}
-              disabled={!paletteConfig}
-            >
-              <option value="" disabled>Select a palette...</option>
-              {uniquePaletteNames.map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Number of Colors */}
-          {colorCounts.length > 0 && (
-            <div style={{ marginBottom: '8px' }}>
-              <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>
-                Number of Colors:
-              </label>
-              <select
-                value={paletteConfig?.numColors || ''}
-                onChange={(e) => handleConfigChange({ numColors: parseInt(e.target.value) })}
-                style={{ width: '100%', padding: '3px', fontSize: '12px' }}
-                disabled={!paletteConfig}
-              >
-                <option value="" disabled>Select a number...</option>
+              <SelectTrigger className="w-full text-xs" style={{ height: '20px', minHeight: '20px' }}>
+                <SelectValue placeholder="Select a number..." />
+              </SelectTrigger>
+              <SelectContent>
                 {colorCounts.map(count => (
-                  <option key={count} value={count}>{count}</option>
+                  <SelectItem key={count} value={count.toString()}>{count}</SelectItem>
                 ))}
-              </select>
-            </div>
-          )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-          {/* Reverse Toggle */}
-          <label style={{ display: 'block', marginBottom: '8px' }}>
-            <input
-              type="checkbox"
-              checked={paletteConfig.reverse}
-              onChange={(e) => handleConfigChange({ reverse: e.target.checked })}
-              style={{ marginRight: '5px' }}
-            />
-            <span style={{ fontSize: '12px' }}>Reverse palette</span>
-          </label>
+        {/* Reverse Toggle */}
+        <div className="flex items-center justify-between">
+          <Label htmlFor={`${title}-reverse`} className="text-xs">Reverse palette</Label>
+          <Switch
+            id={`${title}-reverse`}
+            checked={!!safePaletteConfig.reverse}
+            onCheckedChange={(checked) => handleConfigChange({ reverse: checked })}
+          />
+        </div>
 
-          {/* Color Preview */}
-          {showPreview && previewColors.length > 0 && (
-            <div style={{ marginTop: '8px' }}>
-              <label style={{ display: 'block', fontSize: '12px', marginBottom: '2px' }}>
-                Preview:
-              </label>
-              <div style={{ 
-                display: 'flex', 
-                height: '20px', 
-                border: '1px solid #ccc',
-                borderRadius: '3px',
-                overflow: 'hidden'
-              }}>
-                {previewColors.map((color, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      flex: 1,
-                      backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`,
-                    }}
-                    title={`Color ${idx + 1}: rgba(${color.join(', ')})`}
-                  />
-                ))}
-              </div>
+        {/* Color Preview */}
+        {showPreview && previewColors.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs">Preview:</Label>
+            <div className="flex h-5 border border-border rounded overflow-hidden">
+              {previewColors.map((color, idx) => (
+                <div
+                  key={idx}
+                  className="flex-1"
+                  style={{
+                    backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`,
+                  }}
+                  title={`Color ${idx + 1}: rgba(${color.join(', ')})`}
+                />
+              ))}
             </div>
-          )}
-        </>
-      )}
-    </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

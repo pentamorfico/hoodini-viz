@@ -168,7 +168,7 @@ class GenomeView {
   addFeatures(gffFeatures) {
     for (let f of gffFeatures) {
       if (!f.seqid || typeof f.start !== 'number' || isNaN(f.start) || typeof f.end !== 'number' || isNaN(f.end)) {
-        console.warn('[GenomeView] Skipping feature with invalid fields:', f);
+        
         continue;
       }
       if (!this.featuresBySeqid[f.seqid]) {
@@ -232,20 +232,38 @@ class GenomeView {
           if (this.nucleotidesBySeqid[seqid]) {
             this.nucleotidesBySeqid[seqid].addGene(g);
           }
-        } else if (f.type === 'ncRNA') {
+    } else if (typeof f.type === 'string' && f.type.toLowerCase().includes('ncrna')) {
           const within = (f.start >= hoodStart && f.end <= hoodEnd);
           if (!within) continue;
           const adjustedStart = f.start - hoodStart;
           const adjustedEnd   = f.end   - hoodStart;
           const originalId = this.getGeneIdFromAttributes(f.attributes);
           const uniqueId = `${hood_id}_${originalId}`;
-          let nc = new NonCodingFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
-          nc.hood_id = hood_id;
-          nc.originalId = originalId;
-          nc.origStart = adjustedStart;
-          nc.origEnd = adjustedEnd;
-          nc.origStrand = f.strand;
-          this.ncRNAsById[uniqueId] = nc;
+      let nc = new NonCodingFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
+              nc.hood_id = hood_id;
+              nc.originalId = originalId;
+              nc.origStart = adjustedStart;
+              nc.origEnd = adjustedEnd;
+              nc.origStrand = f.strand;
+              // Normalize ncRNA subtype / display name from attributes (prefer attributes.ncrna_type then ID)
+              let ncrnaType = null;
+              try {
+                const attrs = f.attributes || {};
+                if (attrs && typeof attrs === 'object') {
+                  ncrnaType = attrs.ncrna_type || attrs.ncrnaType || attrs.ID || attrs.id || attrs.Name || null;
+                }
+                if (typeof ncrnaType === 'object') ncrnaType = String(ncrnaType);
+                if (ncrnaType) ncrnaType = String(ncrnaType).replace(/^ID=/, '').replace(/;$/, '').trim();
+              } catch (e) {
+                ncrnaType = null;
+              }
+              // Set a simple name and metadata.type so UI/legend/coloring sees a primitive string
+              nc.name = ncrnaType || originalId || uniqueId;
+              if (!nc.metadata || typeof nc.metadata !== 'object') nc.metadata = {};
+              nc.metadata.type = ncrnaType || originalId || 'ncRNA';
+              // Keep attributes accessible under metadata.attributes for downstream consumers
+              nc.metadata.attributes = f.attributes;
+              this.ncRNAsById[uniqueId] = nc;
         } else if (f.type === 'region') {
           const within = (f.start >= hoodStart && f.end <= hoodEnd);
           if (!within) continue;
@@ -334,6 +352,11 @@ class GenomeView {
         gene.start = startX;
         gene.end   = endX;
         gene.strand = flipped ? (gene.origStrand === '+' ? '-' : '+') : gene.origStrand;
+
+        // Debug: log first few gene coordinate updates
+        if (['gene_1', 'gene_2'].includes(gene.id) || gene.originalGeneId?.includes('gene_1') || gene.originalGeneId?.includes('gene_2')) {
+          
+        }
 
         rightmostX = Math.max(rightmostX, startX, endX);
 
@@ -784,7 +807,13 @@ class GenomeView {
   }
 
   getAllNcRNAs() { return Object.values(this.ncRNAsById); }
-  getAllRegions() { return Object.values(this.regionsById); }
+  getAllRegions() { 
+    return Object.values(this.regionsById);
+  }
+
+  // Backwards-compatible alias: some components call getAllNonCodingFeatures()
+  // Keep this as a simple delegating wrapper to avoid missing-method errors
+  getAllNonCodingFeatures() { return this.getAllNcRNAs(); }
 
   getRegionPolygons() {
     const all = [];
@@ -891,8 +920,9 @@ class GenomeView {
     // Use reverse index
     for (const originalGeneId of Object.keys(clusterMap)) {
       const cluster = clusterMap[originalGeneId];
+      const normCluster = (cluster === undefined || cluster === null) ? null : String(cluster).trim();
       const ids = this._genesByOriginalId.get(originalGeneId) || [];
-      for (const uid of ids) this.proteinClusters[uid] = cluster;
+      for (const uid of ids) this.proteinClusters[uid] = normCluster;
     }
 
     if (!this.clusterColors) return;
@@ -902,10 +932,10 @@ class GenomeView {
 
     for (const uniqueGeneId in genesById) {
       const gene = genesById[uniqueGeneId];
-      const cluster = this.proteinClusters[uniqueGeneId];
-      gene.fillColor = (cluster && clusterColors[cluster]) ? clusterColors[cluster] : null;
+  const cluster = this.proteinClusters[uniqueGeneId];
+  gene.fillColor = (cluster && clusterColors[cluster]) ? clusterColors[cluster] : null;
       if (!gene.metadata) gene.metadata = {};
-      gene.metadata.clusterId = cluster || null;
+  gene.metadata.clusterId = cluster || null;
     }
   }
 
@@ -915,15 +945,16 @@ class GenomeView {
 
     for (const originalGeneId in clusterMap) {
       const cluster = clusterMap[originalGeneId];
+      const normCluster = (cluster === undefined || cluster === null) ? null : String(cluster).trim();
       const ids = this._genesByOriginalId.get(originalGeneId) || [];
-      for (const uid of ids) this.proteinClusters[uid] = cluster;
+      for (const uid of ids) this.proteinClusters[uid] = normCluster;
     }
 
     if (!paletteConfig || !paletteConfig.enabled) return;
 
     // Assign colors
     this.clusterColors = {};
-    const clusterIds = Array.from(new Set(Object.values(this.proteinClusters))).sort();
+  const clusterIds = Array.from(new Set(Object.values(this.proteinClusters))).sort();
 
     let clusterColors = [];
     if (paletteConfig.name) {
@@ -946,10 +977,123 @@ class GenomeView {
 
     for (const uniqueGeneId in this.genesById) {
       const gene = this.genesById[uniqueGeneId];
-      const cluster = this.proteinClusters[uniqueGeneId];
+  const cluster = this.proteinClusters[uniqueGeneId];
       gene.fillColor = (cluster && this.clusterColors[cluster]) ? this.clusterColors[cluster] : null;
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
+    }
+  }
+
+  setNcRNAColorsWithPalette(paletteConfig = null) {
+    console.log('setNcRNAColorsWithPalette called with:', paletteConfig);
+    if (!paletteConfig || !paletteConfig.enabled) {
+      console.log('ncRNA palette not enabled, skipping');
+      return;
+    }
+
+    const ncRNAs = Object.values(this.ncRNAsById);
+    console.log('Found ncRNAs:', ncRNAs.length);
+    
+    const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
+      const key = nc.metadata && nc.metadata.type;
+      return key !== null && key !== undefined && key !== '';
+    });
+    
+    console.log('ncRNAs with valid types:', ncRNAsWithValidTypes.length, ncRNAsWithValidTypes.map(nc => nc.metadata?.type));
+    
+    if (ncRNAsWithValidTypes.length === 0) return;
+
+    const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => nc.metadata.type)));
+    let ncRNAColors = [];
+    
+    if (paletteConfig.name) {
+      try {
+        ncRNAColors = getPaletteColors(
+          paletteConfig.name,
+          Math.max(ncRNATypeKeys.length, paletteConfig.numColors || ncRNATypeKeys.length),
+          paletteConfig.reverse || false
+        );
+      } catch {
+        ncRNAColors = [];
+      }
+    }
+    
+    if (ncRNAColors.length === 0) {
+      // Fallback to HSL colors
+      ncRNAColors = ncRNATypeKeys.map((type, i) => {
+        const hue = i / ncRNATypeKeys.length;
+        return hslToRgb(hue, 0.6, 0.5).concat(255);
+      });
+    }
+
+    const ncRNATypeToColor = {};
+    ncRNATypeKeys.forEach((key, i) => {
+      ncRNATypeToColor[key] = ncRNAColors[i % ncRNAColors.length];
+    });
+
+    // Apply colors to ncRNAs
+    for (const ncRNAId in this.ncRNAsById) {
+      const ncRNA = this.ncRNAsById[ncRNAId];
+      const key = ncRNA.metadata && ncRNA.metadata.type;
+      if (key !== null && key !== undefined && key !== '') {
+        ncRNA.fillColor = ncRNATypeToColor[key];
+      }
+    }
+  }
+
+  setRegionColorsWithPalette(paletteConfig = null) {
+    console.log('setRegionColorsWithPalette called with:', paletteConfig);
+    if (!paletteConfig || !paletteConfig.enabled) {
+      console.log('region palette not enabled, skipping');
+      return;
+    }
+
+    const regions = Object.values(this.regionsById);
+    console.log('Found regions:', regions.length);
+    if (regions.length === 0) return;
+
+    const validKeys = regions
+      .map(r => r.getColorKey())
+      .filter(key => key !== null && key !== undefined && key !== '');
+    
+    console.log('Region color keys:', validKeys);
+    
+    const uniqueKeys = [...new Set(validKeys)];
+    if (uniqueKeys.length === 0) return;
+
+    let regionColors = [];
+    if (paletteConfig.name) {
+      try {
+        regionColors = getPaletteColors(
+          paletteConfig.name,
+          Math.max(uniqueKeys.length, paletteConfig.numColors || uniqueKeys.length),
+          paletteConfig.reverse || false
+        );
+      } catch {
+        regionColors = [];
+      }
+    }
+
+    if (regionColors.length === 0) {
+      // Fallback to HSL colors
+      regionColors = uniqueKeys.map((key, i) => {
+        const hue = i / uniqueKeys.length;
+        return hslToRgb(hue, 0.6, 0.5).concat(255);
+      });
+    }
+
+    const regionKeyToColor = {};
+    uniqueKeys.forEach((key, i) => {
+      regionKeyToColor[key] = regionColors[i % regionColors.length];
+    });
+
+    // Apply colors to regions
+    for (const regionId in this.regionsById) {
+      const region = this.regionsById[regionId];
+      const key = region.getColorKey();
+      if (key !== null && key !== undefined && key !== '') {
+        region.fillColor = regionKeyToColor[key];
+      }
     }
   }
 
@@ -1030,11 +1174,12 @@ class GenomeView {
   }
 
   alignCluster(clusterId) {
+    const target = (clusterId === undefined || clusterId === null) ? null : String(clusterId).trim();
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
 
     const allClusterGenes = Object.entries(this.genesById)
-      .filter(([uid, gene]) => this.proteinClusters && this.proteinClusters[uid] == clusterId)
+      .filter(([uid, gene]) => this.proteinClusters && this.proteinClusters[uid] === target)
       .map(([_, gene]) => gene);
     if (allClusterGenes.length === 0) return;
 
@@ -1061,14 +1206,16 @@ class GenomeView {
 
     this.computeTrackPositions();
 
-    const referenceVisualX = GenomeView.getGeneVisualX(referenceGene, this);
+  // Define a common alignment axis at X=0 so all tracks align consistently
+  const targetVisualX = 0;
 
     for (const gene of selectedGenes) {
       const hood_id = gene.hood_id;
       const currentVisualX = GenomeView.getGeneVisualX(gene, this);
       if (currentVisualX === null) continue;
 
-      let offsetAdjustment = (referenceVisualX - currentVisualX) / xScale;
+  // Move this selected gene's visual X to the common target X (0)
+  let offsetAdjustment = (targetVisualX - currentVisualX) / xScale;
       const isFlipped = !!this.trackFlipped[hood_id];
       if (isFlipped) offsetAdjustment = -offsetAdjustment;
 
@@ -1076,6 +1223,31 @@ class GenomeView {
       this.trackOffset[hood_id] = currentOffset + offsetAdjustment;
     }
 
+    // After adjusting selected tracks, also set sensible offsets for tracks
+    // that did not contain a selected gene so the whole view shifts like
+    // the start/center/end alignment helpers do. This makes cluster alignment
+    // mirror the global align operations and ensures genes, links and labels
+    // all move consistently.
+    const tracksWithSelectedGenes = new Set(selectedGenes.map(g => g.hood_id));
+
+    for (const hood_id of this.leaves) {
+      if (tracksWithSelectedGenes.has(hood_id)) continue; // preserve selected-track offsets
+      const hoodBaseline = this.hoodBaselines[hood_id];
+      const seqid = this.hoodToSeqidMap[hood_id];
+      const nuc = this.nucleotidesBySeqid[seqid];
+      if (!hoodBaseline && !nuc?.baseline) continue;
+
+      const anchor = hoodBaseline ? hoodBaseline.length / 2 : (nuc.baseline.origEnd - nuc.baseline.origStart) / 2;
+      // Place the hood center (anchor) at the common target X (0). Account for flip state.
+      const isFlipped = !!this.trackFlipped[hood_id];
+      // scaledAnchor = anchor + sgn*offset*xScale == targetVisualX
+      // => offset = (targetVisualX - anchor) / (sgn * xScale)
+      const sgn = isFlipped ? -1 : 1;
+      const requiredOffset = (targetVisualX - anchor) / (sgn * xScale);
+      this.trackOffset[hood_id] = requiredOffset;
+    }
+
+    // Recompute positions for all tracks after applying offsets
     this.computeTrackPositions();
   }
 
@@ -1187,7 +1359,6 @@ class GenomeView {
       }
     }
 
-    console.log(`📊 Baseline filtering: ${filteredBaselines.length}/${baselines.length} baselines processed (${orphanCount} orphans skipped)`);
 
     for (const b of filteredBaselines) {
       if (b.hood_id && b.seqid) {

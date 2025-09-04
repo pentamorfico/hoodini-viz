@@ -1,0 +1,13 @@
+"use client";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NavDocuments = NavDocuments;
+var jsx_runtime_1 = require("react/jsx-runtime");
+var icons_react_1 = require("@tabler/icons-react");
+var dropdown_menu_1 = require("@/components/ui/dropdown-menu");
+var sidebar_1 = require("@/components/ui/sidebar");
+function NavDocuments(_a) {
+    var items = _a.items;
+    var isMobile = (0, sidebar_1.useSidebar)().isMobile;
+    return ((0, jsx_runtime_1.jsxs)(sidebar_1.SidebarGroup, { className: "group-data-[collapsible=icon]:hidden", children: [(0, jsx_runtime_1.jsx)(sidebar_1.SidebarGroupLabel, { children: "Documents" }), (0, jsx_runtime_1.jsxs)(sidebar_1.SidebarMenu, { children: [items.map(function (item) { return ((0, jsx_runtime_1.jsxs)(sidebar_1.SidebarMenuItem, { children: [(0, jsx_runtime_1.jsx)(sidebar_1.SidebarMenuButton, { asChild: true, children: (0, jsx_runtime_1.jsxs)("a", { href: item.url, children: [(0, jsx_runtime_1.jsx)(item.icon, {}), (0, jsx_runtime_1.jsx)("span", { children: item.name })] }) }), (0, jsx_runtime_1.jsxs)(dropdown_menu_1.DropdownMenu, { children: [(0, jsx_runtime_1.jsx)(dropdown_menu_1.DropdownMenuTrigger, { asChild: true, children: (0, jsx_runtime_1.jsxs)(sidebar_1.SidebarMenuAction, { showOnHover: true, className: "data-[state=open]:bg-accent rounded-sm", children: [(0, jsx_runtime_1.jsx)(icons_react_1.IconDots, {}), (0, jsx_runtime_1.jsx)("span", { className: "sr-only", children: "More" })] }) }), (0, jsx_runtime_1.jsxs)(dropdown_menu_1.DropdownMenuContent, { className: "w-24 rounded-lg", side: isMobile ? "bottom" : "right", align: isMobile ? "end" : "start", children: [(0, jsx_runtime_1.jsxs)(dropdown_menu_1.DropdownMenuItem, { children: [(0, jsx_runtime_1.jsx)(icons_react_1.IconFolder, {}), (0, jsx_runtime_1.jsx)("span", { children: "Open" })] }), (0, jsx_runtime_1.jsxs)(dropdown_menu_1.DropdownMenuItem, { children: [(0, jsx_runtime_1.jsx)(icons_react_1.IconShare3, {}), (0, jsx_runtime_1.jsx)("span", { children: "Share" })] }), (0, jsx_runtime_1.jsx)(dropdown_menu_1.DropdownMenuSeparator, {}), (0, jsx_runtime_1.jsxs)(dropdown_menu_1.DropdownMenuItem, { variant: "destructive", children: [(0, jsx_runtime_1.jsx)(icons_react_1.IconTrash, {}), (0, jsx_runtime_1.jsx)("span", { children: "Delete" })] })] })] })] }, item.name)); }), (0, jsx_runtime_1.jsx)(sidebar_1.SidebarMenuItem, { children: (0, jsx_runtime_1.jsxs)(sidebar_1.SidebarMenuButton, { className: "text-sidebar-foreground/70", children: [(0, jsx_runtime_1.jsx)(icons_react_1.IconDots, { className: "text-sidebar-foreground/70" }), (0, jsx_runtime_1.jsx)("span", { children: "More" })] }) })] })] }));
+}

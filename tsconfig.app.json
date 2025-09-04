@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    // Build mode support
+    "composite": true,
+    "tsBuildInfoFile": "./tsconfig.app.tsbuildinfo",
+
+    // Module/target aligned with Vite 7 and React 19
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+  "moduleResolution": "bundler",
+    "noEmit": true,
+
+    // Paths and JSX
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "jsx": "react-jsx",
+
+    // JS/TS interop
+  "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+  "allowImportingTsExtensions": true,
+
+    // DX and speed
+    "skipLibCheck": true,
+    "strict": false
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "vite-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tmp"
+  ]
+}

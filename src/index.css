@@ -1,75 +1,436 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@custom-variant dark (&:is(.dark *));
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-mono: 'Inter', Helvetica, Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-html, body, #root, .App {
+:root {
+  /* Border radius */
+  --radius: 0.625rem;
+
+  /* Base UI colors */
+  --background: oklch(1 0 0); /* true white */
+  --foreground: oklch(20% 0 0); /* near-black for text */
+
+  --card: oklch(98% 0 0);
+  --card-foreground: oklch(20% 0 0);
+
+  --popover: oklch(98% 0 0);
+  --popover-foreground: oklch(20% 0 0);
+
+  /* Primary (interactive color) */
+  --primary: oklch(0% 0 0); /* muted warm orange/red */
+  --primary-foreground: oklch(98% 0 0); /* white text on primary */
+
+  /* Secondary (muted interactive) */
+  --secondary: oklch(94% 0.03 20);
+  --secondary-foreground: oklch(25% 0 0);
+
+  /* Muted background areas */
+  --muted: oklch(96% 0.01 250);
+  --muted-foreground: oklch(50% 0 0);
+
+  /* Accent (e.g. hover/active) */
+  --accent: oklch(95.514% 0.00011 271.152);
+  --accent-foreground: oklch(25% 0 0);
+
+  /* Destructive */
+  --destructive: oklch(60% 0.24 27.325); /* strong red */
+  --primary-destructive-foreground: oklch(98% 0 0);
+
+  /* Borders, input, and rings */
+  --border: oklch(90% 0 0);  /* subtle gray border */
+  --input: oklch(94% 0.01 270); /* very light gray-purple */
+  --ring: oklch(85.452% 0.0001 271.152);  /* mid gray-purple ring */
+
+  /* Chart colors */
+  --chart-1: oklch(65% 0.22 41.116);
+  --chart-2: oklch(60% 0.12 184.704);
+  --chart-3: oklch(40% 0.07 227.392);
+  --chart-4: oklch(83% 0.19 84.429);
+  --chart-5: oklch(77% 0.19 70.08);
+
+  /* Sidebar / navigation */
+  --sidebar: oklch(98% 0.005 250);
+  --sidebar-foreground: oklch(25% 0 0);
+  --sidebar-primary: oklch(30% 0.02 270);
+  --sidebar-primary-foreground: oklch(98% 0 0);
+  --sidebar-accent: oklch(95% 0.02 200);
+  --sidebar-accent-foreground: oklch(25% 0 0);
+  --sidebar-border: oklch(90% 0 0);
+  --sidebar-ring: oklch(70% 0 0);
+}
+
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: justify;
+    font-size: 11px;
+  }
+  
+  /* Apply text justification to all text elements */
+  p, div, span, label, button, input, textarea {
+    text-align: justify;
+  }
+  
+  /* Make all fonts smaller globally */
+  .text-xs { font-size: 10px !important; }
+  .text-sm { font-size: 11px !important; }
+  .text-base { font-size: 12px !important; }
+  .text-lg { font-size: 13px !important; }
+  .text-xl { font-size: 14px !important; }
+  
+  .font-title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-weight: 700 !important;
+    font-style: normal !important;
+    letter-spacing: 0.02em !important;
+    text-align: center !important;
+  }
+}
+
+/* Force Helvetica Bold for title elements - Very High Specificity */
+*[class*="font-title"],
+.font-title,
+h1.font-title,
+h2.font-title, 
+h3.font-title,
+h4.font-title,
+h5.font-title,
+h6.font-title,
+a.font-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  letter-spacing: 0.02em !important;
+  text-align: center !important;
+}
+
+/* Additional specificity combinations */
+.font-title.font-medium,
+.font-title.text-xs,
+h3.font-title.font-medium,
+a.font-title.text-xs {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+}
+/* Deck.gl tooltip styling */
+
+/* Container and layout styles from App.css */
+#root {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.App {
   width: 100vw;
   height: 100vh;
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--background, #ffffff);
+  color: var(--foreground, #222);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  background: var(--background, #ffffff);
+  color: var(--foreground, #222);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 11px;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#phylo-tree-viewer-container {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  flex: 1 1 auto;
+  background: var(--theme-background, #ffffff);
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+/* Hide scrollbars */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Safari and Chrome */
+}
+
+/* Deck.gl Tooltip Styling */
+.deck-tooltip {
+  max-width: 300px !important;
+  padding: 8px 12px !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  border: 1px solid oklch(var(--border)) !important;
+  z-index: 1000 !important;
+  text-align: left !important;
+  
+  /* Light theme - using more transparent accent background */
+  background-color: oklch(var(--accent) / 0.85) !important;
+  color: oklch(var(--accent-foreground)) !important;
+  backdrop-filter: blur(8px) !important;
+  
+  /* Animation */
+  transition: opacity 0.2s ease-in-out !important;
+}
+
+/* Dark theme tooltip */
+.dark .deck-tooltip {
+  background-color: oklch(var(--accent) / 0.85) !important;
+  color: oklch(var(--accent-foreground)) !important;
+  border-color: oklch(var(--border)) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Tooltip content styling */
+.deck-tooltip .tooltip-content {
+  margin: 0 !important;
+  display: table !important;
+  width: 100% !important;
+}
+
+.deck-tooltip .tooltip-title {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.02em !important;
+  margin-bottom: 6px !important;
+  color: oklch(var(--foreground)) !important;
+  display: block !important;
+  border-bottom: 1px solid oklch(var(--border)) !important;
+  padding-bottom: 4px !important;
+}
+
+.deck-tooltip .tooltip-row {
+  display: table-row !important;
+}
+
+.deck-tooltip .tooltip-label {
+  display: table-cell !important;
+  color: oklch(var(--muted-foreground)) !important;
+  font-size: 9px !important;
+  padding: 2px 16px 2px 0 !important;
+  vertical-align: top !important;
+  white-space: nowrap !important;
+  width: 40% !important;
+}
+
+.deck-tooltip .tooltip-value {
+  display: table-cell !important;
+  font-weight: 500 !important;
+  color: oklch(var(--foreground)) !important;
+  font-size: 9px !important;
+  padding: 2px 0 !important;
+  vertical-align: top !important;
+  word-break: break-word !important;
+  width: 60% !important;
+}
+
+.deck-tooltip .tooltip-value.primary {
+  color: oklch(var(--primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* Tooltip for different data types */
+.deck-tooltip.gene-tooltip {
+  border-left: 3px solid oklch(var(--chart-1)) !important;
+}
+
+.deck-tooltip.tree-tooltip {
+  border-left: 3px solid oklch(var(--chart-2)) !important;
+}
+
+.deck-tooltip.domain-tooltip {
+  border-left: 3px solid oklch(var(--chart-3)) !important;
+}
+
+.deck-tooltip.link-tooltip {
+  border-left: 3px solid oklch(var(--chart-4)) !important;
+}
+
+/* Custom Slider Styling */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: oklch(var(--primary));
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: 2px solid oklch(var(--background));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+
+.slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: oklch(var(--primary));
+  cursor: pointer;
+  border: 2px solid oklch(var(--background));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slider:focus {
+  outline: none;
+}
+
+.slider:focus::-webkit-slider-thumb {
+  outline: 2px solid oklch(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Protein Viewer Styles */
+.protein-viewer {
+  width: 100%;
+  min-height: 192px;
+  height: 192px;
+  position: relative;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background: #f8f9fa;
+}
+
+.protein-viewer canvas {
+  border-radius: 0.375rem;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* 3DMol.js specific styles */
+.protein-viewer .viewer_3Dmoljs {
+  border-radius: 0.375rem;
+  overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+}
+
+/* Ensure 3DMol viewer fills container properly */
+.protein-viewer div[data-3dmol] {
+  border-radius: 0.375rem;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative;
+}
+
+/* Dark mode support for 3DMol */
+.dark .protein-viewer {
+  background: oklch(var(--muted));
+}
+
+.dark .protein-viewer canvas {
+  background: oklch(var(--muted));
+}
+

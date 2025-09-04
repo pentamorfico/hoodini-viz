@@ -16,7 +16,7 @@ export const DEFAULT_CONFIG = {
     edgeWidth: 0.5,            // Edge width for phylogenetic tree edges
     gap: 100,               // Gap between phylogenetic tree and genome tracks
     labelPadding: {
-      charWidth: 80        // Approximate pixels per character for label width calculations
+      charWidth: 50        // Approximate pixels per character for label width calculations
     },
     phyloLabelPosition: 'after-tree', // 'after-tree' (default) or 'after-tracks'
     labelOffset: 10,         // Offset for phylo labels from tree nodes or tracks
@@ -46,6 +46,7 @@ export const DEFAULT_CONFIG = {
       background: '#ffffff',
       text: '#222222',
       treeEdges: [0, 0, 0, 255],         // Black tree edges
+  phyloLabelFill: [0, 0, 0, 255],    // Default phylo label color (black in light)
       baselines: [100, 100, 100, 255],   // Dark gray baselines
       rulerBackground: '#ffffff',
       rulerText: '#222222',
@@ -65,6 +66,7 @@ export const DEFAULT_CONFIG = {
       background: '#000000',
       text: '#ffffff',
       treeEdges: [255, 255, 255, 255],   // White tree edges
+  phyloLabelFill: [255, 255, 255, 255], // Default phylo label color (white in dark)
       baselines: [200, 200, 200, 255],   // Light gray baselines
       rulerBackground: '#000000',
       rulerText: '#ffffff',

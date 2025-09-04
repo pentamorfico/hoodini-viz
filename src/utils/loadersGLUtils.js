@@ -81,28 +81,36 @@ export async function parseNonCodingMetadataOptimized(metadataText) {
 // =============================================================================
 
 function parseProteinMetadataFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  if (lines.length < 2) return {};
-  const header = lines[0].split(/\t/);
   const data = {};
-  for (let i = 1; i < lines.length; ++i) {
-    const cols = lines[i].split(/\t/);
+  if (!str) return data;
+  const it = str.split(/\r?\n/);
+  if (it.length < 2) return data;
+  const header = it[0].split(/\t/);
+  for (let i = 1; i < it.length; ++i) {
+    const line = it[i].trim();
+    if (!line) continue;
+    const cols = line.split(/\t/);
     const entry = {};
-    header.forEach((h, idx) => { entry[h] = cols[idx]; });
+    for (let j = 0; j < header.length; ++j) {
+      entry[header[j]] = cols[j];
+    }
     if (entry.gene_id) data[entry.gene_id] = entry;
   }
   return data;
 }
 
 function parseTreeMetadataFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  if (lines.length < 2) return {};
-  const header = lines[0].split(/\t/);
   const data = {};
+  if (!str) return data;
+  const lines = str.split(/\r?\n/);
+  if (lines.length < 2) return data;
+  const header = lines[0].split(/\t/);
   for (let i = 1; i < lines.length; ++i) {
-    const cols = lines[i].split(/\t/);
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cols = line.split(/\t/);
     const entry = {};
-    header.forEach((h, idx) => { entry[h] = cols[idx]; });
+    for (let j = 0; j < header.length; ++j) entry[header[j]] = cols[j];
     const keyValue = cols[0];
     if (keyValue) data[keyValue] = entry;
   }
@@ -110,36 +118,44 @@ function parseTreeMetadataFallback(str) {
 }
 
 function parseBaselinesFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  if (lines.length < 2) return [];
+  const out = [];
+  if (!str) return out;
+  const lines = str.split(/\r?\n/);
+  if (lines.length < 2) return out;
   const header = lines[0].split(/\t/);
-  const data = [];
   for (let i = 1; i < lines.length; ++i) {
-    const cols = lines[i].split(/\t/);
+    const line = lines[i].trim();
+    if (!line) continue;
+    const cols = line.split(/\t/);
     const entry = {};
-    header.forEach((h, idx) => { entry[h] = cols[idx]; });
-    data.push(entry);
+    for (let j = 0; j < header.length; ++j) entry[header[j]] = cols[j];
+    out.push(entry);
   }
-  return data;
+  return out;
 }
 
 function parseProteinLinksFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  return lines.map(line => {
+  const out = [];
+  if (!str) return out;
+  const lines = str.split(/\r?\n/);
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i].trim();
+    if (!line) continue;
     const parts = line.split(/\s+/);
-    return {
-      geneA: parts[0],
-      geneB: parts[1],
-      score: parseFloat(parts[2]) || 0
-    };
-  });
+    out.push({ geneA: parts[0], geneB: parts[1], score: parseFloat(parts[2]) || 0 });
+  }
+  return out;
 }
 
 function parseNucleotideLinksFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-  return lines.map(line => {
+  const out = [];
+  if (!str) return out;
+  const lines = str.split(/\r?\n/);
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i].trim();
+    if (!line) continue;
     const parts = line.split(/\s+/);
-    return {
+    out.push({
       seqidA: parts[0],
       startA: parseInt(parts[1], 10),
       endA: parseInt(parts[2], 10),
@@ -147,42 +163,36 @@ function parseNucleotideLinksFallback(str) {
       startB: parseInt(parts[4], 10),
       endB: parseInt(parts[5], 10),
       similarity: parseFloat(parts[6]) || 0
-    };
-  });
+    });
+  }
+  return out;
 }
 
 function parseDomainsFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   const data = {};
-  lines.forEach(line => {
+  if (!str) return data;
+  const lines = str.split(/\r?\n/);
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i].trim();
+    if (!line) continue;
     const parts = line.split(/\s+/);
     const geneId = parts[0];
-    const domain = {
-      domainName: parts[1],
-      start: parseInt(parts[2], 10),
-      end: parseInt(parts[3], 10),
-      evalue: parseFloat(parts[4]) || 0
-    };
-    
-    if (!data[geneId]) {
-      data[geneId] = [];
-    }
+    const domain = { domainName: parts[1], start: parseInt(parts[2], 10), end: parseInt(parts[3], 10), evalue: parseFloat(parts[4]) || 0 };
+    if (!data[geneId]) data[geneId] = [];
     data[geneId].push(domain);
-  });
+  }
   return data;
 }
 
 function parseNonCodingMetadataFallback(str) {
-  const lines = str.split(/\r?\n/).map(l => l.trim()).filter(l => l);
   const data = {};
-  lines.forEach(line => {
+  if (!str) return data;
+  const lines = str.split(/\r?\n/);
+  for (let i = 0; i < lines.length; ++i) {
+    const line = lines[i].trim();
+    if (!line) continue;
     const parts = line.split(/\t/);
-    if (parts.length >= 3) {
-      data[parts[0]] = {
-        type: parts[1],
-        description: parts[2]
-      };
-    }
-  });
+    if (parts.length >= 3) data[parts[0]] = { type: parts[1], description: parts[2] };
+  }
   return data;
 }

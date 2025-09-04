@@ -33,6 +33,11 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     console.error('❌ SVG Export failed: Invalid container size', { width, height });
     return;
   }
+  
+  // Calculate total SVG height: DeckGL content height + ruler height (if present)
+  const rulerHeight = rulerOptions?.config?.ruler?.height || 0;
+  const totalSVGHeight = height + (rulerOptions ? rulerHeight : 0);
+  
   const scale = Math.pow(2, viewState.zoom || 0);
   const centerX = viewState.target[0];
   const centerY = viewState.target[1];
@@ -187,11 +192,11 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
     return !(maxX < 0 || maxY < 0 || minX > width || minY > height);
   };
-  let svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}'>`;
+  let svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${totalSVGHeight}'>`;
   
   // Add background rectangle with theme background color
   const backgroundColor = themeColors.background || '#ffffff';
-  svg += `<rect width='${width}' height='${height}' fill='${backgroundColor}'/>`;
+  svg += `<rect width='${width}' height='${totalSVGHeight}' fill='${backgroundColor}'/>`;
   for(const layer of layers) {
     const props = layer.props;
     // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains, regions, ncRNA)
@@ -393,12 +398,29 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         } else if (layer.id === 'gene-labels') {
           // Gene labels: positioned below genes, so use hanging baseline
           const alignmentBaseline = feature.alignmentBaseline || (props.getAlignmentBaseline ? (typeof props.getAlignmentBaseline === 'function' ? props.getAlignmentBaseline(feature) : props.getAlignmentBaseline) : 'top');
-          if (alignmentBaseline === 'top') {
-            dominantBaseline = 'hanging';
-            dyOffset = proportionalSize * 0.2; // Small offset for better visual alignment
-          } else {
-            dominantBaseline = 'middle';
-            dyOffset = 0;
+          // Map DeckGL/TextLayer alignmentBaseline to SVG dominant-baseline and a small
+          // manual dyOffset to better match canvas text metrics across renderers.
+          switch ((alignmentBaseline || 'top').toString().toLowerCase()) {
+            case 'top':
+              // DeckGL 'top' means the text sits below the anchor point
+              dominantBaseline = 'hanging';
+              dyOffset = proportionalSize * 0.2;
+              break;
+            case 'center':
+            case 'middle':
+              // Center the text vertically on the anchor
+              dominantBaseline = 'middle';
+              dyOffset = 0;
+              break;
+            case 'bottom':
+              // DeckGL 'bottom' means the text sits above the anchor point
+              // Use 'alphabetic' and a small negative offset to nudge it upward
+              dominantBaseline = 'alphabetic';
+              dyOffset = -proportionalSize * 0.25;
+              break;
+            default:
+              dominantBaseline = 'middle';
+              dyOffset = 0;
           }
         }
         
@@ -452,11 +474,17 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
       const geneLabelColor = themeColors.text || (themeColors.background === '#ffffff' ? '#333' : '#ccc');
       const treeTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
   const _rulerHeight = configToUse.ruler.height;
-  const _rulerTop = rulerHeightLocal - _rulerHeight;
+  const _rulerTop = height; // Position ruler right after DeckGL content area
       const _tickHeight = configToUse.ruler.tickHeight;
       const _labelOffset = configToUse.ruler.labelOffset;
-  svg += `<rect x='0' y='${_rulerTop}' width='${rulerWidth}' height='${_rulerHeight}' fill='${themeColors.background || '#ffffff'}' stroke='${themeColors.background === '#ffffff' ? '#ccc' : '#555'}' stroke-width='1'/>`;
+  svg += `<rect x='0' y='${_rulerTop}' width='${rulerWidth}' height='${_rulerHeight}' fill='${themeColors.background || '#ffffff'}' stroke='none'/>`;
+  // Add only a top separator line instead of full outline
+  svg += `<line x1='0' y1='${_rulerTop}' x2='${rulerWidth}' y2='${_rulerTop}' stroke='${themeColors.background === '#ffffff' ? '#ccc' : '#555'}' stroke-width='1'/>`;
       // Main ticks and labels — filter out invalid/infinite/out-of-range ticks
+      console.log('🎯 SVG Export: DeckGL viewBounds:', { min_x, max_x, min_y, max_y });
+      console.log('🎯 SVG Export: Ruler bounds:', { minX, maxX });
+      console.log('🎯 SVG Export: Total precomputed ticks:', precomputedTicks.length);
+      
       const validPreTicks = precomputedTicks.filter(t => {
         if (!t || !t.type) return false;
         if (t.type === 'gene') {
@@ -464,17 +492,36 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           if (typeof t.x !== 'number' || !isFinite(t.x)) return false;
           if (typeof t.screenX !== 'number' || !isFinite(t.screenX)) return false;
           if (t.screenX < -1 || t.screenX > rulerWidth + 1) return false;
-          // If minX/maxX (gene bounds) are provided in rulerOptions, enforce them
+          
+          // PRIMARY FILTER: Use DeckGL viewBounds as the authoritative visible range
+          if (t.x < min_x || t.x > max_x) {
+            console.log('🚫 Filtered tick outside DeckGL bounds:', t.x, 'vs bounds:', [min_x, max_x]);
+            return false;
+          }
+          
+          // Secondary filter: If minX/maxX (gene bounds) are provided in rulerOptions, enforce them too
           if (typeof minX === 'number' && typeof maxX === 'number') {
-            if (t.x < minX || t.x > maxX) return false;
+            if (t.x < minX || t.x > maxX) {
+              console.log('🚫 Filtered tick outside ruler bounds:', t.x, 'vs bounds:', [minX, maxX]);
+              return false;
+            }
           }
           return true;
         }
         if (t.type === 'tree') {
-          return (typeof t.screenX === 'number' && isFinite(t.screenX) && t.screenX >= -1 && t.screenX <= rulerWidth + 1);
+          if (typeof t.screenX !== 'number' || !isFinite(t.screenX)) return false;
+          if (t.screenX < -1 || t.screenX > rulerWidth + 1) return false;
+          // For tree ticks, check if they're within the DeckGL view bounds
+          if (typeof t.x === 'number' && (t.x < min_x || t.x > max_x)) {
+            console.log('🚫 Filtered tree tick outside DeckGL bounds:', t.x, 'vs bounds:', [min_x, max_x]);
+            return false;
+          }
+          return true;
         }
         return false;
       });
+      
+      console.log('✅ SVG Export: Valid ticks after filtering:', validPreTicks.length);
       for (const tick of validPreTicks) {
         if (tick.type === 'gene') {
           svg += `<line x1='${tick.screenX}' y1='${_rulerTop}' x2='${tick.screenX}' y2='${_rulerTop + _tickHeight}' stroke='${geneTickColor}' stroke-width='1'/>`;
@@ -516,7 +563,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     const scaledGeneVisibleMaxX = geneVisibleMaxX / genomeXScale;
     
     const rulerHeight = configToUse.ruler.height;
-    const rulerTop = height - rulerHeight;
+    const rulerTop = height; // Position ruler right after DeckGL content area
     const tickHeight = configToUse.ruler.tickHeight;
     const labelOffset = configToUse.ruler.labelOffset;
     // --- Gene ticks ---
@@ -703,7 +750,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     // Draw ruler background with theme-aware colors (opaque)
     const rulerBgColor = themeColors.background || '#ffffff';
     const rulerBorderColor = themeColors.background === '#ffffff' ? '#ccc' : '#555';
-  svg += `<rect x='0' y='${rulerTop}' width='${rulerWidth}' height='${rulerHeight}' fill='${rulerBgColor}' stroke='${rulerBorderColor}' stroke-width='1'/>`;
+  svg += `<rect x='0' y='${rulerTop}' width='${rulerWidth}' height='${rulerHeight}' fill='${rulerBgColor}' stroke='none'/>`;
+  // Add only a top separator line instead of full outline
+  svg += `<line x1='0' y1='${rulerTop}' x2='${rulerWidth}' y2='${rulerTop}' stroke='${rulerBorderColor}' stroke-width='1'/>`;
     
     // Draw gene ticks and labels (only in gene area) with theme-aware colors
     const geneTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');

@@ -148,8 +148,25 @@ class RegionFeature extends GFFFeature {
 
   /**
    * Get region type for palette coloring
+   * Extract region type from ID attribute (e.g., "operon_1" -> "operon")
    */
   getColorKey() {
+    // First try to get region type from ID attribute
+    const id = this.metadata?.region_id || this.metadata?.ID || this.originalId || '';
+    if (id) {
+      // Extract type from ID patterns like "operon_1", "cluster_abc", "phage_region_1", etc.
+      const match = id.match(/^([a-zA-Z]+)/);
+      if (match) {
+        return match[1].toLowerCase();
+      }
+    }
+    
+    // Fallback to region_type from metadata or attributes
+    if (this.metadata?.region_type) {
+      return this.metadata.region_type.toLowerCase();
+    }
+    
+    // Final fallback to feature type
     return (this.type || 'region').toLowerCase();
   }
 }
