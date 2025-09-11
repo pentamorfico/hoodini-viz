@@ -163,6 +163,7 @@ function App() {
   // Metadata columns for select options (stateful so parsed data can update them)
   const [geneMetadataColumnsState, setGeneMetadataColumns] = useState(['cluster', 'species', 'geneType']);
   const [treeMetadataColumnsState, setTreeMetadataColumns] = useState(['species', 'branchLength', 'support']);
+  const [domainMetadataColumnsState, setDomainMetadataColumns] = useState([]);
   // Selected gene state for info panel
   const [selectedGene, setSelectedGene] = useState(null);
   // Dummy track handlers
@@ -237,8 +238,10 @@ function App() {
         phyloTreeViewerRef={phyloTreeViewerRef}
         geneMetadataColumns={geneMetadataColumnsState}
         treeMetadataColumns={treeMetadataColumnsState}
+        domainMetadataColumns={domainMetadataColumnsState}
         setGeneMetadataColumns={setGeneMetadataColumns}
         setTreeMetadataColumns={setTreeMetadataColumns}
+        setDomainMetadataColumns={setDomainMetadataColumns}
         selectedGene={selectedGene}
         handleTrackShiftMinus1kb={handleTrackShiftMinus1kb}
         handleTrackShiftPlus1kb={handleTrackShiftPlus1kb}
@@ -317,8 +320,10 @@ function App() {
            phyloTreeViewerRef={phyloTreeViewerRef}
            geneMetadataColumns={geneMetadataColumnsState}
            treeMetadataColumns={treeMetadataColumnsState}
+           domainMetadataColumns={domainMetadataColumnsState}
            setGeneMetadataColumns={setGeneMetadataColumns}
            setTreeMetadataColumns={setTreeMetadataColumns}
+           setDomainMetadataColumns={setDomainMetadataColumns}
            setSelectedGene={setSelectedGene}
            handleTrackShiftMinus1kb={handleTrackShiftMinus1kb}
            handleTrackShiftPlus1kb={handleTrackShiftPlus1kb}

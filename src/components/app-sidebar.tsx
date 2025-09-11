@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+// Load raw domain metadata header for dynamic dropdown options
+import defaultDomainsMetadata from '@/data/defaultDomainsMetadata.txt?raw';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
@@ -149,6 +151,8 @@ export function AppSidebar({
   setGeneMetadataColumns: setGeneMetadataColumnsProp,
   treeMetadataColumns: treeMetadataColumnsProp,
   setTreeMetadataColumns: setTreeMetadataColumnsProp,
+  domainMetadataColumns: domainMetadataColumnsProp,
+  setDomainMetadataColumns: setDomainMetadataColumnsProp,
   selectedGene: selectedGeneProp,
   handleTrackShiftMinus1kb: handleTrackShiftMinus1kbProp,
   handleTrackShiftPlus1kb: handleTrackShiftPlus1kbProp,
@@ -455,9 +459,20 @@ export function AppSidebar({
     return items;
   }, [availableClusters]);
 
-  // Metadata column fallbacks
-  const geneMetadataColumns = geneMetadataColumnsProp || ['cluster', 'species', 'geneType'];
-  const treeMetadataColumns = treeMetadataColumnsProp || ['species', 'branchLength', 'support'];
+  // Metadata column fallbacks and dynamic extraction
+  const geneMetadataColumns = (geneMetadataColumnsProp && geneMetadataColumnsProp.length > 0) ? geneMetadataColumnsProp : ['cluster', 'species', 'geneType'];
+  const treeMetadataColumns = (treeMetadataColumnsProp && treeMetadataColumnsProp.length > 0) ? treeMetadataColumnsProp : ['species', 'branchLength', 'support'];
+  // Domain metadata columns: read header line from raw file to include all metadata fields
+  const headerLine = defaultDomainsMetadata.trim().split(/\r?\n/)[0];
+  const metadataFields = headerLine.split(/\t/).filter(col => col !== 'domain_id');
+  const builtInFields = ['domainName', 'start', 'end', 'evalue', 'coverage'];
+  // Use props when available, otherwise use header-based fields
+  const domainMetadataColumns = (Array.isArray(domainMetadataColumnsProp) && domainMetadataColumnsProp.length > 0)
+    ? domainMetadataColumnsProp
+    : [...builtInFields, ...metadataFields];
+  
+  console.log('DEBUG AppSidebar - domainMetadataColumnsProp:', domainMetadataColumnsProp);
+  console.log('DEBUG AppSidebar - final domainMetadataColumns:', domainMetadataColumns);
 
   // Selected gene information
   const selectedGene = selectedGeneProp;
@@ -1249,9 +1264,9 @@ export function AppSidebar({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="domainName">Domain Name</SelectItem>
-                      <SelectItem value="evalue">E-value</SelectItem>
-                      <SelectItem value="length">Length</SelectItem>
+                      {domainMetadataColumns.map(col => (
+                        <SelectItem key={col} value={col}>{col}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

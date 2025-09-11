@@ -566,20 +566,26 @@ class GenomeView {
       for (const domain of gene.domains) {
         const domainId = domain.domainName; // e.g., "PF03773"
         if (domainMetadata[domainId]) {
-          const oldMetadata = { ...domain.metadata };
           domain.metadata = { ...domain.metadata, ...domainMetadata[domainId] };
-          console.log(`Domain ${domainId} metadata update:`, { 
-            before: oldMetadata, 
-            after: domain.metadata,
-            evalue: domain.evalue,
-            coverage: domain.coverage 
-          });
           attachedCount++;
         }
       }
     }
     
     console.log(`addDomainMetadata: Attached metadata to ${attachedCount} domains`);
+    
+    // Debug: Show first domain with metadata to see what fields are actually attached
+    for (const geneId in this.genesById) {
+      const gene = this.genesById[geneId];
+      if (gene.domains && gene.domains.length > 0) {
+        const firstDomain = gene.domains[0];
+        if (firstDomain.metadata && Object.keys(firstDomain.metadata).length > 5) {
+          console.log('Sample domain metadata keys:', Object.keys(firstDomain.metadata));
+          console.log('Sample domain metadata:', firstDomain.metadata);
+          break;
+        }
+      }
+    }
   }
 
   addProteinLinks(links, color = [50, 100, 220], adjacencyN = Infinity) {

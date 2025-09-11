@@ -276,11 +276,7 @@ function App(props) {
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
   
-  // Extract gene metadata columns for dropdowns (from protein metadata)
-  const geneMetadataColumns = React.useMemo(() => {
-    const headerLine = defaultProteinMetadata.trim().split(/\r?\n/)[0];
-    return headerLine.split(/\t/).filter(col => col !== 'gene_id'); // Exclude gene_id from options
-  }, []);
+  // Header-based column extraction for domain metadata now occurs during data loading
 
   const handleObjectClick = (object) => {
     if (!props.setSelectedGene || !object) return;
@@ -709,6 +705,18 @@ function App(props) {
             }
           }
         } catch (e) {}
+        try {
+          if (props.setDomainMetadataColumns && typeof props.setDomainMetadataColumns === 'function') {
+            // Use header fields from defaultDomainsMetadata to ensure all columns are included
+            const headerLine = defaultDomainsMetadata.trim().split(/\r?\n/)[0];
+            const metadataFields = headerLine.split(/\t/).filter(col => col !== 'domain_id');
+            const builtInFields = ['domainName', 'start', 'end', 'evalue', 'coverage'];
+            const allFields = [...builtInFields, ...metadataFields];
+            props.setDomainMetadataColumns(allFields);
+          }
+        } catch (e) {
+          console.error('Error setting domain metadata columns:', e);
+        }
         setParsedNonCodingMetadata(nonCodingMetaClean);
         
         // Report data availability to parent component for conditional switch rendering

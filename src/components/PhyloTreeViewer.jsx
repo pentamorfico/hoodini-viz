@@ -697,7 +697,7 @@ const PhyloTreeViewer = React.forwardRef(({
       }
       let col = null;
       if (geneColorMap && key !== null && key !== undefined && key !== '') {
-        col = geneColorMap.get(key) || null;
+  col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
       }
       return ensureRgba(col || g.fillColor || themeColors.geneFill);
     };
@@ -794,6 +794,83 @@ const PhyloTreeViewer = React.forwardRef(({
     return [Math.abs(r), Math.abs(g), Math.abs(b), 255];
   }
 
+  // Helper: robust numeric parser for palette interpolation
+  function toNumeric(v) {
+    if (v === null || v === undefined) return NaN;
+    if (typeof v === 'number') return Number.isFinite(v) ? v : NaN;
+    let s = String(v).trim();
+    if (s === '') return NaN;
+    // Remove commas, leading comparison signs, and trailing percent
+    s = s.replace(/,/g, '');
+    s = s.replace(/^\s*[<>]=?\s*/, '');
+    if (s.endsWith('%')) s = s.slice(0, -1);
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Helper: get color from map using numeric keys for sequential palettes
+  function getColorFromMap(colorMap, key, paletteType) {
+    if (!colorMap) return undefined;
+    if (paletteType === 'sequential') {
+      const n = toNumeric(key);
+      if (!isNaN(n)) return colorMap.get(n);
+    }
+    return colorMap.get(String(key));
+  }
+
+  // Helper: extract a domain field value robustly from a domain object.
+  // Tries top-level property, then metadata[field], then common aliases in both places.
+  function extractDomainField(d, field) {
+    if (!d || !field) return undefined;
+    // direct property
+    if (d[field] !== undefined && d[field] !== '') return d[field];
+    // metadata direct lookup
+    if (d.metadata && d.metadata[field] !== undefined && d.metadata[field] !== '') return d.metadata[field];
+
+    const aliases = {
+      start: ['start', 'from', 'begin', 'pos', 'coord_start'],
+      end: ['end', 'to', 'stop', 'finish', 'pos2', 'coord_end'],
+      evalue: ['evalue', 'e_value', 'E-value', 'score'],
+      coverage: ['coverage', 'cov', 'pct_coverage', 'percent_coverage']
+    };
+
+    const keyLower = String(field).toLowerCase();
+    const tryKeys = aliases[keyLower] || [field];
+    for (const k of tryKeys) {
+      if (d[k] !== undefined && d[k] !== '') return d[k];
+      if (d.metadata && d.metadata[k] !== undefined && d.metadata[k] !== '') return d.metadata[k];
+    }
+
+    // As a last resort, try a case-insensitive metadata match
+    if (d.metadata) {
+      for (const [k, v] of Object.entries(d.metadata)) {
+        if (k && String(k).toLowerCase() === keyLower && v !== undefined && v !== '') return v;
+      }
+    }
+    return undefined;
+  }
+
+  // Helper: interpolate across a palette (array of rgba arrays) at normalized t [0..1]
+  function interpolatePaletteColor(colors, t) {
+    if (!Array.isArray(colors) || colors.length === 0) return [0,0,0,255];
+    if (colors.length === 1) return colors[0];
+    // Clamp t
+    const tt = Math.max(0, Math.min(1, t));
+    const span = (colors.length - 1) * tt;
+    const i0 = Math.floor(span);
+    const i1 = Math.min(colors.length - 1, i0 + 1);
+    const localT = span - i0;
+    const c0 = colors[i0] || colors[0];
+    const c1 = colors[i1] || colors[colors.length - 1];
+    const out = [0,0,0,255];
+    for (let ci = 0; ci < 4; ci++) {
+      const v0 = (c0[ci] !== undefined) ? c0[ci] : (ci === 3 ? 255 : 0);
+      const v1 = (c1[ci] !== undefined) ? c1[ci] : (ci === 3 ? 255 : 0);
+      out[ci] = Math.round(v0 + (v1 - v0) * localT);
+    }
+    return out;
+  }
+
   // Function to apply color palette to phylogenetic labels
   function applyPhyloPalette(treeLabels, treeColorBy, treeMetadata, phyloPalette) {
     if (!phyloPalette || !phyloPalette.enabled) {
@@ -827,11 +904,25 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
 
-    // Create color mapping
+    // Create color mapping (numeric interpolation for sequential palettes)
     const colorValueToColor = {};
-    sortedColorValues.forEach((value, i) => {
-      colorValueToColor[value] = paletteColors[i % paletteColors.length];
-    });
+    if (phyloPalette.type === 'sequential' && sortedColorValues.length > 0 && sortedColorValues.every(v => !isNaN(Number(v)))) {
+      // Numeric interpolation across sorted values
+      const numericVals = sortedColorValues.map(v => Number(v));
+      const minVal = Math.min(...numericVals);
+      const maxVal = Math.max(...numericVals);
+      sortedColorValues.forEach(val => {
+        const num = Number(val);
+        const t = maxVal > minVal ? (num - minVal) / (maxVal - minVal) : 0;
+        const idx = Math.floor(t * (paletteColors.length - 1));
+        colorValueToColor[val] = paletteColors[idx];
+      });
+    } else {
+      // Categorical mapping
+      sortedColorValues.forEach((value, i) => {
+        colorValueToColor[value] = paletteColors[i % paletteColors.length];
+      });
+    }
     // Apply palette colors to labels
     return treeLabels.map(label => {
       const metadata = getMetaForLeaf(label.leafNode.name) || {};
@@ -886,10 +977,12 @@ const PhyloTreeViewer = React.forwardRef(({
       .map(extractKey)
       .filter(key => key !== null && key !== undefined && key !== '');
     
-    const uniqueKeys = [...new Set(validKeys)];
-    if (uniqueKeys.length === 0) return null;
-
-    // Separate keys based on prevalence filter
+  const uniqueKeys = [...new Set(validKeys)];
+  if (uniqueKeys.length === 0) return null;
+    
+  // Determine numeric interpolation for sequential palettes using toNumeric
+  const numericGeneVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
+  const isNumericGene = numericGeneVals.length === uniqueKeys.length && uniqueKeys.length > 0;
     let keysForPalette = uniqueKeys;
     let lowPrevalenceKeys = [];
     
@@ -908,30 +1001,59 @@ const PhyloTreeViewer = React.forwardRef(({
     // Generate colors for keys that meet the prevalence threshold
     const colors = memoGetPalette(
       effectiveGenePalette.name,
-      Math.max(keysForPalette.length, effectiveGenePalette.numColors || keysForPalette.length),
+      effectiveGenePalette.numColors && effectiveGenePalette.type === 'sequential'
+        ? effectiveGenePalette.numColors
+        : Math.max(keysForPalette.length, effectiveGenePalette.numColors || keysForPalette.length),
       effectiveGenePalette.reverse || false
     );
     
     const colorMap = new Map();
     
     // Apply palette colors to high-prevalence keys
-    keysForPalette.forEach((key, i) => {
-      colorMap.set(key, colors[i % colors.length]);
-    });
+    if (effectiveGenePalette.type === 'sequential' && isNumericGene) {
+      const numericGenes = keysForPalette.map(k => toNumeric(k));
+      const minG = Math.min(...numericGenes);
+      const maxG = Math.max(...numericGenes);
+      keysForPalette.forEach(key => {
+  const val = toNumeric(key);
+  const t = maxG > minG ? (val - minG) / (maxG - minG) : 0;
+  const idx = Math.floor(t * (colors.length - 1));
+  colorMap.set(val, colors[idx]);
+  // Mirror string key to be tolerant of String/Number lookups
+  try { colorMap.set(String(key), colors[idx]); } catch (e) {}
+      });
+    } else {
+      keysForPalette.forEach((key, i) => {
+        colorMap.set(String(key), colors[i % colors.length]);
+        // Also mirror numeric form if it parses as number
+        const num = toNumeric(key);
+        if (!isNaN(num)) colorMap.set(num, colors[i % colors.length]);
+      });
+    }
     
     // Apply default gray color to low-prevalence keys
     const defaultGeneColor = DEFAULT_CONFIG.gene.fillColor; // Use config default gene color
     lowPrevalenceKeys.forEach(key => {
-      colorMap.set(key, defaultGeneColor);
+      const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
+      colorMap.set(mapKey, defaultGeneColor);
+      // Mirror other form
+      try { colorMap.set(String(key), defaultGeneColor); } catch (e) {}
+      const num = toNumeric(key);
+      if (!isNaN(num)) colorMap.set(num, defaultGeneColor);
     });
     
     // Apply desaturation by prevalence if enabled (only to palette-colored keys)
     if (effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap) {
       for (const key of keysForPalette) {
-        const color = colorMap.get(key);
+        const color = getColorFromMap(colorMap, key, effectiveGenePalette?.type);
         const prevalence = genePrevalenceMap.get(String(key)) || 0;
-        const desaturatedColor = genomeView._desaturateColorByPrevalence(color, prevalence);
-        colorMap.set(key, desaturatedColor);
+  const desaturatedColor = genomeView._desaturateColorByPrevalence(color, prevalence);
+  const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
+  colorMap.set(mapKey, desaturatedColor);
+  // Mirror both forms
+  try { colorMap.set(String(key), desaturatedColor); } catch (e) {}
+  const num = toNumeric(key);
+  if (!isNaN(num)) colorMap.set(num, desaturatedColor);
       }
     }
     
@@ -950,6 +1072,34 @@ const PhyloTreeViewer = React.forwardRef(({
     geneColorBy,
     alignmentVersion
   ]);
+
+  // Debug: log when user changes gene/domain/tree color-by selections so we can trace mapping issues
+  React.useEffect(() => {
+    try {
+      console.log('[ColorSelect] selection changed', { geneColorBy, domainColorBy, treeColorBy, colorBy });
+      if (!genomeView) {
+        console.log('[ColorSelect] genomeView not ready');
+        return;
+      }
+      const primary = geneColorBy || colorBy || 'cluster';
+      const genes = Object.values(genomeView.genesById || {});
+      const keys = genes.map(g => {
+        let v = g?.metadata?.[primary];
+        if ((v === null || v === undefined || v === '') && primary === 'cluster') {
+          v = g?.metadata?.clusterId ?? g?.metadata?.cluster_id ?? g?.cluster;
+        }
+        return v;
+      }).filter(k => k !== null && k !== undefined && k !== '');
+      const unique = [...new Set(keys)];
+      const numericVals = unique.map(k => toNumeric(k)).filter(n => !isNaN(n));
+      const isNumeric = numericVals.length === unique.length && unique.length > 0;
+      console.log(`[ColorSelect][gene] field=${primary} unique=${unique.length} isNumeric=${isNumeric} sample=${unique.slice(0,5)}`);
+      if (isNumeric && numericVals.length > 0) console.log('[ColorSelect][gene] numericRange=', Math.min(...numericVals), Math.max(...numericVals));
+      if (geneColorMap) unique.slice(0,5).forEach(k => console.log('[ColorSelect][gene] map', k, '->', getColorFromMap(geneColorMap, k, effectiveGenePalette?.type)));
+    } catch (e) {
+      console.error('ColorSelect gene logging error', e);
+    }
+  }, [geneColorBy, colorBy, genomeView, geneColorMap, effectiveGenePalette?.name, effectiveGenePalette?.type]);
 
   // Tooltip handler for DeckGL - defined after genePrevalenceMap to avoid reference errors
   const getTooltip = ({object, layer}) => {
@@ -1115,7 +1265,7 @@ const PhyloTreeViewer = React.forwardRef(({
                 if (field === 'cluster') key = g?.metadata?.clusterId ?? g?.metadata?.cluster_id ?? g?.cluster;
               }
               if (key !== null && key !== undefined && key !== '') {
-                const m = geneColorMap.get(key);
+                const m = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type);
                 if (m) return m;
               }
             }
@@ -1205,11 +1355,13 @@ const PhyloTreeViewer = React.forwardRef(({
             const gA = gv.genesById && gv.genesById[l.gAId];
             const gB = gv.genesById && gv.genesById[l.gBId];
       if (cfg.colorBy === 'source_gene' && gA) {
-        const colorA = (geneColorMap && gA && ((gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster)) ? (geneColorMap.get(String((gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster)) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
-        list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: colorA, stroke: Array.isArray(colorA) ? darkenColor(colorA) : null });
+      const metaKeyA = (gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster;
+      const colorA = (geneColorMap && gA && metaKeyA) ? (getColorFromMap(geneColorMap, metaKeyA, effectiveGenePalette?.type) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
+            list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: colorA, stroke: Array.isArray(colorA) ? darkenColor(colorA) : null });
       }
       if (cfg.colorBy === 'target_gene' && gB) {
-        const colorB = (geneColorMap && gB && ((gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster)) ? (geneColorMap.get(String((gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster)) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
+        const metaKeyB = (gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster;
+        const colorB = (geneColorMap && gB && metaKeyB) ? (getColorFromMap(geneColorMap, metaKeyB, effectiveGenePalette?.type) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
         list.push({ id: l.gBId, label: gB.metadata ? gB.metadata[geneColorBy || colorBy] : gB.id, color: colorB, stroke: Array.isArray(colorB) ? darkenColor(colorB) : null });
       }
           });
@@ -1236,11 +1388,13 @@ const PhyloTreeViewer = React.forwardRef(({
             const gA = gv.genesById && gv.genesById[l.gAId];
             const gB = gv.genesById && gv.genesById[l.gBId];
       if (cfg.colorBy === 'source_gene' && gA) {
-        const colorA = (geneColorMap && gA && ((gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster)) ? (geneColorMap.get(String((gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster)) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
+        const metaKeyA = (gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster;
+        const colorA = (geneColorMap && gA && metaKeyA) ? (getColorFromMap(geneColorMap, metaKeyA, effectiveGenePalette?.type) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
         list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: colorA, stroke: Array.isArray(colorA) ? darkenColor(colorA) : null });
       }
       if (cfg.colorBy === 'target_gene' && gB) {
-        const colorB = (geneColorMap && gB && ((gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster)) ? (geneColorMap.get(String((gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster)) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
+        const metaKeyB = (gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster;
+        const colorB = (geneColorMap && gB && metaKeyB) ? (getColorFromMap(geneColorMap, metaKeyB, effectiveGenePalette?.type) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
         list.push({ id: l.gBId, label: gB.metadata ? gB.metadata[geneColorBy || colorBy] : gB.id, color: colorB, stroke: Array.isArray(colorB) ? darkenColor(colorB) : null });
       }
           });
@@ -1404,31 +1558,97 @@ const PhyloTreeViewer = React.forwardRef(({
     const domains = genomeView.getAllDomains();
     const validKeys = domains
       .map(d => {
-        switch(domainColorBy) {
-          case 'domainName': return d.domainName;
-          case 'start': return d.start;
-          case 'end': return d.end;
-          case 'evalue': return d.evalue;
-          default: return d.domainName;
-        }
+        // Use robust extractor that checks top-level, metadata and common aliases
+        if (domainColorBy === 'domainName') return d.domainName;
+        const v = extractDomainField(d, domainColorBy);
+        return (v !== undefined && v !== '') ? v : undefined;
       })
       .filter(key => key !== null && key !== undefined && key !== '');
     
-    const uniqueKeys = [...new Set(validKeys)];
+  const uniqueKeys = [...new Set(validKeys)];
     if (uniqueKeys.length === 0) return null;
-    
+
+    // Generate palette colors
     const colors = memoGetPalette(
       effectiveDomainPalette.name,
-      Math.max(uniqueKeys.length, effectiveDomainPalette.numColors || uniqueKeys.length),
+      effectiveDomainPalette.numColors && effectiveDomainPalette.type === 'sequential'
+        ? effectiveDomainPalette.numColors
+        : Math.max(uniqueKeys.length, effectiveDomainPalette.numColors || uniqueKeys.length),
       effectiveDomainPalette.reverse || false
     );
     
     const colorMap = new Map();
-    uniqueKeys.forEach((key, i) => {
-      colorMap.set(key, colors[i % colors.length]);
-    });
-    return colorMap;
+    // If sequential palette and numeric keys, interpolate across numeric range
+    const numericVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
+    const isNumeric = numericVals.length === uniqueKeys.length && uniqueKeys.length > 0;
+    // Diagnostic log: show how many unique keys we found and sample values
+    try { console.log('[domainColorMap] uniqueKeys', uniqueKeys.length, uniqueKeys.slice(0,8), 'isNumeric=', isNumeric); } catch(e) {}
+    if (effectiveDomainPalette.type === 'sequential' && isNumeric) {
+      // Compute numeric originals and transformed values
+      const numericOriginal = uniqueKeys.map(k => toNumeric(k));
+      let transformed = numericOriginal.slice();
+      // If coloring by evalue, apply -log10 transform so small e-values spread out
+      if (String(domainColorBy).toLowerCase() === 'evalue' || String(domainColorBy).toLowerCase() === 'e_value') {
+        transformed = numericOriginal.map(v => {
+          if (!isFinite(v) || v <= 0) {
+            // substitute a tiny positive value to avoid -Infinity
+            return -Math.log10(Number.MIN_VALUE);
+          }
+          return -Math.log10(v);
+        });
+      }
+      const minT = Math.min(...transformed);
+      const maxT = Math.max(...transformed);
+      // Build colors based on transformed values but store them under original numeric keys
+      uniqueKeys.forEach((k, i) => {
+        const orig = numericOriginal[i];
+        const tVal = transformed[i];
+        const t = maxT > minT ? (tVal - minT) / (maxT - minT) : 0;
+        const idx = Math.floor(t * (colors.length - 1));
+        const col = colors[idx];
+        // Map by original numeric value so lookups using the original key succeed
+        try { colorMap.set(orig, col); } catch (e) {}
+        // Mirror by string forms too
+        try { colorMap.set(String(orig), col); } catch (e) {}
+        try { colorMap.set(String(k), col); } catch (e) {}
+      });
+    } else {
+      // Categorical coloring fallback — normalize keys to strings
+      uniqueKeys.forEach((key, i) => {
+        colorMap.set(String(key), colors[i % colors.length]);
+        const num = toNumeric(key);
+        if (!isNaN(num)) colorMap.set(num, colors[i % colors.length]);
+      });
+    }
+  return colorMap;
   }, [genomeView, effectiveDomainPalette, domainColorBy]);
+
+  // Debug: log domain color mapping diagnostics when selection changes
+  React.useEffect(() => {
+    try {
+      console.log('[ColorSelect] domain selection changed', { domainColorBy });
+  if (!genomeView) {
+        console.log('[ColorSelect] genomeView not ready for domains');
+        return;
+      }
+  const domains = genomeView.getAllDomains();
+  try { console.log('[ColorSelect] domains.length=', Array.isArray(domains) ? domains.length : String(domains)); } catch(e) {}
+  try { console.log('[ColorSelect] sample domains=', Array.isArray(domains) ? domains.slice(0,6) : domains); } catch(e) {}
+  const keys = domains.map(d => {
+    if (domainColorBy === 'domainName') return d.domainName;
+    return extractDomainField(d, domainColorBy);
+  }).filter(k => k !== null && k !== undefined && k !== '');
+  try { console.log('[ColorSelect] extracted keys sample=', keys.slice(0,12)); } catch(e) {}
+      const unique = [...new Set(keys)];
+      const numericVals = unique.map(k => toNumeric(k)).filter(n => !isNaN(n));
+      const isNumeric = numericVals.length === unique.length && unique.length > 0;
+      console.log(`[ColorSelect][domain] field=${domainColorBy} unique=${unique.length} isNumeric=${isNumeric} sample=${unique.slice(0,5)}`);
+      if (isNumeric && numericVals.length > 0) console.log('[ColorSelect][domain] numericRange=', Math.min(...numericVals), Math.max(...numericVals));
+      if (domainColorMap) unique.slice(0,5).forEach(k => console.log('[ColorSelect][domain] map', k, '->', getColorFromMap(domainColorMap, k, effectiveDomainPalette?.type)));
+    } catch (e) {
+      console.error('ColorSelect domain logging error', e);
+    }
+  }, [domainColorBy, genomeView, domainColorMap, effectiveDomainPalette?.name, effectiveDomainPalette?.type]);
 
   // Build legend entries for display (gene families, phylo labels, ncRNAs, regions, links)
   const colorArrayToCss = (c) => {
@@ -1849,23 +2069,19 @@ const PhyloTreeViewer = React.forwardRef(({
       // If a domain palette is active, use its mapping to override the model color.
       let fillColor = d.fillColor || themeColors.domainFill;
 
-      if (domainColorMap) {
-        const key = (() => {
-          switch(domainColorBy) {
-            case 'domainName': return d.domainName;
-            case 'start': return d.start;
-            case 'end': return d.end;
-            case 'evalue': return d.evalue;
-            default: return d.domainName;
-          }
-        })();
-        // Only override if mapping provides a non-null value; otherwise keep model color.
-        const mapped = domainColorMap.get(key);
-        if (mapped) fillColor = mapped;
+  if (domainColorMap) {
+        const key = (domainColorBy === 'domainName') ? d.domainName : extractDomainField(d, domainColorBy);
+        // Only override if mapping provides a valid color; otherwise keep model color.
+        if (key !== undefined) {
+    const mapped = getColorFromMap(domainColorMap, key, effectiveDomainPalette?.type);
+          if (mapped) fillColor = mapped;
+        }
       }
 
       return { ...d, fillColor };
     });
+    
+
     // Phylo tree paths (shifted)
     // Create baselines per hood (needed for phylo label positioning)  
     const nucleotideBaselines = genomeView.leaves
@@ -2095,7 +2311,7 @@ const PhyloTreeViewer = React.forwardRef(({
           }
         }
         if (key !== null && key !== undefined && key !== '') {
-          col = geneColorMap.get(key) || null;
+          col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
         }
       }
       const fill = ensureRgba(col || gene.fillColor || effectiveConfig.gene.fillColor);
@@ -2128,7 +2344,7 @@ const PhyloTreeViewer = React.forwardRef(({
             }
           }
           if (key !== null && key !== undefined && key !== '') {
-            mappedColor = geneColorMap.get(key);
+            mappedColor = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type);
           }
         }
       } catch (e) {
@@ -2618,7 +2834,7 @@ const PhyloTreeViewer = React.forwardRef(({
               }
             }
             if (key !== null && key !== undefined && key !== '') {
-              col = geneColorMap.get(key) || null;
+              col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
             }
           }
           if (!col) col = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
