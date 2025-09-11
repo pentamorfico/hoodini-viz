@@ -52,6 +52,9 @@ class GenomeView {
     this._baselineIndex = null; // Map(seqid -> [{start,end,hood_id}] sorted by start)
     this._regionsByHood = null; // Map(hood_id -> [RegionFeature])
     this._rightmostByHood = new Map(); // hood_id -> rightmost x
+  // Internal palette version counter used as a change signal when stored
+  // gene color state is mutated (bumped whenever colors are cleared or applied)
+  this._paletteVersion = 0;
   }
 
   // ---------- helpers: indexes / caches ----------
@@ -361,28 +364,11 @@ class GenomeView {
 
         rightmostX = Math.max(rightmostX, startX, endX);
 
+        // Domains compute their polygons from original domain coords and the
+        // visual gene polygon/centerLine. Update each domain's polygon now that
+        // gene polygon/centerLine/strand are up-to-date.
         for (let d of gene.domains) {
-          // Domain coordinates (d.origStart, d.origEnd) are in amino acids relative to gene start
-          // We need to convert them to proportional positions within the transformed gene
-          const geneOrigLength = Math.abs(gene.origEnd - gene.origStart); // Original gene length in nucleotides
-          const geneAALength = geneOrigLength / 3; // Convert to amino acids
-          
-          // Calculate domain positions as fractions of the gene length
-          let domainRelStart = d.origStart / geneAALength;
-          let domainRelEnd = d.origEnd / geneAALength;
-          
-          // For reverse strand genes, flip the domain positions
-          if (gene.origStrand === '-') {
-            const tempStart = 1 - domainRelEnd;
-            const tempEnd = 1 - domainRelStart;
-            domainRelStart = tempStart;
-            domainRelEnd = tempEnd;
-          }
-          
-          // Convert relative positions to actual coordinates within the transformed gene
-          const geneLength = Math.abs(gene.end - gene.start);
-          d.start = domainRelStart * geneLength;
-          d.end = domainRelEnd * geneLength;
+          d.updatePolygon();
         }
         gene.updatePolygon();
         processedGenes++;
@@ -1016,7 +1002,17 @@ class GenomeView {
     // Invalidate cluster summary cache when clusters change
     this._clusterSummary = null;
 
-    if (!paletteConfig || !paletteConfig.enabled) return;
+    // If palette disabled, clear any stored per-gene fillColor so renderers
+    // fall back to default coloring. Bump _paletteVersion as a stable
+    // signal for memo/trigger updates elsewhere.
+    if (!paletteConfig || !paletteConfig.enabled) {
+      for (const uniqueGeneId in this.genesById) {
+        const gene = this.genesById[uniqueGeneId];
+        if (gene && gene.fillColor) gene.fillColor = null;
+      }
+      this._paletteVersion++;
+      return;
+    }
 
     // Assign colors
     this.clusterColors = {};
@@ -1062,6 +1058,8 @@ class GenomeView {
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
     }
+  // Bump palette version to signal stored per-gene colors updated
+  this._paletteVersion++;
   }
 
   // Calculate prevalence of gene categories across baselines

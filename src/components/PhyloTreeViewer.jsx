@@ -389,9 +389,11 @@ const PhyloTreeViewer = React.forwardRef(({
   useEffect(() => {
     if (!genomeView) return;
 
-    // Apply gene palette colors if enabled
+    // Apply or clear gene palette colors. Always call the setter when we have
+    // a strictClusterMap so GenomeView can apply colors or clear them when the
+    // palette is disabled (it will bump its internal _paletteVersion signal).
     const effectiveGenePalette = genePalette || config?.colorPalettes?.genePalette;
-    if (effectiveGenePalette?.enabled && strictClusterMap) {
+    if (strictClusterMap) {
       genomeView.setProteinClustersWithPalette(strictClusterMap, effectiveGenePalette);
     }
 
@@ -1631,7 +1633,7 @@ const PhyloTreeViewer = React.forwardRef(({
       map.set(uid, col || null);
     }
     return map;
-  }, [genomeViewRef.current, paletteVersion]);
+  }, [genomeViewRef.current, genomeViewRef.current?._paletteVersion, effectiveGenePalette?.enabled, paletteVersion]);
 
   // Memoize layer data arrays to avoid rebuilding on every render
   const genesData = React.useMemo(() => {
@@ -1645,7 +1647,7 @@ const PhyloTreeViewer = React.forwardRef(({
       strand: g.strand,
       fillColor: geneColorMapMemo.get(uid) || themeColors.geneFill || [200,200,200,255]
     }));
-  }, [genomeViewRef.current, geneColorMapMemo, themeColors, paletteVersion]);
+  }, [genomeViewRef.current, genomeViewRef.current?._paletteVersion, effectiveGenePalette?.enabled, geneColorMapMemo, themeColors, paletteVersion]);
 
   const proteinLinkData = React.useMemo(() => {
     const gv = genomeViewRef.current;
@@ -3039,6 +3041,10 @@ const PhyloTreeViewer = React.forwardRef(({
     showNcRNALayer,
     showGeneTextLayer,
     showTreeTextLayer
+    ,
+    // Palette stored-color change signals
+    genomeViewRef.current?._paletteVersion,
+    effectiveGenePalette?.enabled
   ]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized

@@ -43,8 +43,11 @@ class Domain {
 
   updatePolygon() {
     if (!this.parentGene || !this.parentGene.polygon) return;
-    const g = this.parentGene;
-    let domainPoly = this.createDomainPolygon(g, this.start, this.end, g.strand);
+  const g = this.parentGene;
+  // Use original domain coordinates (origStart/origEnd) and let the
+  // creation routine decide whether to flip based on original vs visual
+  // gene strand. This avoids duplicated flipping/scale logic elsewhere.
+  let domainPoly = this.createDomainPolygon(g, this.origStart, this.origEnd);
     if (domainPoly && g.polygon) {
       // Clip domain polygon to gene polygon
       const genePoly = [g.polygon];
@@ -76,9 +79,8 @@ class Domain {
     }
   }
 
-  createDomainPolygon(g, domainStart, domainEnd, strand) {
+  createDomainPolygon(g, domainStart, domainEnd) {
     // Use the true gene start: lower for +, higher for -
-  const isPlus = strand === '+';
   const geneStartCoord = g.start;
   const geneEndCoord = g.end;
   const geneMin = Math.min(geneStartCoord, geneEndCoord);
@@ -90,24 +92,15 @@ class Domain {
   if (!isFinite(geneLength) || geneLength <= 0) return null;
 
   // Domain coordinates are in amino acids/nucleotides relative to gene start
-  // We need to convert them to proportions along the visual gene length
+  // We need to convert them to proportions along the visual gene length.
   // Assume domain coordinates are in amino acids, so we need the gene length in the same units
   const geneOrigLength = Math.abs(g.origEnd - g.origStart); // Original gene length in nucleotides
   const geneAALength = geneOrigLength / 3; // Convert to amino acids (approximate)
   
-  // Calculate domain positions as fractions of the gene length
+  // Calculate domain positions as fractions of the gene length.
+  // CenterLine already accounts for visual strand orientation, so no manual flip needed.
   let domainRelStart = domainStart / geneAALength;
   let domainRelEnd = domainEnd / geneAALength;
-  
-  console.log(`Domain calc: domainStart=${domainStart}, domainEnd=${domainEnd}, geneAALength=${geneAALength}, unclamped relative(${domainRelStart}-${domainRelEnd})`);
-  
-  // For reverse strand genes, we might need to flip the domain positions
-  if (!isPlus) {
-    const tempStart = 1 - domainRelEnd;
-    const tempEnd = 1 - domainRelStart;
-    domainRelStart = tempStart;
-    domainRelEnd = tempEnd;
-  }
   
   // Clamp to [0,1] to ensure domains stay within gene bounds
   domainRelStart = Math.max(0, Math.min(1, domainRelStart));
