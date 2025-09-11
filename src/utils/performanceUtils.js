@@ -108,6 +108,7 @@ export function measurePerformance(func, label) {
     const startTime = performance.now();
     const result = func.apply(this, args);
     const endTime = performance.now();
+    console.log(`⚡ ${label}: ${Math.round(endTime - startTime)}ms`);
     return result;
   };
 }
@@ -150,6 +151,7 @@ export function forEachLarge(obj, callback, batchSize = 5000) {
 export function checkDevToolsPerformance() {
   if (typeof window !== 'undefined' && window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
     console.warn('⚠️  React DevTools detected - may cause performance delays');
+    console.log('💡 Consider disabling React DevTools extension for accurate performance testing');
     return true;
   }
   return false;
@@ -162,6 +164,7 @@ export function checkDevToolsPerformance() {
  */
 export function monitoredEffect(effect, name) {
   return (...args) => {
+    console.log(`🔍 ${name}: Starting`);
     const startTime = performance.now();
     
     const result = effect(...args);
@@ -170,10 +173,12 @@ export function monitoredEffect(effect, name) {
     if (result && typeof result.then === 'function') {
       return result.then(res => {
         const endTime = performance.now();
+        console.log(`🔍 ${name}: Completed in ${Math.round(endTime - startTime)}ms`);
         return res;
       });
     } else {
       const endTime = performance.now();
+      console.log(`🔍 ${name}: Completed in ${Math.round(endTime - startTime)}ms`);
       return result;
     }
   };

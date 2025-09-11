@@ -31,7 +31,8 @@ export const DEFAULT_CONFIG = {
     tipWidthFactor: 0.1,   // Factor for gene arrow tip width (3% of gene length)
     strokeWidthFactor: 0.9, // Factor for darkening stroke color
     edgeWidth: 1,           // Edge width for gene polygons
-    arrowheadHeight: 0      // Height of the arrowhead (0 = no arrowhead, > 0 = true arrow)
+    arrowheadHeight: 0,     // Height of the arrowhead (0 = no arrowhead, > 0 = true arrow)
+    prevalenceThreshold: 10 // Default prevalence threshold percentage for gene filtering
   },
 
   // Genome-wide (non-tree) X scaling
@@ -86,7 +87,10 @@ export const DEFAULT_CONFIG = {
 
   // Domain Visualization Parameters
   domain: {
-    edgeWidth: 0.01            // Edge width for domain polygons
+  edgeWidth: 0.01,           // Edge width for domain polygons
+  // Height factor relative to gene half-height. 0.6 means domains will be
+  // 60% of the half-gene height (i.e. visibly smaller than genes).
+  heightFactor: 0.9
   },
 
   // Baseline Parameters

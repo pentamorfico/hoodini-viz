@@ -1,7 +1,7 @@
 // TreeScaleWidget.jsx
 // Widget for controlling phylogenetic tree X-axis scaling
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext.jsx';
 
 const TreeScaleWidget = ({ 
@@ -12,17 +12,35 @@ const TreeScaleWidget = ({
   const { getThemeColors, resolvedTheme } = useTheme();
   const themeColors = getThemeColors(resolvedTheme);
 
+  // Local state to avoid firing parent updates on every tiny slider move
+  const [localScale, setLocalScale] = useState(treeXScale);
+  const commitTimer = useRef(null);
+  useEffect(() => {
+    setLocalScale(treeXScale);
+  }, [treeXScale]);
+
+  const commitScale = (value) => {
+    if (commitTimer.current) {
+      clearTimeout(commitTimer.current);
+      commitTimer.current = null;
+    }
+    if (onTreeXScaleChange) onTreeXScaleChange(value);
+  };
+
   const handleScaleChange = (event) => {
     const newScale = parseFloat(event.target.value);
-    if (onTreeXScaleChange) {
-      onTreeXScaleChange(newScale);
-    }
+    setLocalScale(newScale);
+    // Debounce parent update slightly while dragging
+    if (commitTimer.current) clearTimeout(commitTimer.current);
+    commitTimer.current = setTimeout(() => commitScale(newScale), 120);
   };
 
   const handleInputChange = (event) => {
     const newScale = parseFloat(event.target.value);
-    if (!isNaN(newScale) && newScale > 0 && onTreeXScaleChange) {
-      onTreeXScaleChange(newScale);
+    if (!isNaN(newScale) && newScale > 0) {
+      setLocalScale(newScale);
+      // commit immediately for numeric input
+      commitScale(newScale);
     }
   };
 
@@ -69,8 +87,10 @@ const TreeScaleWidget = ({
           min="1"
           max="500"
           step="1"
-          value={treeXScale}
+          value={localScale}
           onChange={handleScaleChange}
+          onMouseUp={() => commitScale(localScale)}
+          onTouchEnd={() => commitScale(localScale)}
           style={{
             width: '100%',
             height: '6px',

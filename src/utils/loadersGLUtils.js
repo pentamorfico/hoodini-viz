@@ -175,9 +175,21 @@ function parseDomainsFallback(str) {
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i].trim();
     if (!line) continue;
-    const parts = line.split(/\s+/);
+    const parts = line.split(/\t/); // Use tab separation instead of whitespace
+    
+    if (parts.length < 7) {
+      continue;
+    }
+    
     const geneId = parts[0];
-    const domain = { domainName: parts[1], start: parseInt(parts[2], 10), end: parseInt(parts[3], 10), evalue: parseFloat(parts[4]) || 0 };
+    const domainName = parts[1];
+    const start = parseInt(parts[2], 10);
+    const end = parseInt(parts[3], 10);
+    const source = parts[4];
+    const evalue = parseFloat(parts[5]) || 0;
+    const coverage = parseFloat(parts[6]);
+    
+    const domain = { domainName, start, end, source, evalue, coverage };
     if (!data[geneId]) data[geneId] = [];
     data[geneId].push(domain);
   }

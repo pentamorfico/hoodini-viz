@@ -19,7 +19,7 @@ function App() {
   // Shared sidebar/AppPhylo state
   const [ultrametric, setUltrametric] = useState(false);
   const [showConnectingLines, setShowConnectingLines] = useState(false);
-  const [showScrollbar, setShowScrollbar] = useState(true);
+  const [showScrollbar, setShowScrollbar] = useState(false);
   const [alignLabels, setAlignLabels] = useState(false);
   const [alignCluster, setAlignCluster] = useState(null);
   const [useDefaultGeneAlignment, setUseDefaultGeneAlignment] = useState(true);

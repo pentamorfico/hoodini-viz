@@ -1,0 +1,336 @@
+domain_id	Function_pfam	Clan_pfam	Gene_pfam
+PF03773	Predicted permease	CL0182	ArsP_1
+PF01022	Bacterial regulatory protein, arsR family	CL0123	HTH_5
+PF06953	Arsenical resistance operon protein ArsD	CL0172	ArsD
+PF02374	Anion-transporting ATPase	CL0023	ArsA_ATPase
+PF02374	Anion-transporting ATPase	CL0023	ArsA_ATPase
+PF01022	Bacterial regulatory protein, arsR family	CL0123	HTH_5
+PF02040	Arsenical pump membrane protein	CL0182	ArsB
+PF01451	Low molecular weight phosphotyrosine protein phosphatase	CL0031	LMWPc
+PF16475	Domain of unknown function (DUF5052)		DUF5052
+PF00488	MutS domain V	CL0023	MutS_V
+PF00359	Phosphoenolpyruvate-dependent sugar phosphotransferase system, EIIA 2	CL0340	PTS_EIIA_2
+PF00874	PRD domain	CL0166	PRD
+PF08279	HTH domain	CL0123	HTH_11
+PF08280	M protein trans-acting positive regulator (MGA) HTH domain	CL0123	HTH_Mga
+PF00874	PRD domain	CL0166	PRD
+PF02378	Phosphotransferase system, EIIC 	CL0493	PTS_EIIC
+PF00359	Phosphoenolpyruvate-dependent sugar phosphotransferase system, EIIA 2	CL0340	PTS_EIIA_2
+PF02302	PTS system, Lactose/Cellobiose specific IIB subunit	CL0031	PTS_IIB
+PF20511	Phosphomannose isomerase type I, catalytic domain	CL0029	PMI_typeI_cat
+PF21621	Mannose-6-phosphate isomerase, cupin domain	CL0029	MPI_cupin_dom
+PF07883	Cupin domain	CL0029	Cupin_2
+PF09827	CRISPR associated protein Cas2	CL0728	CRISPR_Cas2
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF07799	Protein of unknown function (DUF1643)		DUF1643
+PF06106	S. aureus uracil DNA glycosylase inhibitor		SAUGI
+PF00239	Resolvase, N terminal domain		Resolvase
+PF07508	Recombinase	CL0123	Recombinase
+PF13408	Recombinase zinc beta ribbon domain	CL0167	Zn_ribbon_recom
+PF19263	Family of unknown function (DUF5906)	CL0023	DUF5906
+PF00476	DNA polymerase family A		DNA_pol_A
+PF19504	Family of unknown function (DUF6038)		DUF6038
+PF19504	Family of unknown function (DUF6038)		DUF6038
+PF03176	MMPL family	CL0322	MMPL
+PF03176	MMPL family	CL0322	MMPL
+PF04069	Substrate binding domain of ABC-type glycine betaine transport system	CL0177	OpuAC
+PF14278	Transcriptional regulator C-terminal region	CL0174	TetR_C_8
+PF00440	Bacterial regulatory proteins, tetR family	CL0123	TetR_N
+PF13610	DDE domain	CL0219	DDE_Tnp_IS240
+PF02517	Type II CAAX prenyl endopeptidase Rce1-like	CL0472	Rce1-like
+PF02590	Predicted SPOUT methyltransferase	CL0098	SPOUT_MTase
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF01381	Helix-turn-helix	CL0123	HTH_3
+PF02583	Metal-sensitive transcriptional repressor		Trns_repr_metal
+PF01022	Bacterial regulatory protein, arsR family	CL0123	HTH_5
+PF02518	Histidine kinase-, DNA gyrase B-, and HSP90-like ATPase	CL0025	HATPase_c
+PF00512	His Kinase A (phospho-acceptor) domain	CL0025	HisKA
+PF14827	Double sensory domain of two-component sensor kinase	CL0165	dCache_3
+PF00989	PAS fold	CL0183	PAS
+PF00672	HAMP domain	CL0681	HAMP
+PF03796	DnaB-like helicase C terminal domain	CL0023	DnaB_C
+PF00772	DnaB-like helicase N terminal domain		DnaB
+PF00072	Response regulator receiver domain	CL0304	Response_reg
+PF00486	Transcriptional regulatory protein, C terminal	CL0123	Trans_reg_C
+PF02706	Chain length determinant protein		Wzz
+PF04023	FeoA domain	CL0010	FeoA
+PF12669	FeoB-associated Cys-rich membrane protein		FeoB_associated
+PF00149	Calcineurin-like phosphoesterase	CL0163	Metallophos
+PF01566	Natural resistance-associated macrophage protein-like	CL0062	Nramp
+PF02682	Carboxyltransferase domain, subdomain C and D	CL0475	CT_C_D
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF00549	CoA-ligase	CL0506	Ligase_CoA
+PF02629	CoA binding domain	CL0063	CoA_binding
+PF02615	Malate/L-lactate dehydrogenase		Ldh_2
+PF07883	Cupin domain	CL0029	Cupin_2
+PF05899	EutQ-like cupin domain	CL0029	Cupin_3
+PF03948	Ribosomal protein L9, C-terminal domain		Ribosomal_L9_C
+PF01281	Ribosomal protein L9, N-terminal domain		Ribosomal_L9_N
+PF01368	DHH family	CL0137	DHH
+PF02272	DHHA1 domain		DHHA1
+PF21370	Cyclic-di-AMP phosphodiesterase GdpP, PAS domain	CL0183	GdpP_PAS
+PF02421	Ferrous iron transport protein B	CL0023	FeoB_N
+PF07670	Nucleoside recognition		Gate
+PF07670	Nucleoside recognition		Gate
+PF17910	FeoB cytosolic helical domain		FeoB_Cyto
+PF07664	Ferrous iron transport protein B C terminus		FeoB_C
+PF07905	Purine catabolism regulatory protein-like family		PucR
+PF13556	PucR C-terminal helix-turn-helix domain	CL0123	HTH_30
+PF17853	GGDEF-like domain	CL0276	GGDEF_2
+PF07638	ECF sigma factor	CL0123	Sigma70_ECF
+PF03073	TspO/MBR family		TspO_MBR
+PF06124	Staphylococcal protein of unknown function (DUF960)	CL0768	DUF960
+PF13202	EF hand	CL0220	EF-hand_5
+PF02040	Arsenical pump membrane protein	CL0182	ArsB
+PF18927	Glycosyl-4,4'-diaponeurosporenoate acyltransferase		CrtO
+PF00709	Adenylosuccinate synthetase	CL0023	Adenylsucc_synt
+PF05437	Branched-chain amino acid transport protein (AzlD)		AzlD
+PF00561	alpha/beta hydrolase fold	CL0028	Abhydrolase_1
+PF13686	DsrE/DsrF/DrsH-like family	CL0394	DrsE_2
+PF00581	Rhodanese-like domain	CL0031	Rhodanese
+PF01206	Sulfurtransferase TusA	CL0397	TusA
+PF00587	tRNA synthetase class II core domain (G, H, P, S and T)	CL0040	tRNA-synt_2b
+PF02403	Seryl-tRNA synthetase N-terminal domain	CL0298	Seryl_tRNA_N
+PF03746	LamB/YcsF family	CL0158	LamB_YcsF
+PF08245	Mur ligase middle domain	CL0023	Mur_ligase_M
+PF02875	Mur ligase family, glutamate ligase domain		Mur_ligase_C
+PF10099	Anti-sigma-K factor rskA		RskA
+PF13490	Putative zinc-finger	CL0645	zf-HC2
+PF04203	Sortase domain		Sortase
+PF01022	Bacterial regulatory protein, arsR family	CL0123	HTH_5
+PF19807	Family of unknown function (DUF6290)	CL0057	DUF6290
+PF01593	Flavin containing amine oxidoreductase	CL0063	Amino_oxidase
+PF03992	Antibiotic biosynthesis monooxygenase	CL0032	ABM
+PF13280	WYL domain	CL0654	WYL
+PF08279	HTH domain	CL0123	HTH_11
+PF09827	CRISPR associated protein Cas2	CL0728	CRISPR_Cas2
+PF09991	Predicted membrane protein (DUF2232)		DUF2232
+PF03441	FAD binding domain of DNA photolyase		FAD_binding_7
+PF00875	DNA photolyase	CL0039	DNA_photolyase
+PF00746	LPXTG cell wall anchor motif		Gram_pos_anchor
+PF02386	Cation transport protein	CL0030	TrkH
+PF12706	Beta-lactamase superfamily domain	CL0381	Lactamase_B_2
+PF05016	ParE toxin of type II toxin-antitoxin system, parDE	CL0136	ParE_toxin
+PF04023	FeoA domain	CL0010	FeoA
+PF12669	FeoB-associated Cys-rich membrane protein		FeoB_associated
+PF03551	Transcriptional regulator PadR-like family	CL0123	PadR
+PF06570	Protein of unknown function (DUF1129)	CL0112	DUF1129
+PF01566	Natural resistance-associated macrophage protein-like	CL0062	Nramp
+PF03746	LamB/YcsF family	CL0158	LamB_YcsF
+PF02786	Carbamoyl-phosphate synthase L chain, ATP binding domain	CL0179	CPSase_L_D2
+PF00289	Biotin carboxylase, N-terminal domain	CL0063	Biotin_carb_N
+PF02785	Biotin carboxylase C-terminal domain	CL0105	Biotin_carb_C
+PF02626	Carboxyltransferase domain, subdomain A and B 	CL0475	CT_A_B
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF07883	Cupin domain	CL0029	Cupin_2
+PF05899	EutQ-like cupin domain	CL0029	Cupin_3
+PF11392	Protein of unknown function (DUF2877)		DUF2877
+PF00696	Amino acid kinase family		AA_kinase
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF01979	Amidohydrolase family	CL0036	Amidohydro_1
+PF13302	Acetyltransferase (GNAT) domain	CL0257	Acetyltransf_3
+PF00370	FGGY family of carbohydrate kinases, N-terminal domain	CL0108	FGGY_N
+PF02782	FGGY family of carbohydrate kinases, C-terminal domain	CL0108	FGGY_C
+PF02786	Carbamoyl-phosphate synthase L chain, ATP binding domain	CL0179	CPSase_L_D2
+PF00289	Biotin carboxylase, N-terminal domain	CL0063	Biotin_carb_N
+PF02785	Biotin carboxylase C-terminal domain	CL0105	Biotin_carb_C
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF03929	PepSY-associated TM region	CL0490	PepSY_TM
+PF08818	Domain of unknown function (DU1801)	CL0631	DUF1801
+PF11392	Protein of unknown function (DUF2877)		DUF2877
+PF06545	Protein of unknown function (DUF1116)		DUF1116
+PF02615	Malate/L-lactate dehydrogenase		Ldh_2
+PF00364	Biotin-requiring enzyme	CL0105	Biotin_lipoyl
+PF02626	Carboxyltransferase domain, subdomain A and B 	CL0475	CT_A_B
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF00696	Amino acid kinase family		AA_kinase
+PF02133	Permease for cytosine/purines, uracil, thiamine, allantoin	CL0062	Transp_cyt_pur
+PF03551	Transcriptional regulator PadR-like family	CL0123	PadR
+PF03591	AzlC protein		AzlC
+PF07435	YycH protein	CL0285	YycH
+PF09648	YycI protein	CL0285	YycI
+PF02590	Predicted SPOUT methyltransferase	CL0098	SPOUT_MTase
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF16592	REC lobe of CRISPR-associated endonuclease Cas9	CL0693	Cas9_REC
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF09827	CRISPR associated protein Cas2	CL0728	CRISPR_Cas2
+PF07799	Protein of unknown function (DUF1643)		DUF1643
+PF06106	S. aureus uracil DNA glycosylase inhibitor		SAUGI
+PF00239	Resolvase, N terminal domain		Resolvase
+PF07508	Recombinase	CL0123	Recombinase
+PF13408	Recombinase zinc beta ribbon domain	CL0167	Zn_ribbon_recom
+PF00239	Resolvase, N terminal domain		Resolvase
+PF07508	Recombinase	CL0123	Recombinase
+PF13408	Recombinase zinc beta ribbon domain	CL0167	Zn_ribbon_recom
+PF06048	Domain of unknown function (DUF927)	CL0023	DUF927
+PF18662	Cch helix turn helix domain	CL0123	HTH_56
+PF07205	Domain of unknown function (DUF1413)		DUF1413
+PF00581	Rhodanese-like domain	CL0031	Rhodanese
+PF00753	Metallo-beta-lactamase superfamily	CL0381	Lactamase_B
+PF01925	Sulfite exporter TauE/SafE	CL0292	TauE
+PF01451	Low molecular weight phosphotyrosine protein phosphatase	CL0031	LMWPc
+PF01593	Flavin containing amine oxidoreductase	CL0063	Amino_oxidase
+PF00107	Zinc-binding dehydrogenase	CL0063	ADH_zinc_N
+PF08240	Alcohol dehydrogenase GroES-like domain	CL0296	ADH_N
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF00176	SNF2-related domain	CL0023	SNF2-rel_dom
+PF00271	Helicase conserved C-terminal domain	CL0023	Helicase_C
+PF02195	ParB/Sulfiredoxin domain	CL0248	ParBc
+PF03118	Bacterial RNA polymerase, alpha chain C terminal domain	CL0198	RNA_pol_A_CTD
+PF04545	Sigma-70, region 4	CL0123	Sigma70_r4
+PF03118	Bacterial RNA polymerase, alpha chain C terminal domain	CL0198	RNA_pol_A_CTD
+PF03118	Bacterial RNA polymerase, alpha chain C terminal domain	CL0198	RNA_pol_A_CTD
+PF06983	3-demethylubiquinone-9 3-methyltransferase	CL0104	3-dmu-9_3-mt
+PF16242	Pyridoxamine 5'-phosphate oxidase like	CL0336	Pyrid_ox_like
+PF00494	Squalene/phytoene synthase	CL0613	SQS_PSY
+PF00149	Calcineurin-like phosphoesterase	CL0163	Metallophos
+PF13302	Acetyltransferase (GNAT) domain	CL0257	Acetyltransf_3
+PF00370	FGGY family of carbohydrate kinases, N-terminal domain	CL0108	FGGY_N
+PF02782	FGGY family of carbohydrate kinases, C-terminal domain	CL0108	FGGY_C
+PF00364	Biotin-requiring enzyme	CL0105	Biotin_lipoyl
+PF02682	Carboxyltransferase domain, subdomain C and D	CL0475	CT_C_D
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF00746	LPXTG cell wall anchor motif		Gram_pos_anchor
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF03929	PepSY-associated TM region	CL0490	PepSY_TM
+PF02836	Glycosyl hydrolases family 2, TIM barrel domain	CL0036	Glyco_hydro_2_C
+PF02837	Glycosyl hydrolases family 2, sugar binding domain	CL0202	Glyco_hydro_2_N
+PF00703	Glycosyl hydrolases family 2	CL0159	Glyco_hydro_2
+PF13561	Enoyl-(Acyl carrier protein) reductase	CL0063	adh_short_C2
+PF03786	D-mannonate dehydratase (UxuA)	CL0036	UxuA
+PF02614	Glucuronate isomerase	CL0036	UxaC
+PF13347	MFS/sugar transport protein	CL0015	MFS_2
+PF00294	pfkB family carbohydrate kinase	CL0118	PfkB
+PF01081	KDPG and KHG aldolase	CL0036	Aldolase
+PF12833	Helix-turn-helix domain	CL0123	HTH_18
+PF08818	Domain of unknown function (DU1801)	CL0631	DUF1801
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF16592	REC lobe of CRISPR-associated endonuclease Cas9	CL0693	Cas9_REC
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF04014	Antidote-toxin recognition MazE, bacterial antitoxin	CL0132	MazE_antitoxin
+PF07859	alpha/beta hydrolase fold	CL0028	Abhydrolase_3
+PF00122	E1-E2 ATPase		E1-E2_ATPase
+PF00702	haloacid dehalogenase-like hydrolase	CL0137	Hydrolase
+PF00403	Heavy-metal-associated domain	CL0704	HMA
+PF00403	Heavy-metal-associated domain	CL0704	HMA
+PF12698	ABC-2 family transporter protein	CL0181	ABC2_membrane_3
+PF12698	ABC-2 family transporter protein	CL0181	ABC2_membrane_3
+PF09827	CRISPR associated protein Cas2	CL0728	CRISPR_Cas2
+PF00535	Glycosyl transferase family 2	CL0110	Glycos_transf_2
+PF07905	Purine catabolism regulatory protein-like family		PucR
+PF13556	PucR C-terminal helix-turn-helix domain	CL0123	HTH_30
+PF17853	GGDEF-like domain	CL0276	GGDEF_2
+PF01979	Amidohydrolase family	CL0036	Amidohydro_1
+PF07859	alpha/beta hydrolase fold	CL0028	Abhydrolase_3
+PF02615	Malate/L-lactate dehydrogenase		Ldh_2
+PF00549	CoA-ligase	CL0506	Ligase_CoA
+PF02629	CoA binding domain	CL0063	CoA_binding
+PF03265	Deoxyribonuclease II	CL0479	DNase_II
+PF06545	Protein of unknown function (DUF1116)		DUF1116
+PF11392	Protein of unknown function (DUF2877)		DUF2877
+PF00696	Amino acid kinase family		AA_kinase
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF03929	PepSY-associated TM region	CL0490	PepSY_TM
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF01867	CRISPR associated protein Cas1		Cas_Cas1
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF02682	Carboxyltransferase domain, subdomain C and D	CL0475	CT_C_D
+PF02626	Carboxyltransferase domain, subdomain A and B 	CL0475	CT_A_B
+PF00364	Biotin-requiring enzyme	CL0105	Biotin_lipoyl
+PF02786	Carbamoyl-phosphate synthase L chain, ATP binding domain	CL0179	CPSase_L_D2
+PF00289	Biotin carboxylase, N-terminal domain	CL0063	Biotin_carb_N
+PF02785	Biotin carboxylase C-terminal domain	CL0105	Biotin_carb_C
+PF03746	LamB/YcsF family	CL0158	LamB_YcsF
+PF01566	Natural resistance-associated macrophage protein-like	CL0062	Nramp
+PF00370	FGGY family of carbohydrate kinases, N-terminal domain	CL0108	FGGY_N
+PF02782	FGGY family of carbohydrate kinases, C-terminal domain	CL0108	FGGY_C
+PF13302	Acetyltransferase (GNAT) domain	CL0257	Acetyltransf_3
+PF00149	Calcineurin-like phosphoesterase	CL0163	Metallophos
+PF02421	Ferrous iron transport protein B	CL0023	FeoB_N
+PF07670	Nucleoside recognition		Gate
+PF07670	Nucleoside recognition		Gate
+PF07664	Ferrous iron transport protein B C terminus		FeoB_C
+PF17910	FeoB cytosolic helical domain		FeoB_Cyto
+PF13200	Putative glycosyl hydrolase domain	CL0036	DUF4015
+PF01569	PAP2 superfamily	CL0525	PAP2
+PF00730	HhH-GPD superfamily base excision DNA repair protein	CL0198	HhH-GPD
+PF07690	Major Facilitator Superfamily	CL0015	MFS_1
+PF05525	Branched-chain amino acid transport protein	CL0062	Branch_AA_trans
+PF02541	Ppx/GppA phosphatase family	CL0108	Ppx-GppA
+PF21447	Ppx/GppA phosphatase, domain III 	CL0237	Ppx-GppA_III
+PF17941	Polyphosphate kinase C-terminal domain 1	CL0479	PP_kinase_C_1
+PF13090	Polyphosphate kinase C-terminal domain 2	CL0479	PP_kinase_C
+PF02503	Polyphosphate kinase middle domain	CL0764	PP_kinase
+PF13089	Polyphosphate kinase N-terminal domain		PP_kinase_N
+PF00005	ABC transporter	CL0023	ABC_tran
+PF02687	FtsX-like permease family	CL0404	FtsX
+PF02687	FtsX-like permease family	CL0404	FtsX
+PF02687	FtsX-like permease family	CL0404	FtsX
+PF01207	Dihydrouridine synthase (Dus)	CL0036	Dus
+PF01497	Periplasmic binding protein	CL0043	Peripla_BP_2
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF21574	CRISPR-associated endonuclease Cas9, C-terminal domain		Cas9_PI_C
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18070	CRISPR-Cas9 PI domain		Cas9_PI2
+PF00892	EamA-like transporter family	CL0184	EamA
+PF13307	Helicase C-terminal domain	CL0023	Helicase_C_2
+PF04851	Type III restriction enzyme, res subunit	CL0023	ResIII
+PF04851	Type III restriction enzyme, res subunit	CL0023	ResIII
+PF01555	DNA methylase	CL0063	N6_N4_Mtase
+PF12564	Type III restriction/modification enzyme methylation subunit		TypeIII_RM_meth
+PF13508	Acetyltransferase (GNAT) domain	CL0257	Acetyltransf_7
+PF00211	Adenylate and Guanylate cyclase catalytic domain	CL0276	Guanylate_cyc
+PF18967	Pycsar effector protein		PycTM
+PF01610	Transposase	CL0219	DDE_Tnp_ISL3
+PF14690	zinc-finger of transposase IS204/IS1001/IS1096/IS1165	CL0167	zf-ISL3
+PF13542	Helix-turn-helix domain of transposase family ISL3	CL0123	HTH_Tnp_ISL3
+PF08006	Protein of unknown function (DUF1700)	CL0112	DUF1700
+PF03551	Transcriptional regulator PadR-like family	CL0123	PadR
+PF00155	Aminotransferase class I and II	CL0061	Aminotran_1_2
+PF00392	Bacterial regulatory proteins, gntR family	CL0123	GntR
+PF09827	CRISPR associated protein Cas2	CL0728	CRISPR_Cas2
+PF18061	CRISPR-Cas9 WED domain		CRISPR_Cas9_WED
+PF13395	HNH endonuclease	CL0263	HNH_4
+PF18541	RuvC endonuclease subdomain 3		RuvC_III
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2
+PF13303	Phosphotransferase system, EIIC	CL0493	PTS_EIIC_2

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   getQualitativePalettes,
   getSequentialPalettes,
@@ -313,6 +314,36 @@ const UnifiedPaletteWidget = ({
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+
+            {/* Desaturate by Prevalence Toggle - only for genes layer */}
+            {selectedLayer === 'genes' && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="desaturate-prevalence" className="text-xs">Desaturate by prevalence</Label>
+                <Switch
+                  id="desaturate-prevalence"
+                  checked={!!currentPalette?.desaturateByPrevalence}
+                  onCheckedChange={(checked) => handleConfigChange({ desaturateByPrevalence: checked })}
+                />
+              </div>
+            )}
+
+            {/* Prevalence Filter Slider - only for genes layer */}
+            {selectedLayer === 'genes' && (
+              <div className="space-y-1">
+                <Label htmlFor="prevalence-filter" className="text-xs">
+                  Prevalence filter: {currentPalette?.prevalenceFilter || 0}%
+                </Label>
+                <Slider
+                  id="prevalence-filter"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={[currentPalette?.prevalenceFilter || 0]}
+                  onValueChange={(value) => handleConfigChange({ prevalenceFilter: value[0] })}
+                  className="w-full"
+                />
               </div>
             )}
 

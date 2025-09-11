@@ -11,6 +11,7 @@ import { parseNucleotideLinks } from './utils/parseNucleotideLinks';
 import { parseDomains } from './utils/parseDomains';
 import parseBaselines from './utils/parseBaselines';
 import parseProteinMetadata from './utils/parseProteinMetadata';
+import { parseDomainsMetadata } from './utils/parseDomainsMetadata';
 import parseTreeMetadata from './utils/parseTreeMetadata';
 import { 
   parseProteinMetadataOptimized, 
@@ -32,6 +33,7 @@ import defaultNucleotideLinks from './data/defaultNucleotideLinks.txt?raw';
 import defaultDomains from './data/defaultDomains.txt?raw';
 import defaultBaselines from './data/defaultBaselines.txt?raw';
 import defaultProteinMetadata from './data/defaultProteinMetadata.txt?raw';
+import defaultDomainsMetadata from './data/defaultDomainsMetadata.txt?raw';
 import defaultTreeMetadata from './data/defaultTreeMetadata.txt?raw';
 
 
@@ -137,8 +139,16 @@ function App(props) {
   
   // Initialize display values on mount
   useEffect(() => {
-    setArrowheadHeightDisplay(arrowheadHeight);
-    setGeneHeightDisplay(geneHeight);
+    // Only initialize internal display state when the parent hasn't provided
+    // explicit display props (e.g., committed values from the top-level App).
+    // When parent provides `props.arrowheadHeightDisplay` / `props.geneHeightDisplay`
+    // we should not overwrite or set local state which would force an extra render.
+    if (typeof props.arrowheadHeightDisplay === 'undefined') {
+      setArrowheadHeightDisplay(arrowheadHeight);
+    }
+    if (typeof props.geneHeightDisplay === 'undefined') {
+      setGeneHeightDisplay(geneHeight);
+    }
   }, [arrowheadHeight, geneHeight]);
   
   // Gene and domain selection states
@@ -339,6 +349,7 @@ function App(props) {
   const [parsedProteinMetadata, setParsedProteinMetadata] = React.useState({});
   const [parsedTreeMetadata, setParsedTreeMetadata] = React.useState({});
   const [parsedNonCodingMetadata, setParsedNonCodingMetadata] = React.useState({});
+  const [parsedDomainMetadata, setParsedDomainMetadata] = React.useState({});
   const [dataLoading, setDataLoading] = React.useState(true);
   
   React.useEffect(() => {
@@ -531,6 +542,31 @@ function App(props) {
             if (!parsed) parsed = await parseTreeMetadataOptimized(defaultTreeMetadata);
             return parsed;
           })(),
+          // Domain metadata (expected object keyed by domain_id)
+          (async () => {
+            if (PREFER_PUBLIC_PARQUET) {
+              const p = await tryLoadParquet(`${parquetBase}/defaultDomainsMetadata.parquet`);
+              if (p) {
+                if (Array.isArray(p)) {
+                  console.log('[data] using parquet for defaultDomainsMetadata');
+                  const out = {};
+                  for (const row of p) { if (row.domain_id) out[row.domain_id] = row; }
+                  return out;
+                }
+                console.log('[data] parquet found for defaultDomainsMetadata but not an array, falling back to text parser');
+              } else {
+                console.log('[data] no parquet for defaultDomainsMetadata, using text parser');
+              }
+            } else {
+              console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultDomainsMetadata');
+            }
+            let parsed = null;
+            if (parserWorker) {
+              try { parsed = await runWorker('domainsMetadata', defaultDomainsMetadata); } catch (e) { parsed = null; }
+            }
+            if (!parsed) parsed = parseDomainsMetadata(defaultDomainsMetadata);
+            return parsed;
+          })(),
           // NOTE: Non-coding metadata will be derived from the GFF features (ncRNA entries)
           // if a separate defaultNonCodingMetadata file is not provided. We therefore
           // don't include a dedicated non-coding promise here; derivation is done
@@ -539,9 +575,9 @@ function App(props) {
 
         // Load all data (parquet preferred, text fallback). Capture raw results in local variables,
         // then run a single conversion + sample printing pass and set state once.
-        let rawGff, rawProteinLinks, rawNucleotideLinks, rawDomains, rawBaselines, rawProteinMeta, rawTreeMeta;
+        let rawGff, rawProteinLinks, rawNucleotideLinks, rawDomains, rawBaselines, rawProteinMeta, rawTreeMeta, rawDomainMeta;
         try {
-          [rawGff, rawProteinLinks, rawNucleotideLinks, rawDomains, rawBaselines, rawProteinMeta, rawTreeMeta] = await Promise.all(promises);
+          [rawGff, rawProteinLinks, rawNucleotideLinks, rawDomains, rawBaselines, rawProteinMeta, rawTreeMeta, rawDomainMeta] = await Promise.all(promises);
         } catch (error) {
           console.warn('[data] parquet/text parallel load error, falling back to synchronous parsers:', error && error.message ? error.message : error);
           // fallback to synchronous parsing
@@ -551,6 +587,7 @@ function App(props) {
           rawDomains = parseDomains(defaultDomains);
           rawBaselines = parseBaselines(defaultBaselines);
           rawProteinMeta = parseProteinMetadata(defaultProteinMetadata);
+          rawDomainMeta = parseDomainsMetadata(defaultDomainsMetadata);
           rawTreeMeta = parseTreeMetadata(defaultTreeMetadata);
           rawNonCodingMeta = {};
         }
@@ -592,6 +629,7 @@ function App(props) {
         baselinesClean = forceBaselineFieldsNumber(baselinesClean || []);
         const proteinMetaClean = convertBigInts(rawProteinMeta || {});
         const treeMetaClean = convertBigInts(rawTreeMeta || {});
+        const domainMetaClean = convertBigInts(rawDomainMeta || {});
         // Derive non-coding metadata from parsed GFF if no separate metadata was provided.
         // Use attributes.ncrna_type when available and normalize any ID-like values.
         let nonCodingMetaClean = {};
@@ -650,6 +688,7 @@ function App(props) {
         }
         setParsedProteinMetadata(proteinMetaObj);
         setParsedTreeMetadata(treeMetaClean);
+        setParsedDomainMetadata(domainMetaClean);
         // Propagate metadata column headers to parent (if setters provided)
         try {
           if (props.setGeneMetadataColumns && typeof props.setGeneMetadataColumns === 'function') {
@@ -738,6 +777,7 @@ function App(props) {
           onObjectClick={handleObjectClick}
           showSVGWidget={true}
           proteinMetadata={parsedProteinMetadata}
+          domainMetadata={parsedDomainMetadata}
           colorBy={props.geneColorBy ?? geneColorBy}
           geneColorBy={props.geneColorBy ?? geneColorBy}
           labelBy={props.geneLabelBy ?? geneLabelBy}

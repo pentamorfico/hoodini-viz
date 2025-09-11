@@ -8,6 +8,7 @@ import NonCodingFeature from './NonCodingFeature';
 import RegionFeature from './RegionFeature';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 import { getPaletteColors } from '../utils/colorPalettes';
+import { memoGetPalette } from '../utils/paletteCache';
 
 class GenomeView {
   constructor(leaves, tree, config = DEFAULT_CONFIG) {
@@ -361,14 +362,27 @@ class GenomeView {
         rightmostX = Math.max(rightmostX, startX, endX);
 
         for (let d of gene.domains) {
-          let domainStartHood = geneStartHood + d.origStart;
-          let domainEndHood   = geneStartHood + d.origEnd;
-          let domainStartX = GenomeView.getTransformedXUnified(domainStartHood, anchor, offset, flipped);
-          let domainEndX   = GenomeView.getTransformedXUnified(domainEndHood,   anchor, offset, flipped);
-          domainStartX = anchor + (domainStartX - anchor) * xScale;
-          domainEndX   = anchor + (domainEndX   - anchor) * xScale;
-          d.start = domainStartX - gene.start;
-          d.end   = domainEndX   - gene.start;
+          // Domain coordinates (d.origStart, d.origEnd) are in amino acids relative to gene start
+          // We need to convert them to proportional positions within the transformed gene
+          const geneOrigLength = Math.abs(gene.origEnd - gene.origStart); // Original gene length in nucleotides
+          const geneAALength = geneOrigLength / 3; // Convert to amino acids
+          
+          // Calculate domain positions as fractions of the gene length
+          let domainRelStart = d.origStart / geneAALength;
+          let domainRelEnd = d.origEnd / geneAALength;
+          
+          // For reverse strand genes, flip the domain positions
+          if (gene.origStrand === '-') {
+            const tempStart = 1 - domainRelEnd;
+            const tempEnd = 1 - domainRelStart;
+            domainRelStart = tempStart;
+            domainRelEnd = tempEnd;
+          }
+          
+          // Convert relative positions to actual coordinates within the transformed gene
+          const geneLength = Math.abs(gene.end - gene.start);
+          d.start = domainRelStart * geneLength;
+          d.end = domainRelEnd * geneLength;
         }
         gene.updatePolygon();
         processedGenes++;
@@ -521,23 +535,28 @@ class GenomeView {
     this.domainsByGene = domainsByGene;
     if (!this._genesIndexReady) this._buildGeneIndex();
 
+    console.log('addDomains: Processing domains for genes:', Object.keys(domainsByGene));
+
     for (const originalGeneId in domainsByGene) {
       const matchingUniqueIds = this._genesByOriginalId.get(originalGeneId) || [];
+      console.log(`addDomains: Gene ${originalGeneId} has ${matchingUniqueIds.length} matches:`, matchingUniqueIds);
+      
       for (const uniqueId of matchingUniqueIds) {
         const gene = this.genesById[uniqueId];
-        if (!gene) continue;
+        if (!gene) {
+          console.log(`addDomains: Gene ${uniqueId} not found in genesById`);
+          continue;
+        }
+
+        console.log(`addDomains: Processing gene ${originalGeneId} -> ${uniqueId}, gene coords: ${gene.origStart}-${gene.origEnd}, hood_id: ${gene.hood_id}`);
 
         for (let d of domainsByGene[originalGeneId]) {
           const hoodBaseline = this.hoodBaselines[gene.hood_id];
-          if (hoodBaseline) {
-            const adjustedStart = d.start - hoodBaseline.origStart;
-            const adjustedEnd   = d.end   - hoodBaseline.origStart;
-            let dom = new Domain(uniqueId, d.domainName, adjustedStart, adjustedEnd, d.evalue);
-            gene.addDomain(dom);
-          } else {
-            let dom = new Domain(uniqueId, d.domainName, d.start, d.end, d.evalue);
-            gene.addDomain(dom);
-          }
+          // Domain coordinates are relative to gene start, not absolute genomic coordinates
+          // So we don't need to adjust them by baseline - the gene coordinates are already adjusted
+          console.log(`Domain ${originalGeneId} ${d.domainName}: using relative coords(${d.start}-${d.end}), gene(${gene.origStart}-${gene.origEnd}), evalue=${d.evalue}, coverage=${d.coverage}`);
+          let dom = new Domain(uniqueId, d.domainName, d.start, d.end, d.source, d.evalue, d.coverage);
+          gene.addDomain(dom);
         }
 
         if (!gene.metadata) gene.metadata = {};
@@ -546,6 +565,35 @@ class GenomeView {
           : '';
       }
     }
+  }
+
+  addDomainMetadata(domainMetadata) {
+    if (!domainMetadata) return;
+    
+    let attachedCount = 0;
+    
+    // Iterate through all genes and their domains
+    for (const geneId in this.genesById) {
+      const gene = this.genesById[geneId];
+      if (!gene.domains || gene.domains.length === 0) continue;
+      
+      for (const domain of gene.domains) {
+        const domainId = domain.domainName; // e.g., "PF03773"
+        if (domainMetadata[domainId]) {
+          const oldMetadata = { ...domain.metadata };
+          domain.metadata = { ...domain.metadata, ...domainMetadata[domainId] };
+          console.log(`Domain ${domainId} metadata update:`, { 
+            before: oldMetadata, 
+            after: domain.metadata,
+            evalue: domain.evalue,
+            coverage: domain.coverage 
+          });
+          attachedCount++;
+        }
+      }
+    }
+    
+    console.log(`addDomainMetadata: Attached metadata to ${attachedCount} domains`);
   }
 
   addProteinLinks(links, color = [50, 100, 220], adjacencyN = Infinity) {
@@ -629,7 +677,7 @@ class GenomeView {
     let paletteColors = null;
     if (colorConfig?.colorBy === 'identity_gradient' && colorConfig?.palette?.enabled) {
       try {
-        paletteColors = getPaletteColors(
+        paletteColors = memoGetPalette(
           colorConfig.palette.name,
           colorConfig.palette.numColors,
           colorConfig.palette.reverse
@@ -663,7 +711,7 @@ class GenomeView {
     let paletteColors = null;
     if (colorConfig?.colorBy === 'identity_gradient' && colorConfig?.palette?.enabled) {
       try {
-        paletteColors = getPaletteColors(
+        paletteColors = memoGetPalette(
           colorConfig.palette.name,
           colorConfig.palette.numColors,
           colorConfig.palette.reverse
@@ -790,19 +838,29 @@ class GenomeView {
   }
 
   getAllDomains() {
-    const alld = [];
+  const alld = [];
+  let totalDomains = 0;
+  let validDomains = 0;
     for (const gId in this.genesById) {
       const g = this.genesById[gId];
       for (let d of g.domains) {
+    totalDomains++;
         let poly = d.polygon;
         if (Array.isArray(poly) && poly.length === 1 && Array.isArray(poly[0])) {
           poly = poly[0];
         }
+
         if (isValidPolygon(poly)) {
+          validDomains++;
           alld.push({ polygon: poly, fillColor: d.fillColor, domainName: d.domainName, metadata: d.metadata, geneId: d.geneId });
         }
       }
     }
+    try {
+      if (typeof window !== 'undefined' && window.__hoodini_debug) {
+        console.debug(`GenomeView.getAllDomains: total=${totalDomains}, valid=${validDomains}`);
+      }
+    } catch (e) {}
     return alld;
   }
 
@@ -912,6 +970,8 @@ class GenomeView {
   setProteinClusters(clusterMap) {
     if (!clusterMap || Object.keys(clusterMap).length === 0) {
       this.proteinClusters = {};
+      // Invalidate cluster summary cache
+      this._clusterSummary = null;
       return;
     }
     this.proteinClusters = {};
@@ -924,6 +984,9 @@ class GenomeView {
       const ids = this._genesByOriginalId.get(originalGeneId) || [];
       for (const uid of ids) this.proteinClusters[uid] = normCluster;
     }
+
+    // Invalidate cluster summary cache when clusters change
+    this._clusterSummary = null;
 
     if (!this.clusterColors) return;
 
@@ -950,6 +1013,9 @@ class GenomeView {
       for (const uid of ids) this.proteinClusters[uid] = normCluster;
     }
 
+    // Invalidate cluster summary cache when clusters change
+    this._clusterSummary = null;
+
     if (!paletteConfig || !paletteConfig.enabled) return;
 
     // Assign colors
@@ -959,7 +1025,7 @@ class GenomeView {
     let clusterColors = [];
     if (paletteConfig.name) {
       try {
-        clusterColors = getPaletteColors(
+        clusterColors = memoGetPalette(
           paletteConfig.name,
           Math.max(clusterIds.length, paletteConfig.numColors || clusterIds.length),
           paletteConfig.reverse || false
@@ -975,6 +1041,20 @@ class GenomeView {
       this.clusterColors[cluster] = clusterColors[i % clusterColors.length];
     });
 
+    // Apply desaturation by prevalence if enabled
+    if (paletteConfig.desaturateByPrevalence) {
+      const prevalenceMap = this.computeGenePrevalence('cluster');
+      for (const cluster in this.clusterColors) {
+        const prevalence = prevalenceMap.get(cluster) || 0;
+        this.clusterColors[cluster] = this._desaturateColorByPrevalence(
+          this.clusterColors[cluster], 
+          prevalence
+        );
+      }
+    }
+
+  // Invalidate cluster summary cache
+  this._clusterSummary = null;
     for (const uniqueGeneId in this.genesById) {
       const gene = this.genesById[uniqueGeneId];
   const cluster = this.proteinClusters[uniqueGeneId];
@@ -982,6 +1062,128 @@ class GenomeView {
       if (!gene.metadata) gene.metadata = {};
       gene.metadata.clusterId = cluster || null;
     }
+  }
+
+  // Calculate prevalence of gene categories across baselines
+  // Returns a Map: category -> prevalence (0-1, where 1 = present in all baselines)
+  computeGenePrevalence(categoryField = 'cluster') {
+    const totalHoods = Object.keys(this.hoodBaselines).length;
+    if (totalHoods === 0) return new Map();
+
+    // Track which hoods contain each category
+    const categoryToHoods = new Map(); // category -> Set(hood_ids)
+    
+    for (const gene of Object.values(this.genesById)) {
+      if (!gene.hood_id) continue;
+      
+      // Get category from gene metadata or cluster
+      let category = null;
+      if (categoryField === 'cluster') {
+        category = gene.metadata?.cluster ?? gene.metadata?.clusterId ?? gene.cluster;
+      } else {
+        category = gene.metadata?.[categoryField];
+      }
+      
+      if (category === null || category === undefined || category === '') continue;
+      
+      const categoryKey = String(category);
+      if (!categoryToHoods.has(categoryKey)) {
+        categoryToHoods.set(categoryKey, new Set());
+      }
+      categoryToHoods.get(categoryKey).add(gene.hood_id);
+    }
+    
+    // Calculate prevalence for each category
+    const prevalenceMap = new Map();
+    for (const [category, hoods] of categoryToHoods) {
+      const prevalence = hoods.size / totalHoods;
+      prevalenceMap.set(category, prevalence);
+    }
+    
+    return prevalenceMap;
+  }
+
+  // Apply desaturation to a color based on prevalence
+  // prevalence: 0-1 (0 = not present, 1 = present in all baselines)
+  // Lower prevalence = more desaturated
+  _desaturateColorByPrevalence(color, prevalence) {
+    if (!color || !Array.isArray(color) || prevalence >= 1) return color;
+    
+    const [r, g, b, a = 255] = color;
+    
+    // Convert RGB to HSL for desaturation
+    const rNorm = r / 255;
+    const gNorm = g / 255;
+    const bNorm = b / 255;
+    
+    const max = Math.max(rNorm, gNorm, bNorm);
+    const min = Math.min(rNorm, gNorm, bNorm);
+    const delta = max - min;
+    
+    // Calculate lightness
+    const lightness = (max + min) / 2;
+    
+    // Calculate saturation
+    let saturation = 0;
+    if (delta !== 0) {
+      saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+    }
+    
+    // Calculate hue
+    let hue = 0;
+    if (delta !== 0) {
+      if (max === rNorm) hue = ((gNorm - bNorm) / delta + (gNorm < bNorm ? 6 : 0)) / 6;
+      else if (max === gNorm) hue = ((bNorm - rNorm) / delta + 2) / 6;
+      else hue = ((rNorm - gNorm) / delta + 4) / 6;
+    }
+    
+    // Desaturate based on prevalence
+    // Low prevalence (rare) = high desaturation
+    // High prevalence (common) = low desaturation
+    const desaturationFactor = 1 - prevalence; // 0 = no desaturation, 1 = full desaturation
+    const newSaturation = saturation * (1 - desaturationFactor * 0.8); // Max 80% desaturation
+    
+    // Convert back to RGB
+    const c = (1 - Math.abs(2 * lightness - 1)) * newSaturation;
+    const x = c * (1 - Math.abs(((hue * 6) % 2) - 1));
+    const m = lightness - c / 2;
+    
+    let rPrime = 0, gPrime = 0, bPrime = 0;
+    const hueSegment = Math.floor(hue * 6);
+    
+    if (hueSegment === 0) { rPrime = c; gPrime = x; bPrime = 0; }
+    else if (hueSegment === 1) { rPrime = x; gPrime = c; bPrime = 0; }
+    else if (hueSegment === 2) { rPrime = 0; gPrime = c; bPrime = x; }
+    else if (hueSegment === 3) { rPrime = 0; gPrime = x; bPrime = c; }
+    else if (hueSegment === 4) { rPrime = x; gPrime = 0; bPrime = c; }
+    else { rPrime = c; gPrime = 0; bPrime = x; }
+    
+    return [
+      Math.round((rPrime + m) * 255),
+      Math.round((gPrime + m) * 255),
+      Math.round((bPrime + m) * 255),
+      a
+    ];
+  }
+
+  // Cached cluster summary: { items: [{id, size, label}], ids: [id,...] }
+  _computeClusterSummary() {
+    const clustersMap = this.proteinClusters || {};
+    const counts = Object.values(clustersMap).reduce((acc, cid) => {
+      const key = String(cid);
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+    const items = Object.entries(counts)
+      .map(([id, size]) => ({ id, size: Number(size), label: `Cluster ${id} (${size} genes)` }))
+      .sort((a, b) => b.size - a.size);
+    return { items, ids: items.map(it => it.id) };
+  }
+
+  getClusterSummary() {
+    if (this._clusterSummary) return this._clusterSummary;
+    this._clusterSummary = this._computeClusterSummary();
+    return this._clusterSummary;
   }
 
   setNcRNAColorsWithPalette(paletteConfig = null) {
@@ -1008,7 +1210,7 @@ class GenomeView {
     
     if (paletteConfig.name) {
       try {
-        ncRNAColors = getPaletteColors(
+        ncRNAColors = memoGetPalette(
           paletteConfig.name,
           Math.max(ncRNATypeKeys.length, paletteConfig.numColors || ncRNATypeKeys.length),
           paletteConfig.reverse || false
@@ -1064,7 +1266,7 @@ class GenomeView {
     let regionColors = [];
     if (paletteConfig.name) {
       try {
-        regionColors = getPaletteColors(
+        regionColors = memoGetPalette(
           paletteConfig.name,
           Math.max(uniqueKeys.length, paletteConfig.numColors || uniqueKeys.length),
           paletteConfig.reverse || false
@@ -1454,7 +1656,7 @@ class GenomeView {
     let domainColors = [];
     if (paletteConfig.name) {
       try {
-        domainColors = getPaletteColors(
+        domainColors = memoGetPalette(
           paletteConfig.name,
           Math.max(sorted.length, paletteConfig.numColors || sorted.length),
           paletteConfig.reverse || false

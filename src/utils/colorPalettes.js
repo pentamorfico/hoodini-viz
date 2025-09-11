@@ -78,6 +78,7 @@ export function getPaletteColors(paletteName, numColors, reverse = false) {
     // First check if the palette exists and get its maximum supported colors
     const palettes = getPalettes({ name: paletteName });
     if (!palettes || palettes.length === 0) {
+      console.warn(`Palette ${paletteName} not found, using sequential fallback`);
       return getSequentialColors(paletteName, numColors, reverse);
     }
 
@@ -86,23 +87,27 @@ export function getPaletteColors(paletteName, numColors, reverse = false) {
     
     // If requesting more colors than the palette supports, use sequential interpolation
     if (numColors > maxSupportedColors) {
+      console.info(`Palette ${paletteName} supports max ${maxSupportedColors} colors, but ${numColors} requested. Using interpolated sequential colors.`);
       return getSequentialColors(paletteName, numColors, reverse);
     }
 
     // Try to get colors normally for supported numbers
     const hexColors = getColors(paletteName, numColors, reverse);
     if (!hexColors || !Array.isArray(hexColors) || hexColors.length === 0) {
+      console.warn(`Failed to get palette ${paletteName} with ${numColors} colors: palette not found or invalid`);
       return getSequentialColors(paletteName, numColors, reverse);
     }
     
     // Additional safety check for individual hex values
     const validHexColors = hexColors.filter(hex => hex != null && typeof hex === 'string');
     if (validHexColors.length === 0) {
+      console.warn(`All colors in palette ${paletteName} are invalid`);
       return getSequentialColors(paletteName, numColors, reverse);
     }
     
     return validHexColors.map(hex => hexToRgba(hex));
   } catch (error) {
+    console.warn(`Failed to get palette ${paletteName} with ${numColors} colors:`, error);
     // Fallback to sequential interpolation
     return getSequentialColors(paletteName, numColors, reverse);
   }
@@ -113,8 +118,12 @@ export function getSequentialColors(paletteName, numColors, reverse = false) {
   try {
     // Performance optimization: cap extremely large color requests
     if (numColors > 500) {
+      console.warn(`🚨 PERFORMANCE: Capping color generation from ${numColors} to 500 colors to prevent main thread blocking`);
       numColors = 500;
     }
+    
+    const startTime = performance.now();
+    console.log('🎨 COLOR GENERATION: Starting sequential color generation for', numColors, 'colors');
     
     // First try to get the maximum number of colors this palette supports
     const palettes = getPalettes({ name: paletteName });
@@ -169,9 +178,13 @@ export function getSequentialColors(paletteName, numColors, reverse = false) {
         interpolatedColors.push(interpolated);
       }
     }
+
+    const endTime = performance.now();
+    console.log('🎨 COLOR GENERATION: Completed', interpolatedColors.length, 'colors in', Math.round(endTime - startTime), 'ms');
     
     return interpolatedColors;
   } catch (error) {
+    console.warn(`Failed to generate sequential colors for palette ${paletteName}:`, error);
     return generateFallbackColors(numColors);
   }
 }

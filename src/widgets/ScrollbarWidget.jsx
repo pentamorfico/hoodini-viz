@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 export default function ScrollbarWidget({
@@ -10,6 +10,7 @@ export default function ScrollbarWidget({
   setViewState,
   containerHeight,
   viewState,
+  viewStateRef,
   config = DEFAULT_CONFIG,
   themeColors = {}
 }) {
@@ -26,6 +27,31 @@ export default function ScrollbarWidget({
   }
 
   const scrollBarRef = useRef(null);
+
+  // If a live viewStateRef is provided, poll it via RAF and update the
+  // normalized scroll position so the thumb follows live camera moves.
+  useEffect(() => {
+    if (!viewStateRef) return undefined;
+    let rafId = null;
+    let lastNorm = scrollNorm;
+    const tick = () => {
+      const vs = viewStateRef.current;
+      if (vs && vs.target && isFinite(minY) && isFinite(maxY) && maxY > minY) {
+        const y = vs.target[1];
+        if (isFinite(y)) {
+          const newNorm = Math.max(0, Math.min(100, ((maxY - y) / (maxY - minY)) * 100));
+          // Avoid tiny churn by updating only when the change is meaningful
+          if (!isFinite(lastNorm) || Math.abs(newNorm - lastNorm) > 0.5) {
+            lastNorm = newNorm;
+            try { setScrollNorm(newNorm); } catch (e) { /* swallow */ }
+          }
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => { if (rafId) cancelAnimationFrame(rafId); };
+  }, [viewStateRef, minY, maxY, setScrollNorm, scrollNorm]);
 
   // Theme-aware colors
   const trackColor = themeColors.widgetBackground || '#f8f9fa';
@@ -60,7 +86,7 @@ export default function ScrollbarWidget({
           width: config.scrollbar.barWidth,
           height: '96%',
           background: trackColor,
-          borderRadius: 0, // force square
+          borderRadius: 100, // force square
           WebkitBorderRadius: 0,
           MozBorderRadius: 0,
           margin: config.scrollbar.margin,
@@ -109,7 +135,7 @@ export default function ScrollbarWidget({
               return { top: thumbTop, height: thumbHeight };
             })(),
             background: thumbColor,
-            borderRadius: 20, // force square
+            borderRadius: 220, // force square
             WebkitBorderRadius: 0,
             MozBorderRadius: 0,
             boxShadow: `0 1px 4px ${thumbShadow}`,

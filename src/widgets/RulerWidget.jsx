@@ -6,7 +6,12 @@ import { useTheme } from '../contexts/ThemeContext.jsx';
 const RulerWidget = ({
   minX,
   maxX,
+  // Accept either a live ref (preferred) or a static viewState prop for
+  // backward-compatibility. When a ref is provided the widget will poll it
+  // via requestAnimationFrame and re-render itself without causing parent
+  // re-renders on every camera change.
   viewState,
+  viewStateRef,
   containerWidth,
   containerHeight,
   visible = true,
@@ -22,6 +27,39 @@ const RulerWidget = ({
   if (!visible || !isFinite(minX) || !isFinite(maxX) || maxX <= minX) {
     return null;
   }
+
+  // Local viewState that the ruler reads from. If a viewStateRef is provided
+  // the ruler will poll it via RAF and update this local state; otherwise it
+  // will use the provided static viewState prop and rely on parent re-renders.
+  const [localViewState, setLocalViewState] = React.useState(
+    viewStateRef && viewStateRef.current ? viewStateRef.current : (viewState || { target: [0, 0], zoom: 0 })
+  );
+
+  // Keep local state in sync when parent passes a non-ref viewState prop
+  React.useEffect(() => {
+    if (!viewStateRef && viewState) setLocalViewState(viewState);
+  }, [viewState, viewStateRef]);
+
+  // RAF polling loop: read value from viewStateRef.current and update
+  // local state when it changes. This avoids bubbling camera updates into
+  // parent React state, which would cause many re-renders.
+  React.useEffect(() => {
+    if (!viewStateRef || !visible) return undefined;
+    let rafId = null;
+    let last = viewStateRef.current;
+    const tick = () => {
+      const vs = viewStateRef.current;
+      if (vs && vs !== last) {
+        last = vs;
+        setLocalViewState(vs);
+      }
+      rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [viewStateRef, visible]);
 
   // Calculate the boundary between tree area and gene area
   // Tree area: from some leftmost point to the leftmost baseline
@@ -65,9 +103,9 @@ const RulerWidget = ({
     isAlignmentActive = true;
   }
   
-  // Calculate the visible X range based on current view state
-  const centerX = viewState?.target?.[0] || 0;
-  const zoom = viewState?.zoom || 0;
+  // Calculate the visible X range based on current view state (use local view state)
+  const centerX = localViewState?.target?.[0] || 0;
+  const zoom = localViewState?.zoom || 0;
   const scale = Math.pow(2, zoom);
   
   // Calculate visible width in coordinate units

@@ -282,6 +282,11 @@ export function AppSidebar({
   const treeXScale = typeof treeXScaleProp !== 'undefined' ? treeXScaleProp : localTreeXScale;
   const setTreeXScale = typeof setTreeXScaleProp === 'function' ? setTreeXScaleProp : setLocalTreeXScale;
 
+  // Debounce timers for sliders to avoid rapid parent updates
+  const arrowheadDebounceRef = useRef<any>(null);
+  const geneHeightDebounceRef = useRef<any>(null);
+  const treeScaleDebounceRef = useRef<any>(null);
+
   const [localViewerLegend, setLocalViewerLegend] = useState(null);
   const viewerLegend = typeof viewerLegendProp !== 'undefined' ? viewerLegendProp : localViewerLegend;
   const setViewerLegend = typeof setViewerLegendProp === 'function' ? setViewerLegendProp : setLocalViewerLegend;
@@ -332,36 +337,123 @@ export function AppSidebar({
   // Live clusters discovered from the viewer (if available)
   const [liveClusters, setLiveClusters] = useState<Array<string|number>>([]);
 
-  const refreshClusters = () => {
+  const refreshClusters = React.useCallback(() => {
     try {
       const gv = (phyloTreeViewerRefProp && phyloTreeViewerRefProp.current) ? phyloTreeViewerRefProp.current.genomeView : null;
+      console.log('🔧 refreshClusters - GenomeView:', gv ? 'Found' : 'Not found');
+      
       if (!gv) {
+        console.log('🔧 No GenomeView, clearing clusters');
         setLiveClusters([]);
         setAvailableClusters([]);
         return;
       }
-      const clustersMap = gv.proteinClusters || {};
-      const counts: Record<string, number> = {} as any;
-      Object.values(clustersMap).forEach((cid: any) => {
-        const key = String(cid);
-        counts[key] = (counts[key] || 0) + 1;
-      });
-      const items = Object.entries(counts)
-        .map(([id, size]) => ({ id, size: Number(size), label: `Cluster ${id} (${size} genes)` }))
-        .sort((a, b) => b.size - a.size);
-      setAvailableClusters(items);
-      const clusterIds = items.map(it => it.id);
-      setLiveClusters(clusterIds);
+      
+      // Debug: check if the method exists and protein clusters
+      console.log('🔧 getClusterSummary method exists:', typeof gv.getClusterSummary === 'function');
+      console.log('🔧 proteinClusters keys:', gv.proteinClusters ? Object.keys(gv.proteinClusters).length : 0);
+      console.log('🔧 First 3 proteinClusters entries:', gv.proteinClusters ? Object.entries(gv.proteinClusters).slice(0, 3) : []);
+      
+      // Force cache invalidation before getting summary
+      gv._clusterSummary = null;
+      
+      // Use cached summary on GenomeView (cheap)
+      const summary = (typeof gv.getClusterSummary === 'function') ? gv.getClusterSummary() : null;
+      console.log('🔧 Cluster summary (after cache invalidation):', summary);
+      
+      if (summary && Array.isArray(summary.items) && summary.items.length > 0) {
+        console.log('🔧 Setting available clusters:', summary.items.length, 'clusters');
+        console.log('🔧 Cluster items:', summary.items);
+        
+        // Force state update
+        setAvailableClusters([...summary.items]);
+        setLiveClusters([...(summary.ids || [])]);
+        
+        console.log('🔧 State should be updated now');
+      } else {
+        console.log('🔧 No valid cluster summary found, clearing state');
+        setAvailableClusters([]);
+        setLiveClusters([]);
+      }
     } catch (e) {
+      console.error('🔧 Error in refreshClusters:', e);
       setLiveClusters([]);
       setAvailableClusters([]);
     }
-  };
+  }, [phyloTreeViewerRefProp]);
 
-  // Compute clusters once after mount and when viewer ref changes
+  // Compute clusters once after mount (use cached summary from GenomeView)
   useEffect(() => {
     refreshClusters();
-  }, [phyloTreeViewerRefProp?.current]);
+    // Intentionally only run once on mount — the model will update its own cache when clusters change.
+  }, []);
+
+  // Also refresh clusters when the viewer reference changes or when gene data becomes available
+  useEffect(() => {
+    if (phyloTreeViewerRefProp?.current?.genomeView) {
+      console.log('🔧 Viewer/GenomeView available, refreshing clusters...');
+      // Small delay to ensure GenomeView is fully initialized
+      setTimeout(() => {
+        refreshClusters();
+      }, 100);
+    }
+  }, [phyloTreeViewerRefProp?.current?.genomeView, hasGeneData]);
+
+  // Additional refresh when protein metadata or clusters are attached
+  useEffect(() => {
+    const gv = phyloTreeViewerRefProp?.current?.genomeView;
+    if (gv && gv.proteinClusters && Object.keys(gv.proteinClusters).length > 0) {
+      console.log('🔧 Protein clusters detected, refreshing cluster list...');
+      refreshClusters();
+    }
+  }, [phyloTreeViewerRefProp?.current?.genomeView?.proteinClusters]);
+
+  // Debug: expose cluster refresh globally for console testing
+  useEffect(() => {
+    const w = window as any;
+    w.__hoodini_refreshClusters = () => {
+      console.log('🔧 Manual cluster refresh triggered from console');
+      refreshClusters();
+      return { availableClusters, liveClusters };
+    };
+    w.__hoodini_clusterState = () => ({ availableClusters, liveClusters });
+    
+    // Also expose the GenomeView for direct inspection
+    w.__hoodini_getGenomeView = () => {
+      return (phyloTreeViewerRefProp && phyloTreeViewerRefProp.current) ? phyloTreeViewerRefProp.current.genomeView : null;
+    };
+    
+    return () => {
+      delete w.__hoodini_refreshClusters;
+      delete w.__hoodini_clusterState;
+      delete w.__hoodini_getGenomeView;
+    };
+  }, [availableClusters, liveClusters, refreshClusters]);
+
+  // Auto-refresh clusters periodically when in settings mode and no clusters are found
+  useEffect(() => {
+    if (activeSection !== 'settings') return;
+    if (availableClusters.length > 0) return; // Already have clusters
+    
+    const interval = setInterval(() => {
+      console.log('🔧 Auto-refreshing clusters (no clusters found yet)');
+      refreshClusters();
+    }, 2000); // Check every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, [activeSection, availableClusters.length, refreshClusters]);
+
+  // Memoize SelectItem nodes to avoid re-creating many React nodes on every render
+  const clusterSelectItems = React.useMemo(() => {
+    console.log('🔧 Computing clusterSelectItems, availableClusters:', availableClusters);
+    const items = availableClusters.map(cluster => (
+      <SelectItem key={cluster.id} value={String(cluster.id)}>
+        {cluster.label}
+      </SelectItem>
+    ));
+    console.log('🔧 Generated', items.length, 'cluster SelectItems');
+    return items;
+  }, [availableClusters]);
 
   // Metadata column fallbacks
   const geneMetadataColumns = geneMetadataColumnsProp || ['cluster', 'species', 'geneType'];
@@ -898,7 +990,14 @@ export function AppSidebar({
                     min={0}
                     max={100}
                     value={[arrowheadHeightDisplay]}
-                    onValueChange={(value) => setArrowheadHeightDisplay(value[0])}
+                    onValueChange={(value) => {
+                      const v = value[0];
+                      setArrowheadHeightDisplay(v);
+                      if (typeof handleArrowheadHeightChangeProp === 'function') {
+                        if (arrowheadDebounceRef.current) clearTimeout(arrowheadDebounceRef.current);
+                        arrowheadDebounceRef.current = setTimeout(() => handleArrowheadHeightChangeProp(v), 120);
+                      }
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -911,7 +1010,14 @@ export function AppSidebar({
                     min={10}
                     max={200}
                     value={[geneHeightDisplay]}
-                    onValueChange={(value) => setGeneHeightDisplay(value[0])}
+                    onValueChange={(value) => {
+                      const v = value[0];
+                      setGeneHeightDisplay(v);
+                      if (typeof handleGeneHeightChangeProp === 'function') {
+                        if (geneHeightDebounceRef.current) clearTimeout(geneHeightDebounceRef.current);
+                        geneHeightDebounceRef.current = setTimeout(() => handleGeneHeightChangeProp(v), 120);
+                      }
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -990,7 +1096,15 @@ export function AppSidebar({
                     min={10}
                     max={300}
                     value={[treeXScale]}
-                    onValueChange={(value) => setTreeXScale(value[0])}
+                    onValueChange={(value) => {
+                      const v = value[0];
+                      setTreeXScale(v);
+                      if (treeScaleDebounceRef.current) clearTimeout(treeScaleDebounceRef.current);
+                      treeScaleDebounceRef.current = setTimeout(() => {
+                        // Call parent setter if provided
+                        if (typeof setTreeXScaleProp === 'function') setTreeXScaleProp(v);
+                      }, 120);
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -1031,7 +1145,7 @@ export function AppSidebar({
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="gene-alignment" className="text-xs mb-1 block">Gene Alignment:</Label>
+                    <Label htmlFor="gene-alignment" className="text-xs mb-1 block">Gene Alignment: ({availableClusters.length} clusters)</Label>
                     <Button size="sm" variant="ghost" onClick={refreshClusters} style={{ height: '20px', minHeight: '20px' }}>Refresh</Button>
                   </div>
                   <Select 
@@ -1162,7 +1276,9 @@ export function AppSidebar({
                 availableData={{
                   // Show layers based on typical data availability
                   parsedGFF: [1], // Genes from GFF - always show
-                  parsedDomains: {}, // Domains - show if domains exist
+                  // Domains: provide a non-empty marker when domain data exists so the
+                  // UnifiedPaletteWidget will include the domain layer in the selector.
+                  parsedDomains: hasDomainData ? [1] : [],
                   phyloData: [1], // Tree data - always show
                   ncRNAFeatures: [1], // Show ncRNA layer - colors derived from GFF
                   regionFeatures: [1] // Show region layer - from GFF region features
