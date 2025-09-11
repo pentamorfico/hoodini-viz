@@ -110,11 +110,13 @@ class Domain {
   const endPos = this.interpolateOnLine(g.centerLine, domainRelEnd);
   const perp = this.perpVector(g.centerLine[0], g.centerLine[1]);
   const normPerp = this.normalize(perp);
-  // Use half of the gene height and scale by domain height factor so domains sit
-  // visibly inside gene polygons (config.domain.heightFactor defaults in DEFAULT_CONFIG)
+  // Compute half-height accounting for arrowhead height so domains are sized
+  // relative to the visual gene polygon (which includes arrowhead extension).
   const geneHalfH = (typeof g.geneHeight === 'number' ? g.geneHeight : (g.config && g.config.gene && g.config.gene.height ? g.config.gene.height : 10)) / 2;
+  const arrowheadHeight = (g.config && g.config.gene && typeof g.config.gene.arrowheadHeight === 'number') ? g.config.gene.arrowheadHeight : 0;
+  const arrowheadHalfHeight = geneHalfH + (arrowheadHeight / 2);
   const domainFactor = (g.config && g.config.domain && typeof g.config.domain.heightFactor === 'number') ? g.config.domain.heightFactor : (this.config && this.config.domain && this.config.domain.heightFactor) || 0.6;
-  const halfH = geneHalfH * domainFactor;
+  const halfH = arrowheadHalfHeight * domainFactor;
   const p1 = [startPos[0] - normPerp[0] * halfH, startPos[1] - normPerp[1] * halfH];
   const p2 = [endPos[0] - normPerp[0] * halfH, endPos[1] - normPerp[1] * halfH];
   const p3 = [endPos[0] + normPerp[0] * halfH, endPos[1] + normPerp[1] * halfH];

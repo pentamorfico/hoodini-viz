@@ -132,6 +132,8 @@ export function AppSidebar({
   setPhyloPalette: setPhyloPaletteProp,
   domainPalette: domainPaletteProp,
   setDomainPalette: setDomainPaletteProp,
+  domainSource: domainSourceProp,
+  setDomainSource: setDomainSourceProp,
   ncRNAPalette: ncRNAPaletteProp,
   setNcRNAPalette: setNcRNAPaletteProp,
   regionPalette: regionPaletteProp,
@@ -265,6 +267,10 @@ export function AppSidebar({
   const [localDomainPalette, setLocalDomainPalette] = useState({ enabled: false });
   const domainPalette = typeof domainPaletteProp !== 'undefined' ? domainPaletteProp : localDomainPalette;
   const setDomainPalette = typeof setDomainPaletteProp === 'function' ? setDomainPaletteProp : setLocalDomainPalette;
+
+  const [localDomainSource, setLocalDomainSource] = useState('all');
+  const domainSource = typeof domainSourceProp !== 'undefined' ? domainSourceProp : localDomainSource;
+  const setDomainSource = typeof setDomainSourceProp === 'function' ? setDomainSourceProp : setLocalDomainSource;
 
   const [localNcRNAPalette, setLocalNcRNAPalette] = useState({ enabled: false });
   const ncRNAPalette = typeof ncRNAPaletteProp !== 'undefined' ? ncRNAPaletteProp : localNcRNAPalette;
@@ -572,13 +578,12 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="offcanvas" variant={variant} {...props}>
-      {/* Header Container */}
-      <div 
+      {/* Header Container (simplified to avoid nesting issues) */}
+      <div
         className="ml-4 mr-2 my-0.5 mb-3 p-2 bg-background rounded-lg shadow-sm"
         style={{ backgroundColor: themeColors.background || undefined }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', width: '100%' }}>
-          {/* Toggle Icons - Left Side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
             <Button
               variant={activeSection === 'info' ? 'default' : 'ghost'}
@@ -617,23 +622,21 @@ export function AppSidebar({
               <BookOpen className="h-1 w-3" />
             </Button>
           </div>
-          
-          {/* Logo - Right Side */}
+
           <a href="#" className="font-title text-xs font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             Hoodini v2.0-beta
-            <img 
-              src={hoodiniLogoUrl} 
-              alt="Hoodini Logo" 
+            <img
+              src={hoodiniLogoUrl}
+              alt="Hoodini Logo"
               className="!size-5"
-              style={{ 
-                width: '20px', 
+              style={{
+                width: '20px',
                 height: '10px',
                 filter: resolvedTheme === 'dark' ? 'brightness(0) invert(1)' : 'none'
               }}
             />
           </a>
         </div>
-        
       </div>
 
       {/* Content Container */}
@@ -1270,6 +1273,36 @@ export function AppSidebar({
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <Label htmlFor="domain-source" className="text-xs mb-1 block">Domain Source:</Label>
+                  <Select
+                    value={domainSource || 'all'}
+                    onValueChange={(val) => {
+                      try {
+                        if (typeof setDomainSource === 'function') setDomainSource(val);
+                        else if (props && typeof props.setDomainSource === 'function') props.setDomainSource(val);
+                      } catch (e) {}
+                    }}
+                  >
+                    <SelectTrigger id="domain-source" className="w-full text-xs" style={{ height: '20px', minHeight: '20px' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">all</SelectItem>
+                      {(() => {
+                        try {
+                          const gv = (phyloTreeViewerRefProp && phyloTreeViewerRefProp.current) ? phyloTreeViewerRefProp.current.genomeView : null;
+                          if (!gv) return null;
+                          const domains = gv.getAllDomains ? gv.getAllDomains() : [];
+                          const sources = Array.from(new Set(domains.map(d => String((d && (d.source || (d.metadata && d.metadata.source))) || 'unknown')))).sort();
+                          return sources.map(s => <SelectItem key={String(s)} value={String(s)}>{String(s)}</SelectItem>);
+                        } catch (e) {
+                          return null;
+                        }
+                      })()}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
             
@@ -1300,6 +1333,8 @@ export function AppSidebar({
                 }}
               />
             </div>
+
+            {/* alpha controls moved into UnifiedPaletteWidget; no duplicate inputs here */}
 
             <Separator className="my-2" />
 

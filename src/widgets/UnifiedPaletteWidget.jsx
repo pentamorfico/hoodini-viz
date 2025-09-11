@@ -357,6 +357,36 @@ const UnifiedPaletteWidget = ({
               />
             </div>
 
+            {/* Domain alpha-range slider (0..1) - only for domains & sequential palettes */}
+            {selectedLayer === 'domains' && currentPalette?.type === 'sequential' && (
+              <div className="space-y-1">
+                <Label className="text-xs">
+                  Domain opacity: {currentPalette?.alphaRange && Array.isArray(currentPalette.alphaRange)
+                    ? `${Number(currentPalette.alphaRange[0]).toFixed(2)} → ${Number(currentPalette.alphaRange[1]).toFixed(2)}`
+                    : '0.10 → 0.50'}
+                </Label>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={currentPalette?.alphaRange && Array.isArray(currentPalette.alphaRange)
+                    ? [Number(currentPalette.alphaRange[0]), Number(currentPalette.alphaRange[1])]
+                    : [0.1, 0.5]}
+                  onValueChange={(value) => {
+                    // value expected to be an array [min, max]
+                    if (Array.isArray(value) && value.length >= 2) {
+                      const a0 = Number(value[0]);
+                      const a1 = Number(value[1]);
+                      if (!isNaN(a0) && !isNaN(a1)) {
+                        handleConfigChange({ alphaRange: [a0, a1] });
+                      }
+                    }
+                  }}
+                  className="w-full"
+                />
+              </div>
+            )}
+
 
           </>
         )}

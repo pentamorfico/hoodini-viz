@@ -154,7 +154,7 @@ function App(props) {
   // Gene and domain selection states
   const [geneColorBy, setGeneColorBy] = useState('cluster'); // Gene coloring field selection
   const [geneLabelBy, setGeneLabelBy] = useState('cluster'); // Gene labeling field selection
-  const [domainColorBy, setDomainColorBy] = useState('domainName'); // Domain coloring field selection
+  const [domainColorBy, setDomainColorBy] = useState('evalue'); // Domain coloring field selection
   
   // Color palette states - configured for Set2 palette
   const [genePalette, setGenePalette] = useState({
@@ -165,11 +165,12 @@ function App(props) {
     enabled: true
   });
   const [domainPalette, setDomainPalette] = useState({
-    type: 'qualitative', 
-    name: 'Set2',
-    numColors: 8,
+    type: 'sequential',
+    name: 'Gray',
+    numColors: 9,
     reverse: false,
-    enabled: true
+    enabled: true,
+    alphaRange: [0.2, 0.5]
   });
   const [phyloPalette, setPhyloPalette] = useState({
     type: 'qualitative',
@@ -239,12 +240,32 @@ function App(props) {
   const handleDomainPaletteChange = (newPalette) => {
     setDomainPalette(newPalette);
   };
+
   
   // Reference to the PhyloTreeViewer to access genomeView for track manipulation
   // Use the ref from props if provided, otherwise create our own
   const internalPhyloTreeViewerRef = useRef(null);
   const phyloTreeViewerRef = props?.phyloTreeViewerRef || internalPhyloTreeViewerRef;
   const [viewerLegend, setViewerLegend] = useState(null);
+
+  // When domainPalette changes, try to apply it directly to the viewer's GenomeView
+  // This ensures changes like alphaRange take effect immediately on rendered domains.
+  // The effect is placed after the phyloTreeViewerRef declaration to avoid TDZ ReferenceErrors.
+  useEffect(() => {
+    // Only attempt to apply when a viewer ref exists and has an applyDomainPalette method
+    const gvRef = phyloTreeViewerRef?.current;
+    if (!gvRef) return; // viewer not mounted yet
+
+    try {
+      const effectivePalette = propDomainPalette ?? domainPalette;
+      const gv = gvRef.genomeView ?? gvRef.getGenomeView?.();
+      if (gv && typeof gv.applyDomainPalette === 'function') {
+        gv.applyDomainPalette(effectivePalette);
+      }
+    } catch (e) {
+      // ignore failures (viewer may not be fully initialized)
+    }
+  }, [propDomainPalette, domainPalette, phyloTreeViewerRef]);
 
   // Always use DEFAULT_CONFIG directly, but merge with dynamic settings
   // Split config into core (affects data processing) and style (affects rendering only)
@@ -802,6 +823,8 @@ function App(props) {
           geneHeightDisplay={props.geneHeightDisplay ?? geneHeightDisplay}
           genePalette={props.genePalette ?? genePalette}
           domainPalette={props.domainPalette ?? domainPalette}
+          domainSource={props.domainSource ?? undefined}
+          setDomainSource={props.setDomainSource ?? undefined}
           phyloPalette={props.phyloPalette ?? phyloPalette}
           ncRNAPalette={props.ncRNAPalette ?? ncRNAPalette}
           regionPalette={props.regionPalette ?? regionPalette}

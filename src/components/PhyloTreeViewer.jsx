@@ -56,6 +56,7 @@ const PhyloTreeViewer = React.forwardRef(({
   geneColorBy,
   geneLabelBy,
   domainColorBy = 'domainName', // Add this prop
+  domainSource = 'all',
   proteinLinkConfig, // Add protein link configuration prop
   nucleotideLinkConfig, // Add nucleotide link configuration prop
   styleConfig, // Add styleConfig prop for layers
@@ -1555,7 +1556,14 @@ const PhyloTreeViewer = React.forwardRef(({
   const domainColorMap = React.useMemo(() => {
     if (!genomeView || !effectiveDomainPalette?.enabled) return null;
     
-    const domains = genomeView.getAllDomains();
+    // Optionally filter domains by source before computing keys
+    let domains = genomeView.getAllDomains();
+    if (domainSource && domainSource !== 'all') {
+      domains = domains.filter(d => {
+        const s = (d && (d.source || (d.metadata && d.metadata.source))) || null;
+        return String(s) === String(domainSource);
+      });
+    }
     const validKeys = domains
       .map(d => {
         // Use robust extractor that checks top-level, metadata and common aliases
@@ -1568,19 +1576,29 @@ const PhyloTreeViewer = React.forwardRef(({
   const uniqueKeys = [...new Set(validKeys)];
     if (uniqueKeys.length === 0) return null;
 
-    // Generate palette colors
+    // Detect numeric keys before generating colors so we can control reversal
+    const numericVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
+    const isNumeric = numericVals.length === uniqueKeys.length && uniqueKeys.length > 0;
+
+    // Decide whether to ask the palette generator to reverse the color array.
+    // For numeric sequential palettes that are specifically evalue (with -log10
+    // transform), invert the requested reverse so that larger -log10 (smaller
+    // evalue) maps to darker colors as users typically expect.
+    let paletteReverse = (effectiveDomainPalette.reverse || false);
+    const isEvalueField = String(domainColorBy).toLowerCase() === 'evalue' || String(domainColorBy).toLowerCase() === 'e_value';
+    if (effectiveDomainPalette.type === 'sequential' && isNumeric && isEvalueField) {
+      paletteReverse = !paletteReverse;
+    }
+
     const colors = memoGetPalette(
       effectiveDomainPalette.name,
       effectiveDomainPalette.numColors && effectiveDomainPalette.type === 'sequential'
         ? effectiveDomainPalette.numColors
         : Math.max(uniqueKeys.length, effectiveDomainPalette.numColors || uniqueKeys.length),
-      effectiveDomainPalette.reverse || false
+      paletteReverse
     );
-    
+
     const colorMap = new Map();
-    // If sequential palette and numeric keys, interpolate across numeric range
-    const numericVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
-    const isNumeric = numericVals.length === uniqueKeys.length && uniqueKeys.length > 0;
     // Diagnostic log: show how many unique keys we found and sample values
     try { console.log('[domainColorMap] uniqueKeys', uniqueKeys.length, uniqueKeys.slice(0,8), 'isNumeric=', isNumeric); } catch(e) {}
     if (effectiveDomainPalette.type === 'sequential' && isNumeric) {
@@ -1589,6 +1607,9 @@ const PhyloTreeViewer = React.forwardRef(({
       let transformed = numericOriginal.slice();
       // If coloring by evalue, apply -log10 transform so small e-values spread out
       if (String(domainColorBy).toLowerCase() === 'evalue' || String(domainColorBy).toLowerCase() === 'e_value') {
+        // Apply -log10 to spread small e-values, then compress extreme
+        // dynamic range by applying log2(1 + t). This prevents very large
+        // -log10 values (e.g. 200, 300) from dominating the color scale.
         transformed = numericOriginal.map(v => {
           if (!isFinite(v) || v <= 0) {
             // substitute a tiny positive value to avoid -Infinity
@@ -1596,16 +1617,50 @@ const PhyloTreeViewer = React.forwardRef(({
           }
           return -Math.log10(v);
         });
+        // Compress dynamic range (safe for t>=0): use log2(1 + t)
+        transformed = transformed.map(t => Math.log2(1 + Math.max(0, t)));
       }
-      const minT = Math.min(...transformed);
+      // Normalize so minimum is anchored at 0 and maximum is observed max
       const maxT = Math.max(...transformed);
-      // Build colors based on transformed values but store them under original numeric keys
+      // Alpha mapping: use palette.alphaRange [minAlpha,maxAlpha] (0-255) if provided,
+      // otherwise default to semi-transparent -> opaque range [128,255].
+      let alphaMin = 128, alphaMax = 255;
+      try {
+        if (effectiveDomainPalette.alphaRange && Array.isArray(effectiveDomainPalette.alphaRange) && effectiveDomainPalette.alphaRange.length === 2) {
+          let a0 = Number(effectiveDomainPalette.alphaRange[0]);
+          let a1 = Number(effectiveDomainPalette.alphaRange[1]);
+          if (!isNaN(a0) && !isNaN(a1)) {
+            // If values look fractional (0..1), scale up to 0..255
+            if (a0 <= 1 && a1 <= 1) {
+              a0 = a0 * 255;
+              a1 = a1 * 255;
+            }
+            alphaMin = Math.max(0, Math.min(255, Math.round(a0)));
+            alphaMax = Math.max(0, Math.min(255, Math.round(a1)));
+          }
+        }
+      } catch (e) {}
+  try { console.log('[domainColorMap] alphaRange used', alphaMin, alphaMax); } catch(e) {}
+
+      // Build colors based on transformed values but store them under original numeric keys.
       uniqueKeys.forEach((k, i) => {
-        const orig = numericOriginal[i];
-        const tVal = transformed[i];
-        const t = maxT > minT ? (tVal - minT) / (maxT - minT) : 0;
+  const orig = numericOriginal[i];
+  const tVal = transformed[i];
+  // Always anchor minimum at 0 (not at observed min). Use t = value / max.
+  const rawT = (maxT > 0) ? (tVal / maxT) : 0;
+  // Use raw interpolation parameter (palette reversal is handled by
+  // the palette generator above).
+  const t = rawT;
         const idx = Math.floor(t * (colors.length - 1));
-        const col = colors[idx];
+        const base = colors[idx] || [0,0,0,255];
+        // compute alpha for this value
+        const mappedAlpha = Math.round(alphaMin + (alphaMax - alphaMin) * t);
+        const col = [
+          (base[0] !== undefined ? base[0] : 0),
+          (base[1] !== undefined ? base[1] : 0),
+          (base[2] !== undefined ? base[2] : 0),
+          mappedAlpha
+        ];
         // Map by original numeric value so lookups using the original key succeed
         try { colorMap.set(orig, col); } catch (e) {}
         // Mirror by string forms too
@@ -1621,7 +1676,7 @@ const PhyloTreeViewer = React.forwardRef(({
       });
     }
   return colorMap;
-  }, [genomeView, effectiveDomainPalette, domainColorBy]);
+  }, [genomeView, effectiveDomainPalette, domainColorBy, domainSource]);
 
   // Debug: log domain color mapping diagnostics when selection changes
   React.useEffect(() => {
@@ -1648,7 +1703,7 @@ const PhyloTreeViewer = React.forwardRef(({
     } catch (e) {
       console.error('ColorSelect domain logging error', e);
     }
-  }, [domainColorBy, genomeView, domainColorMap, effectiveDomainPalette?.name, effectiveDomainPalette?.type]);
+  }, [domainColorBy, genomeView, domainColorMap, effectiveDomainPalette?.name, effectiveDomainPalette?.type, domainSource]);
 
   // Build legend entries for display (gene families, phylo labels, ncRNAs, regions, links)
   const colorArrayToCss = (c) => {
@@ -2064,16 +2119,32 @@ const PhyloTreeViewer = React.forwardRef(({
     // Genes will be extracted after pre-filtering section applies colors
 
     // --- OPTIMIZED DOMAIN COLORING ---
-    const domains = genomeView.getAllDomains().map(d => {
-      // Prefer domain.fillColor (assigned by GenomeView.applyDomainPalette) if present.
-      // If a domain palette is active, use its mapping to override the model color.
-      let fillColor = d.fillColor || themeColors.domainFill;
+    // Domain rendering: filter by selected source
+    let renderedDomains = genomeView.getAllDomains();
+    if (domainSource && domainSource !== 'all') {
+      renderedDomains = renderedDomains.filter(d => {
+        const s = (d && (d.source || (d.metadata && d.metadata.source))) || null;
+        return String(s) === String(domainSource);
+      });
+    }
 
-  if (domainColorMap) {
+    const domains = renderedDomains.map(d => {
+      // If the domain palette is disabled, ignore any stored domain.fillColor
+      // so rendering falls back to theme defaults. When enabled, prefer the
+      // stored model fillColor (set by GenomeView.applyDomainPalette) unless
+      // overridden by the live domainColorMap mapping.
+      let fillColor;
+      if (!effectiveDomainPalette || !effectiveDomainPalette.enabled) {
+        fillColor = themeColors.domainFill;
+      } else {
+        fillColor = d.fillColor || themeColors.domainFill;
+      }
+
+      if (domainColorMap) {
         const key = (domainColorBy === 'domainName') ? d.domainName : extractDomainField(d, domainColorBy);
         // Only override if mapping provides a valid color; otherwise keep model color.
         if (key !== undefined) {
-    const mapped = getColorFromMap(domainColorMap, key, effectiveDomainPalette?.type);
+          const mapped = getColorFromMap(domainColorMap, key, effectiveDomainPalette?.type);
           if (mapped) fillColor = mapped;
         }
       }
@@ -2883,8 +2954,8 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true, // keep gene picking priority
         updateTriggers: {
-          getPolygon: [domains.length, alignmentVersion, effectiveConfig.domain.height], // Use effectiveConfig
-          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill],
+          getPolygon: [domains.length, alignmentVersion, effectiveConfig.domain.height, domainSource], // Use effectiveConfig
+          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill, domainSource],
           getLineWidth: effectiveConfig.domain.edgeWidth
         }
       }),
@@ -3221,6 +3292,8 @@ const PhyloTreeViewer = React.forwardRef(({
   // Live slider overrides - ensure immediate polygon/shape updates while dragging
   arrowheadHeightDisplay,
   geneHeightDisplay,
+  // Domain source filter - ensure layers recompute when user selects different source
+  domainSource,
     // Include specific config properties for instant updates
     config.gene.height,
     config.gene.defaultHeight, 

@@ -29,18 +29,20 @@ function App() {
   const [geneLabelPosition, setGeneLabelPosition] = useState('bottom');
   const [geneHeightDisplay, setGeneHeightDisplay] = useState(DEFAULT_CONFIG.gene.height);
   // Provide defaults matching AppPhylo so the top-level controls are enabled by default
-  const [domainColorBy, setDomainColorBy] = useState('domainName');
+  const [domainColorBy, setDomainColorBy] = useState('evalue');
   const [geneColorBy, setGeneColorBy] = useState('cluster');
   const [treeColorBy, setTreeColorBy] = useState('species');
   const [treeLabelBy, setTreeLabelBy] = useState('species');
   const [geneLabelBy, setGeneLabelBy] = useState('cluster');
-  const [genePalette, setGenePalette] = useState({ type: 'qualitative', name: 'Set2', numColors: 8, reverse: false, enabled: true });
-  const [phyloPalette, setPhyloPalette] = useState({ type: 'qualitative', name: 'Set2', numColors: 8, reverse: false, enabled: true });
-  const [domainPalette, setDomainPalette] = useState({ type: 'qualitative', name: 'Set2', numColors: 8, reverse: false, enabled: true });
+  const [genePalette, setGenePalette] = useState({ type: 'qualitative', name: 'Bold', numColors: 8, reverse: false, enabled: true });
+  const [phyloPalette, setPhyloPalette] = useState({ type: 'qualitative', name: 'Prism', numColors: 8, reverse: false, enabled: true });
+  const [domainPalette, setDomainPalette] = useState({ type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.2, 0.5] });
   const [ncRNAPalette, setNcRNAPalette] = useState({ type: 'qualitative', name: 'Set3', numColors: 8, reverse: false, enabled: true });
   const [regionPalette, setRegionPalette] = useState({ type: 'qualitative', name: 'Dark2', numColors: 8, reverse: false, enabled: true });
-  const [proteinLinkConfig, setProteinLinkConfig] = useState(null);
-  const [nucleotideLinkConfig, setNucleotideLinkConfig] = useState(null);
+  // Initialize link configs from visualization defaults so widgets use the
+  // same defaults as the app config instead of their internal fallbacks.
+  const [proteinLinkConfig, setProteinLinkConfig] = useState(DEFAULT_CONFIG.proteinLink);
+  const [nucleotideLinkConfig, setNucleotideLinkConfig] = useState(DEFAULT_CONFIG.nucleotideLink);
   const [treeXScale, setTreeXScale] = useState(DEFAULT_CONFIG.tree.xScalePercent);
   
   // Layer visibility states
@@ -164,6 +166,68 @@ function App() {
   const [geneMetadataColumnsState, setGeneMetadataColumns] = useState(['cluster', 'species', 'geneType']);
   const [treeMetadataColumnsState, setTreeMetadataColumns] = useState(['species', 'branchLength', 'support']);
   const [domainMetadataColumnsState, setDomainMetadataColumns] = useState([]);
+  // Domain source filter state ("all" means no filtering)
+  const [domainSource, setDomainSource] = useState('all');
+
+  // Set a sensible default domain source when genome data becomes available:
+  // prefer 'pfam' if present, otherwise choose the source with the most domains.
+  useEffect(() => {
+    if (domainSource !== 'all') return; // don't override an explicit selection
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 12; // poll briefly for genomeView availability
+
+    const trySetDefault = () => {
+      try {
+        const gv = phyloTreeViewerRef.current?.genomeView ?? phyloTreeViewerRef.current?.getGenomeView?.();
+        if (!gv || typeof gv.getAllDomains !== 'function') return false;
+        const domains = gv.getAllDomains() || [];
+        if (!domains.length) return false;
+
+        // Count domains by source (coerce to lowercase string keys)
+        const counts = {};
+        for (const d of domains) {
+          const raw = d?.source ?? (d?.metadata?.source ?? d?.metadata?.Source) ?? 'unknown';
+          const key = String(raw).toLowerCase();
+          counts[key] = (counts[key] || 0) + 1;
+        }
+
+        // Prefer 'pfam' if present (case-insensitive)
+        if (counts['pfam']) {
+          if (!cancelled) setDomainSource('pfam');
+          return true;
+        }
+
+        // Otherwise pick the source with the highest count
+  const entries = Object.entries(counts).map(([k, v]) => [k, Number(v)] as [string, number]);
+  if (entries.length === 0) return false;
+  entries.sort((a, b) => b[1] - a[1]);
+  const top = entries[0][0];
+        if (!cancelled) setDomainSource(top);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    const interval = setInterval(() => {
+      attempts += 1;
+      if (cancelled) {
+        clearInterval(interval);
+        return;
+      }
+      const done = trySetDefault();
+      if (done || attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [phyloTreeViewerRef, domainSource]);
   // Selected gene state for info panel
   const [selectedGene, setSelectedGene] = useState(null);
   // Dummy track handlers
@@ -221,6 +285,8 @@ function App() {
         setPhyloPalette={setPhyloPalette}
         domainPalette={domainPalette}
         setDomainPalette={setDomainPalette}
+  domainSource={domainSource}
+  setDomainSource={setDomainSource}
         ncRNAPalette={ncRNAPalette}
         setNcRNAPalette={setNcRNAPalette}
         regionPalette={regionPalette}
@@ -310,6 +376,8 @@ function App() {
            genePalette={genePalette}
            phyloPalette={phyloPalette}
            domainPalette={domainPalette}
+          domainSource={domainSource}
+          setDomainSource={setDomainSource}
            ncRNAPalette={ncRNAPalette}
            regionPalette={regionPalette}
            proteinLinkConfig={proteinLinkConfig}

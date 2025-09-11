@@ -1650,7 +1650,18 @@ class GenomeView {
   }
 
   applyDomainPalette(paletteConfig = null) {
-    if (!paletteConfig || !paletteConfig.enabled) return;
+    // If palette is disabled or null, clear any stored per-domain fillColor so
+    // rendering falls back to theme/default colors. Bump _paletteVersion as a
+    // stable signal for memoization/update triggers elsewhere.
+    if (!paletteConfig || !paletteConfig.enabled) {
+      for (const gene of Object.values(this.genesById)) {
+        for (const domain of gene.domains) {
+          if (domain && domain.fillColor) domain.fillColor = null;
+        }
+      }
+      this._paletteVersion++;
+      return;
+    }
 
     const domainNames = new Set();
     for (const gene of Object.values(this.genesById)) {

@@ -90,7 +90,7 @@ export const DEFAULT_CONFIG = {
   edgeWidth: 0.01,           // Edge width for domain polygons
   // Height factor relative to gene half-height. 0.6 means domains will be
   // 60% of the half-gene height (i.e. visibly smaller than genes).
-  heightFactor: 0.9
+  heightFactor: 0.7
   },
 
   // Baseline Parameters
@@ -170,9 +170,11 @@ export const DEFAULT_CONFIG = {
     color: [100, 0, 220, 255],  // Default blue color for protein links
     colorBy: 'source_gene', // 'source_gene', 'target_gene', 'identity_solid', 'identity_gradient'
     solidColor: [100, 0, 220, 255],
-    useAlpha: false,
-    minAlpha: 0.2,
-    maxAlpha: 1.0,
+  useAlpha: true,
+  // Alpha expressed as fraction (0..1). To get final alpha in 0..255 range
+  // of approx 0..50, set maxAlpha = 50/255 (~0.1961). minAlpha=0 -> fully transparent.
+  minAlpha: 0,
+  maxAlpha: 0.19607843137254902,
     palette: {
       type: 'sequential',
       name: 'Blues',
@@ -187,9 +189,10 @@ export const DEFAULT_CONFIG = {
     color: [200, 200, 200, 255],    // Default gray color for nucleotide links
     colorBy: 'solid', // 'solid', 'identity_gradient'
     solidColor: [200, 200, 200, 255],
-    useAlpha: false,
-    minAlpha: 0.2,
-    maxAlpha: 1.0,
+  useAlpha: true,
+  // Keep same convention as protein links: fractional alpha values in 0..1
+  minAlpha: 0,
+  maxAlpha: 0.19607843137254902,
     palette: {
       type: 'sequential',
       name: 'Reds',
@@ -213,14 +216,18 @@ export const DEFAULT_CONFIG = {
       name: 'Set2',           // Dicopal palette name
       numColors: 8,           // Number of colors to use
       reverse: false,         // Whether to reverse the palette
-      enabled: false          // Whether to use palette coloring (false = use default gray)
+  enabled: false,         // Whether to use palette coloring (false = use default gray)
+  desaturateByPrevalence: true
     },
     domainPalette: {
-      type: 'qualitative',
-      name: 'Set3',
-      numColors: 12,
-      reverse: false,
-      enabled: false
+  type: 'sequential',
+  name: 'Gray',
+  numColors: 9,
+  reverse: true,
+  enabled: true,
+  // Alpha range for sequential numeric palettes. Values can be in 0-1 (fraction)
+  // or 0-255. The viewer will accept either form. Default uses 0.1 -> 0.5 opacity.
+  alphaRange: [0.1, 0.5]
     },
     phyloPalette: {
       type: 'qualitative',
