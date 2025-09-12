@@ -301,14 +301,48 @@ function App(props) {
 
   const handleObjectClick = (object) => {
     if (!props.setSelectedGene || !object) return;
-    
-    // Only handle gene objects, not regions or other features
+
+    // If this is a clicked phylogenetic node (from Scatterplot 'nodes'), and it's
+    // a leaf (no branchset children), try to resolve the full tree metadata and
+    // show it in the same side panel used for genes.
+    if (object.node && object.node.branchset && object.node.branchset.length === 0) {
+      // Resolve parsed tree metadata (parsedTreeMetadata is in scope)
+      const leafName = object.node.name || object.node.id || object.id;
+      const resolveTreeMeta = (leaf) => {
+        if (!parsedTreeMetadata) return {};
+        if (!leaf) return {};
+        if (parsedTreeMetadata[leaf]) return parsedTreeMetadata[leaf];
+        const vals = Object.values(parsedTreeMetadata);
+        for (let i = 0; i < vals.length; ++i) {
+          const e = vals[i];
+          if (!e) continue;
+          if (e.leaf_id == leaf || e.leaf_id === leaf) return e;
+          if (e.leaf_name == leaf || e.leaf_name === leaf) return e;
+          if (e.id == leaf || e.id === leaf) return e;
+          if (e.name == leaf || e.name === leaf) return e;
+          if (e.originalId == leaf || e.original_id == leaf) return e;
+        }
+        return {};
+      };
+
+      const treeMeta = resolveTreeMeta(leafName) || {};
+      const selected = {
+        type: 'tree-node',
+        id: leafName || object.id || `${object.node.start || ''}-${object.node.end || ''}`,
+        fillColor: object.fillColor || object.color,
+        metadata: treeMeta
+      };
+      props.setSelectedGene(selected);
+      return;
+    }
+
+    // Fallback: only handle gene objects, not regions or other features
     const isGene = object.type === 'gene' || (object?.metadata && !object.type?.includes('region'));
     if (!isGene) return;
-    
+
     // Pass through ALL metadata that's available, don't filter it
     const meta = object.metadata || {};
-    
+
     // Only clean up the gene_id to remove hood prefix if needed
     let cleanGeneId = meta.gene_id || meta.id;
     if (cleanGeneId && typeof cleanGeneId === 'string' && cleanGeneId.includes('_')) {
@@ -318,7 +352,7 @@ function App(props) {
         cleanGeneId = parts.slice(1).join('_');
       }
     }
-    
+
     // Create a clean metadata object with all original data but clean gene_id
     const safeMetadata = {
       ...meta, // Keep ALL existing metadata

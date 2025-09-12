@@ -1106,6 +1106,47 @@ const PhyloTreeViewer = React.forwardRef(({
   const getTooltip = ({object, layer}) => {
     if (!object) return null;
     // Show metadata for nodes (tree), genes, domains, protein links, nucleotide links
+    // If this is a tree node (Scatterplot 'nodes' layer) and it's a leaf, prefer
+    // returning the full tree metadata (from `treeMetadata`) so users see all
+    // fields attached to the leaf in the tooltip. Otherwise fall back to
+    // object.metadata which covers genes/domains/links.
+    if (layer && layer.id === 'nodes' && object.node && object.node.branchset && object.node.branchset.length === 0) {
+      // Resolve tree metadata for this leaf robustly (try direct key then common id fields)
+      const leafName = object.node.name || object.node.id || object.id;
+      const resolveTreeMeta = (leaf) => {
+        if (!treeMetadata) return {};
+        if (!leaf) return {};
+        if (treeMetadata[leaf]) return treeMetadata[leaf];
+        const vals = Object.values(treeMetadata);
+        for (let i = 0; i < vals.length; ++i) {
+          const e = vals[i];
+          if (!e) continue;
+          if (e.leaf_id == leaf || e.leaf_id === leaf) return e;
+          if (e.leaf_name == leaf || e.leaf_name === leaf) return e;
+          if (e.id == leaf || e.id === leaf) return e;
+          if (e.name == leaf || e.name === leaf) return e;
+          if (e.originalId == leaf || e.original_id == leaf) return e;
+        }
+        return {};
+      };
+
+      const treeMeta = resolveTreeMeta(leafName) || {};
+      // Format entries using same filtering rules as below
+      const entries = Object.entries(treeMeta).filter(([k, v]) => {
+        if (!k) return false;
+        const key = String(k).toLowerCase();
+        if (key === 'sequence' || key === 'attributes') return false;
+        if (v === null || v === undefined) return false;
+        if (typeof v === 'string' && v.trim() === '') return false;
+        const t = typeof v;
+        return (t === 'string' || t === 'number' || t === 'boolean');
+      });
+
+      if (entries.length === 0) return null;
+      const html = `<table>${entries.map(([k, v]) => `<tr><td><b>${k}</b></td><td style="width:10px"></td><td>${String(v)}</td></tr>`).join('')}</table>`;
+      return { html };
+    }
+
     if (object.metadata) {
       // Format metadata as HTML table, but exclude 'sequence' field and 'attributes' (case-insensitive),
       // and skip any values that are empty, null, undefined, or objects to avoid '[object Object]' rendering.
