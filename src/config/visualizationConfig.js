@@ -9,7 +9,7 @@ export const DEFAULT_CONFIG = {
     xScalePercent: 100,      // X scale of the tree section (100 = actual, 50 = compress, 200 = stretch)
     fixedCoordinateWidth: 2000, // Fixed coordinate width for all trees (normalized before xScale is applied)
     nodeRadius: {
-      internal: 0,          // Radius for internal nodes
+  internal: 12,          // Radius for internal nodes (was 0 — set >0 so internal nodes are visible/pickable)
       leaf: 20              // Radius for leaf nodes
     },
     edgeColor: [0, 0, 0, 255],  // Color for tree edges (gray)

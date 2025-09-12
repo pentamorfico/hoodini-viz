@@ -140,6 +140,20 @@ const PhyloTreeViewer = React.forwardRef(({
     zoom: -3
   });
 
+  // Debug: log selection changes so we can confirm click handling
+  React.useEffect(() => {
+    try {
+      console.debug('[PhyloTreeViewer] mounted; initial selectedNode=', selectedNode);
+    } catch (e) {}
+    return () => {};
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      console.debug('[PhyloTreeViewer] selectedNode changed ->', selectedNode && (selectedNode.id || selectedNode.name || selectedNode));
+    } catch (e) {}
+  }, [selectedNode]);
+
   // If the gene label vertical position changes, force an alignmentVersion bump
   // so DeckGL layers that depend on alignmentVersion or geneLabelPosition will
   // re-evaluate their accessors immediately (avoids needing manual "Force refresh").
@@ -951,11 +965,58 @@ const PhyloTreeViewer = React.forwardRef(({
   const effectiveNcRNAPalette = ncRNAPalette || config?.colorPalettes?.ncRNAPalette;
 
   // 🚀 PERFORMANCE: Pre-compute prevalence data for tooltips and color desaturation
+  // When a clade is selected, compute prevalence only across visible baselines
+  // so palette prevalence filters/desaturation reflect what the user sees.
+  const visibleLeavesForPrevalence = React.useMemo(() => {
+    if (!genomeView) return new Set();
+    if (!selectedNode) return new Set(genomeView.leaves || []);
+    try {
+      const fd = genomeView.filterBySelectedNode(selectedNode) || {};
+      if (Array.isArray(fd.genes)) {
+        const leaves = fd.genes.map(g => g.hood_id).filter(Boolean);
+        return new Set(leaves);
+      }
+    } catch (e) {
+      // fall through
+    }
+    return new Set(genomeView.leaves || []);
+  }, [genomeView, selectedNode]);
+
   const genePrevalenceMap = React.useMemo(() => {
     if (!genomeView) return null;
     const primaryField = geneColorBy || colorBy || 'cluster';
-    return genomeView.computeGenePrevalence(primaryField);
-  }, [genomeView, geneColorBy, colorBy]);
+
+    // If no clade is selected, use the model's cached prevalence (fast)
+    if (!selectedNode) return genomeView.computeGenePrevalence(primaryField);
+
+    // Otherwise compute prevalence only across the visible leaves set
+    const visibleLeaves = visibleLeavesForPrevalence;
+    const totalHoods = visibleLeaves.size || 0;
+    if (totalHoods === 0) return new Map();
+
+    const categoryToHoods = new Map();
+    for (const gene of Object.values(genomeView.genesById)) {
+      const hood = gene.hood_id || genomeView.getHoodIdFromSeqid(gene.seqid);
+      if (!hood || !visibleLeaves.has(hood)) continue;
+
+      let category = null;
+      if (primaryField === 'cluster') {
+        category = gene.metadata?.cluster ?? gene.metadata?.clusterId ?? gene.cluster;
+      } else {
+        category = gene.metadata?.[primaryField];
+      }
+      if (category === null || category === undefined || category === '') continue;
+      const categoryKey = String(category);
+      if (!categoryToHoods.has(categoryKey)) categoryToHoods.set(categoryKey, new Set());
+      categoryToHoods.get(categoryKey).add(hood);
+    }
+
+    const prevalenceMap = new Map();
+    for (const [category, hoods] of categoryToHoods) {
+      prevalenceMap.set(category, hoods.size / totalHoods);
+    }
+    return prevalenceMap;
+  }, [genomeView, geneColorBy, colorBy, selectedNode, visibleLeavesForPrevalence]);
 
   // 🚀 PERFORMANCE: Pre-compute and memoize color mappings
   const geneColorMap = React.useMemo(() => {
@@ -1201,27 +1262,24 @@ const PhyloTreeViewer = React.forwardRef(({
   // 🚀 PERFORMANCE: Get fresh polygons AFTER colors are applied
   const { filteredProteinPolygons, filteredNucleotidePolygons } = React.useMemo(() => {
     if (!genomeView) return { filteredProteinPolygons: [], filteredNucleotidePolygons: [] };
-    
-    
-    
-    const leaves = genomeView.leaves;
-    // Get fresh polygons after colors have been applied
-    const proteinPolygons = genomeView.getProteinPolygons();
-    const nucleotidePolygons = genomeView.getNucleotidePolygons();
-    
-    // Log first few protein polygon coordinates to see if they're updating
-    
-    
-    // NOTE: Link colors are now already applied above
-    
-    // TEMPORARILY DISABLE FILTERING TO DEBUG
-    // Just return all polygons to see if they appear
-    return { 
-      filteredProteinPolygons: proteinPolygons, 
-      filteredNucleotidePolygons: nucleotidePolygons 
-    };
-    
-    // Build consecutive pairs once
+
+    // If a clade node is selected, use the model's filter to get only features
+    // that belong to descendant leaves of that node. Otherwise use full sets.
+    let proteinPolygons = genomeView.getProteinPolygons();
+    let nucleotidePolygons = genomeView.getNucleotidePolygons();
+    let leaves = genomeView.leaves;
+    if (selectedNode) {
+      try {
+        const filtered = genomeView.filterBySelectedNode(selectedNode);
+        // filterBySelectedNode returns { genes, proteinPolygons, nucleotidePolygons, domains, ncRNAs }
+        if (filtered && Array.isArray(filtered.proteinPolygons)) proteinPolygons = filtered.proteinPolygons.map(p => ({ polygon: p.polygon || p.polygon, fillColor: p.fillColor, metadata: p.metadata }));
+        if (filtered && Array.isArray(filtered.nucleotidePolygons)) nucleotidePolygons = filtered.nucleotidePolygons.map(p => ({ polygon: p.polygon || p.polygon, fillColor: p.fillColor, metadata: p.metadata }));
+        leaves = filtered && Array.isArray(filtered.genes) ? filtered.genes.map(g => g.hood_id) : leaves;
+      } catch (e) {
+        // ignore and fall back to full sets
+      }
+    }
+  // Build consecutive pairs once
     const consecutivePairs = new Set();
     for (let i = 0; i < leaves.length - 1; i++) {
       const [a, b] = [leaves[i], leaves[i + 1]].sort();
@@ -1267,16 +1325,21 @@ const PhyloTreeViewer = React.forwardRef(({
       filteredProteinPolygons: filteredProtein, 
       filteredNucleotidePolygons: filteredNucleotide 
     };
-  }, [genomeView, proteinLinks, nucleotideLinks, alignmentVersion, proteinLinkConfig, nucleotideLinkConfig, geneColorMap, effectiveGenePalette]);
+  }, [genomeView, proteinLinks, nucleotideLinks, alignmentVersion, proteinLinkConfig, nucleotideLinkConfig, geneColorMap, effectiveGenePalette, selectedNode]);
 
   // 🚀 CRITICAL: Extract genes AFTER pre-filtering applies colors
   const genes = React.useMemo(() => {
     if (!genomeView) return [];
-    return Object.values(genomeView.genesById).map(g => {
-      // Gene colors already applied in pre-filtering section above
-      return { ...g, fillColor: g.fillColor || themeColors.geneFill };
-    });
-  }, [genomeView, geneColorMap, geneColorBy, colorBy, themeColors.geneFill, alignmentVersion]);
+    try {
+      if (selectedNode) {
+        const filtered = genomeView.filterBySelectedNode(selectedNode);
+        if (filtered && Array.isArray(filtered.genes)) {
+          return filtered.genes.map(g => ({ ...g, fillColor: g.fillColor || themeColors.geneFill }));
+        }
+      }
+    } catch (e) {}
+    return Object.values(genomeView.genesById).map(g => ({ ...g, fillColor: g.fillColor || themeColors.geneFill }));
+  }, [genomeView, geneColorMap, geneColorBy, colorBy, themeColors.geneFill, alignmentVersion, selectedNode]);
 
   // 🚀 CRITICAL: Build legend data AFTER gene coloring is complete
   function buildLegendData() {
@@ -1955,6 +2018,29 @@ const PhyloTreeViewer = React.forwardRef(({
   const genesData = React.useMemo(() => {
     const gv = genomeViewRef.current;
     if (!gv) return [];
+    // If a clade is selected, prefer the filtered gene set from the model so
+    // all genes outside the selected clade are excluded from rendering.
+    if (selectedNode) {
+      try {
+        const filtered = gv.filterBySelectedNode(selectedNode);
+        if (filtered && Array.isArray(filtered.genes)) {
+          return filtered.genes.map(g => {
+            const uid = g.uniqueId || g.id || '';
+            return {
+              id: uid,
+              gene: g,
+              start: g.start,
+              end: g.end,
+              strand: g.strand,
+              fillColor: geneColorMapMemo.get(uid) || g.fillColor || themeColors.geneFill || [200,200,200,255]
+            };
+          });
+        }
+      } catch (e) {
+        // fallback to full set on error
+      }
+    }
+
     return Object.entries(gv.genesById).map(([uid, g]) => ({
       id: uid,
       gene: g,
@@ -2112,10 +2198,29 @@ const PhyloTreeViewer = React.forwardRef(({
   const bounds = computeBounds(genomeView, tree, phyloLabelPosition, effectiveTreeXScale);
   console.timeEnd && console.timeEnd('layers:computeBounds');
     const treeOffset = bounds.treeOffset || 0;
+
+    // Determine visible leaves when a clade is selected. Use this single
+    // canonical set to filter all genome-related layers so non-descendant
+    // features disappear consistently across domains, genes, ncRNAs, links, etc.
+    let visibleLeaves = genomeView.leaves || [];
+    let visibleLeavesSet = new Set(visibleLeaves);
+    if (selectedNode) {
+      try {
+        const fd = genomeView.filterBySelectedNode(selectedNode) || {};
+        if (Array.isArray(fd.genes)) {
+          visibleLeaves = fd.genes.map(g => g.hood_id).filter(Boolean);
+          visibleLeavesSet = new Set(visibleLeaves);
+        }
+      } catch (e) {
+        // fall back to full set on error
+        visibleLeaves = genomeView.leaves || [];
+        visibleLeavesSet = new Set(visibleLeaves);
+      }
+    }
     
     // Use pre-filtered and pre-computed data but create fresh copies so
     // DeckGL receives new object identities when underlying geometry changes.
-    const proteinPolygons = (filteredProteinPolygons || []).map((p, index) => ({
+  const proteinPolygons = (filteredProteinPolygons || []).map((p, index) => ({
       // shallow copy metadata and ensure polygon array identity is new
       ...p,
       polygon: (p.polygon || []).map(pt => [pt[0], pt[1]]),
@@ -2124,7 +2229,7 @@ const PhyloTreeViewer = React.forwardRef(({
       _alignmentKey: `${alignmentVersion}_${index}`
     }));
 
-    const nucleotidePolygons = (filteredNucleotidePolygons || []).map((p, index) => ({
+  const nucleotidePolygons = (filteredNucleotidePolygons || []).map((p, index) => ({
       ...p,
       polygon: (p.polygon || []).map(pt => [pt[0], pt[1]]),
       fillColor: p.fillColor || themeColors.nucleotideFill || p.fillColor,
@@ -2132,7 +2237,11 @@ const PhyloTreeViewer = React.forwardRef(({
     }));
     
     // --- OPTIMIZED REGION COLORING ---
-    const regionPolygons = genomeView.getAllRegions().map(r => {
+    // Respect clade selection for regions as well (filter by hood_id when available)
+    const regionPolygons = (genomeView.getAllRegions() || []).filter(r => {
+      if (!selectedNode) return true;
+      try { return visibleLeavesSet.has(r.hood_id); } catch (e) { return true; }
+    }).map(r => {
       // Check if palette color was applied (non-transparent)
       let paletteColor = r.fillColor;
       let finalStrokeColor, finalFillColor;
@@ -2160,8 +2269,16 @@ const PhyloTreeViewer = React.forwardRef(({
     // Genes will be extracted after pre-filtering section applies colors
 
     // --- OPTIMIZED DOMAIN COLORING ---
-    // Domain rendering: filter by selected source
+    // Domain rendering: filter by selected node (clade) first, then by source
     let renderedDomains = genomeView.getAllDomains();
+    if (selectedNode) {
+      try {
+        const fd = genomeView.filterBySelectedNode(selectedNode);
+        if (fd && Array.isArray(fd.domains)) renderedDomains = fd.domains;
+      } catch (e) {
+        // ignore and use full set
+      }
+    }
     if (domainSource && domainSource !== 'all') {
       renderedDomains = renderedDomains.filter(d => {
         const s = (d && (d.source || (d.metadata && d.metadata.source))) || null;
@@ -2196,7 +2313,9 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // Phylo tree paths (shifted)
     // Create baselines per hood (needed for phylo label positioning)  
-    const nucleotideBaselines = genomeView.leaves
+    // Create baselines per hood (needed for phylo label positioning)
+    // Use `visibleLeaves` so baselines for non-selected leaves disappear.
+    const nucleotideBaselines = (visibleLeaves || [])
       .filter(hood_id => genomeView.hoodBaselines[hood_id] && genomeView.getTrackYByHoodId(hood_id) != null)
       .map(hood_id => {
         const hoodBaseline = genomeView.hoodBaselines[hood_id];
@@ -2238,22 +2357,40 @@ const PhyloTreeViewer = React.forwardRef(({
 
     // Use edges with metadata for tooltips - use current tree, not baseTree from genomeView
     // Get raw tree edges for direct computation in PathLayer
-    const treeEdges = tree.buildEdges().map(edge => ({
-      rawPath: edge.path, // Keep original coordinates for direct computation
-      metadata: {
-        source: edge.source.name || `internal_${edge.source.id}`,
-        target: edge.target.name || `internal_${edge.target.id}`,
-        length: edge.target.branchLength || 0,
-        type: 'phylo_edge'
-      },
-      color: themeColors?.treeEdges || config.tree.edgeColor || [85,85,85,255] // Use current themeColors directly
-    }));
+    // When a clade is selected, only include edges that are part of that
+    // subtree so non-descendant tree parts are not shown.
+    const treeEdges = tree.buildEdges()
+      .filter(edge => {
+        if (!selectedNode) return true;
+        try {
+          // Consider an edge part of the selected subtree if the edge's
+          // target node's descendant leaves are all within the selected set.
+          const targetLeaves = genomeView.getNodeDescendantLeaves(edge.target) || [];
+          if (!Array.isArray(targetLeaves) || targetLeaves.length === 0) return false;
+          return targetLeaves.every(l => visibleLeavesSet.has(l));
+        } catch (e) {
+          return false;
+        }
+      })
+      .map(edge => ({
+        rawPath: edge.path, // Keep original coordinates for direct computation
+        metadata: {
+          source: edge.source.name || `internal_${edge.source.id}`,
+          target: edge.target.name || `internal_${edge.target.id}`,
+          length: edge.target.branchLength || 0,
+          type: 'phylo_edge'
+        },
+        color: themeColors?.treeEdges || config.tree.edgeColor || [85,85,85,255] // Use current themeColors directly
+      }));
 
     // Phylo labels - prepare raw data for direct computation in TextLayer
     const effectivePhyloLabelPosition = phyloLabelPosition || config.tree?.phyloLabelPosition || 'after-tree';
     const effectiveAlignLabels = alignLabels !== undefined ? alignLabels : (config.tree?.alignLabels !== undefined ? config.tree.alignLabels : true);
     
-    let rawPhyloLabels = tree.leafNodes.map(l => {
+    // Only include leaf labels that are part of the selected clade when active
+    let rawPhyloLabels = tree.leafNodes
+      .filter(l => !selectedNode || visibleLeavesSet.has(l.name))
+      .map(l => {
       const meta = (typeof getMetaForLeaf === 'function') ? getMetaForLeaf(l.name) : (treeMetadata?.[l.name] || {});
       let label = meta[treeLabelBy];
       if (label === undefined || label === null) label = l.name;
@@ -2330,7 +2467,19 @@ const PhyloTreeViewer = React.forwardRef(({
       });
     }
     
-    const treeNodes = tree.allNodes.map(n => {
+    // Only include tree nodes that are under the selected node when a
+    // selection exists. This removes ancestors and unrelated nodes.
+    const treeNodes = tree.allNodes
+      .filter(n => {
+        if (!selectedNode) return true;
+        try {
+          const nodeLeaves = genomeView.getNodeDescendantLeaves(n) || [];
+          if (nodeLeaves.length === 0) return false;
+          // node is under selectedNode if all its leaves are contained in the selected set
+          return nodeLeaves.every(l => highlightLeaves.has(l));
+        } catch (e) { return false; }
+      })
+      .map(n => {
       const nodeLeaves = genomeView.getNodeDescendantLeaves(n);
       const isDesc = !selectedNode || nodeLeaves.some(l => highlightLeaves.has(l));
       let color;
@@ -2386,17 +2535,21 @@ const PhyloTreeViewer = React.forwardRef(({
           }
         }
       }
-      if (selectedNode && !isDesc) {
-        // Fade color for non-descendants
-        color = color.map((c, i) => i === 3 ? c : Math.floor(c * 0.1));
-      }
+  // When nodes outside the selected subtree are filtered above they won't
+  // be present here; keep normal color for included nodes.
+      // Compute node radius; enlarge if this internal node is the selected one
+      const isInternalNode = Array.isArray(n.branchset) && n.branchset.length > 0;
+      const baseRadius = isInternalNode ? (nodeRadius.internal || 4) : (nodeRadius.leaf || 2);
+      const isSelectedInternal = selectedNode && selectedNode.id === n.id && isInternalNode;
+      const computedRadius = isSelectedInternal ? Math.max(baseRadius * 2, baseRadius + 8) : baseRadius;
+
       return {
         id: n.id,
         node: n,
         rawY: n.y, // Keep original coordinates for direct computation
         x: n.x,
         color: color,
-        radius: n.branchset.length > 0 ? nodeRadius.internal : nodeRadius.leaf,
+        radius: computedRadius,
         metadata: n.metadata || { name: n.name, id: n.id }
       };
     });
@@ -2443,7 +2596,22 @@ const PhyloTreeViewer = React.forwardRef(({
     // Build a fresh, plain-data view of genes from the authoritative GenomeView
     // Include both `id` and `uniqueId` and compute a final fillColor using any
     // available geneColorMap so DeckGL's getFillColor sees a concrete value.
-    const genesData = Object.entries(genomeView.genesById).map(([uniqueId, g]) => {
+    const genesData = (() => {
+      // Start from all genes, but when a clade is selected filter to visible leaves
+      let entries = Object.entries(genomeView.genesById);
+      if (selectedNode) {
+        try {
+          entries = entries.filter(([uid, g]) => {
+            const hood = g.hood_id || genomeView.getHoodIdFromSeqid(g.seqid);
+            return hood ? visibleLeavesSet.has(hood) : false;
+          });
+        } catch (e) {
+          // on error fall back to full set
+          entries = Object.entries(genomeView.genesById);
+        }
+      }
+
+      return entries.map(([uniqueId, g]) => {
       // Use the same key resolution logic as geneColorMap creation
       const effectiveGeneColorField = geneColorBy || colorBy || 'cluster';
       let mappedColor = null;
@@ -2486,7 +2654,8 @@ const PhyloTreeViewer = React.forwardRef(({
         polygon: (g.polygon || []).map(pt => [pt[0], pt[1]]),
         metadata: g.metadata
       };
-    });
+      });
+    })();
 
     // Gene cluster labels (below genes) — build from fresh gene data
   const geneLabels = buildGeneLabels(genesData, geneColorMap, geneColorBy, colorBy, themeColors, effectiveConfig || config, geneLabelPosition);
@@ -2750,14 +2919,15 @@ const PhyloTreeViewer = React.forwardRef(({
         filled: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: [proteinLinkData.length, alignmentVersion, paletteVersion],
+          getPolygon: [proteinLinkData.length, alignmentVersion, paletteVersion, selectedNode],
           getFillColor: [
-            proteinLinkData.length, 
+            proteinLinkData.length,
             paletteVersion,
             proteinLinkConfig?.useAlpha,
             proteinLinkConfig?.minAlpha,
             proteinLinkConfig?.maxAlpha,
-            proteinLinkConfig?.colorBy
+            proteinLinkConfig?.colorBy,
+            selectedNode
           ]
         }
       }),
@@ -2826,14 +2996,15 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: [nucleotideLinkData.length, alignmentVersion, paletteVersion, (genomeViewRef.current && genomeViewRef.current.config && genomeViewRef.current.config.genome && genomeViewRef.current.config.genome.xScalePercent) || null],
+          getPolygon: [nucleotideLinkData.length, alignmentVersion, paletteVersion, (genomeViewRef.current && genomeViewRef.current.config && genomeViewRef.current.config.genome && genomeViewRef.current.config.genome.xScalePercent) || null, selectedNode],
           getFillColor: [
-            nucleotideLinkData.length, 
+            nucleotideLinkData.length,
             paletteVersion,
             nucleotideLinkConfig?.useAlpha,
             nucleotideLinkConfig?.minAlpha,
             nucleotideLinkConfig?.maxAlpha,
-            nucleotideLinkConfig?.colorBy
+            nucleotideLinkConfig?.colorBy,
+            selectedNode
           ]
         }
       }),
@@ -2972,7 +3143,8 @@ const PhyloTreeViewer = React.forwardRef(({
             effectiveConfig.gene.arrowheadHeight,
             effectiveConfig.gene.tipWidthFactor,
             arrowheadHeightDisplay,
-            geneHeightDisplay
+            geneHeightDisplay,
+            selectedNode
           ],
           getFillColor: [genesData.length, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, alignmentVersion],
           getLineColor: [genesData.length, themeColors.geneFill, effectiveConfig.gene.edgeWidth, alignmentVersion],
@@ -2995,8 +3167,8 @@ const PhyloTreeViewer = React.forwardRef(({
         autoHighlight: true,
         pickable: true, // keep gene picking priority
         updateTriggers: {
-          getPolygon: [domains.length, alignmentVersion, effectiveConfig.domain.height, domainSource], // Use effectiveConfig
-          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill, domainSource],
+          getPolygon: [domains.length, alignmentVersion, effectiveConfig.domain.height, domainSource, selectedNode], // Use effectiveConfig
+          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill, domainSource, selectedNode],
           getLineWidth: effectiveConfig.domain.edgeWidth
         }
       }),
@@ -3163,6 +3335,8 @@ const PhyloTreeViewer = React.forwardRef(({
       // Create connecting lines data with raw coordinates for direct computation
       const connectingLinesData = tree.leafNodes
         .filter(leaf => {
+          // Only include leaves that are visible under the current clade filter
+          if (selectedNode && !visibleLeavesSet.has(leaf.name)) return false;
           // Only include leaves that have corresponding genome tracks
           const trackY = genomeView.getTrackYByHoodId(leaf.name);
           return trackY != null;
@@ -3268,14 +3442,18 @@ const PhyloTreeViewer = React.forwardRef(({
     */
 
     // --- NCRNA COLORING LOGIC ---
-    let ncRNAs = Object.values(genomeView.ncRNAsById);
+    let ncRNAs = Object.values(genomeView.ncRNAsById || {});
+    if (selectedNode) {
+      try {
+        const fd = genomeView.filterBySelectedNode(selectedNode) || {};
+        if (Array.isArray(fd.ncRNAs)) ncRNAs = fd.ncRNAs;
+      } catch (e) {}
+    }
     // Colors are now applied directly during GenomeView creation if palette is enabled
-    ncRNAs = ncRNAs.map(nc => {
-      return {
-        ...nc,
-        fillColor: nc.fillColor || (nc.metadata && nc.metadata.color) || themeColors.geneFill
-      };
-    });
+    ncRNAs = ncRNAs.map(nc => ({
+      ...nc,
+      fillColor: nc.fillColor || (nc.metadata && nc.metadata.color) || themeColors.geneFill
+    }));
     layers.push(
       new PolygonLayer({
         id: 'ncrna-features',
@@ -3652,7 +3830,7 @@ const PhyloTreeViewer = React.forwardRef(({
         //viewState={showScrollbar ? viewState : undefined}
         layers={layers}
   initialViewState={viewState}
-        pickingRadius={10}
+        pickingRadius={100}
         style={{ 
           width: '100%',
           height: showRuler ? `${deckHeight}px` : `${deckHeight}px`,
@@ -3667,8 +3845,30 @@ const PhyloTreeViewer = React.forwardRef(({
         useDevicePixels={true}  // Reduce rendering resolution for better performance
         _animate={false}         // Disable internal animations
         // 🚀 ZOOM FIX: Add key to prevent DeckGL from reinitializing with default viewState during re-renders
-        onClick={({object}) => {
-          if (object && onObjectClick) onObjectClick(object);
+        onClick={({object, x, y, srcEvent}) => {
+          try {
+            console.debug('[PhyloTreeViewer] DeckGL onClick event', { objectType: object && object.metadata && object.metadata.type, object, x, y });
+            // If user clicked an internal tree node, toggle selection to filter by clade
+            if (object && object.node && object.node.branchset && object.node.branchset.length > 0) {
+              const clicked = object.node;
+              // Toggle: deselect if same node clicked twice
+              if (selectedNode && selectedNode.id === clicked.id) {
+                console.debug('[PhyloTreeViewer] deselecting node', clicked.id);
+                setSelectedNode(null);
+              } else {
+                console.debug('[PhyloTreeViewer] selecting node', clicked.id);
+                setSelectedNode(clicked);
+              }
+            }
+          } catch (e) {
+            console.warn('[PhyloTreeViewer] onClick handler error', e);
+          }
+          if (object && onObjectClick) {
+            try {
+              console.debug('[PhyloTreeViewer] forwarding click to onObjectClick', object && (object.type || object.metadata && object.metadata.type || object.node && 'tree-node'));
+            } catch (e) {}
+            onObjectClick(object);
+          }
         }}
      
       />
