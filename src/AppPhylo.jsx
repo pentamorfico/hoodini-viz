@@ -548,10 +548,10 @@ function App(props) {
             if (PREFER_PUBLIC_PARQUET) {
               const p = await tryLoadParquet(`${parquetBase}/defaultProteinMetadata.parquet`);
               if (p) {
-                if (Array.isArray(p)) {
+                  if (Array.isArray(p)) {
                   console.log('[data] using parquet for defaultProteinMetadata');
                   const out = {};
-                  for (const row of p) { if (row.gene_id) out[row.gene_id] = row; }
+                  for (const row of p) { const key = row.id || row.gene_id || row.geneId; if (key) out[key] = row; }
                   return out;
                 }
                 console.log('[data] parquet found for defaultProteinMetadata but not an array, falling back to text parser');
@@ -733,7 +733,10 @@ function App(props) {
         if (Array.isArray(proteinMetaClean)) {
           const out = {};
           for (const row of proteinMetaClean) {
-            if (row && row.gene_id) out[row.gene_id] = row;
+            if (row) {
+              const key = row.id || row.gene_id || row.geneId;
+              if (key) out[key] = row;
+            }
           }
           proteinMetaObj = out;
         }
@@ -746,7 +749,7 @@ function App(props) {
             // proteinMetaObj is normalized to an object keyed by gene_id; take first row keys
             const first = Object.values(proteinMetaObj)[0] || null;
             if (first && typeof first === 'object') {
-              const cols = Object.keys(first).filter(c => c !== 'gene_id');
+              const cols = Object.keys(first).filter(c => c !== 'id');
               props.setGeneMetadataColumns(cols.length ? cols : ['cluster']);
             }
           }

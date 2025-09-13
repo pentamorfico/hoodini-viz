@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label"
 // Load raw domain metadata header for dynamic dropdown options
 import defaultDomainsMetadata from '@/data/defaultDomainsMetadata.txt?raw';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { isEmptyValue, normalizeKey } from '@/utils/valueUtils';
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
@@ -30,7 +31,24 @@ import LegendWidget from '@/widgets/LegendWidget';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProteinViewer from '@/components/ProteinViewer3DMol';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import hoodiniLogoUrl from '@/assets/hoodini_logo.svg';
+// Inline the SVG logo as raw text so the single-file build can embed it
+import hoodiniLogoRaw from '@/assets/hoodini_logo.svg?raw';
+
+// Convert raw SVG text to a data URL (base64) for use as image src.
+// We keep this lazy so it only encodes when the module is evaluated in the browser.
+const hoodiniLogoUrl = (() => {
+  try {
+    if (!hoodiniLogoRaw) return '';
+    // Encode as base64 to ensure safe embedding
+    if (typeof btoa === 'function') {
+      return `data:image/svg+xml;base64,${btoa(hoodiniLogoRaw)}`;
+    }
+    // Node fallback
+    return `data:image/svg+xml;utf8,${encodeURIComponent(hoodiniLogoRaw)}`;
+  } catch (e) {
+    return '';
+  }
+})();
 
 // A permissive props type so this sidebar can be used with minimal props in TS
 type AppSidebarProps = {
@@ -469,12 +487,15 @@ export function AppSidebar({
   const geneMetadataColumns = (geneMetadataColumnsProp && geneMetadataColumnsProp.length > 0) ? geneMetadataColumnsProp : ['cluster', 'species', 'geneType'];
   const treeMetadataColumns = (treeMetadataColumnsProp && treeMetadataColumnsProp.length > 0) ? treeMetadataColumnsProp : ['species', 'branchLength', 'support'];
   // Domain metadata columns: read header line from raw file to include all metadata fields
-  const headerLine = defaultDomainsMetadata.trim().split(/\r?\n/)[0];
-  const metadataFields = headerLine.split(/\t/).filter(col => col !== 'domain_id');
+  const headerLine = (defaultDomainsMetadata || '').trim().split(/\r?\n/)[0] || '';
+  // Trim and filter out empty names and the raw 'domain_id' field if present
+  const metadataFields = headerLine.split(/\t/)
+    .map(col => (col || '').trim())
+    .filter(col => col !== '' && col.toLowerCase() !== 'domain_id');
   const builtInFields = ['domainName', 'start', 'end', 'evalue', 'coverage'];
   // Use props when available, otherwise use header-based fields
   const domainMetadataColumns = (Array.isArray(domainMetadataColumnsProp) && domainMetadataColumnsProp.length > 0)
-    ? domainMetadataColumnsProp
+    ? domainMetadataColumnsProp.map(col => (col || '').toString().trim()).filter(col => col !== '' && col.toLowerCase() !== 'domain_id')
     : [...builtInFields, ...metadataFields];
   
   console.log('DEBUG AppSidebar - domainMetadataColumnsProp:', domainMetadataColumnsProp);
@@ -679,10 +700,10 @@ export function AppSidebar({
                                   }
                                   
                                   // If we have a valid key, try to get the viewer's color map
-                                  if (key !== null && key !== undefined && key !== '' && typeof phyloTreeViewerRef.current.geneColorMap !== 'undefined') {
+                  if (!isEmptyValue(key) && typeof phyloTreeViewerRef.current.geneColorMap !== 'undefined') {
                                     const viewerColorMap = phyloTreeViewerRef.current.geneColorMap;
                                     if (viewerColorMap && typeof viewerColorMap.get === 'function') {
-                                      const paletteColor = viewerColorMap.get(key);
+                    const paletteColor = viewerColorMap.get(normalizeKey(key));
                                       if (paletteColor && Array.isArray(paletteColor)) {
                                         const [r, g, b, a] = paletteColor;
                                         return `rgba(${r}, ${g}, ${b}, ${a !== undefined ? a/255 : 1})`;
@@ -707,8 +728,8 @@ export function AppSidebar({
                             
                             return (
                               <>
-                                {/* Product - show first if available */}
-                                {selectedGene.metadata.product && (
+                                {/* Product - show first if available and not an empty/placeholder value */}
+                                {!isEmptyValue(selectedGene.metadata.product) && (
                                 <div className="flex items-start gap-2">
                                     <Badge 
                                       variant={geneColorBy === 'product' ? "default" : "outline"} 
@@ -725,7 +746,7 @@ export function AppSidebar({
                                 )}
                                 
                                 {/* Protein Cluster - show second with color if available */}
-                                {(selectedGene.metadata.cluster || selectedGene.metadata.cluster === 0) && (
+                                {!isEmptyValue(selectedGene.metadata.cluster) && (
                                   <div className="flex items-center gap-2">
                                     <Badge 
                                       variant={geneColorBy === 'cluster' ? "default" : "outline"} 
@@ -744,7 +765,7 @@ export function AppSidebar({
                                 
                                 {/* Show any other metadata fields not already displayed (excluding sequence) */}
                                 {Object.entries(selectedGene.metadata)
-                                  .filter(([key]) => !['product', 'cluster', 'sequence'].includes(key))
+                                  .filter(([key, value]) => !['product', 'cluster', 'sequence'].includes(key) && !isEmptyValue(value))
                                   .map(([key, value]) => {
                                     // Check if this field is the one being used for gene coloring
                                     const isColorField = geneColorBy === key;

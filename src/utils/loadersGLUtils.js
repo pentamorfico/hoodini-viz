@@ -94,7 +94,9 @@ function parseProteinMetadataFallback(str) {
     for (let j = 0; j < header.length; ++j) {
       entry[header[j]] = cols[j];
     }
-    if (entry.gene_id) data[entry.gene_id] = entry;
+  // Prefer 'id' as canonical key, fall back to 'gene_id' for legacy files
+  const key = entry.id || entry.gene_id || entry.geneId;
+  if (key) data[key] = entry;
   }
   return data;
 }

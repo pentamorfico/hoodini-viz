@@ -9,6 +9,7 @@ import RegionFeature from './RegionFeature';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 import { getPaletteColors } from '../utils/colorPalettes';
 import { memoGetPalette } from '../utils/paletteCache';
+import { isEmptyValue, normalizeKey } from '@/utils/valueUtils';
 
 class GenomeView {
   constructor(leaves, tree, config = DEFAULT_CONFIG) {
@@ -1202,14 +1203,14 @@ class GenomeView {
     
     const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
       const key = nc.metadata && nc.metadata.type;
-      return key !== null && key !== undefined && key !== '';
+      return !isEmptyValue(key);
     });
     
     console.log('ncRNAs with valid types:', ncRNAsWithValidTypes.length, ncRNAsWithValidTypes.map(nc => nc.metadata?.type));
     
     if (ncRNAsWithValidTypes.length === 0) return;
 
-    const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => nc.metadata.type)));
+  const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => normalizeKey(nc.metadata.type))));
     let ncRNAColors = [];
     
     if (paletteConfig.name) {
@@ -1241,8 +1242,8 @@ class GenomeView {
     for (const ncRNAId in this.ncRNAsById) {
       const ncRNA = this.ncRNAsById[ncRNAId];
       const key = ncRNA.metadata && ncRNA.metadata.type;
-      if (key !== null && key !== undefined && key !== '') {
-        ncRNA.fillColor = ncRNATypeToColor[key];
+      if (!isEmptyValue(key)) {
+        ncRNA.fillColor = ncRNATypeToColor[normalizeKey(key)];
       }
     }
   }
@@ -1260,7 +1261,8 @@ class GenomeView {
 
     const validKeys = regions
       .map(r => r.getColorKey())
-      .filter(key => key !== null && key !== undefined && key !== '');
+      .map(k => normalizeKey(k))
+      .filter(key => !isEmptyValue(key));
     
     console.log('Region color keys:', validKeys);
     
@@ -1297,8 +1299,8 @@ class GenomeView {
     for (const regionId in this.regionsById) {
       const region = this.regionsById[regionId];
       const key = region.getColorKey();
-      if (key !== null && key !== undefined && key !== '') {
-        region.fillColor = regionKeyToColor[key];
+      if (!isEmptyValue(key)) {
+        region.fillColor = regionKeyToColor[normalizeKey(key)];
       }
     }
   }

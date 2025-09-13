@@ -1,5 +1,6 @@
 // PhyloTreeViewer.jsx
 import React, { useEffect, useRef, useState, useImperativeHandle } from 'react';
+import { isEmptyValue, normalizeKey } from '@/utils/valueUtils.js';
 import PhyloTree from '../models/PhyloTree';
 import GenomeView from '../models/GenomeView';
 import DeckGL from '@deck.gl/react';
@@ -187,7 +188,8 @@ const PhyloTreeViewer = React.forwardRef(({
     if (!proteinMetadataEntries.length) return null;
     const out = {};
     for (const entry of proteinMetadataEntries) {
-      const gid = entry?.gene_id || entry?.geneId || entry?.id;
+        // Prefer canonical 'id' field; accept legacy 'gene_id' or 'geneId'
+        const gid = entry?.id || entry?.gene_id || entry?.geneId;
       if (!gid) continue;
       const c = (entry?.cluster ?? entry?.clusterId ?? entry?.cluster_id);
       if (c === undefined || c === null || c === '') continue;
@@ -711,8 +713,8 @@ const PhyloTreeViewer = React.forwardRef(({
         }
       }
       let col = null;
-      if (geneColorMap && key !== null && key !== undefined && key !== '') {
-  col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
+    if (geneColorMap && !isEmptyValue(key)) {
+  col = getColorFromMap(geneColorMap, normalizeKey(key), effectiveGenePalette?.type) || null;
       }
       return ensureRgba(col || g.fillColor || themeColors.geneFill);
     };
@@ -823,14 +825,33 @@ const PhyloTreeViewer = React.forwardRef(({
     return Number.isFinite(n) ? n : NaN;
   }
 
+  // Helper: consider a value empty when it's null/undefined, empty/whitespace-only,
+  // or the literal strings "null" or "none" (case-insensitive).
+  function isEmptyValue(v) {
+    if (v === null || v === undefined) return true;
+    if (typeof v === 'string') {
+      const s = v.trim();
+      if (s === '') return true;
+      const low = s.toLowerCase();
+      if (low === 'null' || low === 'none') return true;
+      return false;
+    }
+    return false;
+  }
+
   // Helper: get color from map using numeric keys for sequential palettes
   function getColorFromMap(colorMap, key, paletteType) {
     if (!colorMap) return undefined;
+    // Treat null/undefined/empty/whitespace-only/'null'/'none' as missing keys
+    if (isEmptyValue(key)) return undefined;
+
     if (paletteType === 'sequential') {
       const n = toNumeric(key);
       if (!isNaN(n)) return colorMap.get(n);
+      return undefined;
     }
-    return colorMap.get(String(key));
+
+    return colorMap.get(String(key).trim());
   }
 
   // Helper: extract a domain field value robustly from a domain object.
@@ -1037,10 +1058,13 @@ const PhyloTreeViewer = React.forwardRef(({
 
     const validKeys = genes
       .map(extractKey)
-      .filter(key => key !== null && key !== undefined && key !== '');
+      .map(k => normalizeKey(k))
+      .filter(key => !isEmptyValue(key));
     
   const uniqueKeys = [...new Set(validKeys)];
   if (uniqueKeys.length === 0) return null;
+  // DEBUG: show keys being used for gene palette (temporary)
+  try { console.debug('geneColorMap: primaryField=', primaryField, 'uniqueKeys=', uniqueKeys.slice(0,50), 'count=', uniqueKeys.length); } catch (e) {}
     
   // Determine numeric interpolation for sequential palettes using toNumeric
   const numericGeneVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
@@ -1048,7 +1072,7 @@ const PhyloTreeViewer = React.forwardRef(({
     let keysForPalette = uniqueKeys;
     let lowPrevalenceKeys = [];
     
-    if (effectiveGenePalette.prevalenceFilter && effectiveGenePalette.prevalenceFilter > 0 && genePrevalenceMap) {
+  if (effectiveGenePalette.prevalenceFilter && effectiveGenePalette.prevalenceFilter > 0 && genePrevalenceMap) {
       const thresholdDecimal = effectiveGenePalette.prevalenceFilter / 100;
       keysForPalette = uniqueKeys.filter(key => {
         const prevalence = genePrevalenceMap.get(String(key)) || 0;
@@ -1197,8 +1221,7 @@ const PhyloTreeViewer = React.forwardRef(({
         if (!k) return false;
         const key = String(k).toLowerCase();
         if (key === 'sequence' || key === 'attributes') return false;
-        if (v === null || v === undefined) return false;
-        if (typeof v === 'string' && v.trim() === '') return false;
+        if (isEmptyValue(v)) return false;
         const t = typeof v;
         return (t === 'string' || t === 'number' || t === 'boolean');
       });
@@ -1216,9 +1239,7 @@ const PhyloTreeViewer = React.forwardRef(({
         if (!k) return false;
         const key = String(k).toLowerCase();
         if (key === 'sequence' || key === 'attributes') return false;
-        if (v === null || v === undefined) return false;
-        // Filter out empty strings and whitespace-only strings
-        if (typeof v === 'string' && v.trim() === '') return false;
+        if (isEmptyValue(v)) return false;
         // skip complex objects/arrays to avoid ugly stringification
         const t = typeof v;
         return (t === 'string' || t === 'number' || t === 'boolean');
@@ -1248,8 +1269,10 @@ const PhyloTreeViewer = React.forwardRef(({
       return { html };
     }
     // Fallback for legacy or missing metadata
-    if (object.name) return { text: object.name };
-    if (object.gene_id) return { text: object.gene_id };
+  if (object.name) return { text: object.name };
+  // Fall back to id (preferred) or legacy gene_id
+  if (object.id) return { text: object.id };
+  if (object.gene_id) return { text: object.gene_id };
     return null;
   };
 
@@ -1459,14 +1482,19 @@ const PhyloTreeViewer = React.forwardRef(({
           gv.proteinLinks.forEach(l => {
             const gA = gv.genesById && gv.genesById[l.gAId];
             const gB = gv.genesById && gv.genesById[l.gBId];
-      if (cfg.colorBy === 'source_gene' && gA) {
-      const metaKeyA = (gA.metadata && gA.metadata[geneColorBy || colorBy]) || gA.cluster;
-      const colorA = (geneColorMap && gA && metaKeyA) ? (getColorFromMap(geneColorMap, metaKeyA, effectiveGenePalette?.type) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
+  if (cfg.colorBy === 'source_gene' && gA) {
+  const primaryField = geneColorBy || colorBy || 'cluster';
+  let metaKeyA = (gA.metadata && gA.metadata[primaryField]);
+  // Only fall back to cluster when the selected field is cluster
+  if (isEmptyValue(metaKeyA) && primaryField === 'cluster') metaKeyA = gA.cluster;
+  const colorA = (geneColorMap && gA && !isEmptyValue(metaKeyA)) ? (getColorFromMap(geneColorMap, normalizeKey(metaKeyA), effectiveGenePalette?.type) || gA.fillColor) : (gA.fillColor || themeColors.geneFill);
             list.push({ id: l.gAId, label: gA.metadata ? gA.metadata[geneColorBy || colorBy] : gA.id, color: colorA, stroke: Array.isArray(colorA) ? darkenColor(colorA) : null });
       }
       if (cfg.colorBy === 'target_gene' && gB) {
-        const metaKeyB = (gB.metadata && gB.metadata[geneColorBy || colorBy]) || gB.cluster;
-        const colorB = (geneColorMap && gB && metaKeyB) ? (getColorFromMap(geneColorMap, metaKeyB, effectiveGenePalette?.type) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
+        const primaryField = geneColorBy || colorBy || 'cluster';
+        let metaKeyB = (gB.metadata && gB.metadata[primaryField]);
+        if (isEmptyValue(metaKeyB) && primaryField === 'cluster') metaKeyB = gB.cluster;
+        const colorB = (geneColorMap && gB && !isEmptyValue(metaKeyB)) ? (getColorFromMap(geneColorMap, normalizeKey(metaKeyB), effectiveGenePalette?.type) || gB.fillColor) : (gB.fillColor || themeColors.geneFill);
         list.push({ id: l.gBId, label: gB.metadata ? gB.metadata[geneColorBy || colorBy] : gB.id, color: colorB, stroke: Array.isArray(colorB) ? darkenColor(colorB) : null });
       }
           });
@@ -2565,10 +2593,12 @@ const PhyloTreeViewer = React.forwardRef(({
         }
         return Array.isArray(themeColors.geneFill) ? themeColors.geneFill : [150,150,150,255];
       };
-      // Resolve live from palette if available
+      // Resolve live from palette if available. When a palette for a non-cluster
+      // metadata field is active, prefer the mapped palette color over any
+      // stored per-gene fillColor (which may come from previous cluster palettes).
       let col = null;
+      const primaryField = geneColorBy || colorBy || 'cluster';
       if (geneColorMap) {
-        const primaryField = geneColorBy || colorBy || 'cluster';
         let key = gene?.metadata?.[primaryField];
         if (key === null || key === undefined || key === '') {
           if (primaryField === 'cluster') {
@@ -2579,7 +2609,14 @@ const PhyloTreeViewer = React.forwardRef(({
           col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
         }
       }
-      const fill = ensureRgba(col || gene.fillColor || effectiveConfig.gene.fillColor);
+
+      let fill;
+      if (geneColorMap && primaryField !== 'cluster') {
+        // Palette for a non-cluster field is active: ignore stored gene.fillColor
+        fill = ensureRgba(col || effectiveConfig.gene.fillColor);
+      } else {
+        fill = ensureRgba(col || gene.fillColor || effectiveConfig.gene.fillColor);
+      }
       const isLightTheme = themeColors.background === '#ffffff';
       const factor = isLightTheme ? 0.7 : 1.3;
       return [
@@ -2631,8 +2668,10 @@ const PhyloTreeViewer = React.forwardRef(({
         mappedColor = null;
       }
 
-      // Priority: g.fillColor (already applied in memo above) > mappedColor > theme default
-      const finalFill = g.fillColor || mappedColor || themeColors.geneFill;
+  // Priority: mappedColor overrides stored g.fillColor when a non-cluster
+  // gene palette is active. Otherwise honor stored g.fillColor (e.g., cluster
+  // palette or explicit per-gene colors).
+  const finalFill = mappedColor || (geneColorMap && effectiveGeneColorField !== 'cluster' ? themeColors.geneFill : (g.fillColor || themeColors.geneFill));
       
       // Debug: log first few genes to see if coordinates are updating
       if (['gene_1', 'gene_2'].includes(g.id) || uniqueId.includes('gene_1') || uniqueId.includes('gene_2')) {
@@ -3108,8 +3147,8 @@ const PhyloTreeViewer = React.forwardRef(({
           };
 
           let col = null;
+          const primaryField = geneColorBy || colorBy || 'cluster';
           if (geneColorMap) {
-            const primaryField = geneColorBy || colorBy || 'cluster';
             let key = d?.metadata?.[primaryField];
             if (key === null || key === undefined || key === '') {
               if (primaryField === 'cluster') {
@@ -3120,7 +3159,16 @@ const PhyloTreeViewer = React.forwardRef(({
               col = getColorFromMap(geneColorMap, key, effectiveGenePalette?.type) || null;
             }
           }
-          if (!col) col = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
+
+          // If a palette for a non-cluster field is active, do NOT fall back to
+          // stored per-gene fillColor (which may originate from a previous
+          // cluster palette). Instead use the mapped color or the theme default.
+          if (geneColorMap && primaryField !== 'cluster') {
+            if (!col) col = themeColors.geneFill || effectiveConfig.gene.fillColor;
+          } else {
+            if (!col) col = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
+          }
+
           return ensureRgba(col);
         },
         stroked: effectiveConfig.gene.edgeWidth > 0,

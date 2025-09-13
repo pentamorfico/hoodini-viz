@@ -7,7 +7,9 @@ export default function parseProteinMetadata(str) {
     const cols = lines[i].split(/\t/);
     const entry = {};
     header.forEach((h, idx) => { entry[h] = cols[idx]; });
-    if (entry.gene_id) data[entry.gene_id] = entry;
+  // Prefer 'id' as canonical key, fall back to 'gene_id' for legacy files
+  const key = entry.id || entry.gene_id || entry.geneId;
+  if (key) data[key] = entry;
   }
   return data;
 }
