@@ -13,7 +13,7 @@ import parseBaselines from './utils/parseBaselines';
 import parseProteinMetadata from './utils/parseProteinMetadata';
 import { parseDomainsMetadata } from './utils/parseDomainsMetadata';
 import parseTreeMetadata from './utils/parseTreeMetadata';
-import { 
+import {
   parseProteinMetadataOptimized, 
   parseTreeMetadataOptimized, 
   parseGFFOptimized,
@@ -27,51 +27,52 @@ import { DEFAULT_CONFIG } from './config/visualizationConfig';
 import { getPaletteColors } from './utils/colorPalettes';
 
 import defaultNewick from './data/defaultNewick.txt?raw';
-import defaultGFFStr from './data/defaultGFF.gff?raw';
-import defaultProteinLinks from './data/defaultProteinLinks.txt?raw';
-import defaultNucleotideLinks from './data/defaultNucleotideLinks.txt?raw';
-import defaultDomains from './data/defaultDomains.txt?raw';
-import defaultBaselines from './data/defaultBaselines.txt?raw';
-import defaultProteinMetadata from './data/defaultProteinMetadata.txt?raw';
-import defaultDomainsMetadata from './data/defaultDomainsMetadata.txt?raw';
-import defaultTreeMetadata from './data/defaultTreeMetadata.txt?raw';
+import defaultGFFParquetUrl from './data/defaultGFF.parquet?url';
+import defaultProteinLinksParquetUrl from './data/defaultProteinLinks.parquet?url';
+import defaultNucleotideLinksParquetUrl from './data/defaultNucleotideLinks.parquet?url';
+import defaultDomainsParquetUrl from './data/defaultDomains.parquet?url';
+import defaultBaselinesParquetUrl from './data/defaultBaselines.parquet?url';
+import defaultProteinMetadataParquetUrl from './data/defaultProteinMetadata.parquet?url';
+import defaultDomainsMetadataParquetUrl from './data/defaultDomainsMetadata.parquet?url';
+import defaultTreeMetadataParquetUrl from './data/defaultTreeMetadata.parquet?url';
+import ParserWorker from './workers/parser.worker.js?worker&inline';
+
+// Text fallbacks disabled: we rely on parquet. Leave empty strings to keep parser signatures.
+const defaultGFFStr = '';
+const defaultProteinLinks = '';
+const defaultNucleotideLinks = '';
+const defaultDomains = '';
+const defaultBaselines = '';
+const defaultProteinMetadata = '';
+const defaultDomainsMetadata = '';
+const defaultTreeMetadata = '';
 
 
 // Toggle data source behavior:
 // If true, the app will prefer Parquet files located in public/data/ (falling back to text parsers if parquet is missing).
 // If false, the app will force using the text/TSV parsers from src/data and will not attempt to fetch Parquet files.
-const PREFER_PUBLIC_PARQUET = false;
+const PREFER_PUBLIC_PARQUET = true;
 
 async function tryLoadParquet(url) {
+  if (!url) return null;
   // First try hyparquet if available (parquetReadObjects returns row objects)
   try {
     const hy = await import('hyparquet');
+    let compressors;
+    try {
+      const comp = await import('hyparquet-compressors');
+      compressors = comp?.compressors;
+    } catch (e) {
+      // fallback: no compressors available
+    }
     if (hy && typeof hy.parquetReadObjects === 'function') {
       try {
-        // If embedded data exists, use it first (helps single-file builds)
-        let ab;
-        try {
-          const embedded = await import('./embeddedData.js');
-          const key = url.split('/').pop();
-          if (embedded && embedded.default && embedded.default[key]) {
-            const b64 = embedded.default[key];
-            const binStr = atob(b64);
-            const len = binStr.length;
-            const u8 = new Uint8Array(len);
-            for (let i = 0; i < len; ++i) u8[i] = binStr.charCodeAt(i);
-            ab = u8.buffer;
-          }
-        } catch (e) {
-          // no embedded data available; fall back to fetch
-        }
-        if (!ab) {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error('no parquet at ' + url);
-          ab = await res.arrayBuffer();
-        }
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('no parquet at ' + url);
+        const ab = await res.arrayBuffer();
         // hyparquet expects an AsyncBuffer-like object; pass the raw ArrayBuffer as { file: ab }
-        const arr = await hy.parquetReadObjects({ file: ab });
-        if (Array.isArray(arr) && arr.length) return arr;
+        const arr = await hy.parquetReadObjects({ file: ab, compressors });
+        if (Array.isArray(arr)) return arr;
       } catch (e) {
         console.warn('[hyparquet] failed to read', url, e && e.message ? e.message : e);
       }
@@ -404,15 +405,18 @@ function App(props) {
   const [dataLoading, setDataLoading] = React.useState(true);
   
   React.useEffect(() => {
+    let parserWorker = null;
+    // Module workers are blocked when opening the built file via file://, so skip the worker in that scenario.
+    const allowWorker = typeof window !== 'undefined' && window.location?.protocol !== 'file:';
+
     const loadData = async () => {
   const loadStart = performance.now();
   console.log('[perf] loadData start', new Date().toISOString());
   setDataLoading(true);
 
       // Create parser worker once per load cycle
-      let parserWorker = null;
       try {
-        parserWorker = new Worker(new URL('./workers/parser.worker.js', import.meta.url), { type: 'module' });
+        parserWorker = allowWorker ? new ParserWorker() : null;
       } catch (e) {
         console.warn('[data] failed to create parser worker, falling back to main-thread parsing', e);
         parserWorker = null;
@@ -442,16 +446,12 @@ function App(props) {
           // GFF (parquet or raw)
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultGFF.parquet`);
-              if (p) {
-                if (Array.isArray(p)) {
-                  console.log('[data] using parquet for defaultGFF');
-                  return p;
-                }
-                console.log('[data] parquet found for defaultGFF but not an array (Arrow table?), falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultGFF, using text parser');
+              const p = await tryLoadParquet(defaultGFFParquetUrl || `${parquetBase}/defaultGFF.parquet`);
+              if (Array.isArray(p)) {
+                console.log('[data] using parquet for defaultGFF');
+                return p;
               }
+              console.log('[data] parquet missing for defaultGFF, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultGFF');
             }
@@ -466,13 +466,9 @@ function App(props) {
           // Protein links
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultProteinLinks.parquet`);
-              if (p) {
-                if (Array.isArray(p)) { console.log('[data] using parquet for defaultProteinLinks'); return p; }
-                console.log('[data] parquet found for defaultProteinLinks but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultProteinLinks, using text parser');
-              }
+              const p = await tryLoadParquet(defaultProteinLinksParquetUrl || `${parquetBase}/defaultProteinLinks.parquet`);
+              if (Array.isArray(p)) { console.log('[data] using parquet for defaultProteinLinks'); return p; }
+              console.log('[data] parquet missing for defaultProteinLinks, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultProteinLinks');
             }
@@ -486,13 +482,9 @@ function App(props) {
           // Nucleotide links
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultNucleotideLinks.parquet`);
-              if (p) {
-                if (Array.isArray(p)) { console.log('[data] using parquet for defaultNucleotideLinks'); return p; }
-                console.log('[data] parquet found for defaultNucleotideLinks but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultNucleotideLinks, using text parser');
-              }
+              const p = await tryLoadParquet(defaultNucleotideLinksParquetUrl || `${parquetBase}/defaultNucleotideLinks.parquet`);
+              if (Array.isArray(p)) { console.log('[data] using parquet for defaultNucleotideLinks'); return p; }
+              console.log('[data] parquet missing for defaultNucleotideLinks, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultNucleotideLinks');
             }
@@ -506,13 +498,9 @@ function App(props) {
           // Domains
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultDomains.parquet`);
-              if (p) {
-                if (Array.isArray(p)) { console.log('[data] using parquet for defaultDomains'); return p; }
-                console.log('[data] parquet found for defaultDomains but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultDomains, using text parser');
-              }
+              const p = await tryLoadParquet(defaultDomainsParquetUrl || `${parquetBase}/defaultDomains.parquet`);
+              if (Array.isArray(p) || (p && typeof p === 'object')) { console.log('[data] using parquet for defaultDomains'); return p; }
+              console.log('[data] parquet missing for defaultDomains, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultDomains');
             }
@@ -526,13 +514,9 @@ function App(props) {
           // Baselines
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultBaselines.parquet`);
-              if (p) {
-                if (Array.isArray(p)) { console.log('[data] using parquet for defaultBaselines'); return p; }
-                console.log('[data] parquet found for defaultBaselines but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultBaselines, using text parser');
-              }
+              const p = await tryLoadParquet(defaultBaselinesParquetUrl || `${parquetBase}/defaultBaselines.parquet`);
+              if (Array.isArray(p)) { console.log('[data] using parquet for defaultBaselines'); return p; }
+              console.log('[data] parquet missing for defaultBaselines, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultBaselines');
             }
@@ -546,18 +530,14 @@ function App(props) {
           // Protein metadata (expected object keyed by gene_id)
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultProteinMetadata.parquet`);
-              if (p) {
-                  if (Array.isArray(p)) {
-                  console.log('[data] using parquet for defaultProteinMetadata');
-                  const out = {};
-                  for (const row of p) { const key = row.id || row.gene_id || row.geneId; if (key) out[key] = row; }
-                  return out;
-                }
-                console.log('[data] parquet found for defaultProteinMetadata but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultProteinMetadata, using text parser');
+              const p = await tryLoadParquet(defaultProteinMetadataParquetUrl || `${parquetBase}/defaultProteinMetadata.parquet`);
+              if (Array.isArray(p)) {
+                console.log('[data] using parquet for defaultProteinMetadata');
+                const out = {};
+                for (const row of p) { const key = row.id || row.gene_id || row.geneId; if (key) out[key] = row; }
+                return out;
               }
+              console.log('[data] parquet missing for defaultProteinMetadata, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultProteinMetadata');
             }
@@ -571,18 +551,14 @@ function App(props) {
           // Tree metadata
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultTreeMetadata.parquet`);
-              if (p) {
-                if (Array.isArray(p)) {
-                  console.log('[data] using parquet for defaultTreeMetadata');
-                  const out = {};
-                  for (const row of p) { const key = row.leaf_id || Object.values(row)[0]; if (key) out[key] = row; }
-                  return out;
-                }
-                console.log('[data] parquet found for defaultTreeMetadata but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultTreeMetadata, using text parser');
+              const p = await tryLoadParquet(defaultTreeMetadataParquetUrl || `${parquetBase}/defaultTreeMetadata.parquet`);
+              if (Array.isArray(p)) {
+                console.log('[data] using parquet for defaultTreeMetadata');
+                const out = {};
+                for (const row of p) { const key = row.leaf_id || Object.values(row)[0]; if (key) out[key] = row; }
+                return out;
               }
+              console.log('[data] parquet missing for defaultTreeMetadata, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultTreeMetadata');
             }
@@ -596,18 +572,14 @@ function App(props) {
           // Domain metadata (expected object keyed by domain_id)
           (async () => {
             if (PREFER_PUBLIC_PARQUET) {
-              const p = await tryLoadParquet(`${parquetBase}/defaultDomainsMetadata.parquet`);
-              if (p) {
-                if (Array.isArray(p)) {
-                  console.log('[data] using parquet for defaultDomainsMetadata');
-                  const out = {};
-                  for (const row of p) { if (row.domain_id) out[row.domain_id] = row; }
-                  return out;
-                }
-                console.log('[data] parquet found for defaultDomainsMetadata but not an array, falling back to text parser');
-              } else {
-                console.log('[data] no parquet for defaultDomainsMetadata, using text parser');
+              const p = await tryLoadParquet(defaultDomainsMetadataParquetUrl || `${parquetBase}/defaultDomainsMetadata.parquet`);
+              if (Array.isArray(p)) {
+                console.log('[data] using parquet for defaultDomainsMetadata');
+                const out = {};
+                for (const row of p) { if (row.domain_id) out[row.domain_id] = row; }
+                return out;
               }
+              console.log('[data] parquet missing for defaultDomainsMetadata, using text parser');
             } else {
               console.log('[data] PREFER_PUBLIC_PARQUET=false: using text parser for defaultDomainsMetadata');
             }
@@ -644,6 +616,73 @@ function App(props) {
         }
 
         // Helper to convert BigInt fields to numbers recursively
+        const safeJson = (val) => {
+          try { return JSON.parse(val); } catch { return null; }
+        };
+
+        const parseAttributesString = (raw) => {
+          const out = {};
+          if (!raw) return out;
+          const parts = String(raw).split(';');
+          for (const p of parts) {
+            const s = p.trim();
+            if (!s) continue;
+            if (s.includes('=')) {
+              const [k, ...rest] = s.split('=');
+              out[k.trim()] = rest.join('=').trim();
+            } else {
+              out.ID = s;
+            }
+          }
+          return out;
+        };
+
+        const normalizeParquetRows = (arr, type = '') => {
+          if (!Array.isArray(arr)) return arr;
+          if (arr.length && Object.keys(arr[0]).length === 1 && Object.prototype.hasOwnProperty.call(arr[0], 'empty')) {
+            return [];
+          }
+          const toJsVal = (v) => {
+            if (v instanceof Uint8Array) return new TextDecoder().decode(v);
+            return v;
+          };
+          return arr.map(r => {
+            const obj = {};
+            for (const [k, v] of Object.entries(r)) {
+              obj[k] = toJsVal(v);
+            }
+            if (type === 'gff') {
+              let attrs = obj?.attributes;
+              if (typeof attrs === 'string') {
+                attrs = safeJson(attrs) || parseAttributesString(attrs);
+              }
+              obj.attributes = attrs || {};
+            }
+            return obj;
+          });
+        };
+
+        const toMapByKey = (arr, key) => {
+          if (!Array.isArray(arr)) return arr || {};
+          const out = {};
+          for (const row of arr) {
+            const k = row && row[key];
+            if (!k) continue;
+            out[k] = row;
+          }
+          return out;
+        };
+
+        const toDomainsByGene = (domainsArr) => {
+          if (!Array.isArray(domainsArr)) return domainsArr || {};
+          const out = {};
+          for (const d of domainsArr) {
+            if (!d || !d.gene_id) continue;
+            (out[d.gene_id] ||= []).push(d);
+          }
+          return out;
+        };
+
         function convertBigInts(obj) {
           if (Array.isArray(obj)) return obj.map(convertBigInts);
           if (obj && typeof obj === 'object') {
@@ -672,15 +711,15 @@ function App(props) {
 
   const convertStart = performance.now();
   // Convert all raw datasets once
-        const gffClean = convertBigInts(rawGff || []);
-        const proteinLinksClean = convertBigInts(rawProteinLinks || []);
-        const nucleotideLinksClean = convertBigInts(rawNucleotideLinks || []);
-        const domainsClean = convertBigInts(rawDomains || {});
-        let baselinesClean = convertBigInts(rawBaselines || []);
+        const gffClean = convertBigInts(normalizeParquetRows(rawGff, 'gff') || []);
+        const proteinLinksClean = convertBigInts(normalizeParquetRows(rawProteinLinks) || []);
+        const nucleotideLinksClean = convertBigInts(normalizeParquetRows(rawNucleotideLinks) || []);
+        const domainsClean = toDomainsByGene(convertBigInts(normalizeParquetRows(rawDomains) || {}));
+        let baselinesClean = convertBigInts(normalizeParquetRows(rawBaselines) || []);
         baselinesClean = forceBaselineFieldsNumber(baselinesClean || []);
-        const proteinMetaClean = convertBigInts(rawProteinMeta || {});
-        const treeMetaClean = convertBigInts(rawTreeMeta || {});
-        const domainMetaClean = convertBigInts(rawDomainMeta || {});
+        const proteinMetaClean = convertBigInts(normalizeParquetRows(rawProteinMeta) || {});
+        const treeMetaClean = convertBigInts(normalizeParquetRows(rawTreeMeta) || {});
+        const domainMetaClean = toMapByKey(convertBigInts(normalizeParquetRows(rawDomainMeta) || {}), 'domain_id');
         // Derive non-coding metadata from parsed GFF if no separate metadata was provided.
         // Use attributes.ncrna_type when available and normalize any ID-like values.
         let nonCodingMetaClean = {};
@@ -765,12 +804,12 @@ function App(props) {
         } catch (e) {}
         try {
           if (props.setDomainMetadataColumns && typeof props.setDomainMetadataColumns === 'function') {
-            // Use header fields from defaultDomainsMetadata to ensure all columns are included
-            const headerLine = defaultDomainsMetadata.trim().split(/\r?\n/)[0];
-            const metadataFields = headerLine.split(/\t/).filter(col => col !== 'domain_id');
             const builtInFields = ['domainName', 'start', 'end', 'evalue', 'coverage'];
-            const allFields = [...builtInFields, ...metadataFields];
-            props.setDomainMetadataColumns(allFields);
+            const sampleDomainMeta = Object.values(domainMetaClean)[0] || null;
+            const metadataFields = sampleDomainMeta && typeof sampleDomainMeta === 'object'
+              ? Object.keys(sampleDomainMeta).filter(c => c !== 'domain_id')
+              : [];
+            props.setDomainMetadataColumns([...builtInFields, ...metadataFields]);
           }
         } catch (e) {
           console.error('Error setting domain metadata columns:', e);
@@ -792,6 +831,12 @@ function App(props) {
     };
     
     loadData();
+
+    return () => {
+      if (parserWorker && typeof parserWorker.terminate === 'function') {
+        try { parserWorker.terminate(); } catch (e) {}
+      }
+    };
   }, [coreConfig]);
 
   return (

@@ -37,6 +37,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Allow Vite to treat these data files as static assets (so ?raw / ?url work)
+  assetsInclude: ['**/*.gff', '**/*.parquet'],
   build: {
     // Inline assets so everything ends up in a single HTML file
     assetsInlineLimit: 10_000_000,

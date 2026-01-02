@@ -1,4 +1,6 @@
 
+import { parseGFF } from './parseGFF';
+
 // =============================================================================
 // FILES WITH HEADERS (TSV format)
 // =============================================================================
@@ -24,7 +26,6 @@ export async function parseBaselinesOptimized(csvText) {
 
 // Optimized GFF parsing (764KB) - tab-separated, no headers
 export async function parseGFFOptimized(gffText, config = null) {
-  const { parseGFF } = await import('./parseGFF');
   return parseGFF(gffText, config);
 }
 

@@ -19,7 +19,8 @@ import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 // Load raw domain metadata header for dynamic dropdown options
-import defaultDomainsMetadata from '@/data/defaultDomainsMetadata.txt?raw';
+// Text fallback removed; leave empty since data now comes from parquet.
+const defaultDomainsMetadata = '';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { isEmptyValue, normalizeKey } from '@/utils/valueUtils';
 import { Separator } from "@/components/ui/separator"
