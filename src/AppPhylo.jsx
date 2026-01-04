@@ -25,8 +25,8 @@ import {
 } from './utils/loadersGLUtils';
 import { DEFAULT_CONFIG } from './config/visualizationConfig';
 import { getPaletteColors } from './utils/colorPalettes';
+import DataGridView from './components/DataGridView.jsx';
 
-import defaultNewick from './data/defaultNewick.txt?raw';
 import defaultGFFParquetUrl from './data/defaultGFF.parquet?url';
 import defaultProteinLinksParquetUrl from './data/defaultProteinLinks.parquet?url';
 import defaultNucleotideLinksParquetUrl from './data/defaultNucleotideLinks.parquet?url';
@@ -94,7 +94,8 @@ function App(props) {
   const ultrametric = typeof propUltrametric !== 'undefined' ? propUltrametric : localUltrametric;
   const setUltrametric = typeof propSetUltrametric === 'function' ? propSetUltrametric : setLocalUltrametric;
 
-  const [newickStr, setNewickStr] = useState(defaultNewick);
+  const [newickStr, setNewickStr] = useState('');
+  const [newickLoading, setNewickLoading] = useState(true);
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [alignCluster, setAlignCluster] = useState(null); // Set to null by default - no cluster alignment
   const [useDefaultGeneAlignment, setUseDefaultGeneAlignment] = useState(true); // Enable default gene alignment by default
@@ -151,11 +152,47 @@ function App(props) {
       setGeneHeightDisplay(geneHeight);
     }
   }, [arrowheadHeight, geneHeight]);
+
+  // Load Newick from bundled data
+  useEffect(() => {
+    let cancelled = false;
+    const loadNewick = async () => {
+      // Try props URL first if provided
+      if (props.newickUrl) {
+        try {
+          const res = await fetch(props.newickUrl);
+          if (res.ok) {
+            const text = await res.text();
+            if (!cancelled) {
+              setNewickStr(text);
+              setNewickLoading(false);
+            }
+            return;
+          }
+        } catch (e) {
+          console.warn('[data] failed to load newick from props URL', e?.message || e);
+        }
+      }
+      // Use bundled fallback
+      try {
+        const mod = await import('./data/defaultNewick.txt?raw');
+        const fallback = mod?.default || mod;
+        if (!cancelled && fallback) setNewickStr(fallback);
+      } catch (e) {
+        if (!cancelled) console.error('[data] no newick fallback available', e?.message || e);
+      } finally {
+        if (!cancelled) setNewickLoading(false);
+      }
+    };
+    loadNewick();
+    return () => { cancelled = true; };
+  }, [props.newickUrl]);
   
   // Gene and domain selection states
   const [geneColorBy, setGeneColorBy] = useState('cluster'); // Gene coloring field selection
   const [geneLabelBy, setGeneLabelBy] = useState('cluster'); // Gene labeling field selection
   const [domainColorBy, setDomainColorBy] = useState('evalue'); // Domain coloring field selection
+  const [labelRefreshCounter, setLabelRefreshCounter] = useState(0); // bump to force text layer refresh
   
   // Color palette states - configured for Set2 palette
   const [genePalette, setGenePalette] = useState({
@@ -295,6 +332,15 @@ function App(props) {
   // Dedicated tree X-scale state (percent) so slider controls are explicit and reactive
   const [treeXScale, setTreeXScale] = React.useState(styleConfig.tree?.xScalePercent || 100);
 
+  // Effective label fields (prop override when provided)
+  const effectiveGeneLabelBy = props.geneLabelBy ?? geneLabelBy;
+  const effectiveTreeLabelBy = props.treeLabelBy ?? treeLabelBy;
+
+  // Force a refresh of text layers when label fields change
+  useEffect(() => {
+    setLabelRefreshCounter((v) => v + 1);
+  }, [effectiveGeneLabelBy, effectiveTreeLabelBy]);
+
   // Extract columns from tree metadata header for dropdowns
   const treeMetadataColumns = defaultTreeMetadata.trim().split(/\r?\n/)[0].split(/\t/);
   
@@ -341,32 +387,8 @@ function App(props) {
     const isGene = object.type === 'gene' || (object?.metadata && !object.type?.includes('region'));
     if (!isGene) return;
 
-    // Pass through ALL metadata that's available, don't filter it
-    const meta = object.metadata || {};
-
-    // Only clean up the gene_id to remove hood prefix if needed
-    let cleanGeneId = meta.gene_id || meta.id;
-    if (cleanGeneId && typeof cleanGeneId === 'string' && cleanGeneId.includes('_')) {
-      // Remove hood prefix (e.g., "8_WP_105994699.1" -> "WP_105994699.1")
-      const parts = cleanGeneId.split('_');
-      if (parts.length > 1 && /^\d+$/.test(parts[0])) { // First part is just a number
-        cleanGeneId = parts.slice(1).join('_');
-      }
-    }
-
-    // Create a clean metadata object with all original data but clean gene_id
-    const safeMetadata = {
-      ...meta, // Keep ALL existing metadata
-      gene_id: cleanGeneId, // Use cleaned gene_id
-    };
-
-    const selected = {
-      type: 'gene',
-      id: cleanGeneId || object.uniqueId || `${object.start}-${object.end}`, // Use clean gene ID
-      fillColor: object.fillColor || object.color,
-      metadata: safeMetadata
-    };
-    props.setSelectedGene(selected);
+    const selected = buildSelectedGenePayload(object);
+    if (selected) props.setSelectedGene(selected);
   };
 
   // Track manipulation functions
@@ -402,7 +424,377 @@ function App(props) {
   const [parsedTreeMetadata, setParsedTreeMetadata] = React.useState({});
   const [parsedNonCodingMetadata, setParsedNonCodingMetadata] = React.useState({});
   const [parsedDomainMetadata, setParsedDomainMetadata] = React.useState({});
+  const [hiddenGeneIds, setHiddenGeneIds] = React.useState(new Set());
+  const [hiddenBaselineIds, setHiddenBaselineIds] = React.useState(new Set());
+  const [flashBaselineHood, setFlashBaselineHood] = React.useState(null);
+  const flashBaselineTimerRef = React.useRef(null);
   const [dataLoading, setDataLoading] = React.useState(true);
+  const TABLE_HEIGHT = 360;
+  const TABLE_MARGIN = 12;
+  const initialLoading = dataLoading || newickLoading;
+  const isReady = !initialLoading;
+
+  const getGeneKey = React.useCallback((row) => {
+    if (!row) return null;
+    if (row.gene_id) return row.gene_id;
+    if (row.id) return row.id;
+    if (row.protein_id) return row.protein_id;
+
+    // Try to parse attributes (supports JSON or semicolon string)
+    if (row.attributes) {
+      const val = row.attributes;
+      if (typeof val === 'object' && !Array.isArray(val)) {
+        if (val.ID) return val.ID;
+        if (val.gene_id) return val.gene_id;
+        if (val.Name) return val.Name;
+      } else if (typeof val === 'string') {
+        const trimmed = val.trim();
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          try {
+            const obj = JSON.parse(trimmed);
+            if (obj && typeof obj === 'object') {
+              if (obj.ID) return obj.ID;
+              if (obj.gene_id) return obj.gene_id;
+              if (obj.Name) return obj.Name;
+            }
+          } catch (e) {
+            // fall through to semicolon parsing
+          }
+        }
+        const parts = trimmed.split(';');
+        for (const p of parts) {
+          const [k, ...rest] = p.split('=');
+          const key = k ? k.trim() : '';
+          const v = rest.join('=').trim();
+          if (!key) continue;
+          if (key === 'ID' || key === 'gene_id' || key === 'Name') return v || key;
+        }
+      }
+    }
+
+    if (row.seqid && row.start && row.end) return `${row.seqid}:${row.start}-${row.end}`;
+    return null;
+  }, []);
+
+  const cleanGeneId = React.useCallback((rawId) => {
+    if (!rawId) return rawId;
+    const idStr = String(rawId);
+    if (idStr.includes('_')) {
+      const parts = idStr.split('_');
+      if (parts.length > 1 && /^\d+$/.test(parts[0])) {
+        return parts.slice(1).join('_');
+      }
+    }
+    return idStr;
+  }, []);
+
+  const buildSelectedGenePayload = React.useCallback(
+    (object) => {
+      if (!object) return null;
+      const meta = object.metadata || {};
+      const isGene = object.type === 'gene' || (meta && !object.type?.includes?.('region'));
+      if (!isGene) return null;
+
+      // Only clean gene_id like the click handler does
+      const cleanedId = cleanGeneId(meta.gene_id || meta.id || object.id || object.uniqueId);
+
+      const safeMetadata = {
+        ...meta,
+        gene_id: cleanedId || meta.gene_id || meta.id,
+      };
+
+      const selected = {
+        type: 'gene',
+        id: cleanedId || object.uniqueId || object.id || `${object.start}-${object.end}`,
+        fillColor: object.fillColor || object.color,
+        metadata: safeMetadata,
+      };
+      return selected.id ? selected : null;
+    },
+    [cleanGeneId]
+  );
+
+  const getBaselineKey = React.useCallback((row) => {
+    if (!row) return null;
+    if (row.id) return String(row.id);
+    const hood = row.hood_id || row.hoodId || row.seqid;
+    const start = row.start ?? row.origStart;
+    const end = row.end ?? row.origEnd;
+    if (hood && start != null && end != null) return `${hood}:${start}-${end}`;
+    if (hood) return String(hood);
+    return null;
+  }, []);
+
+  const hiddenBaselineKeySet = React.useMemo(() => {
+    if (!hiddenBaselineIds) return new Set();
+    if (hiddenBaselineIds instanceof Set) return hiddenBaselineIds;
+    if (Array.isArray(hiddenBaselineIds)) return new Set(hiddenBaselineIds);
+    return new Set();
+  }, [hiddenBaselineIds]);
+
+  const hiddenHoodIdsFromBaselines = React.useMemo(() => {
+    const set = new Set();
+    if (!parsedBaselines || !parsedBaselines.length || !hiddenBaselineKeySet.size) return set;
+    parsedBaselines.forEach((b) => {
+      const key = getBaselineKey(b);
+      if (key && hiddenBaselineKeySet.has(key)) {
+        const hood = b.hood_id || b.hoodId || b.seqid;
+        if (hood) set.add(String(hood));
+      }
+    });
+    return set;
+  }, [parsedBaselines, hiddenBaselineKeySet, getBaselineKey]);
+
+  const effectiveHiddenGeneIds = React.useMemo(() => {
+    const base = hiddenGeneIds instanceof Set ? hiddenGeneIds : new Set(hiddenGeneIds || []);
+    if (!hiddenHoodIdsFromBaselines.size || !parsedGFF || !parsedGFF.length) return base;
+    const merged = new Set(base);
+    parsedGFF.forEach((row) => {
+      const hood = row.hood_id || row.hoodId || row.seqid;
+      if (!hood || !hiddenHoodIdsFromBaselines.has(String(hood))) return;
+      const key = getGeneKey(row);
+      if (key) merged.add(key);
+    });
+    return merged;
+  }, [hiddenGeneIds, hiddenHoodIdsFromBaselines, parsedGFF, getGeneKey]);
+
+  const visibleGFF = React.useMemo(() => {
+    if (!parsedGFF || !parsedGFF.length) return [];
+    return parsedGFF.filter((row) => {
+      const key = getGeneKey(row);
+      if (!key) return true;
+      return !effectiveHiddenGeneIds.has(key);
+    });
+  }, [parsedGFF, effectiveHiddenGeneIds, getGeneKey]);
+
+  const visibleBaselines = React.useMemo(() => {
+    if (!parsedBaselines || !parsedBaselines.length) return [];
+    return parsedBaselines.filter((row) => {
+      const key = getBaselineKey(row);
+      if (!key) return true;
+      return !hiddenBaselineIds.has(key);
+    });
+  }, [parsedBaselines, hiddenBaselineIds, getBaselineKey]);
+
+  const visibleGeneIds = React.useMemo(() => {
+    const set = new Set();
+    visibleGFF.forEach((row) => {
+      const key = getGeneKey(row);
+      if (key) set.add(String(key));
+    });
+    return set;
+  }, [visibleGFF, getGeneKey]);
+
+  // Protect baseline align genes (and current alignCluster) from being hidden
+  const protectedGeneIds = React.useMemo(() => {
+    const ids = new Set();
+    if (alignCluster) ids.add(String(alignCluster));
+    if (parsedBaselines && parsedBaselines.length) {
+      for (const b of parsedBaselines) {
+        const candidate = b?.align_gene || b?.alignGene || b?.gene_id || b?.id;
+        if (candidate) ids.add(String(candidate));
+      }
+    }
+    return ids;
+  }, [alignCluster, parsedBaselines]);
+
+  // If the current align anchor is hidden, switch to a visible baseline align_gene (or clear).
+  React.useEffect(() => {
+    // Respect external control: only adjust when alignCluster is locally managed
+    if (props.alignCluster !== undefined) return;
+
+    const isHidden = (geneId) => geneId && effectiveHiddenGeneIds.has(String(geneId));
+    const currentHidden = alignCluster && isHidden(alignCluster);
+
+    // Find first baseline align_gene that remains visible
+    let fallback = null;
+    if (parsedBaselines && parsedBaselines.length) {
+      for (const b of parsedBaselines) {
+        const candidate = b?.align_gene || b?.alignGene || b?.gene_id || b?.id;
+        if (candidate && !isHidden(candidate)) {
+          fallback = candidate;
+          break;
+        }
+      }
+    }
+
+    // If current is visible, do nothing
+    if (alignCluster && !currentHidden) return;
+
+    // Prefer fallback; otherwise clear to let default alignment run
+    if (fallback && fallback !== alignCluster) {
+      setAlignCluster(fallback);
+    } else if (!fallback && alignCluster !== null) {
+      setAlignCluster(null);
+    }
+  }, [effectiveHiddenGeneIds, alignCluster, props.alignCluster, parsedBaselines]);
+
+  const visibilityConfig = React.useMemo(() => ({
+    genes: {
+      getRowId: getGeneKey,
+      hiddenSet: effectiveHiddenGeneIds,
+      onToggle: (id, nextVisible) => {
+        if (!id) return;
+        const idStr = String(id);
+        if (protectedGeneIds.has(idStr)) return; // never hide protected anchors
+        setHiddenGeneIds((prev) => {
+          const next = new Set(prev);
+          if (nextVisible) next.delete(idStr);
+          else next.add(idStr);
+          return next;
+        });
+      },
+      onBatchToggle: (changes) => {
+        if (!changes || !changes.length) return;
+        setHiddenGeneIds((prev) => {
+          const next = new Set(prev);
+          for (const { rowId, desiredVisible } of changes) {
+            const idStr = String(rowId);
+            if (protectedGeneIds.has(idStr)) continue; // never hide protected anchors
+            if (desiredVisible) next.delete(idStr);
+            else next.add(idStr);
+          }
+          return next;
+        });
+      },
+    },
+    baselines: {
+      getRowId: getBaselineKey,
+      hiddenSet: hiddenBaselineIds,
+      onToggle: (id, nextVisible) => {
+        if (!id) return;
+        const idStr = String(id);
+        setHiddenBaselineIds((prev) => {
+          const next = new Set(prev);
+          if (nextVisible) next.delete(idStr);
+          else next.add(idStr);
+          return next;
+        });
+      },
+      onBatchToggle: (changes) => {
+        if (!changes || !changes.length) return;
+        setHiddenBaselineIds((prev) => {
+          const next = new Set(prev);
+          for (const { rowId, desiredVisible } of changes) {
+            const idStr = String(rowId);
+            if (desiredVisible) next.delete(idStr);
+            else next.add(idStr);
+          }
+          return next;
+        });
+      },
+    },
+  }), [getGeneKey, effectiveHiddenGeneIds, protectedGeneIds, getBaselineKey, hiddenBaselineIds]);
+
+  const handleZoomGene = React.useCallback((row) => {
+    if (!row || !phyloTreeViewerRef.current || typeof phyloTreeViewerRef.current.focusGeneById !== 'function') return;
+    try {
+      if (props.setSelectedGene) {
+        const gv = phyloTreeViewerRef.current.genomeView;
+        let selected = null;
+        if (gv) {
+          const rawId = getGeneKey(row);
+          if (rawId) {
+            const idStr = String(rawId);
+            let uniqueId = null;
+            if (gv._genesByOriginalId && typeof gv._genesByOriginalId.get === 'function') {
+              const matches = gv._genesByOriginalId.get(idStr);
+              if (matches && matches.length) uniqueId = matches[0];
+            }
+            if (!uniqueId) {
+              for (const [uid, g] of Object.entries(gv.genesById || {})) {
+                const candidate =
+                  g.originalGeneId ||
+                  g.gene_id ||
+                  g.originalId ||
+                  g.id ||
+                  (g.metadata && (g.metadata.gene_id || g.metadata.id));
+                if (candidate && String(candidate) === idStr) {
+                  uniqueId = uid;
+                  break;
+                }
+              }
+            }
+            if (uniqueId && gv.genesById?.[uniqueId]) {
+              const geneObj = gv.genesById[uniqueId];
+              selected = buildSelectedGenePayload({
+                type: 'gene',
+                uniqueId,
+                id: uniqueId,
+                gene: geneObj,
+                metadata: geneObj.metadata || {},
+                fillColor: geneObj.fillColor
+              });
+            }
+          }
+        }
+        if (!selected) {
+          selected = buildSelectedGenePayload({
+            type: 'gene',
+            id: row.gene_id || row.id || getGeneKey(row),
+            metadata: row,
+          });
+        }
+        if (selected) props.setSelectedGene(selected);
+      }
+    } catch (e) {}
+    const id = getGeneKey(row);
+    if (!id) return;
+    phyloTreeViewerRef.current.focusGeneById(String(id));
+  }, [
+    phyloTreeViewerRef,
+    getGeneKey,
+    buildSelectedGenePayload,
+    props.setSelectedGene,
+  ]);
+
+  const handleZoomBaseline = React.useCallback((row) => {
+    if (!row || !phyloTreeViewerRef.current || typeof phyloTreeViewerRef.current.focusBaselineByHood !== 'function') return;
+    const hood = row.hood_id || row.hoodId || row.seqid;
+    if (!hood) return;
+    const hoodStr = String(hood);
+    phyloTreeViewerRef.current.focusBaselineByHood(hoodStr);
+    // Trigger a dedicated baseline glow when zooming from the table
+    setFlashBaselineHood({ id: hoodStr, ts: Date.now() });
+  }, [phyloTreeViewerRef]);
+
+  const handleZoomTreeMetadata = React.useCallback((row) => {
+    if (!row || !phyloTreeViewerRef.current || typeof phyloTreeViewerRef.current.focusTreeLeafById !== 'function') return;
+    const leaf = row.leaf_id || row.leafId || row.leaf_name || row.leafName || row.id || row.name;
+    if (!leaf) return;
+    phyloTreeViewerRef.current.focusTreeLeafById(String(leaf));
+  }, [phyloTreeViewerRef]);
+
+  // No auto-clear: keep baseline glow until another selection overrides it
+  React.useEffect(() => {
+    if (flashBaselineTimerRef.current) {
+      clearTimeout(flashBaselineTimerRef.current);
+      flashBaselineTimerRef.current = null;
+    }
+    return () => {
+      if (flashBaselineTimerRef.current) clearTimeout(flashBaselineTimerRef.current);
+    };
+  }, [flashBaselineHood]);
+
+  const tableDatasets = React.useMemo(() => {
+    const domainRows = Object.entries(parsedDomains || {}).flatMap(([gid, list]) =>
+      (list || []).map((d) => ({ gene_id: gid, ...(d || {}) }))
+    );
+    const proteinMetaRows = parsedProteinMetadata ? Object.values(parsedProteinMetadata) : [];
+    const domainMetaRows = parsedDomainMetadata ? Object.values(parsedDomainMetadata) : [];
+    const treeMetaRows = parsedTreeMetadata ? Object.values(parsedTreeMetadata) : [];
+
+    return {
+      genes: { label: `Genes (${parsedGFF?.length || 0})`, rows: parsedGFF || [] },
+      baselines: { label: `Baselines (${parsedBaselines?.length || 0})`, rows: parsedBaselines || [] },
+      domains: { label: `Domains (${domainRows.length})`, rows: domainRows },
+      proteinLinks: { label: `Protein links (${parsedProteinLinks?.length || 0})`, rows: parsedProteinLinks || [] },
+      nucleotideLinks: { label: `Nucleotide links (${parsedNucleotideLinks?.length || 0})`, rows: parsedNucleotideLinks || [] },
+      proteinMetadata: { label: `Protein metadata (${proteinMetaRows.length})`, rows: proteinMetaRows },
+      domainMetadata: { label: `Domain metadata (${domainMetaRows.length})`, rows: domainMetaRows },
+      treeMetadata: { label: `Tree metadata (${treeMetaRows.length})`, rows: treeMetaRows },
+    };
+  }, [parsedGFF, parsedBaselines, parsedDomains, parsedProteinLinks, parsedNucleotideLinks, parsedProteinMetadata, parsedDomainMetadata, parsedTreeMetadata]);
   
   React.useEffect(() => {
     let parserWorker = null;
@@ -673,12 +1065,39 @@ function App(props) {
           return out;
         };
 
+        const normalizeProteinLinks = (arr) => {
+          if (!Array.isArray(arr)) return arr || [];
+          return arr.map(l => ({
+            geneA: l.geneA || l.gene_a || l.qseqid || l.gAId,
+            geneB: l.geneB || l.gene_b || l.sseqid || l.gBId,
+            similarity: l.similarity ?? l.score ?? l.pident ?? 0
+          }));
+        };
+
+        const normalizeNucleotideLinks = (arr) => {
+          if (!Array.isArray(arr)) return arr || [];
+          return arr.map(l => ({
+            seqidA: l.seqidA || l.seqid_a || l.query,
+            startA: l.startA ?? l.start_a ?? l.query_start,
+            endA: l.endA ?? l.end_a ?? l.query_end,
+            seqidB: l.seqidB || l.seqid_b || l.ref,
+            startB: l.startB ?? l.start_b ?? l.ref_start,
+            endB: l.endB ?? l.end_b ?? l.ref_end,
+            similarity: l.similarity ?? l.score ?? l.ani ?? 0
+          }));
+        };
+
         const toDomainsByGene = (domainsArr) => {
           if (!Array.isArray(domainsArr)) return domainsArr || {};
           const out = {};
           for (const d of domainsArr) {
-            if (!d || !d.gene_id) continue;
-            (out[d.gene_id] ||= []).push(d);
+            if (!d) continue;
+            // Domains parquet may use protein_id instead of gene_id; fall back to protein_id.
+            const key = d.gene_id || d.protein_id;
+            if (!key) continue;
+            // Ensure domainName is populated (fallback to domain_id).
+            if (!d.domainName && d.domain_id) d.domainName = d.domain_id;
+            (out[key] ||= []).push(d);
           }
           return out;
         };
@@ -712,8 +1131,8 @@ function App(props) {
   const convertStart = performance.now();
   // Convert all raw datasets once
         const gffClean = convertBigInts(normalizeParquetRows(rawGff, 'gff') || []);
-        const proteinLinksClean = convertBigInts(normalizeParquetRows(rawProteinLinks) || []);
-        const nucleotideLinksClean = convertBigInts(normalizeParquetRows(rawNucleotideLinks) || []);
+        const proteinLinksClean = normalizeProteinLinks(convertBigInts(normalizeParquetRows(rawProteinLinks) || []));
+        const nucleotideLinksClean = normalizeNucleotideLinks(convertBigInts(normalizeParquetRows(rawNucleotideLinks) || []));
         const domainsClean = toDomainsByGene(convertBigInts(normalizeParquetRows(rawDomains) || {}));
         let baselinesClean = convertBigInts(normalizeParquetRows(rawBaselines) || []);
         baselinesClean = forceBaselineFieldsNumber(baselinesClean || []);
@@ -847,7 +1266,7 @@ function App(props) {
       overflow: 'hidden'
     }}>
       {/* Loading indicator */}
-      {dataLoading && (
+      {initialLoading && (
         <div style={{ 
           position: 'fixed', 
           top: 0, 
@@ -871,71 +1290,111 @@ function App(props) {
   
       
       {/* Only render PhyloTreeViewer when data is loaded */}
-      {!dataLoading && (
-          <PhyloTreeViewer
-          ref={phyloTreeViewerRef}
-          newickStr={newickStr}
-          gffFeatures={parsedGFF}
-          proteinLinks={parsedProteinLinks}
-          nucleotideLinks={parsedNucleotideLinks}
-          domainsByGene={parsedDomains}
-          baselines={parsedBaselines}
-          showScrollbar={props.showScrollbar ?? showScrollbar}
-          alignCluster={props.alignCluster ?? alignCluster}
-          defaultAlign={props.defaultAlign ?? defaultAlign}
-          useDefaultGeneAlignment={props.useDefaultGeneAlignment ?? useDefaultGeneAlignment}
-          showRuler={props.showRuler ?? showRuler}
-          onObjectClick={handleObjectClick}
-          showSVGWidget={true}
-          proteinMetadata={parsedProteinMetadata}
-          domainMetadata={parsedDomainMetadata}
-          colorBy={props.geneColorBy ?? geneColorBy}
-          geneColorBy={props.geneColorBy ?? geneColorBy}
-          labelBy={props.geneLabelBy ?? geneLabelBy}
-          domainColorBy={props.domainColorBy ?? domainColorBy}
-          treeMetadata={parsedTreeMetadata}
-          treeLabelBy={props.treeLabelBy ?? treeLabelBy}
-          treeColorBy={props.treeColorBy ?? treeColorBy}
-          config={props.styleConfig ?? styleConfig}
-          ultrametric={ultrametric}
-          showConnectingLines={props.showConnectingLines ?? showConnectingLines}
-          phyloLabelPosition={props.phyloLabelPosition ?? phyloLabelPosition}
-          alignLabels={props.alignLabels ?? alignLabels}
-          arrowheadHeightDisplay={props.arrowheadHeightDisplay ?? arrowheadHeightDisplay}
-          geneHeightDisplay={props.geneHeightDisplay ?? geneHeightDisplay}
-          genePalette={props.genePalette ?? genePalette}
-          domainPalette={props.domainPalette ?? domainPalette}
-          domainSource={props.domainSource ?? undefined}
-          setDomainSource={props.setDomainSource ?? undefined}
-          phyloPalette={props.phyloPalette ?? phyloPalette}
-          ncRNAPalette={props.ncRNAPalette ?? ncRNAPalette}
-          regionPalette={props.regionPalette ?? regionPalette}
-          proteinLinkConfig={props.proteinLinkConfig ?? proteinLinkConfig}
-          nucleotideLinkConfig={props.nucleotideLinkConfig ?? nucleotideLinkConfig}
-          styleConfig={props.styleConfig ?? styleConfig}
-          treeXScale={props.treeXScale ?? treeXScale}
-          showTreeLayer={props.showTreeLayer}
-          showGeneLayer={props.showGeneLayer}
-          showDomainLayer={props.showDomainLayer}
-          showProteinLinkLayer={props.showProteinLinkLayer}
-          showNucleotideLinkLayer={props.showNucleotideLinkLayer}
-          showNcRNALayer={props.showNcRNALayer}
-          showGeneTextLayer={props.showGeneTextLayer}
-          showTreeTextLayer={props.showTreeTextLayer}
-          geneLabelPosition={props.geneLabelPosition ?? geneLabelPosition}
-          onLegendChange={(legend) => {
-            try {
-              console.debug('[AppPhylo] onLegendChange received legend payload keys=', legend && Object.keys(legend || {}));
-              if (props && typeof props.setViewerLegend === 'function') {
-                props.setViewerLegend(legend);
-              } else {
-                setViewerLegend(legend);
-              }
-            } catch (e) {
-              try { console.debug('[AppPhylo] fallback setViewerLegend'); setViewerLegend(legend); } catch (e2) {}
-            }
+      {isReady && (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            transform: props.showDataTable ? `translateY(-${TABLE_HEIGHT + TABLE_MARGIN}px)` : 'translateY(0)',
+            transition: 'transform 220ms ease',
+            willChange: 'transform',
+            position: 'relative',
           }}
+        >
+            <PhyloTreeViewer
+            ref={phyloTreeViewerRef}
+            newickStr={newickStr}
+            gffFeatures={visibleGFF}
+            proteinLinks={parsedProteinLinks}
+            nucleotideLinks={parsedNucleotideLinks}
+            domainsByGene={parsedDomains}
+            baselines={visibleBaselines}
+            visibleGeneIds={visibleGeneIds}
+            showScrollbar={props.showScrollbar ?? showScrollbar}
+            alignCluster={props.alignCluster ?? alignCluster}
+            defaultAlign={props.defaultAlign ?? defaultAlign}
+            useDefaultGeneAlignment={props.useDefaultGeneAlignment ?? useDefaultGeneAlignment}
+            showRuler={props.showRuler ?? showRuler}
+            onObjectClick={handleObjectClick}
+            showSVGWidget={true}
+            proteinMetadata={parsedProteinMetadata}
+            domainMetadata={parsedDomainMetadata}
+            colorBy={props.geneColorBy ?? geneColorBy}
+            geneColorBy={props.geneColorBy ?? geneColorBy}
+              labelBy={effectiveGeneLabelBy}
+            domainColorBy={props.domainColorBy ?? domainColorBy}
+            treeMetadata={parsedTreeMetadata}
+              treeLabelBy={effectiveTreeLabelBy}
+            treeColorBy={props.treeColorBy ?? treeColorBy}
+            config={props.styleConfig ?? styleConfig}
+            ultrametric={ultrametric}
+            showConnectingLines={props.showConnectingLines ?? showConnectingLines}
+            phyloLabelPosition={props.phyloLabelPosition ?? phyloLabelPosition}
+            alignLabels={props.alignLabels ?? alignLabels}
+            arrowheadHeightDisplay={props.arrowheadHeightDisplay ?? arrowheadHeightDisplay}
+            geneHeightDisplay={props.geneHeightDisplay ?? geneHeightDisplay}
+            genePalette={props.genePalette ?? genePalette}
+            domainPalette={props.domainPalette ?? domainPalette}
+            domainSource={props.domainSource ?? undefined}
+            setDomainSource={props.setDomainSource ?? undefined}
+            phyloPalette={props.phyloPalette ?? phyloPalette}
+            ncRNAPalette={props.ncRNAPalette ?? ncRNAPalette}
+            regionPalette={props.regionPalette ?? regionPalette}
+            proteinLinkConfig={props.proteinLinkConfig ?? proteinLinkConfig}
+            nucleotideLinkConfig={props.nucleotideLinkConfig ?? nucleotideLinkConfig}
+            styleConfig={props.styleConfig ?? styleConfig}
+              treeXScale={props.treeXScale ?? treeXScale}
+              forceUpdateCounter={labelRefreshCounter}
+            showTreeLayer={props.showTreeLayer}
+            showGeneLayer={props.showGeneLayer}
+            showDomainLayer={props.showDomainLayer}
+            showProteinLinkLayer={props.showProteinLinkLayer}
+            showNucleotideLinkLayer={props.showNucleotideLinkLayer}
+            showNcRNALayer={props.showNcRNALayer}
+            showGeneTextLayer={props.showGeneTextLayer}
+            showTreeTextLayer={props.showTreeTextLayer}
+            geneLabelPosition={props.geneLabelPosition ?? geneLabelPosition}
+            flashBaselineHood={flashBaselineHood}
+            onLegendChange={(legend) => {
+              try {
+                console.debug('[AppPhylo] onLegendChange received legend payload keys=', legend && Object.keys(legend || {}));
+                if (props && typeof props.setViewerLegend === 'function') {
+                  props.setViewerLegend(legend);
+                } else {
+                  setViewerLegend(legend);
+                }
+              } catch (e) {
+                try { console.debug('[AppPhylo] fallback setViewerLegend'); setViewerLegend(legend); } catch (e2) {}
+              }
+            }}
+            />
+        </div>
+      )}
+      {isReady && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            maxHeight: props.showDataTable ? `${TABLE_HEIGHT + TABLE_MARGIN}px` : '0px',
+            opacity: props.showDataTable ? 1 : 0,
+            transform: props.showDataTable ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'max-height 220ms ease, opacity 220ms ease, transform 220ms ease',
+            overflow: 'hidden',
+          pointerEvents: props.showDataTable ? 'auto' : 'none',
+          zIndex: 20,
+        }}
+      >
+          <DataGridView
+            datasets={tableDatasets}
+            height={TABLE_HEIGHT}
+            visibilityConfig={visibilityConfig}
+            onZoomGene={handleZoomGene}
+            onZoomBaseline={handleZoomBaseline}
+            onZoomTree={handleZoomTreeMetadata}
           />
+        </div>
       )}
     </div>
   );

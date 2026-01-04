@@ -450,4 +450,3 @@ body {
 .dark .protein-viewer canvas {
   background: oklch(var(--muted));
 }
-

@@ -6,6 +6,12 @@ class NucleotideLink extends Link {
     super();
     this.seqidA = seqidA;
     this.seqidB = seqidB;
+    
+    // Determine original strand BEFORE normalization
+    // positive strand (+) if start < end, negative strand (-) if start > end
+    this.strandA = startA <= endA ? '+' : '-';
+    this.strandB = startB <= endB ? '+' : '-';
+    
     // Ensure startA < endA
     if (startA > endA) {
       [startA, endA] = [endA, startA];

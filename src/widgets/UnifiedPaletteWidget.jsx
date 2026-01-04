@@ -2,7 +2,7 @@
 // A unified palette widget that replaces multiple individual palette widgets
 // Features: layer selection, precomputed previews, data filtering
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTheme } from '@/contexts/ThemeContext.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -16,6 +16,46 @@ import {
   getPaletteColorCounts,
   getPaletteColors
 } from '../utils/colorPalettes';
+
+// Precompute palette previews ONCE at module load time (not on each mount)
+let globalPaletteCache = null;
+
+const computeGlobalPaletteCache = () => {
+  if (globalPaletteCache) return globalPaletteCache;
+  
+  const cache = {};
+  const paletteTypes = ['qualitative', 'sequential', 'diverging'];
+  
+  paletteTypes.forEach(type => {
+    let palettes = [];
+    switch (type) {
+      case 'sequential':
+        palettes = getSequentialPalettes();
+        break;
+      case 'diverging':
+        palettes = getDivergingPalettes();
+        break;
+      default:
+        palettes = getQualitativePalettes();
+    }
+
+    const uniqueNames = [...new Set(palettes.map(p => p.name))];
+    uniqueNames.forEach(name => {
+      try {
+        const bestMatch = palettes
+          .filter(p => p.name === name)
+          .reduce((best, current) => current.number > best.number ? current : best);
+        const colors = getPaletteColors(name, bestMatch.number, false);
+        cache[`${type}-${name}`] = colors.slice(0, 4); // Only store first 4 colors for preview
+      } catch (error) {
+        // Silently ignore preview computation errors
+      }
+    });
+  });
+
+  globalPaletteCache = cache;
+  return cache;
+};
 
 // Recommended palettes by type
 const RECOMMENDED_PALETTES = {
@@ -58,7 +98,9 @@ const UnifiedPaletteWidget = ({
   availableData = {}
 }) => {
   const [selectedLayer, setSelectedLayer] = useState('genes');
-  const [paletteCache, setPaletteCache] = useState({});
+  
+  // Use global cache instead of computing on each mount
+  const paletteCache = useMemo(() => computeGlobalPaletteCache(), []);
   
   // Theme context
   const { resolvedTheme, getThemeColors } = useTheme();
@@ -103,45 +145,6 @@ const UnifiedPaletteWidget = ({
 
   const currentPalette = getCurrentPalette();
   const currentSetter = getCurrentSetter();
-
-  // Precompute all palette previews on mount and when palette type changes
-  useEffect(() => {
-    const computePalettePreviews = () => {
-      const cache = {};
-      const paletteTypes = ['qualitative', 'sequential', 'diverging'];
-      
-      paletteTypes.forEach(type => {
-        let palettes = [];
-        switch (type) {
-          case 'sequential':
-            palettes = getSequentialPalettes();
-            break;
-          case 'diverging':
-            palettes = getDivergingPalettes();
-            break;
-          default:
-            palettes = getQualitativePalettes();
-        }
-
-        const uniqueNames = [...new Set(palettes.map(p => p.name))];
-        uniqueNames.forEach(name => {
-          try {
-            const bestMatch = palettes
-              .filter(p => p.name === name)
-              .reduce((best, current) => current.number > best.number ? current : best);
-            const colors = getPaletteColors(name, bestMatch.number, false);
-            cache[`${type}-${name}`] = colors.slice(0, 4); // Only store first 4 colors for preview
-          } catch (error) {
-            console.warn(`Failed to compute preview for ${name}:`, error);
-          }
-        });
-      });
-
-      setPaletteCache(cache);
-    };
-
-    computePalettePreviews();
-  }, []);
 
   // Get available palettes for current type
   const getAvailablePalettes = (type) => {

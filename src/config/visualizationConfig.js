@@ -161,7 +161,11 @@ export const DEFAULT_CONFIG = {
     barWidth: 3,           // Width of the scrollbar itself
     minThumbHeight: 24,     // Minimum height for scrollbar thumb
     margin: '2%',           // Margin around scrollbar
-    borderRadius: '0'     // Border radius for scrollbar elements (no rounding)
+    borderRadius: '0',      // Border radius for scrollbar elements (no rounding)
+    panPaddingY: 200,       // Allowed padding (in world units) beyond Y bounds when panning
+    panPaddingX: 5000,      // Allowed padding (in world units) beyond X bounds when panning
+    minZoom: -5,            // Minimum zoom level (zoomed out)
+    maxZoom: 2              // Maximum zoom level (zoomed in)
   },
 
   // Protein Link Parameters
@@ -173,8 +177,8 @@ export const DEFAULT_CONFIG = {
   useAlpha: true,
   // Alpha expressed as fraction (0..1). To get final alpha in 0..255 range
   // of approx 0..50, set maxAlpha = 50/255 (~0.1961). minAlpha=0 -> fully transparent.
-  minAlpha: 0,
-  maxAlpha: 0.19607843137254902,
+  minAlpha: 0.3,
+  maxAlpha: 1.0,
     palette: {
       type: 'sequential',
       name: 'Blues',
@@ -189,10 +193,29 @@ export const DEFAULT_CONFIG = {
     color: [200, 200, 200, 255],    // Default gray color for nucleotide links
     colorBy: 'solid', // 'solid', 'identity_gradient'
     solidColor: [200, 200, 200, 255],
+    // Strand-based coloring (works with both solid and gradient modes)
+    strandColoring: true,  // When true, use different colors/palettes for same vs opposite strand
+    sameStrandColor: [180, 180, 180, 255],      // Color for same strand alignments (+/+ or -/-)
+    oppositeStrandColor: [220, 80, 80, 255],    // Color for opposite strand alignments (+/- or -/+)
+    // Separate palettes for strand-based gradient coloring
+    sameStrandPalette: {
+      type: 'sequential',
+      name: 'Greys',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    },
+    oppositeStrandPalette: {
+      type: 'sequential',
+      name: 'Reds',
+      numColors: 9,
+      reverse: false,
+      enabled: true
+    },
   useAlpha: true,
   // Keep same convention as protein links: fractional alpha values in 0..1
   minAlpha: 0,
-  maxAlpha: 0.19607843137254902,
+  maxAlpha: 0.5,
     palette: {
       type: 'sequential',
       name: 'Reds',

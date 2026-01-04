@@ -369,43 +369,24 @@ export function AppSidebar({
   const refreshClusters = React.useCallback(() => {
     try {
       const gv = (phyloTreeViewerRefProp && phyloTreeViewerRefProp.current) ? phyloTreeViewerRefProp.current.genomeView : null;
-      console.log('🔧 refreshClusters - GenomeView:', gv ? 'Found' : 'Not found');
       
       if (!gv) {
-        console.log('🔧 No GenomeView, clearing clusters');
         setLiveClusters([]);
         setAvailableClusters([]);
         return;
       }
       
-      // Debug: check if the method exists and protein clusters
-      console.log('🔧 getClusterSummary method exists:', typeof gv.getClusterSummary === 'function');
-      console.log('🔧 proteinClusters keys:', gv.proteinClusters ? Object.keys(gv.proteinClusters).length : 0);
-      console.log('🔧 First 3 proteinClusters entries:', gv.proteinClusters ? Object.entries(gv.proteinClusters).slice(0, 3) : []);
-      
-      // Force cache invalidation before getting summary
-      gv._clusterSummary = null;
-      
-      // Use cached summary on GenomeView (cheap)
+      // Use cached summary on GenomeView (cheap) - don't invalidate cache
       const summary = (typeof gv.getClusterSummary === 'function') ? gv.getClusterSummary() : null;
-      console.log('🔧 Cluster summary (after cache invalidation):', summary);
       
       if (summary && Array.isArray(summary.items) && summary.items.length > 0) {
-        console.log('🔧 Setting available clusters:', summary.items.length, 'clusters');
-        console.log('🔧 Cluster items:', summary.items);
-        
-        // Force state update
         setAvailableClusters([...summary.items]);
         setLiveClusters([...(summary.ids || [])]);
-        
-        console.log('🔧 State should be updated now');
       } else {
-        console.log('🔧 No valid cluster summary found, clearing state');
         setAvailableClusters([]);
         setLiveClusters([]);
       }
     } catch (e) {
-      console.error('🔧 Error in refreshClusters:', e);
       setLiveClusters([]);
       setAvailableClusters([]);
     }
@@ -420,7 +401,6 @@ export function AppSidebar({
   // Also refresh clusters when the viewer reference changes or when gene data becomes available
   useEffect(() => {
     if (phyloTreeViewerRefProp?.current?.genomeView) {
-      console.log('🔧 Viewer/GenomeView available, refreshing clusters...');
       // Small delay to ensure GenomeView is fully initialized
       setTimeout(() => {
         refreshClusters();
@@ -432,7 +412,6 @@ export function AppSidebar({
   useEffect(() => {
     const gv = phyloTreeViewerRefProp?.current?.genomeView;
     if (gv && gv.proteinClusters && Object.keys(gv.proteinClusters).length > 0) {
-      console.log('🔧 Protein clusters detected, refreshing cluster list...');
       refreshClusters();
     }
   }, [phyloTreeViewerRefProp?.current?.genomeView?.proteinClusters]);
@@ -441,7 +420,6 @@ export function AppSidebar({
   useEffect(() => {
     const w = window as any;
     w.__hoodini_refreshClusters = () => {
-      console.log('🔧 Manual cluster refresh triggered from console');
       refreshClusters();
       return { availableClusters, liveClusters };
     };
@@ -465,24 +443,29 @@ export function AppSidebar({
     if (availableClusters.length > 0) return; // Already have clusters
     
     const interval = setInterval(() => {
-      console.log('🔧 Auto-refreshing clusters (no clusters found yet)');
       refreshClusters();
-    }, 2000); // Check every 2 seconds
+    }, 5000); // Check every 5 seconds (reduced for performance)
     
     return () => clearInterval(interval);
   }, [activeSection, availableClusters.length, refreshClusters]);
 
+  // Limit clusters shown in dropdown to top 50 (sorted by size, largest first)
+  // This prevents rendering 3000+ SelectItems which is extremely slow
+  const MAX_CLUSTERS_IN_DROPDOWN = 50;
+  const limitedClusters = React.useMemo(() => {
+    // availableClusters is already sorted by size (largest first) from getClusterSummary
+    return availableClusters.slice(0, MAX_CLUSTERS_IN_DROPDOWN);
+  }, [availableClusters]);
+
   // Memoize SelectItem nodes to avoid re-creating many React nodes on every render
   const clusterSelectItems = React.useMemo(() => {
-    console.log('🔧 Computing clusterSelectItems, availableClusters:', availableClusters);
-    const items = availableClusters.map(cluster => (
+    const items = limitedClusters.map(cluster => (
       <SelectItem key={cluster.id} value={String(cluster.id)}>
         {cluster.label}
       </SelectItem>
     ));
-    console.log('🔧 Generated', items.length, 'cluster SelectItems');
     return items;
-  }, [availableClusters]);
+  }, [limitedClusters]);
 
   // Metadata column fallbacks and dynamic extraction
   const geneMetadataColumns = (geneMetadataColumnsProp && geneMetadataColumnsProp.length > 0) ? geneMetadataColumnsProp : ['cluster', 'species', 'geneType'];
@@ -498,9 +481,6 @@ export function AppSidebar({
   const domainMetadataColumns = (Array.isArray(domainMetadataColumnsProp) && domainMetadataColumnsProp.length > 0)
     ? domainMetadataColumnsProp.map(col => (col || '').toString().trim()).filter(col => col !== '' && col.toLowerCase() !== 'domain_id')
     : [...builtInFields, ...metadataFields];
-  
-  console.log('DEBUG AppSidebar - domainMetadataColumnsProp:', domainMetadataColumnsProp);
-  console.log('DEBUG AppSidebar - final domainMetadataColumns:', domainMetadataColumns);
 
   // Selected gene information
   const selectedGene = selectedGeneProp;
@@ -1185,31 +1165,24 @@ export function AppSidebar({
                 </div>
                 <div>
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="gene-alignment" className="text-xs mb-1 block">Gene Alignment: ({availableClusters.length} clusters)</Label>
+                    <Label htmlFor="gene-alignment" className="text-xs mb-1 block">
+                      Gene Alignment: {availableClusters.length > MAX_CLUSTERS_IN_DROPDOWN 
+                        ? `top ${MAX_CLUSTERS_IN_DROPDOWN} of ${availableClusters.length}` 
+                        : `${availableClusters.length} clusters`}
+                    </Label>
                     <Button size="sm" variant="ghost" onClick={refreshClusters} style={{ height: '20px', minHeight: '20px' }}>Refresh</Button>
                   </div>
                   <Select 
                     value={alignCluster != null ? String(alignCluster) : 'none'} 
                     onValueChange={(value) => {
-                      const newVal = (value === 'none') ? null : String(value);
+                      const newVal = (value === 'none' || value === '__more__') ? null : String(value);
                       
-                      // AGGRESSIVE DEBUG: Log everything
-                      console.log('🔥 SIDEBAR ALIGNMENT ATTEMPT', {
-                        value,
-                        newVal,
-                        helperExists: typeof (window as any).__hoodini_alignCluster === 'function',
-                        helperResult: null
-                      });
-                      
-                      // BRUTAL FIX: Skip ALL React state, use ONLY the console helper
+                      // Skip ALL React state, use ONLY the console helper
                       const w: any = window as any;
                       if (typeof w.__hoodini_alignCluster === 'function') {
                         // DON'T set any React state AT ALL - just call the helper like console
                         if (newVal !== null) {
-                          console.log('🔥 CALLING HELPER WITH:', newVal);
-                          console.log('🔥 HELPER FUNCTION:', w.__hoodini_alignCluster.toString().substring(0, 200));
-                          const result = w.__hoodini_alignCluster(newVal);
-                          console.log('🔥 HELPER RETURNED:', result);
+                          w.__hoodini_alignCluster(newVal);
                         }
                         // DO NOT UPDATE ANY REACT STATE - it triggers effects that undo alignment!
                       } else {
@@ -1234,11 +1207,12 @@ export function AppSidebar({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No Cluster</SelectItem>
-                      {availableClusters.map(cluster => (
-                        <SelectItem key={cluster.id} value={String(cluster.id)}>
-                          {cluster.label}
+                      {clusterSelectItems}
+                      {availableClusters.length > MAX_CLUSTERS_IN_DROPDOWN && (
+                        <SelectItem value="__more__" disabled>
+                          ... and {availableClusters.length - MAX_CLUSTERS_IN_DROPDOWN} more (use console)
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

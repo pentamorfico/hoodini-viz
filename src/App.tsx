@@ -6,6 +6,8 @@ import { SectionCards } from '@/components/section-cards';
 import { SiteHeader } from '@/components/site-header';
 import { SVGExportButton } from '@/components/svg-export-button';
 import ThemeToggle from '@/components/ThemeToggle.jsx';
+import { Button } from '@/components/ui/button';
+import { Table as TableIcon } from 'lucide-react';
 import {
   SidebarInset,
   SidebarProvider,
@@ -39,6 +41,7 @@ function App() {
   const [domainPalette, setDomainPalette] = useState({ type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.2, 0.5] });
   const [ncRNAPalette, setNcRNAPalette] = useState({ type: 'qualitative', name: 'Set3', numColors: 8, reverse: false, enabled: true });
   const [regionPalette, setRegionPalette] = useState({ type: 'qualitative', name: 'Dark2', numColors: 8, reverse: false, enabled: true });
+  const [showDataTable, setShowDataTable] = useState(false);
   // Initialize link configs from visualization defaults so widgets use the
   // same defaults as the app config instead of their internal fallbacks.
   const [proteinLinkConfig, setProteinLinkConfig] = useState(DEFAULT_CONFIG.proteinLink);
@@ -355,6 +358,15 @@ function App() {
             style={{ position: 'static' }} 
           />
           <SVGExportButton phyloTreeViewerRef={phyloTreeViewerRef} />
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => setShowDataTable((v) => !v)}
+            aria-label={showDataTable ? 'Hide table view' : 'Show table view'}
+            className="size-7 border bg-transparent"
+          >
+            <TableIcon className="h-4 w-4" />
+          </Button>
           <ThemeToggle />
         </div>
          <AppPhylo
@@ -406,6 +418,7 @@ function App() {
            showNcRNALayer={showNcRNALayer}
            showGeneTextLayer={showGeneTextLayer}
            showTreeTextLayer={showTreeTextLayer}
+           showDataTable={showDataTable}
           geneLabelPosition={geneLabelPosition}
            setHasGeneData={setHasGeneData}
            setHasDomainData={setHasDomainData}

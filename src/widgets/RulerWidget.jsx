@@ -427,6 +427,10 @@ const RulerWidget = ({
     }
   };
 
+  // Match the UI font stack so ruler labels feel consistent with the rest of the app
+  const labelFontFamily = 'var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", sans-serif)';
+  const labelFontSize = '11px';
+
   return (
     <div
       style={{
@@ -482,9 +486,9 @@ const RulerWidget = ({
               x={tick.screenX}
               y={labelOffset}
               textAnchor="middle"
-              fontSize="11px"
+              fontSize={labelFontSize}
               fill={tick.type === 'tree' ? (themeColors.rulerText || "#0066cc") : (themeColors.rulerText || "#333")}
-              fontFamily="Helvetica, Arial, sans-serif"
+              fontFamily={labelFontFamily}
               fontWeight={tick.type === 'tree' ? 'bold' : 'normal'}
             >
               {tick.type === 'gene' ? formatCoordinate(tick.x) : tick.label}

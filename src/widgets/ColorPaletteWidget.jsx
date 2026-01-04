@@ -1,7 +1,7 @@
 // ColorPaletteWidget.jsx
 // Widget for selecting and configuring color palettes using dicopal
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   getQualitativePalettes, 
   getSequentialPalettes, 
@@ -15,6 +15,46 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+
+// Global cache for palette previews - computed once per type at module level
+const globalPreviewCache = {
+  qualitative: null,
+  sequential: null,
+  diverging: null
+};
+
+const computePreviewCacheForType = (type) => {
+  if (globalPreviewCache[type]) return globalPreviewCache[type];
+  
+  const cache = {};
+  let palettes = [];
+  switch (type) {
+    case 'sequential':
+      palettes = getSequentialPalettes();
+      break;
+    case 'diverging':
+      palettes = getDivergingPalettes();
+      break;
+    default:
+      palettes = getQualitativePalettes();
+  }
+  
+  const uniqueNames = [...new Set(palettes.map(p => p.name))].sort();
+  uniqueNames.forEach(name => {
+    try {
+      const bestMatch = palettes
+        .filter(p => p.name === name)
+        .reduce((best, current) => current.number > best.number ? current : best);
+      const colors = getPaletteColors(name, bestMatch.number, false);
+      cache[name] = colors.slice(0, 4);
+    } catch (error) {
+      cache[name] = [];
+    }
+  });
+  
+  globalPreviewCache[type] = cache;
+  return cache;
+};
 
 const ColorPaletteWidget = ({ 
   title = "Color Palette", 
@@ -80,24 +120,11 @@ const ColorPaletteWidget = ({
     return [];
   }, [safePaletteConfig.name, safePaletteConfig.numColors, safePaletteConfig.reverse]);
 
+  // Use global cache for palette previews - fast lookup, no recomputation per instance
   const palettePreviewCache = useMemo(() => {
-    const cache = {};
-    if (safePaletteConfig.type && availablePalettes.length > 0) {
-      uniquePaletteNames.forEach(name => {
-        try {
-          const bestMatch = availablePalettes
-            .filter(p => p.name === name)
-            .reduce((best, current) => current.number > best.number ? current : best);
-          const colors = getPaletteColors(name, bestMatch.number, false);
-          cache[name] = colors.slice(0, 4);
-        } catch (error) {
-          console.warn(`Failed to get preview for ${name}:`, error);
-          cache[name] = [];
-        }
-      });
-    }
-    return cache;
-  }, [safePaletteConfig.type, availablePalettes, uniquePaletteNames]);
+    const type = safePaletteConfig.type || 'qualitative';
+    return computePreviewCacheForType(type);
+  }, [safePaletteConfig.type]);
 
   const handleConfigChange = (updates) => {
     if (updates === null) {

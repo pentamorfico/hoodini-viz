@@ -84,7 +84,7 @@ const LinkColorWidget = ({
       numColors: 10,
       reverse: false
     },
-    useAlpha: false,
+    useAlpha: true,
     minAlpha: 0.3,
     maxAlpha: 1.0
   };
@@ -94,11 +94,29 @@ const LinkColorWidget = ({
     colorBy: 'solid', // 'solid', 'identity_gradient'
     previousColorBy: undefined, // Store previous colorBy when switching to palette
     solidColor: [200, 100, 100, 180],
+    // Strand-based coloring
+    strandColoring: true,
+    sameStrandColor: [180, 180, 180, 255],      // Gray for same strand (+/+ or -/-)
+    oppositeStrandColor: [220, 80, 80, 255],    // Red for opposite strand (+/- or -/+)
     palette: {
       enabled: false,
       type: 'sequential',
       name: 'viridis',
       numColors: 10,
+      reverse: false
+    },
+    sameStrandPalette: {
+      enabled: true,
+      type: 'sequential',
+      name: 'Greys',
+      numColors: 9,
+      reverse: false
+    },
+    oppositeStrandPalette: {
+      enabled: true,
+      type: 'sequential',
+      name: 'Reds',
+      numColors: 9,
       reverse: false
     },
     useAlpha: false,
@@ -494,12 +512,44 @@ const LinkColorWidget = ({
 
             {safeNucleotideConfig.colorBy === 'solid' && (
               <>
-                <ColorInput
-                  label="Solid Color"
-                  color={safeNucleotideConfig.solidColor}
-                  onChange={(color) => handleNucleotideConfigChange({ solidColor: color })}
-                  alpha={true}
-                />
+                {/* Strand coloring toggle */}
+                <div className="flex items-center justify-between mt-2">
+                  <Label htmlFor="strand-coloring-solid" className="text-xs">Color by strand</Label>
+                  <Switch
+                    id="strand-coloring-solid"
+                    checked={safeNucleotideConfig.strandColoring || false}
+                    onCheckedChange={(checked) => handleNucleotideConfigChange({ strandColoring: checked })}
+                  />
+                </div>
+                
+                {!safeNucleotideConfig.strandColoring ? (
+                  <ColorInput
+                    label="Solid Color"
+                    color={safeNucleotideConfig.solidColor}
+                    onChange={(color) => handleNucleotideConfigChange({ solidColor: color })}
+                    alpha={true}
+                  />
+                ) : (
+                  <>
+                    <div className="text-xs text-muted-foreground italic mb-1">
+                      Different colors for same vs opposite strand (considers track flip)
+                    </div>
+                    <div className="space-y-2">
+                      <ColorInput
+                        label="Same Strand (+/+ or -/-)"
+                        color={safeNucleotideConfig.sameStrandColor || [180, 180, 180, 255]}
+                        onChange={(color) => handleNucleotideConfigChange({ sameStrandColor: color })}
+                        alpha={false}
+                      />
+                      <ColorInput
+                        label="Opposite Strand (+/- or -/+)"
+                        color={safeNucleotideConfig.oppositeStrandColor || [220, 80, 80, 255]}
+                        onChange={(color) => handleNucleotideConfigChange({ oppositeStrandColor: color })}
+                        alpha={false}
+                      />
+                    </div>
+                  </>
+                )}
                 <AlphaControls
                   config={safeNucleotideConfig}
                   onChange={debouncedNucleotideConfigChange}
@@ -510,34 +560,72 @@ const LinkColorWidget = ({
             {/* Color Palette Widget - Only show for gradient mode */}
             {safeNucleotideConfig.colorBy === 'identity_gradient' && (
               <>
-                <div className="text-xs text-muted-foreground italic">
-                  Color palette uses identity % to assign colors from gradient
+                {/* Strand coloring toggle for gradient mode */}
+                <div className="flex items-center justify-between mt-2">
+                  <Label htmlFor="strand-coloring-gradient" className="text-xs">Color by strand</Label>
+                  <Switch
+                    id="strand-coloring-gradient"
+                    checked={safeNucleotideConfig.strandColoring || false}
+                    onCheckedChange={(checked) => handleNucleotideConfigChange({ strandColoring: checked })}
+                  />
                 </div>
-                <ColorPaletteWidget
-                  palette={safeNucleotideConfig.palette}
-                  onChange={(palette) => {
-                    if (palette && palette.enabled) {
-                      // Auto-switch to identity_gradient when palette is enabled
-                      handleNucleotideConfigChange({ 
-                        palette,
-                        colorBy: 'identity_gradient',
-                        previousColorBy: safeNucleotideConfig.colorBy !== 'identity_gradient' ? safeNucleotideConfig.colorBy : safeNucleotideConfig.previousColorBy
-                      });
-                    } else if (palette === null || (palette && !palette.enabled)) {
-                      // Switch back to previous colorBy when palette is disabled
-                      const previousColorBy = safeNucleotideConfig.previousColorBy || 'solid';
-                      handleNucleotideConfigChange({ 
-                        palette,
-                        colorBy: previousColorBy,
-                        previousColorBy: undefined
-                      });
-                    } else {
-                      handleNucleotideConfigChange({ palette });
-                    }
-                  }}
-                  title="Identity Gradient Palette"
-                  showPreview={false}
-                />
+                
+                {!safeNucleotideConfig.strandColoring ? (
+                  <>
+                    <div className="text-xs text-muted-foreground italic">
+                      Color palette uses identity % to assign colors from gradient
+                    </div>
+                    <ColorPaletteWidget
+                      palette={safeNucleotideConfig.palette}
+                      onChange={(palette) => {
+                        if (palette && palette.enabled) {
+                          handleNucleotideConfigChange({ 
+                            palette,
+                            colorBy: 'identity_gradient',
+                            previousColorBy: safeNucleotideConfig.colorBy !== 'identity_gradient' ? safeNucleotideConfig.colorBy : safeNucleotideConfig.previousColorBy
+                          });
+                        } else if (palette === null || (palette && !palette.enabled)) {
+                          const previousColorBy = safeNucleotideConfig.previousColorBy || 'solid';
+                          handleNucleotideConfigChange({ 
+                            palette,
+                            colorBy: previousColorBy,
+                            previousColorBy: undefined
+                          });
+                        } else {
+                          handleNucleotideConfigChange({ palette });
+                        }
+                      }}
+                      title="Identity Gradient Palette"
+                      showPreview={false}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="text-xs text-muted-foreground italic mb-2">
+                      Different gradients for same vs opposite strand (considers track flip)
+                    </div>
+                    <div className="space-y-3">
+                      <div className="border rounded-md p-2">
+                        <Label className="text-xs font-medium mb-1 block">Same Strand (+/+ or -/-)</Label>
+                        <ColorPaletteWidget
+                          palette={safeNucleotideConfig.sameStrandPalette || { enabled: true, type: 'sequential', name: 'Greys', numColors: 9, reverse: false }}
+                          onChange={(palette) => handleNucleotideConfigChange({ sameStrandPalette: palette })}
+                          title=""
+                          showPreview={true}
+                        />
+                      </div>
+                      <div className="border rounded-md p-2">
+                        <Label className="text-xs font-medium mb-1 block">Opposite Strand (+/- or -/+)</Label>
+                        <ColorPaletteWidget
+                          palette={safeNucleotideConfig.oppositeStrandPalette || { enabled: true, type: 'sequential', name: 'Reds', numColors: 9, reverse: false }}
+                          onChange={(palette) => handleNucleotideConfigChange({ oppositeStrandPalette: palette })}
+                          title=""
+                          showPreview={true}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
                 <AlphaControls
                   config={safeNucleotideConfig}
                   onChange={debouncedNucleotideConfigChange}
