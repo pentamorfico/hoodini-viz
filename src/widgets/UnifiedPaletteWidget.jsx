@@ -350,6 +350,20 @@ const UnifiedPaletteWidget = ({
               </div>
             )}
 
+            {/* Stable Colors Toggle - for genes and tree layers */}
+            {(selectedLayer === 'genes' || selectedLayer === 'phylo') && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="stable-colors" className="text-xs" title="When enabled, colors stay fixed even when visibility changes">
+                  Stable colors (no recolor)
+                </Label>
+                <Switch
+                  id="stable-colors"
+                  checked={currentPalette?.stableColors !== false}
+                  onCheckedChange={(checked) => handleConfigChange({ stableColors: checked })}
+                />
+              </div>
+            )}
+
             {/* Reverse Toggle */}
             <div className="flex items-center justify-between">
               <Label htmlFor="reverse-palette" className="text-xs">Reverse palette</Label>

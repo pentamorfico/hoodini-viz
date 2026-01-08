@@ -170,6 +170,13 @@ const PhyloTreeViewer = React.forwardRef(({
   const [flashGeneId, setFlashGeneId] = useState(null);
   const [flashTreeLeaf, setFlashTreeLeaf] = useState(null);
   
+  // ========== OVERLAY STRATEGY FOR GLOW EFFECT ==========
+  // Store the actual highlighted data (not just the ID) to avoid filtering large arrays
+  // These states only update on click, not on every frame
+  const [highlightedGeneData, setHighlightedGeneData] = useState(null);
+  const [highlightedTreeLeafData, setHighlightedTreeLeafData] = useState(null);
+  const [highlightedBaselineData, setHighlightedBaselineData] = useState(null);
+  
   // Static bounds for scrollbar - computed once when data loads, not affected by visibility toggles
   const staticBoundsRef = React.useRef(null);
   
@@ -189,15 +196,48 @@ const PhyloTreeViewer = React.forwardRef(({
 
   const stopGeneFlash = React.useCallback(() => {
     setFlashGeneId(null);
+    setHighlightedGeneData(null);
   }, []);
 
-  const triggerGeneFlash = React.useCallback((geneId) => {
+  // Trigger gene highlight - accepts the full gene object to avoid filtering
+  const triggerGeneFlash = React.useCallback((geneId, geneObject = null) => {
     if (!geneId) {
       stopGeneFlash();
       return;
     }
     setFlashGeneId(String(geneId));
+    // Store the actual gene data for the glow layer (avoids filtering large array)
+    if (geneObject) {
+      setHighlightedGeneData([geneObject]);
+    }
   }, [stopGeneFlash]);
+
+  // Handle baseline flash from props (used by external controls)
+  useEffect(() => {
+    if (!flashBaselineHood) {
+      setHighlightedBaselineData(null);
+      return;
+    }
+    // Get target baseline ID
+    const targetId = typeof flashBaselineHood === 'string'
+      ? flashBaselineHood
+      : (flashBaselineHood?.id != null ? String(flashBaselineHood.id) : null);
+    
+    if (!targetId || !genomeViewRef.current) {
+      setHighlightedBaselineData(null);
+      return;
+    }
+    
+    // Filter baselines (this happens ONCE when prop changes, not on every render)
+    const baselines = genomeViewRef.current.nucleotideLinks?.filter(link => link.baseline) || [];
+    const matchedBaselines = baselines.filter((b) => {
+      const hoodStr = b?.hood_id != null ? String(b.hood_id) : null;
+      const seqStr = b?.seqid != null ? String(b.seqid) : null;
+      return hoodStr === targetId || seqStr === targetId;
+    });
+    
+    setHighlightedBaselineData(matchedBaselines.length > 0 ? matchedBaselines : null);
+  }, [flashBaselineHood]);
 
   // If the gene label vertical position changes, force an alignmentVersion bump
   // so DeckGL layers that depend on alignmentVersion or geneLabelPosition will
@@ -214,6 +254,10 @@ const PhyloTreeViewer = React.forwardRef(({
   // Perf guards: avoid recomputing genome geometry when only tree X-scale changes
   const lastEffectiveTreeXScaleRef = useRef(effectiveTreeXScale);
   const lastGeometrySignatureRef = useRef(null);
+  
+  // Cache for layers to avoid expensive rebuild on flash-only changes
+  const cachedLayersRef = useRef(null);
+  const cachedLayersDepsRef = useRef(null);
   
   // Track whether we're in manual manipulation mode to prevent alignment reset
   const isManualManipulation = useRef(false);
@@ -966,7 +1010,8 @@ const PhyloTreeViewer = React.forwardRef(({
   }
 
   // Function to apply color palette to phylogenetic labels
-  function applyPhyloPalette(treeLabels, treeColorBy, treeMetadata, phyloPalette) {
+  // When stableColorMap is provided, use pre-assigned colors for stability
+  function applyPhyloPalette(treeLabels, treeColorBy, treeMetadata, phyloPalette, stableColorMap = null) {
     if (!phyloPalette || !phyloPalette.enabled) {
       // Ensure no colors are applied if phyloPalette is null or not enabled
       return treeLabels.map(label => ({
@@ -975,7 +1020,22 @@ const PhyloTreeViewer = React.forwardRef(({
       }));
     }
 
-    // Collect unique values for the color-by field
+    // If we have a stable color map, use it directly
+    if (stableColorMap && stableColorMap.size > 0) {
+      return treeLabels.map(label => {
+        const metadata = getMetaForLeaf(label.leafNode.name) || {};
+        const colorValue = metadata[treeColorBy];
+        if (colorValue !== null && colorValue !== undefined) {
+          const colorKey = String(colorValue);
+          const color = stableColorMap.get(colorKey) || stableColorMap.get(Number(colorKey)) || [0, 0, 0, 255];
+          return { ...label, color };
+        } else {
+          return { ...label, color: [0, 0, 0, 255] };
+        }
+      });
+    }
+
+    // DYNAMIC MODE: Collect unique values for the color-by field and assign colors
     const colorValues = new Set();
     for (const label of treeLabels) {
       const metadata = getMetaForLeaf(label.leafNode.name) || {};
@@ -1097,8 +1157,12 @@ const PhyloTreeViewer = React.forwardRef(({
     return prevalenceMap;
   }, [genomeView, geneColorBy, colorBy, selectedNode, visibleLeavesForPrevalence]);
 
-  // 🚀 PERFORMANCE: Pre-compute and memoize color mappings
-  const geneColorMap = React.useMemo(() => {
+  // 🎨 STABLE COLOR ASSIGNMENT: Pre-assign colors to ALL unique values once
+  // This map doesn't change with prevalence/visibility filters - colors are stable
+  const stableGeneColorMapRef = React.useRef(null);
+  const stableGeneColorMapKeyRef = React.useRef(null); // Track when to regenerate
+  
+  const stableGeneColorMap = React.useMemo(() => {
     if (!genomeView || !effectiveGenePalette?.enabled) return null;
     const primaryField = geneColorBy || colorBy || 'cluster';
     const genes = Object.values(genomeView.genesById);
@@ -1106,7 +1170,6 @@ const PhyloTreeViewer = React.forwardRef(({
     const extractKey = (g) => {
       let key = g?.metadata?.[primaryField];
       if (key === null || key === undefined || key === '') {
-        // Common fallbacks when using clusters
         if (primaryField === 'cluster') {
           key = g?.metadata?.clusterId ?? g?.metadata?.cluster_id ?? g?.cluster;
         }
@@ -1119,99 +1182,268 @@ const PhyloTreeViewer = React.forwardRef(({
       .map(k => normalizeKey(k))
       .filter(key => !isEmptyValue(key));
     
-  const uniqueKeys = [...new Set(validKeys)];
-  if (uniqueKeys.length === 0) return null;
-  // DEBUG: show keys being used for gene palette (temporary)
-  try { console.debug('geneColorMap: primaryField=', primaryField, 'uniqueKeys=', uniqueKeys.slice(0,50), 'count=', uniqueKeys.length); } catch (e) {}
+    const uniqueKeys = [...new Set(validKeys)].sort(); // Sort for stable ordering
+    if (uniqueKeys.length === 0) return null;
     
-  // Determine numeric interpolation for sequential palettes using toNumeric
-  const numericGeneVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
-  const isNumericGene = numericGeneVals.length === uniqueKeys.length && uniqueKeys.length > 0;
-    let keysForPalette = uniqueKeys;
-    let lowPrevalenceKeys = [];
-    
-  if (effectiveGenePalette.prevalenceFilter && effectiveGenePalette.prevalenceFilter > 0 && genePrevalenceMap) {
-      const thresholdDecimal = effectiveGenePalette.prevalenceFilter / 100;
-      keysForPalette = uniqueKeys.filter(key => {
-        const prevalence = genePrevalenceMap.get(String(key)) || 0;
-        return prevalence >= thresholdDecimal;
-      });
-      lowPrevalenceKeys = uniqueKeys.filter(key => {
-        const prevalence = genePrevalenceMap.get(String(key)) || 0;
-        return prevalence < thresholdDecimal;
-      });
+    // Check if we can reuse the cached stable map
+    const cacheKey = `${primaryField}-${effectiveGenePalette.name}-${effectiveGenePalette.numColors}-${effectiveGenePalette.reverse}-${uniqueKeys.length}`;
+    if (stableGeneColorMapRef.current && stableGeneColorMapKeyRef.current === cacheKey) {
+      return stableGeneColorMapRef.current;
     }
-
-    // Generate colors for keys that meet the prevalence threshold
+    
+    // Determine numeric interpolation for sequential palettes
+    const numericGeneVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
+    const isNumericGene = numericGeneVals.length === uniqueKeys.length && uniqueKeys.length > 0;
+    
+    // Generate colors for ALL unique keys
     const colors = memoGetPalette(
       effectiveGenePalette.name,
       effectiveGenePalette.numColors && effectiveGenePalette.type === 'sequential'
         ? effectiveGenePalette.numColors
-        : Math.max(keysForPalette.length, effectiveGenePalette.numColors || keysForPalette.length),
+        : Math.max(uniqueKeys.length, effectiveGenePalette.numColors || uniqueKeys.length),
       effectiveGenePalette.reverse || false
     );
     
     const colorMap = new Map();
     
-    // Apply palette colors to high-prevalence keys
     if (effectiveGenePalette.type === 'sequential' && isNumericGene) {
-      const numericGenes = keysForPalette.map(k => toNumeric(k));
+      const numericGenes = uniqueKeys.map(k => toNumeric(k));
       const minG = Math.min(...numericGenes);
       const maxG = Math.max(...numericGenes);
-      keysForPalette.forEach(key => {
-  const val = toNumeric(key);
-  const t = maxG > minG ? (val - minG) / (maxG - minG) : 0;
-  const idx = Math.floor(t * (colors.length - 1));
-  colorMap.set(val, colors[idx]);
-  // Mirror string key to be tolerant of String/Number lookups
-  try { colorMap.set(String(key), colors[idx]); } catch (e) {}
+      uniqueKeys.forEach(key => {
+        const val = toNumeric(key);
+        const t = maxG > minG ? (val - minG) / (maxG - minG) : 0;
+        const idx = Math.floor(t * (colors.length - 1));
+        colorMap.set(val, colors[idx]);
+        try { colorMap.set(String(key), colors[idx]); } catch (e) {}
       });
     } else {
-      keysForPalette.forEach((key, i) => {
+      uniqueKeys.forEach((key, i) => {
         colorMap.set(String(key), colors[i % colors.length]);
-        // Also mirror numeric form if it parses as number
         const num = toNumeric(key);
         if (!isNaN(num)) colorMap.set(num, colors[i % colors.length]);
       });
     }
     
-    // Apply default gray color to low-prevalence keys
-    const defaultGeneColor = DEFAULT_CONFIG.gene.fillColor; // Use config default gene color
-    lowPrevalenceKeys.forEach(key => {
-      const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
-      colorMap.set(mapKey, defaultGeneColor);
-      // Mirror other form
-      try { colorMap.set(String(key), defaultGeneColor); } catch (e) {}
-      const num = toNumeric(key);
-      if (!isNaN(num)) colorMap.set(num, defaultGeneColor);
-    });
+    // Cache the stable map
+    stableGeneColorMapRef.current = colorMap;
+    stableGeneColorMapKeyRef.current = cacheKey;
     
-    // Apply desaturation by prevalence if enabled (only to palette-colored keys)
-    if (effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap) {
-      for (const key of keysForPalette) {
-        const color = getColorFromMap(colorMap, key, effectiveGenePalette?.type);
-        const prevalence = genePrevalenceMap.get(String(key)) || 0;
-  const desaturatedColor = genomeView._desaturateColorByPrevalence(color, prevalence);
-  const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
-  colorMap.set(mapKey, desaturatedColor);
-  // Mirror both forms
-  try { colorMap.set(String(key), desaturatedColor); } catch (e) {}
-  const num = toNumeric(key);
-  if (!isNaN(num)) colorMap.set(num, desaturatedColor);
+    console.debug('stableGeneColorMap: generated for', uniqueKeys.length, 'unique values');
+    return colorMap;
+  }, [genomeView, geneColorBy, colorBy, effectiveGenePalette?.enabled, effectiveGenePalette?.name, effectiveGenePalette?.numColors, effectiveGenePalette?.reverse, effectiveGenePalette?.type]);
+
+  // 🎨 STABLE COLOR ASSIGNMENT FOR TREE: Pre-assign colors to ALL unique values once
+  const stableTreeColorMapRef = React.useRef(null);
+  const stableTreeColorMapKeyRef = React.useRef(null);
+  
+  const stableTreeColorMap = React.useMemo(() => {
+    if (!tree || !treeMetadata || !treeColorBy || !effectivePhyloPalette?.enabled) return null;
+    
+    // Collect ALL unique values for the color-by field
+    const colorValues = new Set();
+    for (const leaf of tree.leafNodes || []) {
+      const metadata = treeMetadata[leaf.name] || {};
+      const colorValue = metadata[treeColorBy];
+      if (colorValue !== undefined && colorValue !== null && colorValue !== '') {
+        colorValues.add(String(colorValue));
       }
+    }
+    const sortedColorValues = Array.from(colorValues).sort();
+    if (sortedColorValues.length === 0) return null;
+    
+    // Check if we can reuse the cached stable map
+    const cacheKey = `${treeColorBy}-${effectivePhyloPalette.name}-${effectivePhyloPalette.numColors}-${effectivePhyloPalette.reverse}-${sortedColorValues.length}`;
+    if (stableTreeColorMapRef.current && stableTreeColorMapKeyRef.current === cacheKey) {
+      return stableTreeColorMapRef.current;
+    }
+    
+    // Generate colors for ALL unique values
+    let paletteColors = [];
+    try {
+      paletteColors = memoGetPalette(
+        effectivePhyloPalette.name,
+        Math.max(sortedColorValues.length, effectivePhyloPalette.numColors || sortedColorValues.length),
+        effectivePhyloPalette.reverse || false
+      );
+    } catch (e) {
+      paletteColors = [];
+    }
+    
+    const colorMap = new Map();
+    
+    // Numeric interpolation for sequential palettes
+    if (effectivePhyloPalette.type === 'sequential' && sortedColorValues.every(v => !isNaN(Number(v)))) {
+      const numericVals = sortedColorValues.map(v => Number(v));
+      const minVal = Math.min(...numericVals);
+      const maxVal = Math.max(...numericVals);
+      sortedColorValues.forEach(val => {
+        const num = Number(val);
+        const t = maxVal > minVal ? (num - minVal) / (maxVal - minVal) : 0;
+        const idx = Math.floor(t * (paletteColors.length - 1));
+        colorMap.set(val, paletteColors[idx]);
+        colorMap.set(num, paletteColors[idx]);
+      });
+    } else {
+      // Categorical mapping
+      sortedColorValues.forEach((value, i) => {
+        colorMap.set(value, paletteColors[i % paletteColors.length]);
+        const num = Number(value);
+        if (!isNaN(num)) colorMap.set(num, paletteColors[i % paletteColors.length]);
+      });
+    }
+    
+    // Cache the stable map
+    stableTreeColorMapRef.current = colorMap;
+    stableTreeColorMapKeyRef.current = cacheKey;
+    
+    console.debug('stableTreeColorMap: generated for', sortedColorValues.length, 'unique values');
+    return colorMap;
+  }, [tree, treeMetadata, treeColorBy, effectivePhyloPalette?.enabled, effectivePhyloPalette?.name, effectivePhyloPalette?.numColors, effectivePhyloPalette?.reverse, effectivePhyloPalette?.type]);
+
+  // 🚀 PERFORMANCE: Compute final color map using stable colors + prevalence filtering
+  // When stableColors is true (default), colors are pre-assigned to ALL values and don't change
+  // When stableColors is false, colors are reassigned based on currently visible/filtered values
+  const useStableColors = effectiveGenePalette?.stableColors !== false; // Default to true
+  const useStableTreeColors = effectivePhyloPalette?.stableColors !== false; // Default to true
+  
+  const geneColorMap = React.useMemo(() => {
+    if (!genomeView || !effectiveGenePalette?.enabled) return null;
+    
+    // If using stable colors, we need the stableGeneColorMap
+    if (useStableColors && !stableGeneColorMap) return null;
+    
+    const primaryField = geneColorBy || colorBy || 'cluster';
+    const genes = Object.values(genomeView.genesById);
+
+    const extractKey = (g) => {
+      let key = g?.metadata?.[primaryField];
+      if (key === null || key === undefined || key === '') {
+        if (primaryField === 'cluster') {
+          key = g?.metadata?.clusterId ?? g?.metadata?.cluster_id ?? g?.cluster;
+        }
+      }
+      return key;
+    };
+
+    const validKeys = genes
+      .map(extractKey)
+      .map(k => normalizeKey(k))
+      .filter(key => !isEmptyValue(key));
+    
+    const uniqueKeys = [...new Set(validKeys)].sort(); // Sort for stable ordering
+    if (uniqueKeys.length === 0) return null;
+    
+    // Determine numeric mode for key lookups
+    const numericGeneVals = uniqueKeys.map(k => toNumeric(k)).filter(n => !isNaN(n));
+    const isNumericGene = numericGeneVals.length === uniqueKeys.length && uniqueKeys.length > 0;
+    
+    const colorMap = new Map();
+    const defaultGeneColor = DEFAULT_CONFIG.gene.fillColor;
+    const thresholdDecimal = (effectiveGenePalette.prevalenceFilter || 0) / 100;
+    
+    if (useStableColors) {
+      // STABLE MODE: Use pre-assigned colors from stableGeneColorMap
+      uniqueKeys.forEach(key => {
+        const prevalence = genePrevalenceMap?.get(String(key)) || 0;
+        const passesPrevalence = prevalence >= thresholdDecimal;
+        
+        // Get the stable color for this key
+        const stableColor = getColorFromMap(stableGeneColorMap, key, effectiveGenePalette?.type);
+        
+        // Use stable color if passes prevalence, otherwise default gray
+        let finalColor = passesPrevalence ? stableColor : defaultGeneColor;
+        
+        // Apply desaturation by prevalence if enabled
+        if (passesPrevalence && effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap && genomeView._desaturateColorByPrevalence) {
+          finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
+        }
+        
+        // Store in both string and numeric forms
+        const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
+        colorMap.set(mapKey, finalColor);
+        try { colorMap.set(String(key), finalColor); } catch (e) {}
+        const num = toNumeric(key);
+        if (!isNaN(num)) colorMap.set(num, finalColor);
+      });
+    } else {
+      // DYNAMIC MODE: Reassign colors based on keys that pass prevalence filter
+      const keysForPalette = uniqueKeys.filter(key => {
+        const prevalence = genePrevalenceMap?.get(String(key)) || 0;
+        return prevalence >= thresholdDecimal;
+      });
+      
+      // Generate colors only for visible keys
+      const colors = memoGetPalette(
+        effectiveGenePalette.name,
+        effectiveGenePalette.numColors && effectiveGenePalette.type === 'sequential'
+          ? effectiveGenePalette.numColors
+          : Math.max(keysForPalette.length, effectiveGenePalette.numColors || keysForPalette.length),
+        effectiveGenePalette.reverse || false
+      );
+      
+      // Assign colors to keys that pass prevalence
+      if (effectiveGenePalette.type === 'sequential' && isNumericGene) {
+        const numericGenes = keysForPalette.map(k => toNumeric(k));
+        const minG = Math.min(...numericGenes);
+        const maxG = Math.max(...numericGenes);
+        keysForPalette.forEach(key => {
+          const val = toNumeric(key);
+          const t = maxG > minG ? (val - minG) / (maxG - minG) : 0;
+          const idx = Math.floor(t * (colors.length - 1));
+          let finalColor = colors[idx];
+          
+          if (effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap && genomeView._desaturateColorByPrevalence) {
+            const prevalence = genePrevalenceMap.get(String(key)) || 0;
+            finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
+          }
+          
+          colorMap.set(val, finalColor);
+          try { colorMap.set(String(key), finalColor); } catch (e) {}
+        });
+      } else {
+        keysForPalette.forEach((key, i) => {
+          let finalColor = colors[i % colors.length];
+          
+          if (effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap && genomeView._desaturateColorByPrevalence) {
+            const prevalence = genePrevalenceMap.get(String(key)) || 0;
+            finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
+          }
+          
+          colorMap.set(String(key), finalColor);
+          const num = toNumeric(key);
+          if (!isNaN(num)) colorMap.set(num, finalColor);
+        });
+      }
+      
+      // Assign default color to keys that don't pass prevalence
+      uniqueKeys.forEach(key => {
+        const prevalence = genePrevalenceMap?.get(String(key)) || 0;
+        if (prevalence < thresholdDecimal) {
+          const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
+          colorMap.set(mapKey, defaultGeneColor);
+          try { colorMap.set(String(key), defaultGeneColor); } catch (e) {}
+          const num = toNumeric(key);
+          if (!isNaN(num)) colorMap.set(num, defaultGeneColor);
+        }
+      });
     }
     
     return colorMap;
   }, [
     genomeView,
+    stableGeneColorMap, // Use stable colors as base
     genePrevalenceMap, 
     // depend on primitive palette properties so toggling/enabling recomputes reliably
     effectiveGenePalette?.enabled,
-    effectiveGenePalette?.name,
-    effectiveGenePalette?.numColors,
-    effectiveGenePalette?.reverse,
+    effectiveGenePalette?.type,
+    effectiveGenePalette?.name, // For dynamic mode palette generation
+    effectiveGenePalette?.numColors, // For dynamic mode palette generation
+    effectiveGenePalette?.reverse, // For dynamic mode palette generation
     effectiveGenePalette?.desaturateByPrevalence,
     effectiveGenePalette?.prevalenceFilter,
+    effectiveGenePalette?.stableColors, // Track stable colors setting
+    useStableColors, // Flag for stable vs dynamic mode
     colorBy,
     geneColorBy,
     alignmentVersion
@@ -2035,9 +2267,25 @@ const PhyloTreeViewer = React.forwardRef(({
     const entries = [];
 
     // Gene families (from geneColorMap)
-    if (geneColorMap && geneColorMap.size > 0) {
-      const items = Array.from(geneColorMap.entries()).slice(0, 20).map(([k, color]) => ({ label: String(k), color }));
-      entries.push({ id: 'genes', title: 'Gene families', items });
+    // Use stableGeneColorMap for consistent legend display (it has unique sorted keys)
+    // Fall back to geneColorMap if stable is not available
+    const sourceMap = stableGeneColorMap || geneColorMap;
+    if (sourceMap && sourceMap.size > 0) {
+      const seenLabels = new Set();
+      const items = [];
+      for (const [k, color] of sourceMap.entries()) {
+        // Only use string keys to avoid duplicates (Map stores both "1" and 1 as separate keys)
+        if (typeof k === 'string') {
+          const label = k;
+          if (!seenLabels.has(label)) {
+            seenLabels.add(label);
+            items.push({ label, color });
+          }
+        }
+      }
+      if (items.length > 0) {
+        entries.push({ id: 'genes', title: 'Gene families', items: items.slice(0, 20) });
+      }
     }
 
     // Phylogenetic labels (from effectivePhyloPalette + treeMetadata)
@@ -2137,6 +2385,7 @@ const PhyloTreeViewer = React.forwardRef(({
     return entries;
   }, [
     geneColorMap,
+    stableGeneColorMap, // Use stable map for legend (has unique string keys)
     effectivePhyloPalette,
     tree,
     treeMetadata,
@@ -2432,6 +2681,7 @@ const PhyloTreeViewer = React.forwardRef(({
   }, [genomeViewRef.current, genomeViewRef.current?.nucleotideLinks, paletteVersion, alignmentVersion, nucleotideLinkConfigKey, selectedNode]);
 
   const layers = React.useMemo(() => {
+  console.warn('🔥 LAYERS USEMEMO TRIGGERED - check DevTools Performance tab for what changed');
   try { console.groupCollapsed && console.groupCollapsed('PhyloTreeViewer: layers recompute'); } catch(e) {}
   console.time && console.time('layers:total');
   const layersStartTime = performance.now();
@@ -2463,19 +2713,21 @@ const PhyloTreeViewer = React.forwardRef(({
     // Ensure gene instances reflect the live gene height first so downstream
     // domain/link/region polygon calculations use the updated gene polygons.
     // To avoid recomputing heavy geometry when only the tree X-scale changed
-    // (which should only affect presentation and not gene geometry), compute
-    // a lightweight geometry signature and skip full updates when safe.
+    // or only flash state changed, compute a lightweight geometry signature 
+    // and skip full updates when safe.
     const geomSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${effectiveConfig.gene.arrowheadHeight}:${alignmentVersion}`;
     const onlyTreeScaleChanged = (lastGeometrySignatureRef.current === geomSignature) && (lastEffectiveTreeXScaleRef.current !== effectiveTreeXScale);
+    // Check if only flash state changed (no geometry update needed)
+    const onlyFlashChanged = lastGeometrySignatureRef.current === geomSignature && lastEffectiveTreeXScaleRef.current === effectiveTreeXScale;
 
-    if (onlyTreeScaleChanged) {
+    if (onlyTreeScaleChanged || onlyFlashChanged) {
       // Skip expensive polygon recompute; we only need to update the cached refs
       lastEffectiveTreeXScaleRef.current = effectiveTreeXScale;
       // Minimal work: update genomeView.config so layers that read it will get correct xScale
       genomeView.config = effectiveConfig;
       // Set a tiny polygonUpdateTime for logging clarity
       const polygonUpdateTime = 0;
-      console.log && console.log('PhyloTreeViewer: polygonUpdate skipped (only tree scale changed)');
+      console.log && console.log('PhyloTreeViewer: polygonUpdate skipped (only tree scale or flash changed)');
     } else {
       const polygonUpdateStart = performance.now();
       console.time && console.time('layers:polygonUpdate');
@@ -2829,7 +3081,9 @@ const PhyloTreeViewer = React.forwardRef(({
     // Apply palette to phylo labels if enabled
     let finalPhyloLabels;
     if (effectivePhyloPalette && effectivePhyloPalette.enabled && treeMetadata) {
-      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, effectivePhyloPalette).map(lbl => {
+      // Pass stableTreeColorMap when useStableTreeColors is enabled
+      const stableMap = useStableTreeColors ? stableTreeColorMap : null;
+      finalPhyloLabels = applyPhyloPalette(rawPhyloLabels, treeColorBy, treeMetadata, effectivePhyloPalette, stableMap).map(lbl => {
         // Ensure fallback to themeColors.geneFill for labels without valid metadata
         const colorValue = treeMetadata?.[lbl.leafNode.name]?.[treeColorBy];
         return colorValue !== null && colorValue !== undefined && colorValue !== ''
@@ -3512,130 +3766,8 @@ const PhyloTreeViewer = React.forwardRef(({
       return [150, 150, 150, 255];
     };
 
-    const geneGlowColor = (gene, alpha) => {
-      const base =
-        gene?.fillColor ||
-        themeColors.geneFill ||
-        effectiveConfig.gene.fillColor;
-      const [r, g, b] = toRgbaColor(base);
-      return [r, g, b, alpha];
-    };
-
-    const glowData = flashGeneId ? genesData.filter((g) => String(g.id) === String(flashGeneId)) : [];
-
-    const sharedGlowTriggers = [
-      glowData.length,
-      glowData.length,
-      genesData.length,
-      genesShapeSignature,
-      alignmentVersion,
-      effectiveConfig.gene.height,
-      effectiveConfig.gene.defaultHeight,
-      effectiveConfig.gene.arrowheadHeight,
-      effectiveConfig.gene.tipWidthFactor,
-      arrowheadHeightDisplay,
-      geneHeightDisplay,
-      selectedNode,
-      flashGeneId,
-      glowPadFactor
-    ];
-
-    const makeGlowLayer = (id, scale, alpha) =>
-      new PolygonLayer({
-        id,
-        data: glowData,
-        visible: showGeneLayer && !!flashGeneId,
-        getPolygon: d => buildGlowPolygon(d, scale),
-        getFillColor: d => geneGlowColor(d, alpha),
-        stroked: false,
-        filled: true,
-        parameters: { depthTest: false, depthMask: false },
-        pickable: false,
-        updateTriggers: {
-          getPolygon: [...sharedGlowTriggers, scale],
-          getFillColor: [flashGeneId, paletteVersion, geneColorBy, colorBy, themeColors.geneFill, effectiveConfig.gene.fillColor]
-        }
-      });
-
-    // Smooth multi-step halo with gentle falloff
-    const glowLayers = [
-      makeGlowLayer('genes-glow-far', 3.4, 6),
-      makeGlowLayer('genes-glow-ultra', 2.8, 12),
-      makeGlowLayer('genes-glow-heavy', 2.2, 18),
-      makeGlowLayer('genes-glow-wide', 1.9, 28),
-      makeGlowLayer('genes-glow-midwide', 1.6, 42),
-      makeGlowLayer('genes-glow-mid', 1.4, 58),
-      makeGlowLayer('genes-glow-soft', 1.25, 74),
-      makeGlowLayer('genes-glow-soft2', 1.12, 88),
-      makeGlowLayer('genes-glow-core-soft', 1.08, 72),
-      makeGlowLayer('genes-glow-core', 1.02, 62)
-    ];
-
-    const treeGlowData = flashTreeLeaf
-      ? (() => {
-          const target = String(flashTreeLeaf);
-          const leaf = (tree?.leafNodes || []).find((l) =>
-            [l?.leaf_id, l?.metadata?.leaf_id, l?.metadata?.leaf_name, l?.name, l?.metadata?.name]
-              .filter(v => v !== null && v !== undefined)
-              .some(v => String(v) === target)
-          );
-          if (!leaf) return [];
-          const rawY = Number.isFinite(Number(leaf?.y)) ? Number(leaf.y) : Number(leaf?.rawY);
-          const rawX = Number.isFinite(Number(leaf?.x)) ? Number(leaf.x) : Number(leaf?.rawX);
-          if (!Number.isFinite(rawY) || !Number.isFinite(rawX)) return [];
-          const color = leafNameToColorMap.get(leaf.name) || themeColors.treeEdges || [220, 180, 60, 255];
-          const canonicalId = leaf.leaf_id || leaf.metadata?.leaf_id || leaf.name || leaf.id;
-          return [{
-            id: canonicalId,
-            name: leaf.name,
-            leaf_id: leaf.leaf_id,
-            node: leaf,
-            rawY,
-            x: rawX,
-            color,
-            radius: (nodeRadius && nodeRadius.leaf) || 2,
-            metadata: leaf.metadata || { name: leaf.name, id: leaf.id, leaf_id: leaf.leaf_id }
-          }];
-        })()
-      : [];
-
-    const makeTreeGlow = (id, scale, alpha) =>
-      new ScatterplotLayer({
-        id,
-        data: treeGlowData,
-        visible: showTreeLayer && treeGlowData.length > 0,
-        getPosition: d => {
-          const rawY = Number.isFinite(Number(d.rawY)) ? Number(d.rawY) : Number(d?.node?.y);
-          const rawX = Number.isFinite(Number(d.x)) ? Number(d.x) : Number(d?.node?.x);
-          if (!Number.isFinite(rawY) || !Number.isFinite(rawX)) return [0, 0];
-          const treeXScale = (effectiveConfig.tree && typeof effectiveConfig.tree.xScalePercent === 'number') ? effectiveConfig.tree.xScalePercent / 100 : 1;
-          return [rawY * treeXScale + treeOffset, rawX];
-        },
-        getRadius: d => (d.radius || 2) * scale,
-        getFillColor: d => {
-          const base = d?.color || themeColors.treeEdges || [220, 180, 60, 255];
-          const [r, g, b] = toRgbaColor(base);
-          return [r, g, b, alpha];
-        },
-        stroked: false,
-        filled: true,
-        pickable: false,
-        // Match units with terminal nodes; keep a pixel minimum so the glow stays visible when zoomed out
-        radiusUnits: 'meters',
-        radiusMinPixels: 4,
-        parameters: { depthTest: false, depthMask: false },
-        updateTriggers: {
-          getPosition: [treeGlowData.length, treeOffset, effectiveConfig.tree?.xScalePercent, alignmentVersion],
-          getRadius: [treeGlowData.length, scale],
-          getFillColor: [treeGlowData.length, flashTreeLeaf]
-        }
-      });
-
-    const treeGlowLayers = [
-      // Larger, meter-based glows with a pixel floor for visibility
-      makeTreeGlow('tree-glow-soft', 2.4, 120),
-      makeTreeGlow('tree-glow-core', 1.7, 190)
-    ];
+    // NOTE: Glow layers have been moved to a separate useMemo (glowLayers) for performance
+    // They only update when highlight state changes, not when the entire dataset changes
 
     const ensureRgba = (color, fallback = [100, 100, 100, 255]) => {
       const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
@@ -3659,49 +3791,10 @@ const PhyloTreeViewer = React.forwardRef(({
     const baselineColor = ensureRgba(themeColors.baselines || effectiveConfig.colors.darkGray || [85, 85, 85, 255]);
     const baselineWidthPx = effectiveConfig.stroke?.baselineWidth || effectiveConfig.stroke?.lineWidth || 1;
 
-    const targetBaselineId = (() => {
-      if (typeof flashBaselineHood === 'string') return flashBaselineHood;
-      if (flashBaselineHood && flashBaselineHood.id != null) return String(flashBaselineHood.id);
-      return null;
-    })();
-
-    // Persist glow until flashBaselineHood changes; no auto-clear here
-    const baselineGlowData = targetBaselineId
-      ? nucleotideBaselines.filter((b) => {
-          const hoodStr = b?.hood_id != null ? String(b.hood_id) : null;
-          const seqStr = b?.seqid != null ? String(b.seqid) : null;
-          return hoodStr === targetBaselineId || seqStr === targetBaselineId;
-        })
-      : [];
-
-    const makeBaselineGlow = (id, widthMultiplier, alpha) =>
-      new LineLayer({
-        id,
-        data: baselineGlowData,
-        visible: baselineGlowData.length > 0,
-        getSourcePosition: d => [d.start, d.trackY],
-        getTargetPosition: d => [d.end, d.trackY],
-        getColor: () => [255, 215, 80, alpha],
-        getWidth: baselineWidthPx * widthMultiplier,
-        widthUnits: 'pixels',
-        pickable: false,
-        parameters: { depthTest: false, depthMask: false },
-        updateTriggers: {
-          getSourcePosition: [baselineGlowData, flashBaselineHood, alignmentVersion, baselinesSignature],
-          getTargetPosition: [baselineGlowData, flashBaselineHood, alignmentVersion, baselinesSignature],
-          getColor: [alpha],
-          getWidth: [baselineWidthPx, widthMultiplier],
-          visible: [baselineGlowData.length, flashBaselineHood]
-        }
-      });
-
-    const baselineGlowLayers = [
-      makeBaselineGlow('baselines-glow-wide', 18.0, 180),
-      makeBaselineGlow('baselines-glow-core', 10.0, 255)
-    ];
+    // NOTE: Baseline glow layers have been moved to a separate useMemo (glowLayers) for performance
 
     const layers = [
-      ...baselineGlowLayers,
+      // NOTE: Baseline glow layers moved to separate useMemo for performance
       new LineLayer({
         id: 'baselines',
         data: nucleotideBaselines,
@@ -4102,7 +4195,7 @@ const PhyloTreeViewer = React.forwardRef(({
             geneHeightDisplay,
             selectedNode
           ],
-          getFillColor: [genesData.length, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, alignmentVersion, flashGeneId],
+          getFillColor: [genesData.length, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, alignmentVersion],
           getLineColor: [genesData.length, themeColors.geneFill, effectiveConfig.gene.edgeWidth, alignmentVersion],
           getLineWidth: effectiveConfig.gene.edgeWidth,
           stroked: effectiveConfig.gene.edgeWidth
@@ -4246,7 +4339,7 @@ const PhyloTreeViewer = React.forwardRef(({
           backgroundPadding: showConnectingLines
         }
       }),
-      ...treeGlowLayers,
+      // NOTE: Tree glow layers moved to separate useMemo for performance
       // Node points
       new ScatterplotLayer({
         id: 'nodes',
@@ -4366,8 +4459,8 @@ const PhyloTreeViewer = React.forwardRef(({
       }
     }
 
-    // Glow layers for halo effect (layered with increasing alpha) - push to render on top
-    layers.push(...glowLayers);
+    // NOTE: Glow layers have been moved to a separate useMemo for performance
+    // They only rebuild when highlighted data changes, not when dataset changes
 
     /*
     // Tree ticks (for SVG export)
@@ -4465,9 +4558,7 @@ const PhyloTreeViewer = React.forwardRef(({
     showConnectingLines,
     phyloLabelPosition,
     alignLabels,
-    flashGeneId,
-    flashTreeLeaf,
-    flashBaselineHood,
+    // NOTE: flashVersion removed - glow layers are computed separately for performance
     // Label dependencies
     labelBy,
     treeLabelBy,
@@ -4526,6 +4617,175 @@ const PhyloTreeViewer = React.forwardRef(({
     genomeViewRef.current?._paletteVersion,
     effectiveGenePalette?.enabled
   ]);
+
+  // ====== OVERLAY STRATEGY: SEPARATE GLOW LAYERS USEMEMO ======
+  // These layers only rebuild when highlighted data changes, NOT when main dataset changes
+  // This is the key performance optimization for gene click responsiveness
+  const glowLayers = React.useMemo(() => {
+    console.log('✅ glowLayers useMemo triggered (this should be fast)', {
+      highlightedGeneData: highlightedGeneData?.length || 0,
+      highlightedTreeLeafData: highlightedTreeLeafData?.length || 0,
+      highlightedBaselineData: highlightedBaselineData?.length || 0
+    });
+    const result = [];
+    
+    // Helper to convert color to RGBA
+    const toRgbaColor = (color) => {
+      const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
+      if (Array.isArray(color)) {
+        const [r = 0, g = 0, b = 0, a = 255] = color;
+        return [clamp(r), clamp(g), clamp(b), clamp(a ?? 255)];
+      }
+      if (typeof color === 'string') {
+        const parts = color
+          .split(',')
+          .map((n) => parseInt(n.trim(), 10))
+          .filter((v) => !isNaN(v));
+        if (parts.length >= 3) {
+          const [r, g, b, a = 255] = parts;
+          return [clamp(r), clamp(g), clamp(b), clamp(a)];
+        }
+      }
+      return [150, 150, 150, 255];
+    };
+
+    // ======= GENE GLOW LAYERS =======
+    if (highlightedGeneData && highlightedGeneData.length > 0) {
+      const geneGlowColor = (gene, alpha) => {
+        const base =
+          gene?.fillColor ||
+          themeColors.geneFill ||
+          config.gene?.fillColor ||
+          [100, 100, 100, 255];
+        const [r, g, b] = toRgbaColor(base);
+        return [r, g, b, alpha];
+      };
+
+      // Build glow polygon with padding
+      const buildGlowPolygon = (d, scaleFactor) => {
+        if (!d || !d.polygon || d.polygon.length < 3) return [[0,0]];
+        
+        const poly = d.polygon;
+        // Simple scale from centroid
+        let cx = 0, cy = 0;
+        for (const [px, py] of poly) {
+          cx += px;
+          cy += py;
+        }
+        cx /= poly.length;
+        cy /= poly.length;
+        
+        return poly.map(([px, py]) => [
+          cx + (px - cx) * scaleFactor,
+          cy + (py - cy) * scaleFactor
+        ]);
+      };
+
+      const makeGlowLayer = (id, scale, alpha) =>
+        new PolygonLayer({
+          id,
+          data: highlightedGeneData,
+          getPolygon: d => buildGlowPolygon(d, scale),
+          getFillColor: d => geneGlowColor(d, alpha),
+          stroked: false,
+          filled: true,
+          parameters: { 
+            depthTest: false, 
+            depthMask: false
+          },
+          pickable: false
+        });
+
+      // Smooth multi-step halo with gentle falloff
+      result.push(
+        makeGlowLayer('genes-glow-far', 3.4, 6),
+        makeGlowLayer('genes-glow-ultra', 2.8, 12),
+        makeGlowLayer('genes-glow-heavy', 2.2, 18),
+        makeGlowLayer('genes-glow-wide', 1.9, 28),
+        makeGlowLayer('genes-glow-midwide', 1.6, 42),
+        makeGlowLayer('genes-glow-mid', 1.4, 58),
+        makeGlowLayer('genes-glow-soft', 1.25, 74),
+        makeGlowLayer('genes-glow-soft2', 1.12, 88),
+        makeGlowLayer('genes-glow-core-soft', 1.08, 72),
+        makeGlowLayer('genes-glow-core', 1.02, 62)
+      );
+    }
+
+    // ======= TREE LEAF GLOW LAYERS =======
+    if (highlightedTreeLeafData && highlightedTreeLeafData.length > 0) {
+      const makeTreeGlow = (id, scale, alpha) =>
+        new ScatterplotLayer({
+          id,
+          data: highlightedTreeLeafData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: d => (d.radius || 2) * scale,
+          getFillColor: d => {
+            const base = d?.color || themeColors.treeEdges || [220, 180, 60, 255];
+            const [r, g, b] = toRgbaColor(base);
+            return [r, g, b, alpha];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'meters',
+          radiusMinPixels: 4,
+          parameters: { 
+            depthTest: false, 
+            depthMask: false
+          }
+        });
+
+      result.push(
+        makeTreeGlow('tree-glow-soft', 2.4, 120),
+        makeTreeGlow('tree-glow-core', 1.7, 190)
+      );
+    }
+
+    // ======= BASELINE GLOW LAYERS =======
+    if (highlightedBaselineData && highlightedBaselineData.length > 0) {
+      const baselineWidthPx = config.stroke?.baselineWidth || config.stroke?.lineWidth || 1;
+      
+      const makeBaselineGlow = (id, widthMultiplier, alpha) =>
+        new LineLayer({
+          id,
+          data: highlightedBaselineData,
+          getSourcePosition: d => [d.start, d.trackY],
+          getTargetPosition: d => [d.end, d.trackY],
+          getColor: () => [255, 215, 80, alpha],
+          getWidth: baselineWidthPx * widthMultiplier,
+          widthUnits: 'pixels',
+          pickable: false,
+          parameters: { 
+            depthTest: false, 
+            depthMask: false
+          }
+        });
+
+      result.push(
+        makeBaselineGlow('baselines-glow-wide', 18.0, 180),
+        makeBaselineGlow('baselines-glow-core', 10.0, 255)
+      );
+    }
+
+    return result;
+  }, [
+    // ONLY depends on highlighted data - this is the key optimization!
+    highlightedGeneData,
+    highlightedTreeLeafData,
+    highlightedBaselineData,
+    // Minimal styling dependencies
+    themeColors.geneFill,
+    themeColors.treeEdges,
+    config.gene?.fillColor,
+    config.stroke?.baselineWidth,
+    config.stroke?.lineWidth
+  ]);
+
+  // Combine base layers with glow layers for final render
+  const combinedLayers = React.useMemo(() => {
+    console.log('🔄 combinedLayers updated - layers:', layers.length, 'glow:', glowLayers.length);
+    return [...layers, ...glowLayers];
+  }, [layers, glowLayers]);
 
   // Align cluster or set default alignment BEFORE DeckGL is initialized
   const isFirstRun = React.useRef(true);
@@ -4949,7 +5209,7 @@ const PhyloTreeViewer = React.forwardRef(({
           }
         }}
         initialViewState={viewState}
-        layers={layers}
+        layers={combinedLayers}
         pickingRadius={100}
         style={{ 
           width: '100vw',
@@ -4979,15 +5239,31 @@ const PhyloTreeViewer = React.forwardRef(({
               if (leafId) {
                 setFlashTreeLeaf(null);
                 setTimeout(() => setFlashTreeLeaf(String(leafId)), 0);
+                // OVERLAY STRATEGY: Build highlighted tree leaf data directly
+                const rawY = Number.isFinite(Number(object.node?.y)) ? Number(object.node.y) : Number(object.node?.rawY);
+                const rawX = Number.isFinite(Number(object.node?.x)) ? Number(object.node.x) : Number(object.node?.rawX);
+                const treeXScale = (effectiveConfig.tree && typeof effectiveConfig.tree.xScalePercent === 'number') ? effectiveConfig.tree.xScalePercent / 100 : 1;
+                if (Number.isFinite(rawY) && Number.isFinite(rawX)) {
+                  setHighlightedTreeLeafData([{
+                    id: leafId,
+                    position: [rawY * treeXScale + treeOffset, rawX],
+                    radius: (nodeRadius && nodeRadius.leaf) || 2,
+                    color: object.node?.color || themeColors.treeEdges || [220, 180, 60, 255]
+                  }]);
+                }
               }
             }
             const isGeneObject = object && (object.type === 'gene' || object.gene);
             if (isGeneObject) {
+              // OVERLAY STRATEGY: Pass the full gene object to avoid filtering large arrays
               const geneIdForFlash =
                 object.id ||
                 object.uniqueId ||
                 (object.gene && (object.gene.uniqueId || object.gene.id || object.gene.gene_id || object.gene.originalGeneId));
-              if (geneIdForFlash) triggerGeneFlash(geneIdForFlash);
+              if (geneIdForFlash) {
+                // Pass both ID and object - the object is stored directly for the glow layer
+                triggerGeneFlash(geneIdForFlash, object);
+              }
             } else {
               stopGeneFlash();
             }

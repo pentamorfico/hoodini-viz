@@ -515,7 +515,6 @@ function DataGridView({
         theme={gridTheme}
         smoothScrollX
         smoothScrollY
-        rowMarkers="both" // allow row-header selection
         rowHeight={24}
         headerHeight={28}
         overscrollX={200}
@@ -524,7 +523,6 @@ function DataGridView({
           minColumnWidth={80}
           scaleToRem={true}
           columnTrailingBlankSpace={0}
-          rowSelectionMode="multi"
           getGroupDetails={getGroupDetails}
           onColumnResize={(col, newSize) => {
             // col can be id or index; prefer id when present.
