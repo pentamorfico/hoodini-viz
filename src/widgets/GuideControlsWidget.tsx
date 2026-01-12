@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Printer, Monitor, Presentation, Lightbulb } from 'lucide-react';
 import { FORMAT_PRESETS, FormatPreset } from '../components/GuideOverlay';
 
 export interface GuideControlsProps {
@@ -32,11 +32,6 @@ export interface GuideControlsProps {
 
 /**
  * GuideControlsWidget - Controls for format guides and export scaling
- * 
- * Provides UI controls to:
- * - Toggle guide visibility
- * - Select format presets (A4, PowerPoint, etc.)
- * - Enable/disable SVG scaling to format
  */
 export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
   guidesVisible,
@@ -62,10 +57,16 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
     return groups;
   }, []);
 
+  const categoryIcons = {
+    print: <Printer className="h-3 w-3 mr-1" />,
+    screen: <Monitor className="h-3 w-3 mr-1" />,
+    presentation: <Presentation className="h-3 w-3 mr-1" />
+  };
+
   const categoryLabels = {
-    print: '🖨️ Print Formats',
-    screen: '📱 Screen Formats', 
-    presentation: '📊 Presentation'
+    print: 'Print Formats',
+    screen: 'Screen Formats', 
+    presentation: 'Presentation'
   };
 
   const handleFormatSelect = (formatId: string | null) => {
@@ -79,106 +80,92 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          📐 Format Guides
+    <div className="space-y-4">
+      {/* Guide Controls */}
+      <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+        <div className="flex items-center gap-2 mb-3">
+          <Badge variant="muted" className="text-xs">Guide Controls</Badge>
           {selectedFormat && (
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="info" className="text-xs">
               {selectedFormat.name}
             </Badge>
           )}
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Guide visibility toggle */}
-        <div className="flex items-center justify-between">
-          <label htmlFor="guides-visible" className="text-sm font-medium">
-            Show Guides
-          </label>
-          <Checkbox
-            id="guides-visible"
-            checked={guidesVisible}
-            onCheckedChange={onGuidesVisibleChange}
-          />
         </div>
+        
+        <div className="space-y-3">
+          {/* Guide visibility toggle */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor="guides-visible" className="text-xs">Show Guides</Label>
+            <Switch
+              id="guides-visible"
+              checked={guidesVisible}
+              onCheckedChange={onGuidesVisibleChange}
+            />
+          </div>
 
-        {/* Format selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Format Preset</label>
-          <Select
-          value={selectedFormat?.id || 'none'}
-          onValueChange={(value) => handleFormatSelect(value === 'none' ? null : value)}
-          disabled={!guidesVisible}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a format..." />
-          </SelectTrigger>
-          <SelectContent>
-            {/* Clear selection option */}
-            <SelectItem value="none">
-              </SelectItem>
-              
-              {/* Grouped format options */}
-              {Object.entries(presetsByCategory).map(([category, presets]) => (
-                <React.Fragment key={category}>
-                  <Separator className="my-1" />
-                  <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-                    {categoryLabels[category as keyof typeof categoryLabels]}
-                  </div>
-                  {presets.map(preset => (
-                    <SelectItem key={preset.id} value={preset.id}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{preset.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">
-                          {preset.width}×{preset.height}{preset.unit}
-                        </span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </React.Fragment>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Format selection */}
+          <div>
+            <Label className="text-xs mb-1 block">Format Preset</Label>
+            <Select
+              value={selectedFormat?.id || 'none'}
+              onValueChange={(value) => handleFormatSelect(value === 'none' ? null : value)}
+              disabled={!guidesVisible}
+            >
+              <SelectTrigger className="w-full text-xs" style={{ height: '24px', minHeight: '24px' }}>
+                <SelectValue placeholder="Select a format..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                
+                {Object.entries(presetsByCategory).map(([category, presets]) => (
+                  <React.Fragment key={category}>
+                    <Separator className="my-1" />
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground flex items-center">
+                      {categoryIcons[category as keyof typeof categoryIcons]}
+                      {categoryLabels[category as keyof typeof categoryLabels]}
+                    </div>
+                    {presets.map(preset => (
+                      <SelectItem key={preset.id} value={preset.id}>
+                        <div className="flex items-center justify-between w-full">
+                          <span>{preset.name}</span>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            {preset.width}×{preset.height}{preset.unit}
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </React.Fragment>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-        {/* Format info display */}
-        {selectedFormat && guidesVisible && (
-          <div className="p-3 bg-muted/30 rounded-lg">
-            <div className="text-sm space-y-1">
+          {/* Format info display */}
+          {selectedFormat && guidesVisible && (
+            <div className="p-2 bg-accent/20 rounded-md text-xs">
               <div className="font-medium">{selectedFormat.name}</div>
               <div className="text-muted-foreground">
                 {selectedFormat.width} × {selectedFormat.height} {selectedFormat.unit}
               </div>
-              <div className="text-xs text-muted-foreground">
-                Aspect ratio: {(selectedFormat.width / selectedFormat.height).toFixed(2)}:1
-              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      </div>
 
-        <Separator />
-
-        {/* SVG export options */}
-        <div className="space-y-3">
-          <div className="text-sm font-medium">SVG Export</div>
-          
+      {/* SVG Export Options */}
+      <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+        <div className="flex items-center gap-2 mb-3">
+          <Badge variant="muted" className="text-xs">Export Options</Badge>
+        </div>
+        
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <label htmlFor="scale-to-format" className="text-sm">
-                Scale to format
-              </label>
-              <div className="text-xs text-muted-foreground">
-                Export SVG with selected format dimensions
-              </div>
-            </div>
-            <Checkbox
+            <Label htmlFor="scale-to-format" className="text-xs">Scale to Format</Label>
+            <Switch
               id="scale-to-format"
               checked={scaleToFormat}
               onCheckedChange={(checked) => {
                 onScaleToFormatChange(checked as boolean);
-                // Auto-enable crop when enabling scale to format
                 if (checked && !cropToGuides) {
                   onCropToGuidesChange(true);
                 }
@@ -187,18 +174,10 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
             />
           </div>
           
-          {/* Crop to guides option - only shown when scale to format is enabled */}
           {scaleToFormat && selectedFormat && (
-            <div className="flex items-center justify-between pl-4 border-l-2 border-muted">
-              <div className="space-y-1">
-                <label htmlFor="crop-to-guides" className="text-sm">
-                  Crop to guides
-                </label>
-                <div className="text-xs text-muted-foreground">
-                  Only export content within guide bounds
-                </div>
-              </div>
-              <Checkbox
+            <div className="flex items-center justify-between pl-3 border-l-2 border-border/50">
+              <Label htmlFor="crop-to-guides" className="text-xs">Crop to Guides</Label>
+              <Switch
                 id="crop-to-guides"
                 checked={cropToGuides}
                 onCheckedChange={onCropToGuidesChange}
@@ -206,18 +185,10 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
             </div>
           )}
           
-          {/* Scale ruler with crop option - only shown when crop to guides is enabled */}
           {scaleToFormat && selectedFormat && cropToGuides && (
-            <div className="flex items-center justify-between pl-8 border-l-2 border-muted">
-              <div className="space-y-1">
-                <label htmlFor="scale-ruler-with-crop" className="text-sm">
-                  Scale ruler
-                </label>
-                <div className="text-xs text-muted-foreground">
-                  Match ruler size to viewport appearance
-                </div>
-              </div>
-              <Checkbox
+            <div className="flex items-center justify-between pl-6 border-l-2 border-border/50">
+              <Label htmlFor="scale-ruler-with-crop" className="text-xs">Scale Ruler</Label>
+              <Switch
                 id="scale-ruler-with-crop"
                 checked={scaleRulerWithCrop}
                 onCheckedChange={onScaleRulerWithCropChange}
@@ -225,24 +196,24 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
             </div>
           )}
         </div>
+      </div>
 
-        {/* Quick tips */}
-        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-          <div className="text-xs space-y-1">
-            <div className="font-medium text-blue-700 dark:text-blue-300">💡 Tips:</div>
-            <div className="text-blue-600 dark:text-blue-400">
-              • Guides help compose your visualization for export
-            </div>
-            <div className="text-blue-600 dark:text-blue-400">
-              • Adjust gene height, tree scale to fit within guides
-            </div>
-            <div className="text-blue-600 dark:text-blue-400">
-              • Enable "Scale to format" for precise dimensions
-            </div>
+      {/* Tips */}
+      <div className="p-2 bg-accent/20 rounded-lg">
+        <div className="text-xs space-y-1">
+          <div className="font-medium text-foreground/80 flex items-center gap-1">
+            <Lightbulb className="h-3 w-3" />
+            Tips
+          </div>
+          <div className="text-muted-foreground">
+            • Guides help compose your visualization for export
+          </div>
+          <div className="text-muted-foreground">
+            • Adjust gene height and tree scale to fit within guides
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

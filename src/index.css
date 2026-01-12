@@ -42,99 +42,101 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-mono: 'Inter', Helvetica, Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', ui-monospace, monospace;
 }
 
 :root {
   /* Border radius */
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  /* Base UI colors */
-  --background: oklch(1 0 0); /* true white */
-  --foreground: oklch(20% 0 0); /* near-black for text */
+  /* Base UI colors - soft, professional palette */
+  --background: oklch(99% 0.002 250); /* slightly warm white */
+  --foreground: oklch(25% 0.01 250); /* soft dark for text */
 
-  --card: oklch(98% 0 0);
-  --card-foreground: oklch(20% 0 0);
+  --card: oklch(99% 0.003 250);
+  --card-foreground: oklch(25% 0.01 250);
 
-  --popover: oklch(98% 0 0);
-  --popover-foreground: oklch(20% 0 0);
+  --popover: oklch(99% 0.003 250);
+  --popover-foreground: oklch(25% 0.01 250);
 
-  /* Primary (interactive color) */
-  --primary: oklch(0% 0 0); /* muted warm orange/red */
-  --primary-foreground: oklch(98% 0 0); /* white text on primary */
+  /* Primary (interactive color) - professional blue-gray */
+  --primary: oklch(35% 0.02 250);
+  --primary-foreground: oklch(98% 0 0);
 
-  /* Secondary (muted interactive) */
-  --secondary: oklch(94% 0.03 20);
-  --secondary-foreground: oklch(25% 0 0);
+  /* Secondary (muted interactive) - soft lavender */
+  --secondary: oklch(95% 0.015 280);
+  --secondary-foreground: oklch(30% 0.02 250);
 
-  /* Muted background areas */
-  --muted: oklch(96% 0.01 250);
-  --muted-foreground: oklch(50% 0 0);
+  /* Muted background areas - subtle blue-gray */
+  --muted: oklch(96% 0.008 250);
+  --muted-foreground: oklch(45% 0.01 250);
 
-  /* Accent (e.g. hover/active) */
-  --accent: oklch(95.514% 0.00011 271.152);
-  --accent-foreground: oklch(25% 0 0);
+  /* Accent (e.g. hover/active) - soft highlight */
+  --accent: oklch(96% 0.012 250);
+  --accent-foreground: oklch(30% 0.02 250);
 
-  /* Destructive */
-  --destructive: oklch(60% 0.24 27.325); /* strong red */
+  /* Destructive - softer red */
+  --destructive: oklch(55% 0.2 25);
   --primary-destructive-foreground: oklch(98% 0 0);
 
-  /* Borders, input, and rings */
-  --border: oklch(90% 0 0);  /* subtle gray border */
-  --input: oklch(94% 0.01 270); /* very light gray-purple */
-  --ring: oklch(85.452% 0.0001 271.152);  /* mid gray-purple ring */
+  /* Borders, input, and rings - subtle */
+  --border: oklch(92% 0.005 250);
+  --input: oklch(96% 0.008 260);
+  --ring: oklch(80% 0.02 250);
 
-  /* Chart colors */
-  --chart-1: oklch(65% 0.22 41.116);
-  --chart-2: oklch(60% 0.12 184.704);
-  --chart-3: oklch(40% 0.07 227.392);
-  --chart-4: oklch(83% 0.19 84.429);
-  --chart-5: oklch(77% 0.19 70.08);
+  /* Chart colors - harmonious palette */
+  --chart-1: oklch(60% 0.15 250);
+  --chart-2: oklch(65% 0.12 180);
+  --chart-3: oklch(55% 0.1 150);
+  --chart-4: oklch(70% 0.15 80);
+  --chart-5: oklch(65% 0.18 30);
 
-  /* Sidebar / navigation */
-  --sidebar: oklch(98% 0.005 250);
-  --sidebar-foreground: oklch(25% 0 0);
-  --sidebar-primary: oklch(30% 0.02 270);
+  /* Sidebar / navigation - clean and subtle */
+  --sidebar: oklch(98% 0.004 250);
+  --sidebar-foreground: oklch(30% 0.01 250);
+  --sidebar-primary: oklch(35% 0.02 250);
   --sidebar-primary-foreground: oklch(98% 0 0);
-  --sidebar-accent: oklch(95% 0.02 200);
-  --sidebar-accent-foreground: oklch(25% 0 0);
-  --sidebar-border: oklch(90% 0 0);
-  --sidebar-ring: oklch(70% 0 0);
+  --sidebar-accent: oklch(95% 0.01 250);
+  --sidebar-accent-foreground: oklch(30% 0.02 250);
+  --sidebar-border: oklch(92% 0.005 250);
+  --sidebar-ring: oklch(75% 0.02 250);
 }
 
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Dark mode - refined professional palette */
+  --background: oklch(14% 0.005 250);
+  --foreground: oklch(95% 0.005 250);
+  --card: oklch(18% 0.008 250);
+  --card-foreground: oklch(95% 0.005 250);
+  --popover: oklch(18% 0.008 250);
+  --popover-foreground: oklch(95% 0.005 250);
+  --primary: oklch(90% 0.01 250);
+  --primary-foreground: oklch(15% 0.01 250);
+  --secondary: oklch(25% 0.01 250);
+  --secondary-foreground: oklch(90% 0.005 250);
+  --muted: oklch(22% 0.008 250);
+  --muted-foreground: oklch(65% 0.01 250);
+  --accent: oklch(25% 0.01 250);
+  --accent-foreground: oklch(90% 0.005 250);
+  --destructive: oklch(55% 0.18 25);
+  --border: oklch(100% 0 0 / 8%);
+  --input: oklch(100% 0 0 / 10%);
+  --ring: oklch(50% 0.02 250);
+  --chart-1: oklch(60% 0.18 250);
+  --chart-2: oklch(65% 0.15 180);
+  --chart-3: oklch(70% 0.15 80);
+  --chart-4: oklch(60% 0.2 300);
+  --chart-5: oklch(65% 0.2 20);
+  --sidebar: oklch(16% 0.006 250);
+  --sidebar-foreground: oklch(92% 0.005 250);
+  --sidebar-primary: oklch(60% 0.15 250);
+  --sidebar-primary-foreground: oklch(98% 0 0);
+  --sidebar-accent: oklch(22% 0.01 250);
+  --sidebar-accent-foreground: oklch(90% 0.005 250);
+  --sidebar-border: oklch(100% 0 0 / 8%);
+  --sidebar-ring: oklch(50% 0.02 250);
 }
 
 @layer base {
@@ -143,64 +145,36 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    text-align: justify;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: left;
     font-size: 11px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Apply text justification to all text elements */
-  p, div, span, label, button, input, textarea {
-    text-align: justify;
-  }
-  
-  /* Make all fonts smaller globally */
-  .text-xs { font-size: 10px !important; }
-  .text-sm { font-size: 11px !important; }
-  .text-base { font-size: 12px !important; }
-  .text-lg { font-size: 13px !important; }
-  .text-xl { font-size: 14px !important; }
+  /* Refined text sizing */
+  .text-xs { font-size: 10px !important; line-height: 1.4 !important; }
+  .text-sm { font-size: 11px !important; line-height: 1.5 !important; }
+  .text-base { font-size: 12px !important; line-height: 1.5 !important; }
+  .text-lg { font-size: 13px !important; line-height: 1.5 !important; }
+  .text-xl { font-size: 14px !important; line-height: 1.5 !important; }
   
   .font-title {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-    font-weight: 700 !important;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-weight: 600 !important;
     font-style: normal !important;
-    letter-spacing: 0.02em !important;
-    text-align: center !important;
+    letter-spacing: -0.01em !important;
+  }
+  
+  /* Smooth transitions for interactive elements */
+  button, a, input, select, [role="button"] {
+    transition: all 0.15s ease;
   }
 }
-
-/* Force Helvetica Bold for title elements - Very High Specificity */
-*[class*="font-title"],
-.font-title,
-h1.font-title,
-h2.font-title, 
-h3.font-title,
-h4.font-title,
-h5.font-title,
-h6.font-title,
-a.font-title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-  font-weight: 700 !important;
-  font-style: normal !important;
-  letter-spacing: 0.02em !important;
-  text-align: center !important;
-}
-
-/* Additional specificity combinations */
-.font-title.font-medium,
-.font-title.text-xs,
-h3.font-title.font-medium,
-a.font-title.text-xs {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-  font-weight: 700 !important;
-  text-align: center !important;
-}
-/* Deck.gl tooltip styling */
 
 /* Container and layout styles from App.css */
 #root {
   margin: 0 auto;
-  text-align: center;
 }
 
 .App {
@@ -218,7 +192,7 @@ a.font-title.text-xs {
 body {
   background: var(--background, #ffffff);
   color: var(--foreground, #222);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 11px;
 }
 
@@ -247,7 +221,7 @@ body {
 .deck-tooltip {
   max-width: 300px !important;
   padding: 8px 12px !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-size: 10px !important;
   line-height: 1.4 !important;
   border-radius: var(--radius) !important;

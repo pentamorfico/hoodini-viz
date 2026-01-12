@@ -639,59 +639,59 @@ export function AppSidebar({
     <Sidebar collapsible="offcanvas" variant={variant} {...props}>
       {/* Header Container (simplified to avoid nesting issues) */}
       <div
-        className="ml-4 mr-2 my-0.5 mb-3 p-2 bg-background rounded-lg shadow-sm"
+        className="mx-3 my-2 p-2.5 bg-card/80 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm"
         style={{ backgroundColor: themeColors.background || undefined }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+          <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
             <Button
               variant={activeSection === 'info' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className={`h-7 w-7 p-0 rounded-md transition-all ${activeSection === 'info' ? 'shadow-sm' : 'hover:bg-accent/80'}`}
               onClick={() => setActiveSection('info')}
               title="Show Info"
             >
-              <Info className="h-1 w-3" />
+              <Info className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant={activeSection === 'settings' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className={`h-7 w-7 p-0 rounded-md transition-all ${activeSection === 'settings' ? 'shadow-sm' : 'hover:bg-accent/80'}`}
               onClick={() => setActiveSection('settings')}
               title="Show Settings"
             >
-              <Settings className="h-1 w-3" />
+              <Settings className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant={activeSection === 'palette' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className={`h-7 w-7 p-0 rounded-md transition-all ${activeSection === 'palette' ? 'shadow-sm' : 'hover:bg-accent/80'}`}
               onClick={() => setActiveSection('palette')}
               title="Show Palette"
             >
-              <Palette className="h-1 w-3" />
+              <Palette className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant={activeSection === 'legend' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className={`h-7 w-7 p-0 rounded-md transition-all ${activeSection === 'legend' ? 'shadow-sm' : 'hover:bg-accent/80'}`}
               onClick={() => setActiveSection('legend')}
               title="Show Legend"
             >
-              <BookOpen className="h-1 w-3" />
+              <BookOpen className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant={activeSection === 'guides' ? 'default' : 'ghost'}
               size="sm"
-              className="h-6 w-6 p-0"
+              className={`h-7 w-7 p-0 rounded-md transition-all ${activeSection === 'guides' ? 'shadow-sm' : 'hover:bg-accent/80'}`}
               onClick={() => setActiveSection('guides')}
               title="Show Format Guides"
             >
-              <Crop className="h-1 w-3" />
+              <Crop className="h-3.5 w-3.5" />
             </Button>
           </div>
 
-          <a href="#" className="font-title text-xs font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <a href="#" className="font-title text-xs font-medium mr-2" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <img
               src={hoodiniLogoUrl}
               alt="Hoodini Logo"
@@ -708,23 +708,29 @@ export function AppSidebar({
 
       {/* Content Container */}
       <div 
-        className="ml-4 mr-2 mb-4 p-2 bg-background rounded-lg shadow-sm overflow-y-auto scrollbar-hide"
+        className="mx-3 mb-4 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide"
         style={{ backgroundColor: themeColors.background || undefined, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* Info Section */}
         {activeSection === 'info' && (
-          <div className="mx-2">
-            <h3 className="font-title font-medium mb-2 text-xs">Information</h3>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="soft" className="text-xs font-medium">
+                <Info className="h-3 w-3 mr-1" />
+                Information
+              </Badge>
+            </div>
             
             {/* Gene Information Display */}
-            <div className="mb-3">
-              <div className="space-y-1">
-                {selectedGene ? (
-                  <div className="bg-accent/20 p-3 rounded-md border">
-                    <h4 className="font-title text-xs mb-2">Gene Metadata</h4>
-                    <div className="space-y-3">
-                      {selectedGene.metadata && Object.keys(selectedGene.metadata).length > 0 ? (
-                        <>
+            <div className="space-y-2">
+              {selectedGene ? (
+                <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="info" className="text-xs">Gene Details</Badge>
+                  </div>
+                  <div className="space-y-3">
+                    {selectedGene.metadata && Object.keys(selectedGene.metadata).length > 0 ? (
+                      <>
 
                           
                           {(() => {
@@ -945,36 +951,52 @@ export function AppSidebar({
                     </div>
                   </div>
                 ) : (
-                <div className="p-3 bg-muted/50 rounded-md text-sm leading-relaxed text-left">
-                  <div>
-                    Welcome to the <strong>Hoodini🦉🎩</strong>gene-neighborhood visualization tool<br /><br />
-                    • Use <strong>Settings</strong> to configure tree and gene display options<br />
-                    • Use <strong>Palette</strong> to customize colors and styling<br />
-                    • Use <strong>Legend</strong> to understand visualization elements<br />
-                    • Phylogenetic trees show evolutionary relationships<br />
-                    • Gene tracks display genomic features and domains<br />
-                    <br />
-                      <p className="mt-3 text-center">
-                        <strong>Click on a gene to see its details</strong>
-                      </p>
+                <div className="p-4 bg-gradient-to-br from-muted/40 to-accent/20 rounded-xl border border-border/30 text-sm leading-relaxed">
+                  <div className="text-center mb-4">
+                    <span className="text-lg font-semibold">Hoodini 🦉🎩</span>
+                    <p className="text-xs text-muted-foreground mt-1">Gene Neighborhood Visualization</p>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="info" className="text-xs shrink-0 mt-0.5">Settings</Badge>
+                      <span className="text-muted-foreground">Configure tree and gene display</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="success" className="text-xs shrink-0 mt-0.5">Palette</Badge>
+                      <span className="text-muted-foreground">Customize colors and styling</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="warning" className="text-xs shrink-0 mt-0.5">Legend</Badge>
+                      <span className="text-muted-foreground">Understand visualization elements</span>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-2 bg-primary/5 rounded-lg text-center border border-primary/10">
+                    <p className="text-xs text-muted-foreground">
+                      <strong className="text-foreground/80">Click on a gene</strong> to see its details
+                    </p>
                   </div>
                 </div>
-
                 )}
-              </div>
             </div>
           </div>
         )}
 
         {/* Settings Section */}
         {activeSection === 'settings' && (
-          <div className="mx-2">
-            <h3 className="font-title font-medium mb-2 text-xs">Settings</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="soft" className="text-xs font-medium">
+                <Settings className="h-3 w-3 mr-1" />
+                Settings
+              </Badge>
+            </div>
             
             {/* Deck.gl Layer Controls */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Layer Visibility:</Label>
-              <div className="space-y-1">
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Layer Visibility</Badge>
+              </div>
+              <div className="space-y-2 mt-2">
                 {/* Tree layer is always shown as it's core data */}
                 <div className="flex items-center justify-between">
                   <Label htmlFor="tree-layer" className="text-xs">Tree Layer</Label>
@@ -1060,11 +1082,11 @@ export function AppSidebar({
               </div>
             </div>
 
-            <Separator className="my-2" />
-
             {/* Gene Settings */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Gene Settings:</Label>
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Gene Settings</Badge>
+              </div>
               <div className="space-y-2">
                 <div>
                   <Label htmlFor="arrowhead-height" className="text-xs mb-1 block">
@@ -1186,12 +1208,12 @@ export function AppSidebar({
               </div>
             </div>
 
-            <Separator className="my-2" />
-
             {/* Basic Tree Settings */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Tree Settings:</Label>
-              <div className="space-y-1">
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Tree Settings</Badge>
+              </div>
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="ultrametric" className="text-xs">Ultrametric Tree</Label>
                   <Switch
@@ -1303,11 +1325,11 @@ export function AppSidebar({
               </div>
             </div>
 
-            <Separator className="my-2" />
-
             {/* Alignment Controls */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Alignment Controls:</Label>
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Alignment Controls</Badge>
+              </div>
               <div className="space-y-2">
                 <div>
                   <Label htmlFor="hoods-alignment" className="text-xs mb-1 block">Hoods Alignment:</Label>
@@ -1395,12 +1417,19 @@ export function AppSidebar({
 
         {/* Palette Section */}
         {activeSection === 'palette' && (
-          <div className="mx-2">
-            <h3 className="font-title font-medium mb-2 text-xs">Color & Palette</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="soft" className="text-xs font-medium">
+                <Palette className="h-3 w-3 mr-1" />
+                Color & Palette
+              </Badge>
+            </div>
             
             {/* Field Selection Controls */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Color/Label Fields:</Label>
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Color Fields</Badge>
+              </div>
               <div className="space-y-2">
                 <div>
                   <Label htmlFor="gene-colors" className="text-xs mb-1 block">Gene Colors:</Label>
@@ -1523,13 +1552,20 @@ export function AppSidebar({
 
         {/* Legend Section */}
         {activeSection === 'legend' && (
-          <div className="mx-2">
-            <h3 className="font-title font-medium mb-2 text-xs">Legend</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="soft" className="text-xs font-medium">
+                <BookOpen className="h-3 w-3 mr-1" />
+                Legend
+              </Badge>
+            </div>
             
             {/* Legend Display */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Visualization Legend:</Label>
-              <div className="space-y-1">
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Visualization Legend</Badge>
+              </div>
+              <div className="space-y-2">
                 {(() => {
                   
                   const getterLegend = (phyloTreeViewerRef && phyloTreeViewerRef.current && typeof phyloTreeViewerRef.current.getLegendData === 'function') ? phyloTreeViewerRef.current.getLegendData() : null;
@@ -1550,33 +1586,33 @@ export function AppSidebar({
                     );
                   }
                   return (
-                    <div className="p-3 bg-muted/50 rounded-md text-center">
+                    <div className="p-3 bg-accent/30 rounded-lg text-center">
                       <p className="text-xs text-muted-foreground mb-1">No legend data available yet</p>
-                      <p className="text-xs text-muted-foreground mb-2">Legend will appear once data is loaded and visualized</p>
+                      <p className="text-xs text-muted-foreground">Legend will appear once data is loaded</p>
                     </div>
                   );
                 })()}
               </div>
             </div>
             
-            <Separator className="my-2" />
-            
             {/* Legend Information */}
-            <div className="mb-3">
-              <Label className="text-xs font-medium mb-1 block">Legend Guide:</Label>
-              <div className="text-xs space-y-1 text-muted-foreground">
-                <div className="p-2 bg-muted/50 rounded">
-                  <p className="font-medium mb-1">Gene Tracks:</p>
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="muted" className="text-xs">Guide</Badge>
+              </div>
+              <div className="text-xs space-y-2 text-muted-foreground">
+                <div className="p-2 bg-accent/20 rounded-md">
+                  <p className="font-medium mb-1 text-foreground/80">Gene Tracks:</p>
                   <p>• Arrows indicate gene direction and boundaries</p>
                   <p>• Colors represent different metadata categories</p>
                 </div>
-                <div className="p-2 bg-muted/50 rounded">
-                  <p className="font-medium mb-1">Phylogenetic Tree:</p>
+                <div className="p-2 bg-accent/20 rounded-md">
+                  <p className="font-medium mb-1 text-foreground/80">Phylogenetic Tree:</p>
                   <p>• Branch lengths show evolutionary distance</p>
                   <p>• Node colors represent tree metadata</p>
                 </div>
-                <div className="p-2 bg-muted/50 rounded">
-                  <p className="font-medium mb-1">Protein Domains:</p>
+                <div className="p-2 bg-accent/20 rounded-md">
+                  <p className="font-medium mb-1 text-foreground/80">Protein Domains:</p>
                   <p>• Colored regions within genes</p>
                   <p>• Represent functional protein domains</p>
                 </div>
@@ -1592,21 +1628,28 @@ export function AppSidebar({
 
         {/* Format Guides Section */}
         {activeSection === 'guides' && (
-          <div className="mx-2">
-            <h3 className="font-title font-medium mb-2 text-xs">Format Guides</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge variant="soft" className="text-xs font-medium">
+                <Crop className="h-3 w-3 mr-1" />
+                Format Guides
+              </Badge>
+            </div>
             
-            <GuideControlsWidget
-              guidesVisible={showFormatGuides}
-              selectedFormat={formatGuidePreset}
-              onGuidesVisibleChange={setShowFormatGuides}
-              onFormatChange={setFormatGuidePreset}
-              scaleToFormat={scaleExportToFormat}
-              onScaleToFormatChange={setScaleExportToFormat}
-              cropToGuides={cropToGuides}
-              onCropToGuidesChange={setCropToGuides}
-              scaleRulerWithCrop={scaleRulerWithCrop}
-              onScaleRulerWithCropChange={setScaleRulerWithCrop}
-            />
+            <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
+              <GuideControlsWidget
+                guidesVisible={showFormatGuides}
+                selectedFormat={formatGuidePreset}
+                onGuidesVisibleChange={setShowFormatGuides}
+                onFormatChange={setFormatGuidePreset}
+                scaleToFormat={scaleExportToFormat}
+                onScaleToFormatChange={setScaleExportToFormat}
+                cropToGuides={cropToGuides}
+                onCropToGuidesChange={setCropToGuides}
+                scaleRulerWithCrop={scaleRulerWithCrop}
+                onScaleRulerWithCropChange={setScaleRulerWithCrop}
+              />
+            </div>
           </div>
         )}
       </div>

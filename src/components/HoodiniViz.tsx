@@ -7,6 +7,7 @@ import PhyloTree from '../models/PhyloTree';
 import GenomeView from '../models/GenomeView';
 import DeckGL from '@deck.gl/react';
 import { LineLayer, PolygonLayer, PathLayer, TextLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { PathStyleExtension } from '@deck.gl/extensions';
 import {OrthographicView} from '@deck.gl/core';
 import ScrollbarWidget from '../widgets/ScrollbarWidget';
 import RulerWidget from '../widgets/RulerWidget';
@@ -205,14 +206,13 @@ export interface HoodiniVizProps {
   
   /** 
    * Domain metadata with additional domain information.
-   * Can be either an array (from CSV) or an object keyed by domain_id (from Parquet).
    */
   domainMetadata?: Array<{
     domainId: string;
     name?: string;
     description?: string;
     [key: string]: unknown;
-  }> | Record<string, any>;
+  }>;
   
   /** 
    * Tree leaf metadata for phylogenetic labels and coloring.
@@ -401,11 +401,6 @@ export interface HoodiniVizProps {
    * Set of hidden hood IDs.
    */
   hiddenHoodIds?: Set<string | number>;
-  
-  /** 
-   * Set of hidden gene IDs.
-   */
-  hiddenGeneIds?: Set<string>;
   
   /** 
    * Whether to show the scrollbar widget.
@@ -598,7 +593,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   domainsByGene,
   hoods,
   hiddenHoodIds,
-  hiddenGeneIds,
   visibleGeneIds,
   showScrollbar,
   setGenomeViewRef,
@@ -1364,44 +1358,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return {};
     };
 
-    // Parse treeLabelBy - can be comma-separated string for multiple columns
-    // This matches the logic in phyloLabels construction (lines 4783-4803)
-    const treeLabelByColumns = treeLabelBy 
-      ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').map(s => s.trim()).filter(Boolean))
-      : null;
-
     const labels = tree.leafNodes.map(l => {
       const meta = getMetaForLeaf(l.name) || {};
-      
-      // Build label from multiple columns if specified (same logic as phyloLabels)
-      let label;
-      if (treeLabelByColumns && treeLabelByColumns.length > 0) {
-        const values = treeLabelByColumns
-          .map(col => col === 'name' ? l.name : meta[col])
-          .filter(v => v !== null && v !== undefined && v !== '');
-        label = values.length > 0 ? values.join(' | ') : l.name;
-      } else {
-        label = meta[treeLabelBy];
-        if (label === undefined || label === null) label = l.name;
-      }
-      
+      let label = meta[treeLabelBy];
+      if (label === undefined || label === null) label = l.name;
       return String(label);
     });
     const maxLen = labels.reduce((max, txt) => Math.max(max, txt.length), 0);
-    
-    // Calculate effective character width based on phyloLabelSize
-    // phyloLabelSize is the base size (default 20), scaled by scaleFactor (default 5)
-    // Approximate character width is ~0.6 of the font height for monospace-ish fonts
-    const phyloSize = typeof phyloLabelSizeProp === 'number' 
-      ? phyloLabelSizeProp 
-      : (config?.text?.phyloLabelSize || DEFAULT_CONFIG.text.phyloLabelSize);
-    const scaleFactor = config?.text?.scaleFactors?.phylo || DEFAULT_CONFIG.text.scaleFactors.phylo;
-    const effectiveFontSize = phyloSize * scaleFactor;
-    const charWidthRatio = 0.6; // Approximate ratio of character width to font height
-    const effectiveCharWidth = effectiveFontSize * charWidthRatio;
-    
-    return maxLen * effectiveCharWidth;
-  }, [tree, treeMetadata, treeLabelBy, config, phyloLabelSizeProp]);
+    const charWidth = config.tree.labelPadding.charWidth; // Use configurable char width
+    return maxLen * charWidth;
+  }, [tree, treeMetadata, treeLabelBy, config]);
 
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree', treeXScaleOverride = null, includeTree = true, visibleHoods: Set<string> | null = null) {
@@ -2828,43 +2794,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return { html };
     }
 
-    // Handle domains specifically to show domain metadata
-    if (layer && layer.id && layer.id.startsWith('domains-')) {
-      const meta = object.metadata || {};
-      const entries = [];
-      
-      // Add domain-specific fields first
-      if (object.domainName) entries.push(['domain', object.domainName]);
-      if (meta.name && meta.name !== object.domainName) entries.push(['name', meta.name]);
-      if (meta.description) entries.push(['description', meta.description]);
-      if (object.source || meta.source) entries.push(['source', object.source || meta.source]);
-      if (meta.evalue !== undefined && meta.evalue !== null) entries.push(['e-value', meta.evalue]);
-      if (meta.coverage !== undefined && meta.coverage !== null) entries.push(['coverage', meta.coverage]);
-      if (meta.start !== undefined && meta.end !== undefined) {
-        entries.push(['position', `${meta.start}-${meta.end}`]);
-      }
-      
-      // Add any additional metadata fields
-      Object.entries(meta).forEach(([k, v]) => {
-        const key = String(k).toLowerCase();
-        // Skip fields we've already added or don't want to show
-        if (key === 'domainname' || key === 'geneid' || key === 'start' || key === 'end' || 
-            key === 'source' || key === 'evalue' || key === 'coverage' || 
-            key === 'name' || key === 'description' || key === 'sequence' || key === 'attributes') {
-          return;
-        }
-        if (isEmptyValue(v)) return;
-        const t = typeof v;
-        if (t === 'string' || t === 'number' || t === 'boolean') {
-          entries.push([k, String(v)]);
-        }
-      });
-      
-      if (entries.length === 0) return null;
-      const html = `<table>${entries.map(([k, v]) => `<tr><td><b>${k}</b></td><td style="width:10px"></td><td>${String(v)}</td></tr>`).join('')}</table>`;
-      return { html };
-    }
-
     if (object.metadata) {
       // Format metadata as HTML table, but exclude 'sequence' field (case-insensitive),
       // and skip any values that are empty, null, undefined, or objects to avoid '[object Object]' rendering.
@@ -2874,11 +2803,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const key = String(k).toLowerCase();
         if (key === 'sequence') return false;
         if (key === 'attributes') return false; // Handle separately below
-        // Skip cluster_id if cluster is present (avoid redundancy)
-        if (key === 'cluster_id' || key === 'clusterid') {
-          const hasCluster = meta.cluster !== null && meta.cluster !== undefined && meta.cluster !== '';
-          if (hasCluster) return false; // Skip cluster_id when cluster exists
-        }
         if (isEmptyValue(v)) return false;
         // skip complex objects/arrays to avoid ugly stringification
         const t = typeof v;
@@ -2924,7 +2848,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           }
         }
       }
-      
       
       if (entries.length === 0) return null;
       const html = `<table>${entries.map(([k, v]) => `<tr><td><b>${k}</b></td><td style="width:10px"></td><td>${String(v)}</td></tr>`).join('')}</table>`;
@@ -3041,15 +2964,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     try {
       // Genes: prefer the computed geneColorMap (palette-derived) when available so legend matches rendering
       if (typeof geneColorMap !== 'undefined' && geneColorMap && geneColorMap.size > 0) {
-        // Deduplicate by string value since geneColorMap stores same color under multiple keys (numeric + string)
-        const uniqueItems = new Map();
-        for (const [k, color] of geneColorMap.entries()) {
-          const stringKey = String(k);
-          if (!uniqueItems.has(stringKey)) {
-            uniqueItems.set(stringKey, { value: stringKey, color, stroke: (Array.isArray(color) ? darkenColor(color) : null) });
-          }
-        }
-        legend.genes = Array.from(uniqueItems.values());
+        const items = Array.from(geneColorMap.entries()).map(([k, color]) => ({ value: String(k), color, stroke: (Array.isArray(color) ? darkenColor(color) : null) }));
+        legend.genes = items;
       } else if (gv && gv.genesById) {
         const geneVals = new Map();
         const field = geneColorBy || colorBy || 'cluster';
@@ -3802,7 +3718,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const coloredGenes = [...map.entries()].filter(([,v]) => v !== null);
     if (DEBUG_LOGS) console.log('[geneColorMapMemo] Final map has', coloredGenes.length, 'colored genes. Sample:', coloredGenes.slice(0, 3));
     return map;
-  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, effectiveGenePalette?.type, effectiveGenePalette?.prevalenceFilter, paletteVersion, geneColorMap, geneColorBy, colorBy, normalizedGeneColors, proteinMetadata, hiddenGeneIds]);
+  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, effectiveGenePalette?.type, effectiveGenePalette?.prevalenceFilter, paletteVersion, geneColorMap, geneColorBy, colorBy, normalizedGeneColors, proteinMetadata]);
 
   // Memoize layer data arrays to avoid rebuilding on every render
   const genesData = React.useMemo(() => {
@@ -3810,34 +3726,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const visibleSet = visibleGeneIds instanceof Set ? visibleGeneIds : null;
 
     const isVisible = (geneObj) => {
-      // First check whitelist if it exists
-      if (visibleSet) {
-        const key =
-          geneObj?.gene_id ||
-          geneObj?.originalGeneId ||
-          geneObj?.originalId ||
-          geneObj?.id ||
-          geneObj?.uniqueId;
-        if (!key) return true; // Should not happen for valid genes
-        if (!visibleSet.has(String(key))) return false;
-      }
-      
-      // Then check blacklist (hiddenGeneIds)
-      if (hiddenGeneIds && hiddenGeneIds.size > 0) {
-        const candidates = [
-          geneObj?.uniqueId,
-          geneObj?.gene_id,
-          geneObj?.originalGeneId,
-          geneObj?.originalId,
-          geneObj?.id
-        ];
-        
-        for (const c of candidates) {
-          if (c && hiddenGeneIds.has(String(c))) return false;
-        }
-      }
-      
-      return true;
+      if (!visibleSet) return true;
+      const key =
+        geneObj?.gene_id ||
+        geneObj?.originalGeneId ||
+        geneObj?.originalId ||
+        geneObj?.id ||
+        geneObj?.uniqueId;
+      if (!key) return true;
+      return visibleSet.has(String(key));
     };
 
     // If a clade is selected, prefer the filtered gene set from the model so
@@ -5778,7 +5675,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           getTargetPosition: [nucleotideHoods, alignmentVersion, hoodsSignature, ySpacingProp, genomeXScaleProp]
         }
       }),
-
       new PolygonLayer({
         id: 'protein-polygons',
         data: proteinLinkData,
@@ -6043,26 +5939,32 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           ]
         }
       }),
-      // Region polygons (highlighting genomic regions like phage, operons, etc.)
-      // MOVED: Rendered after links to appear on top
-      new PolygonLayer({
-        id: 'region-polygons',
+      // Region outlines with dashed strokes (using PathLayer for dash support)
+      // Placed after link polygons so regions appear on top of protein/nucleotide links
+      new PathLayer({
+        id: 'region-outlines',
         data: regionPolygons,
         visible: showGeneLayer, // Regions are part of the genomic context
-        getPolygon: d => d.polygon,
-        getFillColor: d => d.fillColor,
-        stroked: true,
-        filled: false, // Keep fill transparent, show palette colors in stroke
-        getLineColor: d => d.strokeColor,
-        getLineWidth: d => d.strokeWidth || 2,
-        lineWidthUnits: 'pixels',
+        getPath: d => {
+          // Close the polygon path by appending the first point at the end
+          const polygon = d.polygon;
+          if (polygon && polygon.length > 0) {
+            return [...polygon, polygon[0]];
+          }
+          return polygon;
+        },
+        getColor: d => d.strokeColor,
+        getWidth: d => d.strokeWidth || 2,
+        widthUnits: 'pixels',
+        getDashArray: [6, 4], // dash length, gap length in pixels
+        dashJustified: true,
+        extensions: [new PathStyleExtension({ dash: true })],
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPolygon: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
-          getFillColor: [regionPolygons, alignmentVersion],
-          getLineColor: [regionPolygons, alignmentVersion],
-          getLineWidth: [regionPolygons, alignmentVersion]
+          getPath: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
+          getColor: [regionPolygons, alignmentVersion],
+          getWidth: [regionPolygons, alignmentVersion]
         }
       }),
   // Phylogenetic tree paths
@@ -7702,8 +7604,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     },
-    genomeView: genomeViewRef.current,
-    getGenomeView: () => genomeViewRef.current,
+  genomeView: genomeViewRef.current,
     // Force a re-evaluation of alignment-dependent layers
     forceAlignUpdate: () => {
       try {
@@ -7736,7 +7637,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     },
     // Zoom to a gene by original id (gene_id)
     focusGeneById: (geneId) => {
-      // console.log('[focusGeneById] called with:', geneId);
       try {
         if (!geneId) return false;
         const gv = genomeViewRef.current;
@@ -7747,31 +7647,20 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           const matches = gv._genesByOriginalId.get(idStr);
           if (matches && matches.length) uniqueId = matches[0];
         }
-        
         if (!uniqueId) {
-          // Fallback to loop search with robust ID checking
-          const allKeys = Object.keys(gv.genesById || {});
-          
-          for (const [uid, g] of Object.entries(gv.genesById || {}) as any) {
-            const candidates = [
-              g.originalGeneId,
-              g.gene_id,
-              g.originalId,
-              g.id,
-              g.metadata?.gene_id,
-              g.metadata?.id,
-              // Check if key is just prefixed (e.g. "4_WP_123")
-              uid.includes('_') ? uid.split('_').slice(1).join('_') : null,
-              uid
-            ];
-            
-            if (candidates.some(c => c && String(c) === idStr)) {
+          for (const [uid, g] of Object.entries(gv.genesById || {})) {
+            const candidate =
+              g.originalGeneId ||
+              g.gene_id ||
+              g.originalId ||
+              g.id ||
+              (g.metadata && (g.metadata.gene_id || g.metadata.id));
+            if (candidate && String(candidate) === idStr) {
               uniqueId = uid;
               break;
             }
-      }
-    }
-        // console.log('[focusGeneById] final uniqueId:', uniqueId);
+          }
+        }
         if (!uniqueId) return false;
         const gene = gv.genesById[uniqueId];
         if (!gene) return false;
@@ -7790,18 +7679,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       } catch (e) { return false; }
     },
     // Zoom to a baseline/hood by hood_id
-    // Zoom to a baseline/hood by hood_id
-    focusHoodByHoodId: (hoodId) => {
+    focusBaselineByHood: (hoodId) => {
       try {
         stopGeneFlash();
         if (!hoodId) return false;
         const gv = genomeViewRef.current;
         if (!gv || !gv.hoodRanges) return false;
-        
         const hood = String(hoodId);
         const b = gv.hoodRanges[hood];
         if (!b) return false;
-
         const offset = gv.trackOffset ? gv.trackOffset[hood] || 0 : 0;
         const flipped = gv.trackFlipped ? !!gv.trackFlipped[hood] : false;
         const anchor = b.length / 2;
@@ -7835,9 +7721,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         // Clear the internal flag after a delay to allow effect to skip
         setTimeout(() => { internalHoodHighlightRef.current = false; }, 100);
         return true;
-      } catch (e) {
-         return false; 
-      }
+      } catch (e) { return false; }
     },
     // Zoom to a tree leaf by id/name and trigger node flash
     focusTreeLeafById: (leafId) => {

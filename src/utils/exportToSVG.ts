@@ -168,9 +168,9 @@ function exportToSVGScaledToFormat(layers, dataBounds, config, rulerOptions, the
     else if (id.startsWith('domains') || id === 'domain-shapes') {
       svg += renderPolygonLayerScaled(props, worldToSVG, id, config, finalScale);
     }
-    // Region polygons
-    else if (id === 'region-polygons') {
-      svg += renderPolygonLayerScaled(props, worldToSVG, id, config, finalScale);
+    // Region outlines (dashed path layer)
+    else if (id === 'region-outlines') {
+      svg += renderRegionOutlinesScaled(props, worldToSVG, id, config, finalScale);
     }
     // Protein and nucleotide link polygons
     else if (id === 'protein-polygons' || id === 'nucleotide-polygons' || id.includes('links') || id === 'protein-links' || id === 'nucleotide-links') {
@@ -321,6 +321,78 @@ function renderPathLayerScaled(props, worldToSVG, layerId, config) {
     }).join(' ');
     
     svg += `<path d="${pathStr}" fill="none" stroke="${colorToStr(color)}" stroke-opacity="${getOpacity(color)}" stroke-width="${width}"/>`;
+  }
+  
+  svg += '</g>';
+  return svg;
+}
+
+// Render region outlines as dashed paths (for genomic regions like phage, operons, etc.)
+function renderRegionOutlinesScaled(props, worldToSVG, layerId, config, finalScale = 1) {
+  let svg = `<g id="${layerId}">`;
+  const getPath = props.getPath || (d => d.polygon || d.path || d);
+  const getColor = props.getColor || (() => [100, 100, 100, 255]);
+  const getWidth = props.getWidth || (() => 2);
+  // Dash array from props or default [6, 4]
+  const dashArray = props.getDashArray || [6, 4];
+  const dashStr = Array.isArray(dashArray) ? dashArray.join(',') : '6,4';
+  
+  for (const d of props.data) {
+    let path = null;
+    if (typeof getPath === 'function') {
+      try {
+        path = getPath(d);
+      } catch (e) {
+        path = d.polygon || d.path || d;
+      }
+    } else {
+      path = d.polygon || d.path || d;
+    }
+    
+    // Skip if path is not an array or too short
+    if (!path || !Array.isArray(path) || path.length < 2) continue;
+    
+    // Handle color robustly
+    let color = [100, 100, 100, 255]; // default gray
+    if (d.strokeColor) {
+      color = d.strokeColor;
+    } else if (props.getColor) {
+      if (typeof props.getColor === 'function') {
+        try {
+          color = props.getColor(d);
+        } catch (e) {
+          try {
+            color = props.getColor();
+          } catch (e2) {
+            color = [100, 100, 100, 255];
+          }
+        }
+      } else if (Array.isArray(props.getColor)) {
+        color = props.getColor;
+      }
+    }
+    
+    // Handle width
+    let width = 2;
+    if (d.strokeWidth) {
+      width = d.strokeWidth;
+    } else if (typeof getWidth === 'function') {
+      try {
+        width = getWidth(d);
+      } catch (e) {
+        width = 2;
+      }
+    } else {
+      width = getWidth;
+    }
+    
+    // Build path string - close the path with Z for proper region outline
+    const pathStr = path.map((p, i) => {
+      const [x, y] = worldToSVG(p[0], p[1]);
+      return `${i === 0 ? 'M' : 'L'}${x},${y}`;
+    }).join(' ') + ' Z';
+    
+    svg += `<path d="${pathStr}" fill="none" stroke="${colorToStr(color)}" stroke-opacity="${getOpacity(color)}" stroke-width="${width}" stroke-dasharray="${dashStr}"/>`;
   }
   
   svg += '</g>';
@@ -1190,7 +1262,7 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains, regions, ncRNA)
     // Note: domains layer has dynamic id like 'domains-{height}-{arrowhead}'
     const isDomains = layer.id === 'domains' || layer.id.startsWith('domains-');
-    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || isDomains || layer.id === 'region-polygons' || layer.id === 'ncrna-features') {
+    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || isDomains || layer.id === 'ncrna-features') {
       for(const feature of props.data) {
         const polygon = props.getPolygon(feature);
         const fillColor = props.getFillColor(feature);
@@ -1211,14 +1283,6 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           lineColor = themeColors.text || config?.colors?.black || [0,0,0,255];
           strokeAttr = colorToStr(lineColor);
           strokeWidth = config?.domain?.edgeWidth || 1;
-        } else if (layer.id === 'region-polygons') {
-          if (typeof props.getLineColor === 'function') {
-            lineColor = props.getLineColor(feature);
-          } else if (Array.isArray(props.getLineColor)) {
-            lineColor = props.getLineColor;
-          }
-          strokeAttr = colorToStr(lineColor);
-          strokeWidth = feature.strokeWidth || config?.region?.strokeWidth || 2;
         }
         
   const fill = colorToStr(fillColor);
@@ -1237,6 +1301,51 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   if (strokeOpacity < 1) opacityAttrs += ` stroke-opacity='${strokeOpacity}'`;
   
   svg += `<path d='${d}' fill='${fill}' stroke='${strokeAttr}' stroke-width='${strokeWidth}'${opacityAttrs}/>`;
+      }
+    }
+    // Region outlines (dashed path layer)
+    if(layer.id === 'region-outlines') {
+      const dashArray = props.getDashArray || [6, 4];
+      const dashStr = Array.isArray(dashArray) ? dashArray.join(',') : '6,4';
+      for(const feature of props.data) {
+        let path = [];
+        if (typeof props.getPath === 'function') {
+          path = props.getPath(feature);
+        } else {
+          path = feature.polygon || feature.path || [];
+        }
+        if (!path || path.length < 2) continue;
+        
+        // Handle color
+        let color = [100,100,100,255];
+        if (feature.strokeColor) {
+          color = feature.strokeColor;
+        } else if (props.getColor) {
+          if (typeof props.getColor === 'function') {
+            try { color = props.getColor(feature); } catch (e) { color = [100,100,100,255]; }
+          } else if (Array.isArray(props.getColor)) {
+            color = props.getColor;
+          }
+        }
+        
+        // Handle width
+        let width = feature.strokeWidth || 2;
+        if (props.getWidth) {
+          if (typeof props.getWidth === 'function') {
+            try { width = props.getWidth(feature); } catch (e) { width = 2; }
+          } else {
+            width = props.getWidth;
+          }
+        }
+        
+        const stroke = colorToStr(color);
+        const strokeOpacity = getOpacity(color);
+        // clip path in world coords
+        const clippedPath = clipPolylineToRect(path, min_x, max_x, min_y, max_y);
+        if (!clippedPath || clippedPath.length === 0) continue;
+        const pathPoints = clippedPath.map(p => applyBounds(p));
+        const d = pathPoints.map((p,i) => i===0 ? `M${p[0]},${p[1]}` : `L${p[0]},${p[1]}`).join(' ') + ' Z';
+        svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='${width}' stroke-dasharray='${dashStr}'${strokeOpacity < 1 ? ` stroke-opacity='${strokeOpacity}'` : ''}/>`;
       }
     }
     // Path/Line layers (tree, baselines, etc.)
