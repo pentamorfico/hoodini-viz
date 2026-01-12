@@ -205,13 +205,14 @@ export interface HoodiniVizProps {
   
   /** 
    * Domain metadata with additional domain information.
+   * Can be either an array (from CSV) or an object keyed by domain_id (from Parquet).
    */
   domainMetadata?: Array<{
     domainId: string;
     name?: string;
     description?: string;
     [key: string]: unknown;
-  }>;
+  }> | Record<string, any>;
   
   /** 
    * Tree leaf metadata for phylogenetic labels and coloring.
@@ -1363,16 +1364,44 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return {};
     };
 
+    // Parse treeLabelBy - can be comma-separated string for multiple columns
+    // This matches the logic in phyloLabels construction (lines 4783-4803)
+    const treeLabelByColumns = treeLabelBy 
+      ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').map(s => s.trim()).filter(Boolean))
+      : null;
+
     const labels = tree.leafNodes.map(l => {
       const meta = getMetaForLeaf(l.name) || {};
-      let label = meta[treeLabelBy];
-      if (label === undefined || label === null) label = l.name;
+      
+      // Build label from multiple columns if specified (same logic as phyloLabels)
+      let label;
+      if (treeLabelByColumns && treeLabelByColumns.length > 0) {
+        const values = treeLabelByColumns
+          .map(col => col === 'name' ? l.name : meta[col])
+          .filter(v => v !== null && v !== undefined && v !== '');
+        label = values.length > 0 ? values.join(' | ') : l.name;
+      } else {
+        label = meta[treeLabelBy];
+        if (label === undefined || label === null) label = l.name;
+      }
+      
       return String(label);
     });
     const maxLen = labels.reduce((max, txt) => Math.max(max, txt.length), 0);
-    const charWidth = config.tree.labelPadding.charWidth; // Use configurable char width
-    return maxLen * charWidth;
-  }, [tree, treeMetadata, treeLabelBy, config]);
+    
+    // Calculate effective character width based on phyloLabelSize
+    // phyloLabelSize is the base size (default 20), scaled by scaleFactor (default 5)
+    // Approximate character width is ~0.6 of the font height for monospace-ish fonts
+    const phyloSize = typeof phyloLabelSizeProp === 'number' 
+      ? phyloLabelSizeProp 
+      : (config?.text?.phyloLabelSize || DEFAULT_CONFIG.text.phyloLabelSize);
+    const scaleFactor = config?.text?.scaleFactors?.phylo || DEFAULT_CONFIG.text.scaleFactors.phylo;
+    const effectiveFontSize = phyloSize * scaleFactor;
+    const charWidthRatio = 0.6; // Approximate ratio of character width to font height
+    const effectiveCharWidth = effectiveFontSize * charWidthRatio;
+    
+    return maxLen * effectiveCharWidth;
+  }, [tree, treeMetadata, treeLabelBy, config, phyloLabelSizeProp]);
 
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree', treeXScaleOverride = null, includeTree = true, visibleHoods: Set<string> | null = null) {
@@ -2799,6 +2828,43 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return { html };
     }
 
+    // Handle domains specifically to show domain metadata
+    if (layer && layer.id && layer.id.startsWith('domains-')) {
+      const meta = object.metadata || {};
+      const entries = [];
+      
+      // Add domain-specific fields first
+      if (object.domainName) entries.push(['domain', object.domainName]);
+      if (meta.name && meta.name !== object.domainName) entries.push(['name', meta.name]);
+      if (meta.description) entries.push(['description', meta.description]);
+      if (object.source || meta.source) entries.push(['source', object.source || meta.source]);
+      if (meta.evalue !== undefined && meta.evalue !== null) entries.push(['e-value', meta.evalue]);
+      if (meta.coverage !== undefined && meta.coverage !== null) entries.push(['coverage', meta.coverage]);
+      if (meta.start !== undefined && meta.end !== undefined) {
+        entries.push(['position', `${meta.start}-${meta.end}`]);
+      }
+      
+      // Add any additional metadata fields
+      Object.entries(meta).forEach(([k, v]) => {
+        const key = String(k).toLowerCase();
+        // Skip fields we've already added or don't want to show
+        if (key === 'domainname' || key === 'geneid' || key === 'start' || key === 'end' || 
+            key === 'source' || key === 'evalue' || key === 'coverage' || 
+            key === 'name' || key === 'description' || key === 'sequence' || key === 'attributes') {
+          return;
+        }
+        if (isEmptyValue(v)) return;
+        const t = typeof v;
+        if (t === 'string' || t === 'number' || t === 'boolean') {
+          entries.push([k, String(v)]);
+        }
+      });
+      
+      if (entries.length === 0) return null;
+      const html = `<table>${entries.map(([k, v]) => `<tr><td><b>${k}</b></td><td style="width:10px"></td><td>${String(v)}</td></tr>`).join('')}</table>`;
+      return { html };
+    }
+
     if (object.metadata) {
       // Format metadata as HTML table, but exclude 'sequence' field (case-insensitive),
       // and skip any values that are empty, null, undefined, or objects to avoid '[object Object]' rendering.
@@ -2808,6 +2874,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const key = String(k).toLowerCase();
         if (key === 'sequence') return false;
         if (key === 'attributes') return false; // Handle separately below
+        // Skip cluster_id if cluster is present (avoid redundancy)
+        if (key === 'cluster_id' || key === 'clusterid') {
+          const hasCluster = meta.cluster !== null && meta.cluster !== undefined && meta.cluster !== '';
+          if (hasCluster) return false; // Skip cluster_id when cluster exists
+        }
         if (isEmptyValue(v)) return false;
         // skip complex objects/arrays to avoid ugly stringification
         const t = typeof v;
@@ -2853,6 +2924,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           }
         }
       }
+      
       
       if (entries.length === 0) return null;
       const html = `<table>${entries.map(([k, v]) => `<tr><td><b>${k}</b></td><td style="width:10px"></td><td>${String(v)}</td></tr>`).join('')}</table>`;
@@ -2969,8 +3041,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     try {
       // Genes: prefer the computed geneColorMap (palette-derived) when available so legend matches rendering
       if (typeof geneColorMap !== 'undefined' && geneColorMap && geneColorMap.size > 0) {
-        const items = Array.from(geneColorMap.entries()).map(([k, color]) => ({ value: String(k), color, stroke: (Array.isArray(color) ? darkenColor(color) : null) }));
-        legend.genes = items;
+        // Deduplicate by string value since geneColorMap stores same color under multiple keys (numeric + string)
+        const uniqueItems = new Map();
+        for (const [k, color] of geneColorMap.entries()) {
+          const stringKey = String(k);
+          if (!uniqueItems.has(stringKey)) {
+            uniqueItems.set(stringKey, { value: stringKey, color, stroke: (Array.isArray(color) ? darkenColor(color) : null) });
+          }
+        }
+        legend.genes = Array.from(uniqueItems.values());
       } else if (gv && gv.genesById) {
         const geneVals = new Map();
         const field = geneColorBy || colorBy || 'cluster';

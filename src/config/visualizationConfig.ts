@@ -114,8 +114,10 @@ export const DEFAULT_CONFIG = {
       operon: [0, 128, 0, 255],       // Green for operons
       cluster: [0, 0, 255, 255],      // Blue for gene clusters
       island: [255, 255, 0, 255],     // Yellow for genomic islands
-      region: [128, 128, 128, 255],   // Gray for generic regions
-      default: [128, 128, 128, 255]   // Gray fallback
+      region: [1, 1, 1, 255],   // Gray for generic regions
+      default: [128, 128, 128, 255],   // Gray fallback
+      crispr: [255, 0, 0, 255],
+      
     }
   },
 

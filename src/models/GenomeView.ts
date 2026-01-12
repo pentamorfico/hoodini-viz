@@ -617,7 +617,21 @@ class GenomeView {
     if (!domainMetadata) return;
     this._cachedAllDomains = undefined; // Invalidate cache
     
+    // Convert array format to keyed object if needed
+    let metadataMap = domainMetadata;
+    if (Array.isArray(domainMetadata)) {
+      metadataMap = {};
+      for (const entry of domainMetadata) {
+        // Try multiple possible key fields
+        const key = entry.domain_id || entry.domain || entry.domainName || entry.domain_name || entry.id;
+        if (key) {
+          metadataMap[key] = entry;
+        }
+      }
+    }
+    
     let attachedCount = 0;
+    let attemptedCount = 0;
     
     // Iterate through all genes and their domains
     for (const geneId in this.genesById) {
@@ -625,14 +639,22 @@ class GenomeView {
       if (!gene.domains || gene.domains.length === 0) continue;
       
       for (const domain of gene.domains) {
+        attemptedCount++;
         const domainId = domain.domainName; // e.g., "PF03773"
-        if (domainMetadata[domainId]) {
-          domain.metadata = { ...domain.metadata, ...domainMetadata[domainId] };
+        
+        // Try to find metadata for this domain
+        const metadata = metadataMap[domainId];
+        if (metadata) {
+          domain.metadata = { ...domain.metadata, ...metadata };
           attachedCount++;
         }
       }
     }
-    // Suppress noisy logging; attachedCount is tracked but not printed in production.
+    
+    // Log attachment stats
+    if (attemptedCount > 0) {
+      console.log(`[addDomainMetadata] Attached ${attachedCount}/${attemptedCount} domain metadata entries`);
+    }
   }
 
   addProteinLinks(links, color = [50, 100, 220], adjacencyN = Infinity) {

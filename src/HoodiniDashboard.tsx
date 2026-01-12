@@ -1410,6 +1410,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               domainsByGene={parsedData.domainsByGene}
               hoods={parsedData.hoods}
               proteinMetadata={parsedData.proteinMetadata}
+              domainMetadata={parsedData.domainMetadata}
               treeMetadata={parsedData.treeMetadata}
               config={config}
               // Alignment
