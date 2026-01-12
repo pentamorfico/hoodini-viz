@@ -402,6 +402,11 @@ export interface HoodiniVizProps {
   hiddenHoodIds?: Set<string | number>;
   
   /** 
+   * Set of hidden gene IDs.
+   */
+  hiddenGeneIds?: Set<string>;
+  
+  /** 
    * Whether to show the scrollbar widget.
    */
   showScrollbar?: boolean;
@@ -592,6 +597,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   domainsByGene,
   hoods,
   hiddenHoodIds,
+  hiddenGeneIds,
   visibleGeneIds,
   showScrollbar,
   setGenomeViewRef,
@@ -1717,7 +1723,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   }
 
   // Helper to build gene metadata labels (e.g., protein cluster) below each gene
-  function buildGeneLabels(genes, geneColorMap, geneColorBy, colorBy, themeColors, config, geneLabelPosition = 'bottom') {
+  function buildGeneLabels(genes, geneColorMap, geneColorBy, colorBy, themeColors, config, geneLabelPosition = 'bottom', geneLabelBy = null, genomeXScale = 100, ySpacing = 150) {
     const ensureRgba = (col) => {
       if (Array.isArray(col)) return col.length === 3 ? [col[0], col[1], col[2], 255] : col;
       if (typeof col === 'string') {
@@ -1743,9 +1749,153 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return ensureRgba(col || g.fillColor || themeColors.geneFill);
     };
 
-    const out = genes.map(gene => {
-      const labelKey = labelBy || colorBy;
-      const labelValue = gene.metadata && gene.metadata[labelKey] !== undefined ? gene.metadata[labelKey] : null;
+    // Helper: estimate text width in world units based on font size
+    // Approximate: average character width ~ 0.6 * fontSize
+    const estimateTextWidth = (text, fontSize) => {
+      return text.length * fontSize * 0.6;
+    };
+
+    // Helper: break text into lines to fit within maxWidth
+    // Uses the passed fontSize (which may be dynamically adjusted) for accurate character width estimation
+    // maxLines limits how many lines are allowed (truncates with ... if exceeded)
+    const breakTextToFitWidth = (text, maxWidth, fontSize, maxLines = Infinity) => {
+      // Character width estimation - reduced factor for tighter fit
+      // Average character in sans-serif is about 0.4-0.5 of em height
+      const charWidth = fontSize * 0.6;
+      const maxCharsPerLine = Math.max(3, Math.floor(maxWidth / charWidth));
+      
+      // If text fits on one line, return as-is
+      if (text.length <= maxCharsPerLine) return text;
+      
+      // Force break at maxCharsPerLine - always split mid-word if needed
+      const lines = [];
+      let remaining = text;
+      
+      while (remaining.length > maxCharsPerLine && lines.length < maxLines) {
+        // Look for a good break point (delimiter) within the allowed range
+        let breakPoint = maxCharsPerLine;
+        const searchRange = remaining.substring(0, maxCharsPerLine);
+        
+        // Try to break at a delimiter if possible (within last 30% of the line)
+        const minBreakPoint = Math.floor(maxCharsPerLine * 0.7);
+        for (let i = maxCharsPerLine - 1; i >= minBreakPoint; i--) {
+          const char = searchRange[i];
+          if (char === '_' || char === '-' || char === ' ' || char === '|') {
+            breakPoint = i + 1; // Include the delimiter in current line
+            break;
+          }
+        }
+        
+        lines.push(remaining.substring(0, breakPoint).trim());
+        remaining = remaining.substring(breakPoint).trim();
+      }
+      
+      // If there's remaining text and we haven't hit max lines, add it
+      if (remaining && lines.length < maxLines) {
+        lines.push(remaining);
+      } else if (remaining && lines.length >= maxLines) {
+        // Truncate last line with ellipsis if we exceeded max lines
+        const lastLine = lines[lines.length - 1];
+        // Shorten last line to make room for ...
+        const truncated = lastLine.length > 3 ? lastLine.substring(0, lastLine.length - 3) + '...' : '...';
+        lines[lines.length - 1] = truncated;
+      }
+      
+      return lines.join('\n');
+    };
+
+    // Parse geneLabelBy - can be comma-separated string or array
+    const labelByColumns = geneLabelBy 
+      ? (Array.isArray(geneLabelBy) ? geneLabelBy : geneLabelBy.split(',').map(s => s.trim()).filter(Boolean))
+      : null;
+
+    // When ySpacing < 150 and position is top/bottom, only show labels for first/last hood
+    // Find first (highest trackY) and last (lowest trackY) hood IDs
+    let allowedHoodId: string | null = null;
+    const posLower = (geneLabelPosition || 'bottom').toLowerCase();
+    console.log('[buildGeneLabels] ySpacing:', ySpacing, 'posLower:', posLower, 'condition:', ySpacing < 150 && posLower !== 'center');
+    
+    // Debug: check first gene structure
+    if (genes.length > 0) {
+      const firstGene = genes[0];
+      console.log('[buildGeneLabels] first gene:', firstGene);
+      console.log('[buildGeneLabels] first gene.metadata:', firstGene.metadata);
+      console.log('[buildGeneLabels] first gene.seqid:', firstGene.seqid);
+    }
+    
+    if (ySpacing < 150 && posLower !== 'center') {
+      // Build map of hood_id -> min trackY (to find first/last)
+      // Note: hood_id is encoded in the gene.id as prefix: "{hood_id}_{gene_id}"
+      const hoodTrackYs = new Map<string, number>();
+      for (const geneData of genes) {
+        // Extract hood_id from the gene id prefix (format: "hoodId_geneId")
+        const geneId = geneData.id || geneData.uniqueId || '';
+        const underscoreIdx = geneId.indexOf('_');
+        const hoodId = underscoreIdx > 0 ? geneId.substring(0, underscoreIdx) : '';
+        if (!hoodId) continue;
+        const trackY = geneData.trackY ?? 0;
+        if (!hoodTrackYs.has(hoodId) || trackY < hoodTrackYs.get(hoodId)!) {
+          hoodTrackYs.set(hoodId, trackY);
+        }
+      }
+      
+      console.log('[buildGeneLabels] hoodTrackYs.size:', hoodTrackYs.size, 'entries:', Array.from(hoodTrackYs.entries()));
+      
+      if (hoodTrackYs.size > 0) {
+        // Find first (max trackY = top of screen) and last (min trackY = bottom of screen)
+        let firstHoodId = '';
+        let lastHoodId = '';
+        let maxTrackY = -Infinity;
+        let minTrackY = Infinity;
+        
+        for (const [hoodId, trackY] of hoodTrackYs) {
+          if (trackY > maxTrackY) {
+            maxTrackY = trackY;
+            firstHoodId = hoodId;
+          }
+          if (trackY < minTrackY) {
+            minTrackY = trackY;
+            lastHoodId = hoodId;
+          }
+        }
+        
+        // Position 'bottom' -> show labels only in last hood (bottom of screen)
+        // Position 'top' -> show labels only in first hood (top of screen)
+        allowedHoodId = posLower === 'bottom' ? lastHoodId : firstHoodId;
+        console.log('[buildGeneLabels] firstHoodId:', firstHoodId, 'lastHoodId:', lastHoodId, 'allowedHoodId:', allowedHoodId);
+      }
+    }
+
+    const out = genes.map(geneData => {
+      // When ySpacing < 150, filter by allowed hood
+      if (allowedHoodId !== null) {
+        // Extract hood_id from the gene id prefix (format: "hoodId_geneId")
+        const geneId = geneData.id || geneData.uniqueId || '';
+        const underscoreIdx = geneId.indexOf('_');
+        const geneHoodId = underscoreIdx > 0 ? geneId.substring(0, underscoreIdx) : '';
+        if (geneHoodId !== allowedHoodId) {
+          return null;
+        }
+      }
+      
+      // For compatibility, also reference gene from geneData
+      const gene = geneData;
+      
+      // Build label from multiple columns if specified
+      let labelValue;
+      if (labelByColumns && labelByColumns.length > 0) {
+        const values = labelByColumns
+          .map(col => {
+            // Handle special 'gene_id' case
+            if (col === 'gene_id') return gene.id || gene.geneId || gene.metadata?.gene_id;
+            return gene.metadata?.[col];
+          })
+          .filter(v => v !== null && v !== undefined && v !== '');
+        labelValue = values.length > 0 ? values.join(' | ') : null;
+      } else {
+        // Default fallback: use gene_id if no labelBy specified
+        labelValue = gene.id || gene.geneId || gene.metadata?.gene_id || null;
+      }
       if (labelValue === null || labelValue === undefined) return null;
   // Fallback when polygon isn't available: compute from trackY and geneHeight
   const centerX = (gene.start + gene.end) / 2;
@@ -1757,10 +1907,39 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Use a darkened version of the resolved gene color for label
       const baseFill = resolveGeneColor(gene);
       const strokeColor = darkenColor(baseFill) || ensureRgba(themeColors.geneFill);
-      const text = (labelValue === null || labelValue === undefined) ? '' : String(labelValue);
-
-      // Keep label size fixed to config value (restore previous appearance)
-      const labelSize = (config && config.text && config.text.geneLabelSize) ? config.text.geneLabelSize : 12;
+      
+      // Calculate gene width in world units (considering genomeXScale)
+      const geneWidth = Math.abs(gene.end - gene.start) * (genomeXScale / 100);
+      const baseLabelSize = (config && config.text && config.text.geneLabelSize) ? config.text.geneLabelSize : 12;
+      
+      // Get the raw text first to calculate adaptive sizing
+      const rawText = (labelValue === null || labelValue === undefined) ? '' : String(labelValue);
+      
+      // Calculate adaptive label size based on gene width
+      // Estimate how many characters would fit at base size
+      const charWidthFactor = 0.4;
+      const charsAtBaseSize = geneWidth / (baseLabelSize * charWidthFactor);
+      
+      // If text is much longer than what fits, reduce font size
+      // Minimum size is 50% of base, maximum is 100%
+      let labelSize = baseLabelSize;
+      if (rawText.length > charsAtBaseSize && charsAtBaseSize > 0) {
+        // Calculate scale factor: how much we need to shrink
+        // Allow up to 2 lines before shrinking, so multiply threshold by 2
+        const scaleFactor = Math.min(1, (charsAtBaseSize * 2) / rawText.length);
+        // Clamp between 50% and 100% of base size
+        labelSize = Math.max(baseLabelSize * 0.5, baseLabelSize * Math.max(0.5, scaleFactor));
+      }
+      
+      // Calculate max lines based on ySpacing and label size
+      // Leave some margin for gene height and padding
+      const geneHeightVal2 = (gene.geneHeight !== undefined && gene.geneHeight !== null) ? gene.geneHeight : (config && config.gene ? config.gene.height : 60);
+      const availableHeight = ySpacing - geneHeightVal2 - 10; // 10px margin
+      const lineHeight = labelSize * 7; // increased line height for better readability
+      const maxLines = Math.max(1, Math.floor(availableHeight / lineHeight));
+      
+      // Break text to fit within gene width using the adjusted label size
+      const text = breakTextToFitWidth(rawText, geneWidth, labelSize, maxLines);
 
       // Position label relative to gene according to geneLabelPosition
       const padding = 2; // world units
@@ -3544,7 +3723,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const coloredGenes = [...map.entries()].filter(([,v]) => v !== null);
     if (DEBUG_LOGS) console.log('[geneColorMapMemo] Final map has', coloredGenes.length, 'colored genes. Sample:', coloredGenes.slice(0, 3));
     return map;
-  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, effectiveGenePalette?.type, effectiveGenePalette?.prevalenceFilter, paletteVersion, geneColorMap, geneColorBy, colorBy, normalizedGeneColors, proteinMetadata]);
+  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, effectiveGenePalette?.type, effectiveGenePalette?.prevalenceFilter, paletteVersion, geneColorMap, geneColorBy, colorBy, normalizedGeneColors, proteinMetadata, hiddenGeneIds]);
 
   // Memoize layer data arrays to avoid rebuilding on every render
   const genesData = React.useMemo(() => {
@@ -3552,15 +3731,34 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const visibleSet = visibleGeneIds instanceof Set ? visibleGeneIds : null;
 
     const isVisible = (geneObj) => {
-      if (!visibleSet) return true;
-      const key =
-        geneObj?.gene_id ||
-        geneObj?.originalGeneId ||
-        geneObj?.originalId ||
-        geneObj?.id ||
-        geneObj?.uniqueId;
-      if (!key) return true;
-      return visibleSet.has(String(key));
+      // First check whitelist if it exists
+      if (visibleSet) {
+        const key =
+          geneObj?.gene_id ||
+          geneObj?.originalGeneId ||
+          geneObj?.originalId ||
+          geneObj?.id ||
+          geneObj?.uniqueId;
+        if (!key) return true; // Should not happen for valid genes
+        if (!visibleSet.has(String(key))) return false;
+      }
+      
+      // Then check blacklist (hiddenGeneIds)
+      if (hiddenGeneIds && hiddenGeneIds.size > 0) {
+        const candidates = [
+          geneObj?.uniqueId,
+          geneObj?.gene_id,
+          geneObj?.originalGeneId,
+          geneObj?.originalId,
+          geneObj?.id
+        ];
+        
+        for (const c of candidates) {
+          if (c && hiddenGeneIds.has(String(c))) return false;
+        }
+      }
+      
+      return true;
     };
 
     // If a clade is selected, prefer the filtered gene set from the model so
@@ -4580,6 +4778,12 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const phyloLabelsStart = performance.now();
     const effectivePhyloLabelPosition = phyloLabelPosition || config.tree?.phyloLabelPosition || 'after-tree';
     const effectiveAlignLabels = alignLabels !== undefined ? alignLabels : (config.tree?.alignLabels !== undefined ? config.tree.alignLabels : true);
+    
+    // Parse treeLabelBy - can be comma-separated string for multiple columns
+    const treeLabelByColumns = treeLabelBy 
+      ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').map(s => s.trim()).filter(Boolean))
+      : null;
+    
     let phyloLabels = [];
     let phyloColorSignature = '';
     if (hasNewick) {
@@ -4589,8 +4793,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         .filter(l => !selectedNode || visibleLeavesSet.has(l.name))
         .map(l => {
         const meta = (typeof getMetaForLeaf === 'function') ? getMetaForLeaf(l.name) : (treeMetadata?.[l.name] || {});
-        let label = meta[treeLabelBy];
-        if (label === undefined || label === null) label = l.name;
+        
+        // Build label from multiple columns if specified
+        let label;
+        if (treeLabelByColumns && treeLabelByColumns.length > 0) {
+          const values = treeLabelByColumns
+            .map(col => col === 'name' ? l.name : meta[col])
+            .filter(v => v !== null && v !== undefined && v !== '');
+          label = values.length > 0 ? values.join(' | ') : l.name;
+        } else {
+          label = meta[treeLabelBy];
+          if (label === undefined || label === null) label = l.name;
+        }
         if (typeof label !== 'string') label = String(label);
         let color;
         if (effectivePhyloPalette && effectivePhyloPalette.enabled) {
@@ -4976,7 +5190,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (DEBUG_LOGS) console.log(`📊 genesData built in ${genesDataTime.toFixed(1)}ms (${genesData.length} genes)`);
 
     // Gene cluster labels (below genes) — build from fresh gene data
-  const geneLabels = buildGeneLabels(genesData, geneColorMap, geneColorBy, colorBy, themeColors, effectiveConfig || config, geneLabelPosition);
+    const effectiveYSpacingForLabels = typeof ySpacingProp === 'number' ? ySpacingProp : (config?.tree?.ySpacing || 150);
+    console.log('[layers useMemo] effectiveYSpacingForLabels:', effectiveYSpacingForLabels, 'ySpacingProp:', ySpacingProp);
+  const geneLabels = buildGeneLabels(genesData, geneColorMap, geneColorBy, colorBy, themeColors, effectiveConfig || config, geneLabelPosition, geneLabelBy, genomeXScaleProp || 100, effectiveYSpacingForLabels);
+    console.log('[layers useMemo] geneLabels.length after build:', geneLabels.length);
 
     // Debug: log gene label sizing/positions to help diagnose why labels might appear static
     try {
@@ -5482,27 +5699,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           getTargetPosition: [nucleotideHoods, alignmentVersion, hoodsSignature, ySpacingProp, genomeXScaleProp]
         }
       }),
-      // Region polygons (highlighting genomic regions like phage, operons, etc.)
-      new PolygonLayer({
-        id: 'region-polygons',
-        data: regionPolygons,
-        visible: showGeneLayer, // Regions are part of the genomic context
-        getPolygon: d => d.polygon,
-        getFillColor: d => d.fillColor,
-        stroked: true,
-        filled: false, // Keep fill transparent, show palette colors in stroke
-        getLineColor: d => d.strokeColor,
-        getLineWidth: d => d.strokeWidth || 2,
-        lineWidthUnits: 'pixels',
-        autoHighlight: true,
-        pickable: true,
-        updateTriggers: {
-          getPolygon: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
-          getFillColor: [regionPolygons, alignmentVersion],
-          getLineColor: [regionPolygons, alignmentVersion],
-          getLineWidth: [regionPolygons, alignmentVersion]
-        }
-      }),
+
       new PolygonLayer({
         id: 'protein-polygons',
         data: proteinLinkData,
@@ -5767,6 +5964,28 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           ]
         }
       }),
+      // Region polygons (highlighting genomic regions like phage, operons, etc.)
+      // MOVED: Rendered after links to appear on top
+      new PolygonLayer({
+        id: 'region-polygons',
+        data: regionPolygons,
+        visible: showGeneLayer, // Regions are part of the genomic context
+        getPolygon: d => d.polygon,
+        getFillColor: d => d.fillColor,
+        stroked: true,
+        filled: false, // Keep fill transparent, show palette colors in stroke
+        getLineColor: d => d.strokeColor,
+        getLineWidth: d => d.strokeWidth || 2,
+        lineWidthUnits: 'pixels',
+        autoHighlight: true,
+        pickable: true,
+        updateTriggers: {
+          getPolygon: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
+          getFillColor: [regionPolygons, alignmentVersion],
+          getLineColor: [regionPolygons, alignmentVersion],
+          getLineWidth: [regionPolygons, alignmentVersion]
+        }
+      }),
   // Phylogenetic tree paths
       new PathLayer({
         id: 'phylo-tree',
@@ -5919,11 +6138,12 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         getAlignmentBaseline: d => d.alignmentBaseline || 'top',
         pickable: false,
         updateTriggers: {
-          getPosition: [geneLabels, alignmentVersion, (effectiveConfig && effectiveConfig.gene ? effectiveConfig.gene.height : null), geneHeight, geneLabelPosition, ySpacingProp, genomeXScaleProp, genesData],
-          getText: [geneLabels],
-          getColor: [geneLabels, geneColorBy, (effectiveGenePalette && effectiveGenePalette.name) || null, paletteVersion],
-          getSize: [effectiveConfig.text?.geneLabelSize, effectiveConfig.text?.scaleFactors?.gene, geneLabels, geneHeight, geneLabelPosition],
-          getAlignmentBaseline: [geneLabels, geneLabelPosition, alignmentVersion]
+          // Use geneLabels.length to force data refresh when filtering by ySpacing changes label count
+          getPosition: [geneLabels.length, alignmentVersion, (effectiveConfig && effectiveConfig.gene ? effectiveConfig.gene.height : null), geneHeight, geneLabelPosition, ySpacingProp, genomeXScaleProp, genesData],
+          getText: [geneLabels.length, geneLabelBy, genomeXScaleProp, ySpacingProp],
+          getColor: [geneLabels.length, geneColorBy, (effectiveGenePalette && effectiveGenePalette.name) || null, paletteVersion],
+          getSize: [effectiveConfig.text?.geneLabelSize, effectiveConfig.text?.scaleFactors?.gene, geneLabels.length, geneHeight, geneLabelPosition],
+          getAlignmentBaseline: [geneLabels.length, geneLabelPosition, alignmentVersion]
         }
       }),
       // Phylo labels
@@ -6280,6 +6500,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     domainColorBy,
     genePalette,
     domainPalette,
+    
+    // ===== LABEL CONFIG =====
+    geneLabelBy,
+    geneLabelPosition,
+    ySpacingProp, // For hiding gene labels when ySpacing < 150
     
     // ===== CUSTOM COLOR MAPS =====
     normalizedGeneColors,
@@ -6657,6 +6882,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const sineWave = Math.sin(tick * 0.2); // Speed of pulse (higher = faster)
     const pulseScale = 1 + (sineWave * 0.15); // 0.85 to 1.15 scale
     
+    // Detect if we're in light mode
+    const isLightMode = resolvedTheme === 'light';
+    
     const toRgbaColor = (color) => {
       const clamp = (n) => Math.max(0, Math.min(255, Math.round(n)));
       if (Array.isArray(color)) {
@@ -6664,6 +6892,50 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         return [clamp(r), clamp(g), clamp(b), clamp(a ?? 255)];
       }
       return [150, 150, 150, 255];
+    };
+    
+    // Calculate perceived luminance (0-1) using standard formula
+    const getLuminance = (r, g, b) => {
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    };
+    
+    // Adjust glow color for visibility based on theme and color brightness
+    // In light mode, darken light colors; in dark mode, keep colors as-is
+    const adjustGlowColor = (r, g, b, baseOpacity) => {
+      const luminance = getLuminance(r, g, b);
+      
+      if (isLightMode) {
+        // In light mode:
+        // - Very light colors (luminance > 0.7): darken significantly and boost opacity
+        // - Medium colors (0.4-0.7): slight darkening
+        // - Dark colors: keep as-is
+        if (luminance > 0.7) {
+          // Darken by 40-60% and boost opacity
+          const darkenFactor = 0.4 + (1 - luminance) * 0.3;
+          return {
+            color: [
+              Math.round(r * darkenFactor),
+              Math.round(g * darkenFactor),
+              Math.round(b * darkenFactor)
+            ],
+            opacity: Math.min(255, Math.round(baseOpacity * 1.5))
+          };
+        } else if (luminance > 0.4) {
+          // Slight darkening
+          const darkenFactor = 0.7;
+          return {
+            color: [
+              Math.round(r * darkenFactor),
+              Math.round(g * darkenFactor),
+              Math.round(b * darkenFactor)
+            ],
+            opacity: Math.round(baseOpacity * 1.2)
+          };
+        }
+      }
+      
+      // Dark mode or already dark colors - use original
+      return { color: [r, g, b], opacity: baseOpacity };
     };
 
     // Get current gene geometry parameters
@@ -6743,11 +7015,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Outer glow (pulsing) - proportional to gene height
       // Pulse width: 30% to 50% of gene height
       const pulseWidthOuter = currentGeneHeight * (0.3 + (sineWave * 0.2));
-      const pulseOpacity = 150 + (sineWave * 50);
+      const baseOuterOpacity = Math.round(150 + (sineWave * 50));
       
       result.push(
         new PolygonLayer({
-          id: 'genes-glow-outer-anim',
+          id: `genes-glow-outer-anim-${tick}`,
           data: highlightedGeneData,
           getPolygon: computeGenePolygon, // Recalculate polygon with current settings
           stroked: true,
@@ -6755,7 +7027,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           getLineWidth: pulseWidthOuter,
           getLineColor: d => {
             const [r, g, b] = getGeneColor(d);
-            return [r, g, b, pulseOpacity];
+            const adjusted = adjustGlowColor(r, g, b, baseOuterOpacity);
+            return [...adjusted.color, adjusted.opacity];
           },
           lineWidthUnits: 'common', // Scales with zoom!
           pickable: false,
@@ -6763,7 +7036,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         })
       );
 
-      // Core (thin white line) - constant, not animated
+      // Core line - use dark color in light mode for better visibility
+      const coreColor = isLightMode ? [80, 80, 80, 200] : [255, 255, 255, 255];
       result.push(
         new PolygonLayer({
           id: 'genes-glow-core-anim',
@@ -6771,7 +7045,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           getPolygon: computeGenePolygon, // Recalculate polygon with current settings
           stroked: true,
           filled: false,
-          getLineColor: [255, 255, 255, 255],
+          getLineColor: coreColor,
           getLineWidth: currentGeneHeight * 0.03, // 3% of gene height
           lineWidthUnits: 'common',
           pickable: false,
@@ -6782,9 +7056,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
     // ======= ANIMATED TREE LEAF GLOW =======
     if (highlightedTreeLeafData && highlightedTreeLeafData.length > 0) {
-      // Use gene height as reference for consistent sizing with other glows
-      const baseGlowSize = currentGeneHeight * 2; // 200% of gene height as base for bigger glow
-      
       // Helper to get valid node color - use the color stored in state (synced by effect on palette change)
       const getNodeColor = (d) => {
         const base = d?.color;
@@ -6794,16 +7065,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         return [220, 180, 60, 255]; // Golden/amber fallback
       };
       
+      // Pre-calculate animated values for this tick
+      const outerRadiusMultiplier = 4 * (1.5 + sineWave * 0.5) * pulseScale;
+      const midRadiusMultiplier = 4 * (0.8 + sineWave * 0.3) * pulseScale;
+      const baseOuterOpacity = Math.round(60 + sineWave * 30);
+      const baseMidOpacity = Math.round(120 + sineWave * 50);
+      
       // Outer glow halo - large and pulsing
+      // Use node's stored radius, not geneHeight
       result.push(
         new ScatterplotLayer({
-          id: 'tree-glow-outer-anim',
+          id: `tree-glow-outer-anim-${tick}`, // Include tick in id to force layer recreation
           data: highlightedTreeLeafData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * (1.5 + sineWave * 0.5) * pulseScale,
+          getRadius: d => (d.radius || 2) * outerRadiusMultiplier,
           getFillColor: d => {
             const [r, g, b] = getNodeColor(d);
-            return [r, g, b, Math.round(60 + sineWave * 30)];
+            const adjusted = adjustGlowColor(r, g, b, baseOuterOpacity);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6816,13 +7095,14 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Mid glow - tighter, brighter
       result.push(
         new ScatterplotLayer({
-          id: 'tree-glow-mid-anim',
+          id: `tree-glow-mid-anim-${tick}`,
           data: highlightedTreeLeafData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * (0.8 + sineWave * 0.3) * pulseScale,
+          getRadius: d => (d.radius || 2) * midRadiusMultiplier,
           getFillColor: d => {
             const [r, g, b] = getNodeColor(d);
-            return [r, g, b, Math.round(120 + sineWave * 50)];
+            const adjusted = adjustGlowColor(r, g, b, baseMidOpacity);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6832,16 +7112,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         })
       );
 
-      // Core - solid center with node color
+      // Core - solid center with node color (darker in light mode)
       result.push(
         new ScatterplotLayer({
           id: 'tree-glow-core-anim',
           data: highlightedTreeLeafData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * 0.4, // 40% of base for solid core
+          getRadius: d => (d.radius || 2) * 1.5, // Slightly larger than actual node
           getFillColor: d => {
             const [r, g, b] = getNodeColor(d);
-            return [r, g, b, 255];
+            const adjusted = adjustGlowColor(r, g, b, 255);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6854,9 +7135,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
     // ======= ANIMATED INTERNAL TREE NODE GLOW =======
     if (highlightedTreeNodeData && highlightedTreeNodeData.length > 0) {
-      // Use gene height as reference for consistent sizing with other glows
-      const baseGlowSize = currentGeneHeight * 2.2; // Slightly larger for internal nodes
-      
       // Helper to get valid node color
       const getInternalNodeColor = (d) => {
         const base = d?.color;
@@ -6866,16 +7144,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         return [100, 180, 255, 255]; // Blue fallback for internal nodes
       };
       
+      // Pre-calculate animated values for this tick
+      const outerRadiusMultiplier = 4 * (1.6 + sineWave * 0.6) * pulseScale;
+      const midRadiusMultiplier = 4 * (0.9 + sineWave * 0.35) * pulseScale;
+      const baseOuterOpacity = Math.round(50 + sineWave * 30);
+      const baseMidOpacity = Math.round(110 + sineWave * 50);
+      
       // Outer glow halo - large and pulsing
+      // Use node's stored radius, not geneHeight
       result.push(
         new ScatterplotLayer({
-          id: 'tree-node-glow-outer-anim',
+          id: `tree-node-glow-outer-anim-${tick}`,
           data: highlightedTreeNodeData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * (1.6 + sineWave * 0.6) * pulseScale,
+          getRadius: d => (d.radius || 4) * outerRadiusMultiplier,
           getFillColor: d => {
             const [r, g, b] = getInternalNodeColor(d);
-            return [r, g, b, Math.round(50 + sineWave * 30)];
+            const adjusted = adjustGlowColor(r, g, b, baseOuterOpacity);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6888,13 +7174,14 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Mid glow - tighter, brighter
       result.push(
         new ScatterplotLayer({
-          id: 'tree-node-glow-mid-anim',
+          id: `tree-node-glow-mid-anim-${tick}`,
           data: highlightedTreeNodeData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * (0.9 + sineWave * 0.35) * pulseScale,
+          getRadius: d => (d.radius || 4) * midRadiusMultiplier,
           getFillColor: d => {
             const [r, g, b] = getInternalNodeColor(d);
-            return [r, g, b, Math.round(110 + sineWave * 50)];
+            const adjusted = adjustGlowColor(r, g, b, baseMidOpacity);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6904,16 +7191,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         })
       );
 
-      // Core - solid center with node color
+      // Core - solid center with node color (darker in light mode)
       result.push(
         new ScatterplotLayer({
           id: 'tree-node-glow-core-anim',
           data: highlightedTreeNodeData,
           getPosition: d => d.position || [0, 0],
-          getRadius: baseGlowSize * 0.35,
+          getRadius: d => (d.radius || 4) * 1.5, // Slightly larger than actual node
           getFillColor: d => {
             const [r, g, b] = getInternalNodeColor(d);
-            return [r, g, b, 255];
+            const adjusted = adjustGlowColor(r, g, b, 255);
+            return [...adjusted.color, adjusted.opacity];
           },
           stroked: false,
           filled: true,
@@ -6927,13 +7215,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // ======= ANIMATED BASELINE GLOW =======
     if (highlightedHoodData && highlightedHoodData.length > 0) {
       const pulseWidthBaseline = 10 + (sineWave * 8);
+      const baselineOpacity = Math.round(150 + sineWave * 50);
+      // Baseline glow color - golden/amber, darker in light mode
+      const baselineColor = isLightMode ? [180, 140, 40] : [255, 215, 80];
+      const adjustedBaselineOpacity = isLightMode ? Math.min(255, Math.round(baselineOpacity * 1.3)) : baselineOpacity;
+      
       result.push(
         new LineLayer({
-          id: 'hoods-glow-outer-anim',
+          id: `hoods-glow-outer-anim-${tick}`,
           data: highlightedHoodData,
           getSourcePosition: d => [d.start, d.trackY],
           getTargetPosition: d => [d.end, d.trackY],
-          getColor: [255, 215, 80, Math.round(150 + sineWave * 50)],
+          getColor: [...baselineColor, adjustedBaselineOpacity],
           getWidth: pulseWidthBaseline * pulseScale,
           widthUnits: 'common', // Scales with zoom
           pickable: false,
@@ -6941,13 +7234,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         })
       );
 
+      // Core line - dark in light mode, white in dark mode
+      const coreLineColor = isLightMode ? [80, 80, 80, 200] : [255, 255, 255, 255];
       result.push(
         new LineLayer({
           id: 'hoods-glow-core-anim',
           data: highlightedHoodData,
           getSourcePosition: d => [d.start, d.trackY],
           getTargetPosition: d => [d.end, d.trackY],
-          getColor: [255, 255, 255, 255],
+          getColor: coreLineColor,
           getWidth: 1,
           widthUnits: 'common',
           pickable: false,
@@ -6964,6 +7259,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     highlightedHoodData, 
     themeColors, 
     config.gene?.fillColor, 
+    resolvedTheme, // Add theme dependency for light/dark mode glow adjustment
     // Gene geometry dependencies - use effectiveConfig values
     effectiveConfig.gene?.height,
     effectiveConfig.gene?.geneHeight,
@@ -6980,8 +7276,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     effectivePhyloPalette?.name, 
     effectivePhyloPalette?.enabled, 
     effectivePhyloPalette?.numColors, 
-    effectivePhyloPalette?.reverse, 
-    layers
+    effectivePhyloPalette?.reverse
+    // NOTE: `layers` removed from deps - it was causing animation restarts on every layer update
+    // The animation loop accesses base layers via baseLayersRef.current instead
   ]);
 
   // Check if there's any highlighted data
@@ -7326,7 +7623,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     },
-  genomeView: genomeViewRef.current,
+    genomeView: genomeViewRef.current,
+    getGenomeView: () => genomeViewRef.current,
     // Force a re-evaluation of alignment-dependent layers
     forceAlignUpdate: () => {
       try {
@@ -7359,6 +7657,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     },
     // Zoom to a gene by original id (gene_id)
     focusGeneById: (geneId) => {
+      // console.log('[focusGeneById] called with:', geneId);
       try {
         if (!geneId) return false;
         const gv = genomeViewRef.current;
@@ -7369,20 +7668,31 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           const matches = gv._genesByOriginalId.get(idStr);
           if (matches && matches.length) uniqueId = matches[0];
         }
+        
         if (!uniqueId) {
-          for (const [uid, g] of Object.entries(gv.genesById || {})) {
-            const candidate =
-              g.originalGeneId ||
-              g.gene_id ||
-              g.originalId ||
-              g.id ||
-              (g.metadata && (g.metadata.gene_id || g.metadata.id));
-            if (candidate && String(candidate) === idStr) {
+          // Fallback to loop search with robust ID checking
+          const allKeys = Object.keys(gv.genesById || {});
+          
+          for (const [uid, g] of Object.entries(gv.genesById || {}) as any) {
+            const candidates = [
+              g.originalGeneId,
+              g.gene_id,
+              g.originalId,
+              g.id,
+              g.metadata?.gene_id,
+              g.metadata?.id,
+              // Check if key is just prefixed (e.g. "4_WP_123")
+              uid.includes('_') ? uid.split('_').slice(1).join('_') : null,
+              uid
+            ];
+            
+            if (candidates.some(c => c && String(c) === idStr)) {
               uniqueId = uid;
               break;
             }
-          }
-        }
+      }
+    }
+        // console.log('[focusGeneById] final uniqueId:', uniqueId);
         if (!uniqueId) return false;
         const gene = gv.genesById[uniqueId];
         if (!gene) return false;
@@ -7401,15 +7711,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       } catch (e) { return false; }
     },
     // Zoom to a baseline/hood by hood_id
-    focusBaselineByHood: (hoodId) => {
+    // Zoom to a baseline/hood by hood_id
+    focusHoodByHoodId: (hoodId) => {
       try {
         stopGeneFlash();
         if (!hoodId) return false;
         const gv = genomeViewRef.current;
         if (!gv || !gv.hoodRanges) return false;
+        
         const hood = String(hoodId);
         const b = gv.hoodRanges[hood];
         if (!b) return false;
+
         const offset = gv.trackOffset ? gv.trackOffset[hood] || 0 : 0;
         const flipped = gv.trackFlipped ? !!gv.trackFlipped[hood] : false;
         const anchor = b.length / 2;
@@ -7443,7 +7756,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         // Clear the internal flag after a delay to allow effect to skip
         setTimeout(() => { internalHoodHighlightRef.current = false; }, 100);
         return true;
-      } catch (e) { return false; }
+      } catch (e) {
+         return false; 
+      }
     },
     // Zoom to a tree leaf by id/name and trigger node flash
     focusTreeLeafById: (leafId) => {

@@ -813,8 +813,10 @@ function HoodiniVizDash(props) {
       }
     } catch (e) {}
     const id = getGeneKey(row);
+    console.log('[handleZoomGene] row:', row, 'id:', id);
     if (!id) return;
-    hoodiniVizRef.current.focusGeneById(String(id));
+    const success = hoodiniVizRef.current.focusGeneById(String(id));
+    console.log('[handleZoomGene] focusGeneById result:', success);
   }, [
     hoodiniVizRef,
     getGeneKey,

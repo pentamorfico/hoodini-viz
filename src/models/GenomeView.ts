@@ -226,7 +226,16 @@ class GenomeView {
           const adjustedStart = fStart - hoodStart;
           const adjustedEnd   = fEnd   - hoodStart;
 
-          const originalGeneId = this.getGeneIdFromAttributes(f.attributes);
+          // PRIORITIZE EXPLICIT ID FIELDS OVER ATTRIBUTES
+          // This matches the logic used in the data loading/table (HoodiniDashboard getGeneKey)
+          let originalGeneId = f.gene_id || f.id || f.protein_id || f.originalGeneId;
+          
+          if (!originalGeneId && f.attributes) {
+             originalGeneId = this.getGeneIdFromAttributes(f.attributes);
+          }
+          // If still no ID, fallback to something unique? Or skip? 
+          // Existing code might rely on it being null if not found.
+          
           const uniqueGeneId = `${hood_id}_${originalGeneId}`;
 
           let g = new Gene(f.seqid, adjustedStart, adjustedEnd, f.strand, f.attributes, this.config);

@@ -26,6 +26,7 @@ function DataGridView({
   onZoomGene,
   onZoomHood,
   onZoomTree,
+  isRowZoomable,
 }) {
   const { resolvedTheme } = useTheme();
   const datasetKeys = useMemo(() => Object.keys(datasets || {}), [datasets]);
@@ -384,6 +385,12 @@ function DataGridView({
 
       let value;
       if (column.id === '__zoom') {
+        const canZoom = typeof isRowZoomable === 'function' ? isRowZoomable(rowObj, activeKey) : true;
+        
+        if (!canZoom) {
+          return { kind: GridCellKind.Text, data: '', displayData: '', allowOverlay: true, readonly: true };
+        }
+
         return {
           kind: GridCellKind.Custom,
           data: {

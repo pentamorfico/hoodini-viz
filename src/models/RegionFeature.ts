@@ -13,18 +13,26 @@ class RegionFeature extends GFFFeature {
     this.strokeWidth = config?.region?.strokeWidth || 2;
     
     // Enhanced metadata for tooltips
-    this.metadata = { 
+    this.metadata = {
       seqid, 
       start, 
       end, 
-      strand, 
       type, 
-      region_id: attributes?.ID || `region_${seqid}_${start}_${end}`,
-      region_name: attributes?.Name || attributes?.ID || `region_${seqid}_${start}_${end}`,
-      region_type: type,
-      length: Math.abs(end - start),
-      ...attributes 
+      length: Math.abs(end - start)
     };
+    
+    // DEBUG: Log attributes type
+    // console.log('RegionFeature ctor:', { seqid, type, attrsType: typeof attributes, isStringObj: attributes instanceof String, attributes });
+
+    // Safely handle attributes merge
+    if (attributes) {
+      if (typeof attributes === 'string' || attributes instanceof String) {
+         // If it's a string (primitive or object), store it as 'attributes' so getTooltip can parse it
+         this.metadata.attributes = attributes.toString();
+      } else if (typeof attributes === 'object') {
+        Object.assign(this.metadata, attributes);
+      }
+    }
   }
 
   setTrackY(y) {
@@ -34,10 +42,10 @@ class RegionFeature extends GFFFeature {
 
   /**
    * Update the polygon coordinates for this region.
-   * This creates a rectangle that surrounds all genes within the region bounds,
-   * taking into account gene heights, arrowhead heights, and padding.
+   * This creates a rectangle that strictly respects the region's start/end coordinates,
+   * while adapting its height to cover the track content.
    * 
-   * @param {Array} genesInRegion - Array of Gene objects within this region
+   * @param {Array} genesInRegion - Array of Gene objects (used for height calculation only)
    * @param {number} trackY - Y coordinate of the track
    */
   updatePolygon(genesInRegion = [], trackY = null) {
@@ -52,52 +60,21 @@ class RegionFeature extends GFFFeature {
         region: { padding: 10, strokeWidth: 2 }
       };
     }
+
+    // Use strict coordinates provided by GenomeView (scaled and offset correctly)
+    const minX = Math.min(this.start, this.end);
+    const maxX = Math.max(this.start, this.end);
     
-    // If no genes in region, create a simple rectangle based on region coordinates
-    if (genesInRegion.length === 0) {
-      const minX = Math.min(this.start, this.end);
-      const maxX = Math.max(this.start, this.end);
-      const padding = this.config.region?.padding || this.padding;
-      const halfHeight = (this.config.gene?.height || 20) / 2 + padding;
-      
-      this.polygon = [
-        [minX - padding, this.trackY - halfHeight],
-        [maxX + padding, this.trackY - halfHeight],
-        [maxX + padding, this.trackY + halfHeight],
-        [minX - padding, this.trackY + halfHeight],
-        [minX - padding, this.trackY - halfHeight]
-      ];
-      return;
-    }
-    
-    // Calculate bounds from genes within the region
+    // Calculate Y bounds based on gene height and arrowhead height
     const geneHeight = this.config.gene?.height || 20;
     const arrowheadHeight = this.config.gene?.arrowheadHeight || 30;
     const padding = this.config.region?.padding || this.padding;
-    
-    // Find the visual bounds of all genes in the region
-    let minX = Infinity;
-    let maxX = -Infinity;
-    
-    genesInRegion.forEach(gene => {
-      // Use gene's actual visual coordinates
-      const geneMinX = Math.min(gene.start, gene.end);
-      const geneMaxX = Math.max(gene.start, gene.end);
-      
-      minX = Math.min(minX, geneMinX);
-      maxX = Math.max(maxX, geneMaxX);
-    });
-    
-    // Calculate Y bounds based on gene height and arrowhead height
     const effectiveHeight = Math.max(geneHeight, arrowheadHeight);
     const halfHeight = effectiveHeight / 2;
     
+    // Only apply vertical padding
     const minY = this.trackY - halfHeight - padding;
     const maxY = this.trackY + halfHeight + padding;
-    
-    // Add horizontal padding
-    minX -= padding;
-    maxX += padding;
     
     // Create rectangle polygon
     this.polygon = [
@@ -133,17 +110,17 @@ class RegionFeature extends GFFFeature {
    * Get stroke color for the region outline based on region type
    */
   getStrokeColor() {
-    const typeColors = {
-      'phage': [255, 0, 0, 255],        // Red for phage regions
-      'prophage': [255, 165, 0, 255],   // Orange for prophage regions
-      'operon': [0, 128, 0, 255],       // Green for operons
-      'cluster': [0, 0, 255, 255],      // Blue for gene clusters
-      'island': [255, 255, 0, 255],     // Yellow for genomic islands
-      'region': [128, 128, 128, 255]    // Gray for generic regions
-    };
+    // If a specific stroke color was provided in attributes (e.g. from GFF), use it
+    // Otherwise derive from type
+    if (this.strokeColor && this.strokeColor[3] !== 0) return this.strokeColor;
     
-    const regionType = (this.type || 'region').toLowerCase();
-    return typeColors[regionType] || typeColors['region'];
+    const type = (this.type || '').toLowerCase();
+    const colors = this.config?.region?.colors || {};
+    
+    // Check config for typical types
+    if (colors[type]) return colors[type];
+    
+    return colors.default || [128, 128, 128, 255];
   }
 
   /**

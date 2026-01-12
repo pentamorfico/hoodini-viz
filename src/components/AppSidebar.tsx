@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 // Text fallback removed; leave empty since data now comes from parquet.
 const defaultDomainsMetadata = '';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MultiSelect } from "@/components/ui/multi-select"
 import { isEmptyValue, normalizeKey } from '@/utils/valueUtils';
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
@@ -691,14 +692,13 @@ export function AppSidebar({
           </div>
 
           <a href="#" className="font-title text-xs font-medium" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            Hoodini v2.0-beta
             <img
               src={hoodiniLogoUrl}
               alt="Hoodini Logo"
               className="!size-5"
               style={{
-                width: '20px',
-                height: '10px',
+                width: '200px',
+                height: '100px',
                 filter: resolvedTheme === 'dark' ? 'brightness(0) invert(1)' : 'none'
               }}
             />
@@ -1139,6 +1139,17 @@ export function AppSidebar({
                     className="w-full"
                   />
                 </div>
+                <div className="mt-1">
+                  <Label htmlFor="gene-label-by" className="text-xs mb-1 block">Gene Label By:</Label>
+                  <MultiSelect
+                    options={['gene_id', ...geneMetadataColumns].map(col => ({ label: col, value: col }))}
+                    value={geneLabelBy ? geneLabelBy.split(',').filter(Boolean) : []}
+                    onValueChange={(values) => setGeneLabelBy(values.length > 0 ? values.join(',') : '')}
+                    placeholder="Select columns..."
+                    maxCount={2}
+                    className="text-xs"
+                  />
+                </div>
                 <div className="mt-2">
                   <Label htmlFor="stroke-line-width" className="text-xs mb-1 block">
                     Stroke Width: {strokeLineWidthDisplay.toFixed(1)}
@@ -1276,6 +1287,17 @@ export function AppSidebar({
                       if (typeof setPhyloLabelSize === 'function') setPhyloLabelSize(value[0]);
                     }}
                     className="w-full"
+                  />
+                </div>
+                <div className="mt-1">
+                  <Label htmlFor="tree-label-by" className="text-xs mb-1 block">Tree Label By:</Label>
+                  <MultiSelect
+                    options={['name', ...treeMetadataColumns].map(col => ({ label: col, value: col }))}
+                    value={treeLabelBy ? treeLabelBy.split(',').filter(Boolean) : []}
+                    onValueChange={(values) => setTreeLabelBy(values.length > 0 ? values.join(',') : '')}
+                    placeholder="Select columns..."
+                    maxCount={2}
+                    className="text-xs"
                   />
                 </div>
               </div>

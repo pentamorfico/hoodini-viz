@@ -672,6 +672,10 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [viewerLegend, setViewerLegend] = useState<any>(null);
 
+  // Visibility state
+  const [hiddenHoodIds, setHiddenHoodIds] = useState<Set<string | number>>(new Set());
+  const [hiddenGeneIds, setHiddenGeneIds] = useState<Set<string>>(new Set());
+
   // ============================================================================
   // CONFIG
   // ============================================================================
@@ -1003,6 +1007,183 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
   }, [onObjectClick, onSelectionChange]);
 
   // ============================================================================
+  // ZOOM HANDLERS
+  // ============================================================================
+
+  const getGeneKey = useCallback((row: any) => {
+    if (!row) return null;
+    if (row.gene_id) return row.gene_id;
+    if (row.id) return row.id;
+    if (row.protein_id) return row.protein_id;
+
+    // Try to parse attributes (supports JSON or semicolon string)
+    if (row.attributes) {
+      const val = row.attributes;
+      if (typeof val === 'object' && !Array.isArray(val)) {
+        if (val.ID) return val.ID;
+        if (val.gene_id) return val.gene_id;
+        if (val.Name) return val.Name;
+      } else if (typeof val === 'string') {
+        const trimmed = val.trim();
+        // Check for JSON
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+          try {
+            const obj = JSON.parse(trimmed);
+            if (obj && typeof obj === 'object') {
+              if (obj.ID) return obj.ID;
+              if (obj.gene_id) return obj.gene_id;
+              if (obj.Name) return obj.Name;
+            }
+          } catch (e) {
+            // fall through to semicolon parsing
+          }
+        }
+        // Check for semicolon format
+        const parts = trimmed.split(';');
+        for (const p of parts) {
+          const [k, ...rest] = p.split('=');
+          const key = k ? k.trim() : '';
+          const v = rest.join('=').trim();
+          if (!key) continue;
+          if (key === 'ID' || key === 'gene_id' || key === 'Name') return v || key;
+        }
+      }
+    }
+
+    if (row.seqid && row.start && row.end) return `${row.seqid}:${row.start}-${row.end}`;
+    return null;
+  }, []);
+
+  const handleZoomGene = useCallback((row: any) => {
+    if (!row || !vizRef.current) return;
+    const id = getGeneKey(row);
+    if (id) {
+      console.log('[HoodiniDashboard] handleZoomGene:', id);
+      vizRef.current.focusGeneById?.(String(id));
+      
+      // Also set the selected object
+      // We need to look it up from the viz if possible to get the full object with metadata
+      // Or construct a basic one from the row
+      const gv = vizRef.current.genomeView;
+      let geneObj = null;
+      if (gv && gv.genesById) {
+         // Try to find the gene in the genome view's data
+         // This logic mirrors HoodiniViz.focusGeneById's lookup
+         const idStr = String(id);
+         let uniqueId = null;
+         
+         // 1. Try direct map lookup if available
+         if (gv._genesByOriginalId && typeof gv._genesByOriginalId.get === 'function') {
+           const matches = gv._genesByOriginalId.get(idStr);
+           if (matches && matches.length) uniqueId = matches[0];
+         }
+         
+         // 2. Fallback to loop
+         if (!uniqueId) {
+            for (const [uid, g] of Object.entries(gv.genesById || {}) as any) {
+             const candidate =
+               g.originalGeneId ||
+               g.gene_id ||
+               g.originalId ||
+               g.id ||
+               (g.metadata && (g.metadata.gene_id || g.metadata.id));
+             if (candidate && String(candidate) === idStr) {
+               uniqueId = uid;
+               break;
+             }
+           }
+         }
+         
+         if (uniqueId) {
+           geneObj = gv.genesById[uniqueId];
+         }
+      }
+      
+      const selected = {
+        type: 'gene',
+        id: id,
+        metadata: geneObj?.metadata || row,
+        ...geneObj
+      };
+      
+      setSelectedObject(selected);
+      onSelectionChange?.(selected);
+    }
+  }, [getGeneKey, onSelectionChange]);
+
+  const handleZoomHood = useCallback((row: any) => {
+    if (!row || !vizRef.current) return;
+    const hood = row.hood_id || row.hoodId || row.seqid;
+    if (hood) {
+      vizRef.current.focusHoodByHoodId?.(String(hood));
+    }
+  }, []);
+
+  const handleZoomTree = useCallback((row: any) => {
+    if (!row || !vizRef.current) return;
+    const leaf = row.leaf_id || row.leafId || row.leaf_name || row.leafName || row.id || row.name;
+    if (leaf) {
+      vizRef.current.focusTreeLeafById?.(String(leaf));
+    }
+  }, []);
+
+  const isRowZoomable = useCallback((row: any, datasetKey: string) => {
+    if (datasetKey === 'hoods') {
+      // If visualization isn't ready or doesn't support filtering, show by default
+      if (!vizRef.current || !vizRef.current.getGenomeView) return true;
+      const gv = vizRef.current.getGenomeView();
+      if (!gv || !gv.leaves) return true;
+      
+      const hoodId = row.hood_id || row.hoodId || row.seqid;
+      if (!hoodId) return true;
+      
+      // Check if hood is in the active tree leaves (rendered leaves)
+      return gv.leaves.includes(String(hoodId));
+    }
+    return true;
+  }, []);
+
+  const visibilityConfig = useMemo(() => {
+    return {
+      genes: {
+        hiddenSet: hiddenGeneIds,
+        getRowId: (rowObj: any) => {
+          return rowObj?.gene_id || rowObj?.uniqueId || rowObj?.id || rowObj?.originalGeneId;
+        },
+        onToggle: (id: string, visible: boolean) => {
+          if (!id) return;
+          setHiddenGeneIds(prev => {
+            const next = new Set(prev);
+            if (visible) next.delete(id);
+            else next.add(id);
+            return next;
+          });
+        }
+      },
+      hoods: {
+        hiddenSet: hiddenHoodIds,
+        getRowId: (rowObj: any) => rowObj?.hood_id || rowObj?.seqid || rowObj?.id || rowObj?.name,
+        onToggle: (id: string | number, visible: boolean) => {
+          if (!id) return;
+          setHiddenHoodIds(prev => {
+            const next = new Set(prev);
+            // Ensure ID type consistency
+            const key = String(id);
+            // Handle both string/number removal to be safe
+            if (visible) {
+              next.delete(key);
+              next.delete(Number(key));
+            } else {
+              next.add(key);
+            }
+            return next;
+          });
+        }
+      }
+    };
+  }, [hiddenGeneIds, hiddenHoodIds]);
+
+  // ============================================================================
   // IMPERATIVE HANDLE (REF API)
   // ============================================================================
   
@@ -1245,7 +1426,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               treeColorBy={state.treeColorBy}
               // Genes
               colorBy={state.geneColorBy}
-              labelBy={state.geneLabelBy}
+              geneLabelBy={state.geneLabelBy}
               geneHeight={state.geneHeight}
               arrowheadHeight={state.arrowheadHeight}
               geneLabelPosition={state.geneLabelPosition}
@@ -1288,6 +1469,8 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               // Callbacks
               onObjectClick={handleObjectClick}
               onLegendChange={setViewerLegend}
+              hiddenHoodIds={hiddenHoodIds}
+              hiddenGeneIds={hiddenGeneIds}
             />
           )}
           
@@ -1318,9 +1501,11 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
                   }}
                   initialKey="genes"
                   height={360}
-                  onZoomGene={() => {}}
-                  onZoomHood={() => {}}
-                  onZoomTree={() => {}}
+                  visibilityConfig={visibilityConfig}
+                  onZoomGene={handleZoomGene}
+                  onZoomHood={handleZoomHood}
+                  onZoomTree={handleZoomTree}
+                  isRowZoomable={isRowZoomable}
                 />
               )}
             </div>

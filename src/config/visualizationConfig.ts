@@ -109,12 +109,13 @@ export const DEFAULT_CONFIG = {
     strokeOpacity: 0.6,       // Opacity of region stroke color
     strokeWidth: 2,           // Width of region outline
     colors: {                 // Default colors by region type
-      region: [100, 150, 200, 255],     // Blue for generic regions
-      operon: [150, 100, 200, 255],     // Purple for operons
-      phage: [200, 100, 100, 255],      // Red for phage regions
-      island: [100, 200, 100, 255],     // Green for genomic islands
-      cluster: [200, 150, 100, 255],    // Orange for gene clusters
-      default: [128, 128, 128, 255]     // Gray for unknown types
+      phage: [255, 0, 0, 255],        // Red for phage regions
+      prophage: [255, 165, 0, 255],   // Orange for prophage regions
+      operon: [0, 128, 0, 255],       // Green for operons
+      cluster: [0, 0, 255, 255],      // Blue for gene clusters
+      island: [255, 255, 0, 255],     // Yellow for genomic islands
+      region: [128, 128, 128, 255],   // Gray for generic regions
+      default: [128, 128, 128, 255]   // Gray fallback
     }
   },
 
