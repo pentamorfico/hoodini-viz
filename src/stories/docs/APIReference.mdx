@@ -1,0 +1,88 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/API Reference" />
+
+# API Reference
+
+## HoodiniVizDash
+
+```tsx
+import { HoodiniVizDash } from 'hoodini-viz';
+```
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `alignCluster` | `string \| null` | `null` | Protein cluster ID to align tracks by |
+| `useDefaultGeneAlignment` | `boolean` | `true` | Use align_gene from hoods data |
+| `geneHeight` | `number` | `60` | Height of gene arrows in pixels |
+| `arrowheadHeight` | `number` | `0` | Height of arrowhead (0 = auto) |
+| `showRuler` | `boolean` | `true` | Show position ruler |
+| `showScrollbar` | `boolean` | `true` | Show horizontal scrollbar |
+
+---
+
+## HoodiniViz
+
+```tsx
+import HoodiniViz from 'hoodini-viz';
+```
+
+### Required Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `gffFeatures` | `GFFFeature[]` | Parsed GFF3 gene features |
+| `hoods` | `Hood[]` | Genomic neighborhood definitions |
+
+### Optional Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `newickStr` | `string` | `""` | Newick tree string |
+| `proteinLinks` | `ProteinLink[]` | `[]` | Protein homology links |
+| `nucleotideLinks` | `NucleotideLink[]` | `[]` | Synteny blocks |
+| `domainsByGene` | `Record<string, Domain[]>` | `{}` | Protein domains by gene ID |
+| `alignCluster` | `string \| null` | `null` | Cluster to align by |
+| `useDefaultGeneAlignment` | `boolean` | `true` | Use align_gene column |
+| `defaultAlign` | `"start" \| "center" \| "end"` | `"end"` | Fallback alignment |
+
+---
+
+## Data Types
+
+```typescript
+interface Hood {
+  hood_id: string;
+  seqid: string;
+  start: number;
+  end: number;
+  align_gene?: string;
+}
+
+interface ProteinLink {
+  gene_id_1: string;
+  gene_id_2: string;
+  identity: number;
+}
+
+interface Domain {
+  gene_id: string;
+  domain_id: string;
+  start: number;
+  end: number;
+  source: string;
+}
+```
+
+---
+
+## Utility Functions
+
+```typescript
+import { parseGFF, parseHoods, parseLinks, parseDomains } from 'hoodini-viz';
+
+const features = parseGFF(gffString);
+const hoods = parseHoods(tsvString);
+const links = parseLinks(tsvString);
+const domains = parseDomains(tsvString);
+```

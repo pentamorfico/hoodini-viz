@@ -1,0 +1,187 @@
+domain_id	Clan_pfam	Function_pfam	Gene_pfam	alignment_length	bit_score
+PF08818	CL0631	Domain of unknown function (DU1801)	DUF1801	96.0	64.01
+PF21574		CRISPR-associated endonuclease Cas9, C-terminal domain	Cas9_PI_C	63.0	73.13
+PF01555	CL0063	DNA methylase	N6_N4_Mtase	316.0	158.46
+PF00875	CL0039	DNA photolyase	DNA_photolyase	161.0	40.18
+PF04069	CL0177	Substrate binding domain of ABC-type glycine betaine transport system	OpuAC	255.0	179.32
+PF03786	CL0036	D-mannonate dehydratase (UxuA)	UxuA	345.0	527.17
+PF21447	CL0237	Ppx/GppA phosphatase, domain III 	Ppx-GppA_III	170.0	45.53
+PF03073		TspO/MBR family	TspO_MBR	142.0	129.27
+PF01569	CL0525	PAP2 superfamily	PAP2	120.0	53.18
+PF02374	CL0023	Anion-transporting ATPase	ArsA_ATPase	284.0	194.76
+PF13542	CL0123	Helix-turn-helix domain of transposase family ISL3	HTH_Tnp_ISL3	52.0	21.29
+PF01979	CL0036	Amidohydrolase family	Amidohydro_1	388.0	63.03
+PF00440	CL0123	Bacterial regulatory proteins, tetR family	TetR_N	41.0	26.77
+PF11392		Protein of unknown function (DUF2877)	DUF2877	100.0	80.71
+PF02040	CL0182	Arsenical pump membrane protein	ArsB	423.0	637.58
+PF14278	CL0174	Transcriptional regulator C-terminal region	TetR_C_8	105.0	53.94
+PF02378	CL0493	Phosphotransferase system, EIIC 	PTS_EIIC	276.0	97.93
+PF02421	CL0023	Ferrous iron transport protein B	FeoB_N	154.0	195.25
+PF00294	CL0118	pfkB family carbohydrate kinase	PfkB	307.0	90.56
+PF00005	CL0023	ABC transporter	ABC_tran	150.0	122.9
+PF00176	CL0023	SNF2-related domain	SNF2-rel_dom	262.0	82.47
+PF06953	CL0172	Arsenical resistance operon protein ArsD	ArsD	115.0	132.06
+PF02782	CL0108	FGGY family of carbohydrate kinases, C-terminal domain	FGGY_C	189.0	106.34
+PF16242	CL0336	Pyridoxamine 5'-phosphate oxidase like	Pyrid_ox_like	127.0	51.86
+PF04545	CL0123	Sigma-70, region 4	Sigma70_r4	40.0	22.31
+PF02133	CL0062	Permease for cytosine/purines, uracil, thiamine, allantoin	Transp_cyt_pur	449.0	299.28
+PF02615		Malate/L-lactate dehydrogenase	Ldh_2	330.0	398.17
+PF00746		LPXTG cell wall anchor motif	Gram_pos_anchor	45.0	19.95
+PF21621	CL0029	Mannose-6-phosphate isomerase, cupin domain	MPI_cupin_dom	79.0	74.47
+PF09991		Predicted membrane protein (DUF2232)	DUF2232	280.0	186.76
+PF00364	CL0105	Biotin-requiring enzyme	Biotin_lipoyl	76.0	62.54
+PF06048	CL0023	Domain of unknown function (DUF927)	DUF927	290.0	232.27
+PF03265	CL0479	Deoxyribonuclease II	DNase_II	102.0	18.55
+PF02590	CL0098	Predicted SPOUT methyltransferase	SPOUT_MTase	158.0	205.35
+PF02541	CL0108	Ppx/GppA phosphatase family	Ppx-GppA	289.0	188.34
+PF03929	CL0490	PepSY-associated TM region	PepSY_TM	378.0	172.68
+PF02403	CL0298	Seryl-tRNA synthetase N-terminal domain	Seryl_tRNA_N	108.0	106.37
+PF12833	CL0123	Helix-turn-helix domain	HTH_18	80.0	82.31
+PF04014	CL0132	Antidote-toxin recognition MazE, bacterial antitoxin	MazE_antitoxin	47.0	17.51
+PF14690	CL0167	zinc-finger of transposase IS204/IS1001/IS1096/IS1165	zf-ISL3	43.0	26.53
+PF13686	CL0394	DsrE/DsrF/DrsH-like family	DrsE_2	156.0	184.28
+PF03796	CL0023	DnaB-like helicase C terminal domain	DnaB_C	273.0	384.72
+PF13090	CL0479	Polyphosphate kinase C-terminal domain 2	PP_kinase_C	171.0	230.94
+PF07859	CL0028	alpha/beta hydrolase fold	Abhydrolase_3	221.0	59.82
+PF00561	CL0028	alpha/beta hydrolase fold	Abhydrolase_1	266.0	42.95
+PF02272		DHHA1 domain	DHHA1	130.0	48.5
+PF08280	CL0123	M protein trans-acting positive regulator (MGA) HTH domain	HTH_Mga	53.0	14.37
+PF02302	CL0031	PTS system, Lactose/Cellobiose specific IIB subunit	PTS_IIB	92.0	68.59
+PF06983	CL0104	3-demethylubiquinone-9 3-methyltransferase	3-dmu-9_3-mt	131.0	29.01
+PF06106		S. aureus uracil DNA glycosylase inhibitor	SAUGI	111.0	158.21
+PF02836	CL0036	Glycosyl hydrolases family 2, TIM barrel domain	Glyco_hydro_2_C	317.0	270.1
+PF07670		Nucleoside recognition	Gate	125.0	69.37
+PF07435	CL0285	YycH protein	YycH	438.0	368.05
+PF01022	CL0123	Bacterial regulatory protein, arsR family	HTH_5	50.0	50.07
+PF13089		Polyphosphate kinase N-terminal domain	PP_kinase_N	107.0	130.04
+PF12669		FeoB-associated Cys-rich membrane protein	FeoB_associated	43.0	35.66
+PF01281		Ribosomal protein L9, N-terminal domain	Ribosomal_L9_N	47.0	76.66
+PF00672	CL0681	HAMP domain	HAMP	53.0	55.78
+PF03948		Ribosomal protein L9, C-terminal domain	Ribosomal_L9_C	85.0	99.45
+PF00753	CL0381	Metallo-beta-lactamase superfamily	Lactamase_B	187.0	38.38
+PF00486	CL0123	Transcriptional regulatory protein, C terminal	Trans_reg_C	77.0	101.43
+PF01593	CL0063	Flavin containing amine oxidoreductase	Amino_oxidase	479.0	95.96
+PF00709	CL0023	Adenylosuccinate synthetase	Adenylsucc_synt	417.0	610.88
+PF01925	CL0292	Sulfite exporter TauE/SafE	TauE	241.0	140.19
+PF07638	CL0123	ECF sigma factor	Sigma70_ECF	169.0	31.78
+PF04203		Sortase domain	Sortase	140.0	70.03
+PF02195	CL0248	ParB/Sulfiredoxin domain	ParBc	90.0	24.73
+PF13408	CL0167	Recombinase zinc beta ribbon domain	Zn_ribbon_recom	68.0	43.83
+PF02875		Mur ligase family, glutamate ligase domain	Mur_ligase_C	89.0	18.22
+PF12698	CL0181	ABC-2 family transporter protein	ABC2_membrane_3	636.0	31.94
+PF02629	CL0063	CoA binding domain	CoA_binding	98.0	44.06
+PF04023	CL0010	FeoA domain	FeoA	72.0	47.82
+PF08279	CL0123	HTH domain	HTH_11	58.0	43.37
+PF00488	CL0023	MutS domain V	MutS_V	183.0	99.33
+PF12564		Type III restriction/modification enzyme methylation subunit	TypeIII_RM_meth	56.0	72.54
+PF02785	CL0105	Biotin carboxylase C-terminal domain	Biotin_carb_C	111.0	121.65
+PF00072	CL0304	Response regulator receiver domain	Response_reg	110.0	107.45
+PF08006	CL0112	Protein of unknown function (DUF1700)	DUF1700	185.0	159.89
+PF07690	CL0015	Major Facilitator Superfamily	MFS_1	341.0	104.49
+PF00476		DNA polymerase family A	DNA_pol_A	323.0	29.47
+PF03773	CL0182	Predicted permease	ArsP_1	289.0	206.84
+PF01381	CL0123	Helix-turn-helix	HTH_3	55.0	68.16
+PF06570	CL0112	Protein of unknown function (DUF1129)	DUF1129	206.0	22.58
+PF00581	CL0031	Rhodanese-like domain	Rhodanese	87.0	64.49
+PF01206	CL0397	Sulfurtransferase TusA	TusA	70.0	63.9
+PF18541		RuvC endonuclease subdomain 3	RuvC_III	158.0	24.17
+PF10099		Anti-sigma-K factor rskA	RskA	191.0	72.7
+PF06545		Protein of unknown function (DUF1116)	DUF1116	217.0	324.85
+PF09827	CL0728	CRISPR associated protein Cas2	CRISPR_Cas2	80.0	64.03
+PF00703	CL0159	Glycosyl hydrolases family 2	Glyco_hydro_2	93.0	48.38
+PF00403	CL0704	Heavy-metal-associated domain	HMA	60.0	49.67
+PF18927		Glycosyl-4,4'-diaponeurosporenoate acyltransferase	CrtO	118.0	98.79
+PF01610	CL0219	Transposase	DDE_Tnp_ISL3	254.0	181.9
+PF14827	CL0165	Double sensory domain of two-component sensor kinase	dCache_3	153.0	27.15
+PF17853	CL0276	GGDEF-like domain	GGDEF_2	122.0	28.17
+PF13395	CL0263	HNH endonuclease	HNH_4	56.0	74.85
+PF01081	CL0036	KDPG and KHG aldolase	Aldolase	191.0	141.77
+PF01207	CL0036	Dihydrouridine synthase (Dus)	Dus	307.0	170.52
+PF08240	CL0296	Alcohol dehydrogenase GroES-like domain	ADH_N	115.0	80.91
+PF17941	CL0479	Polyphosphate kinase C-terminal domain 1	PP_kinase_C_1	167.0	242.68
+PF05016	CL0136	ParE toxin of type II toxin-antitoxin system, parDE	ParE_toxin	83.0	42.18
+PF13303	CL0493	Phosphotransferase system, EIIC	PTS_EIIC_2	336.0	322.62
+PF19807	CL0057	Family of unknown function (DUF6290)	DUF6290	72.0	71.07
+PF02518	CL0025	Histidine kinase-, DNA gyrase B-, and HSP90-like ATPase	HATPase_c	115.0	107.89
+PF00149	CL0163	Calcineurin-like phosphoesterase	Metallophos	184.0	67.02
+PF02706		Chain length determinant protein	Wzz	91.0	56.12
+PF07905		Purine catabolism regulatory protein-like family	PucR	120.0	98.7
+PF21370	CL0183	Cyclic-di-AMP phosphodiesterase GdpP, PAS domain	GdpP_PAS	87.0	62.22
+PF18061		CRISPR-Cas9 WED domain	CRISPR_Cas9_WED	127.0	145.7
+PF02786	CL0179	Carbamoyl-phosphate synthase L chain, ATP binding domain	CPSase_L_D2	208.0	218.69
+PF00211	CL0276	Adenylate and Guanylate cyclase catalytic domain	Guanylate_cyc	165.0	23.51
+PF03441		FAD binding domain of DNA photolyase	FAD_binding_7	201.0	250.87
+PF02386	CL0030	Cation transport protein	TrkH	422.0	205.44
+PF00512	CL0025	His Kinase A (phospho-acceptor) domain	HisKA	68.0	67.15
+PF02687	CL0404	FtsX-like permease family	FtsX	123.0	49.76
+PF00239		Resolvase, N terminal domain	Resolvase	151.0	108.67
+PF18662	CL0123	Cch helix turn helix domain	HTH_56	111.0	99.95
+PF13200	CL0036	Putative glycosyl hydrolase domain	DUF4015	325.0	370.37
+PF00122		E1-E2 ATPase	E1-E2_ATPase	182.0	189.84
+PF05525	CL0062	Branched-chain amino acid transport protein	Branch_AA_trans	439.0	489.59
+PF00772		DnaB-like helicase N terminal domain	DnaB	103.0	115.69
+PF09648	CL0285	YycI protein	YycI	225.0	159.2
+PF00535	CL0110	Glycosyl transferase family 2	Glycos_transf_2	57.0	48.67
+PF02614	CL0036	Glucuronate isomerase	UxaC	464.0	666.44
+PF07883	CL0029	Cupin domain	Cupin_2	28.0	17.38
+PF06124	CL0768	Staphylococcal protein of unknown function (DUF960)	DUF960	99.0	88.29
+PF01451	CL0031	Low molecular weight phosphotyrosine protein phosphatase	LMWPc	124.0	87.9
+PF03551	CL0123	Transcriptional regulator PadR-like family	PadR	74.0	79.46
+PF00155	CL0061	Aminotransferase class I and II	Aminotran_1_2	350.0	147.13
+PF07664		Ferrous iron transport protein B C terminus	FeoB_C	53.0	76.29
+PF13280	CL0654	WYL domain	WYL	167.0	37.38
+PF00494	CL0613	Squalene/phytoene synthase	SQS_PSY	261.0	201.59
+PF01368	CL0137	DHH family	DHH	158.0	89.97
+PF19504		Family of unknown function (DUF6038)	DUF6038	214.0	45.38
+PF01566	CL0062	Natural resistance-associated macrophage protein-like	Nramp	335.0	98.48
+PF07508	CL0123	Recombinase	Recombinase	107.0	81.72
+PF13561	CL0063	Enoyl-(Acyl carrier protein) reductase	adh_short_C2	258.0	134.16
+PF00587	CL0040	tRNA synthetase class II core domain (G, H, P, S and T)	tRNA-synt_2b	184.0	141.13
+PF03746	CL0158	LamB/YcsF family	LamB_YcsF	239.0	352.31
+PF01867		CRISPR associated protein Cas1	Cas_Cas1	233.0	97.79
+PF00989	CL0183	PAS fold	PAS	104.0	32.18
+PF02583		Metal-sensitive transcriptional repressor	Trns_repr_metal	82.0	80.58
+PF00370	CL0108	FGGY family of carbohydrate kinases, N-terminal domain	FGGY_N	241.0	214.32
+PF07205		Domain of unknown function (DUF1413)	DUF1413	66.0	39.63
+PF00289	CL0063	Biotin carboxylase, N-terminal domain	Biotin_carb_N	109.0	149.21
+PF03176	CL0322	MMPL family	MMPL	319.0	204.43
+PF13508	CL0257	Acetyltransferase (GNAT) domain	Acetyltransf_7	49.0	26.09
+PF01497	CL0043	Periplasmic binding protein	Peripla_BP_2	225.0	103.15
+PF00271	CL0023	Helicase conserved C-terminal domain	Helicase_C	114.0	45.81
+PF13347	CL0015	MFS/sugar transport protein	MFS_2	421.0	315.3
+PF00549	CL0506	CoA-ligase	Ligase_CoA	157.0	133.72
+PF13556	CL0123	PucR C-terminal helix-turn-helix domain	HTH_30	59.0	68.76
+PF12706	CL0381	Beta-lactamase superfamily domain	Lactamase_B_2	194.0	69.7
+PF05437		Branched-chain amino acid transport protein (AzlD)	AzlD	100.0	73.96
+PF13302	CL0257	Acetyltransferase (GNAT) domain	Acetyltransf_3	146.0	77.15
+PF20511	CL0029	Phosphomannose isomerase type I, catalytic domain	PMI_typeI_cat	120.0	92.91
+PF00702	CL0137	haloacid dehalogenase-like hydrolase	Hydrolase	218.0	102.86
+PF02682	CL0475	Carboxyltransferase domain, subdomain C and D	CT_C_D	203.0	245.52
+PF18967		Pycsar effector protein	PycTM	114.0	25.42
+PF17910		FeoB cytosolic helical domain	FeoB_Cyto	89.0	46.87
+PF13610	CL0219	DDE domain	DDE_Tnp_IS240	101.0	61.9
+PF04851	CL0023	Type III restriction enzyme, res subunit	ResIII	244.0	22.33
+PF03118	CL0198	Bacterial RNA polymerase, alpha chain C terminal domain	RNA_pol_A_CTD	54.0	39.1
+PF00696		Amino acid kinase family	AA_kinase	291.0	94.36
+PF13490	CL0645	Putative zinc-finger	zf-HC2	31.0	30.22
+PF00874	CL0166	PRD domain	PRD	91.0	76.44
+PF02517	CL0472	Type II CAAX prenyl endopeptidase Rce1-like	Rce1-like	100.0	66.77
+PF00892	CL0184	EamA-like transporter family	EamA	272.0	87.84
+PF05899	CL0029	EutQ-like cupin domain	Cupin_3	83.0	23.79
+PF03591		AzlC protein	AzlC	141.0	133.46
+PF16475		Domain of unknown function (DUF5052)	DUF5052	126.0	8.82
+PF19263	CL0023	Family of unknown function (DUF5906)	DUF5906	114.0	59.81
+PF13307	CL0023	Helicase C-terminal domain	Helicase_C_2	158.0	108.16
+PF00392	CL0123	Bacterial regulatory proteins, gntR family	GntR	64.0	51.13
+PF02837	CL0202	Glycosyl hydrolases family 2, sugar binding domain	Glyco_hydro_2_N	169.0	80.28
+PF03992	CL0032	Antibiotic biosynthesis monooxygenase	ABM	76.0	33.88
+PF08245	CL0023	Mur ligase middle domain	Mur_ligase_M	195.0	128.61
+PF13202	CL0220	EF hand	EF-hand_5	18.0	17.74
+PF07799		Protein of unknown function (DUF1643)	DUF1643	138.0	98.4
+PF00107	CL0063	Zinc-binding dehydrogenase	ADH_zinc_N	129.0	108.38
+PF02626	CL0475	Carboxyltransferase domain, subdomain A and B 	CT_A_B	261.0	276.52
+PF16592	CL0693	REC lobe of CRISPR-associated endonuclease Cas9	Cas9_REC	205.0	57.72
+PF00359	CL0340	Phosphoenolpyruvate-dependent sugar phosphotransferase system, EIIA 2	PTS_EIIA_2	138.0	72.36
+PF02503	CL0764	Polyphosphate kinase middle domain	PP_kinase	178.0	166.74
+PF18070		CRISPR-Cas9 PI domain	Cas9_PI2	57.0	56.35
+PF00730	CL0198	HhH-GPD superfamily base excision DNA repair protein	HhH-GPD	144.0	55.65

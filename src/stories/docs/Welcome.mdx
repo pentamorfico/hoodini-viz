@@ -1,0 +1,78 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Welcome" />
+
+# Welcome to Hoodini-Viz
+
+**Hoodini-Viz** is a React library for visualizing genomic neighborhoods with phylogenetic context.
+
+## Features
+
+- 🌳 **Phylogenetic Tree** - Interactive tree with customizable labels and colors
+- 🧬 **Genomic Neighborhoods** - Visualize genes, domains, and synteny links
+- 🔗 **Protein & Nucleotide Links** - Show homology relationships between sequences
+- 🎨 **Color Palettes** - Customizable color schemes for domains and clusters
+- 📊 **Data Grids** - Tabular views for detailed inspection
+- 🔬 **3D Structures** - ESMFold protein structure viewer
+- 📤 **Export** - SVG export for publication-quality figures
+
+## Quick Start
+
+```bash
+npm install hoodini-viz
+```
+
+```tsx
+import { HoodiniVizDash } from 'hoodini-viz';
+import 'hoodini-viz/dist/style.css';
+
+function App() {
+  return <HoodiniVizDash />;
+}
+```
+
+## Data Formats
+
+Hoodini-Viz accepts data in several formats:
+
+<table>
+  <thead>
+    <tr>
+      <th>Data Type</th>
+      <th>Format</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Genes</td>
+      <td>GFF3</td>
+      <td>Standard genome feature format</td>
+    </tr>
+    <tr>
+      <td>Hoods</td>
+      <td>TSV</td>
+      <td>Hood boundaries with optional align_gene</td>
+    </tr>
+    <tr>
+      <td>Tree</td>
+      <td>Newick</td>
+      <td>Phylogenetic tree topology</td>
+    </tr>
+    <tr>
+      <td>Protein Links</td>
+      <td>TSV</td>
+      <td>Pairwise protein homology</td>
+    </tr>
+    <tr>
+      <td>Nucleotide Links</td>
+      <td>TSV</td>
+      <td>Synteny blocks between sequences</td>
+    </tr>
+    <tr>
+      <td>Domains</td>
+      <td>TSV</td>
+      <td>Protein domain annotations</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,77 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Getting Started" />
+
+# Getting Started
+
+## Installation
+
+```bash
+npm install hoodini-viz
+```
+
+## Basic Usage
+
+### Option 1: Full Dashboard (Recommended)
+
+```tsx
+import { HoodiniVizDash } from 'hoodini-viz';
+import 'hoodini-viz/dist/style.css';
+
+function App() {
+  return <HoodiniVizDash />;
+}
+```
+
+### Option 2: Core Visualization Only
+
+```tsx
+import HoodiniViz from 'hoodini-viz';
+
+function App() {
+  return (
+    <HoodiniViz
+      gffFeatures={gffData}
+      hoods={hoodsData}
+      newickStr={treeNewick}
+      proteinLinks={proteinLinks}
+      nucleotideLinks={nucleotideLinks}
+      domainsByGene={domains}
+    />
+  );
+}
+```
+
+## Data Formats
+
+### GFF3
+
+```
+seqid    source    type    start    end    score    strand    phase    attributes
+contig_A    hoodini    CDS    1000    2500    .    +    .    ID=gene_A1;Name=proteinA1
+```
+
+### Hoods (TSV)
+
+```
+hood_id    seqid    start    end    align_gene
+1    contig_A    0    10000    gene_A3
+```
+
+### Newick Tree
+
+```
+((contig_A:0.1,contig_B:0.15):0.05,contig_C:0.2);
+```
+
+## Configuration
+
+```tsx
+<HoodiniViz
+  useDefaultGeneAlignment={true}
+  alignCluster={null}
+  defaultAlign="center"
+  geneHeight={60}
+  showRuler={true}
+/>
+```

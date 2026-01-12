@@ -4,7 +4,7 @@ import {
   parseProteinLinksOptimized,
   parseNucleotideLinksOptimized,
   parseDomainsOptimized,
-  parseBaselinesOptimized,
+  parseHoodsOptimized,
   parseProteinMetadataOptimized,
   parseTreeMetadataOptimized,
   parseNonCodingMetadataOptimized
@@ -27,8 +27,8 @@ self.addEventListener('message', async (e) => {
       case 'domains':
         result = await parseDomainsOptimized(text);
         break;
-      case 'baselines':
-        result = await parseBaselinesOptimized(text);
+      case 'hoods':
+        result = await parseHoodsOptimized(text);
         break;
       case 'proteinMetadata':
         result = await parseProteinMetadataOptimized(text);

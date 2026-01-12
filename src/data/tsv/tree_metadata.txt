@@ -1,0 +1,11 @@
+leaf_id	og_index	superkingdom	kingdom	phylum	class	order	family	genus	species	start_win	end_win	strand_win	start_target	end_target
+0	0	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Mammaliicoccus	Mammaliicoccus sciuri	258150	301312	-	278150	281312
+1	1	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus hominis	0	3246	+	376	3187
+2	2	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Mammaliicoccus	Mammaliicoccus sp. A-M2	0	5661	+	1543	4669
+3	3	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus hominis	88391	131553	+	108391	111553
+4	4	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus marylandisciuri	15331	58493	-	35331	38493
+5	5	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus simulans	11375	54531	-	31375	34531
+6	6	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus sp. IVB6181	509370	552532	+	529370	532532
+7	7	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus simulans	0	2974	+	169	2974
+8	8	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus simulans	30297	73453	-	50297	53453
+9	9	Bacteria	unclassified	Bacillota	Bacilli	Bacillales	Staphylococcaceae	Staphylococcus	Staphylococcus hominis	6739	48989	-	26739	28989

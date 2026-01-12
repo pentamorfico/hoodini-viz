@@ -20,8 +20,7 @@ const replacements = {
   defaultTreeMetadataParquetUrl: '%%PARQUET_TREE_META_B64%%',
 };
 
-const NEWICK_TOKEN = '%%DEFAULT_NEWICK_B64%%';
-const newickPattern = /const\s+defaultNewick=\`[\s\S]*?\`/;
+const NEWICK_TOKEN = '%%DEFAULT_NEWICK%%';
 
 function main() {
   if (!fs.existsSync(inputFile)) {
@@ -42,11 +41,20 @@ function main() {
   }
 
   // Replace the inlined Newick string with a Jinja placeholder.
-  if (newickPattern.test(html)) {
-    // Keep declaration chaining: the original bundle already has the comma after this const.
-    html = html.replace(newickPattern, `const defaultNewick=atob('${NEWICK_TOKEN}')`);
+  // Try backtick format first (source), then quotes format (compiled by Vite)
+  let newickReplaced = false;
+  if (newickPatternBacktick.test(html)) {
+    html = html.replace(newickPatternBacktick, `const defaultNewick=atob('${NEWICK_TOKEN}')`);
+    newickReplaced = true;
     replacedAny = true;
-  } else {
+  }
+  if (!newickReplaced && newickPatternQuotes.test(html)) {
+    // Vite compiled format: defaultNewick="((...));"
+    html = html.replace(newickPatternQuotes, `defaultNewick="${NEWICK_TOKEN}"`);
+    newickReplaced = true;
+    replacedAny = true;
+  }
+  if (!newickReplaced) {
     console.warn('Warning: could not find defaultNewick string to replace');
   }
   fs.writeFileSync(outputFile, html, 'utf8');
