@@ -788,6 +788,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // These states only update on click, not on every frame
   const [highlightedGeneData, setHighlightedGeneData] = useState(null);
   const [highlightedTreeLeafData, setHighlightedTreeLeafData] = useState(null);
+  const [highlightedTreeNodeData, setHighlightedTreeNodeData] = useState(null); // Internal tree nodes
   const [highlightedHoodData, setHighlightedHoodData] = useState(null);
   
   // Flag to track if baseline highlight was set internally (via focusBaselineByHood)
@@ -833,6 +834,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   const stopTreeLeafFlash = React.useCallback(() => {
     setFlashTreeLeaf(null);
     setHighlightedTreeLeafData(null);
+  }, []);
+
+  // Stop tree internal node highlight
+  const stopTreeNodeFlash = React.useCallback(() => {
+    setHighlightedTreeNodeData(null);
   }, []);
 
   // Trigger gene highlight - accepts the full gene object to avoid filtering
@@ -2024,20 +2030,30 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // Uses double requestAnimationFrame to ensure we run AFTER the render cycle completes
   // and cachedTreeNodesRef has been updated with new colors
   useEffect(() => {
-    if (!highlightedTreeLeafData?.id) return;
+    // highlightedTreeLeafData is an array: [{id, position, radius, color}]
+    if (!highlightedTreeLeafData || highlightedTreeLeafData.length === 0) return;
+    const leafId = highlightedTreeLeafData[0]?.id;
+    if (!leafId) return;
     
     // Double RAF ensures we run after the browser has painted and React has committed
     const rafId = requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (!cachedTreeNodesRef.current?.nodes) return;
         
-        const leafId = highlightedTreeLeafData.id;
         // Look up the current color from the cached tree nodes
-        const node = cachedTreeNodesRef.current.nodes.find(n => n.id === leafId);
+        // Search by multiple fields since leafId can be id, name, leaf_id, etc.
+        const node = cachedTreeNodesRef.current.nodes.find(n => 
+          n.id === leafId || 
+          n.name === leafId || 
+          n.leaf_id === leafId ||
+          n.node?.id === leafId ||
+          n.node?.name === leafId ||
+          n.node?.leaf_id === leafId
+        );
         if (node?.color) {
           const newColor = Array.isArray(node.color) ? [...node.color] : node.color;
           // Only update if color actually changed
-          const currentColor = highlightedTreeLeafData.color;
+          const currentColor = highlightedTreeLeafData[0]?.color;
           const colorChanged = !currentColor || 
             newColor[0] !== currentColor[0] || 
             newColor[1] !== currentColor[1] || 
@@ -2045,14 +2061,20 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           
           if (colorChanged) {
             console.log('[TreeLeafColor] Syncing color from palette change:', newColor);
-            setHighlightedTreeLeafData(prev => prev ? { ...prev, color: newColor } : null);
+            setHighlightedTreeLeafData(prev => 
+              prev ? prev.map(leaf => ({ ...leaf, color: newColor })) : null
+            );
           }
         }
       });
     });
     
     return () => cancelAnimationFrame(rafId);
-  }, [highlightedTreeLeafData?.id, treeColorBy, effectivePhyloPalette?.name, effectivePhyloPalette?.type]);
+  }, [highlightedTreeLeafData?.[0]?.id, treeColorBy, effectivePhyloPalette?.name, effectivePhyloPalette?.type]);
+
+  // NOTE: Effects that require effectiveConfig are defined after effectiveConfig (around line 3950)
+  // - Sync tree node/leaf positions when tree geometry changes
+  // - Sync gene data when gene geometry changes
 
   // 🚀 PERFORMANCE: Pre-compute prevalence data for tooltips and color desaturation
   // When a clade is selected, compute prevalence only across visible baselines
@@ -3808,6 +3830,284 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
     };
   }, [styleConfig, config, effectiveTreeXScale, geneHeight, arrowheadHeight, ySpacingProp, genomeXScaleProp, strokeLineWidthProp, phyloLabelSizeProp, geneLabelSizeProp, rulerLabelSizeProp]);
+
+  // ========== GLOW SYNC EFFECTS ==========
+  // These effects sync highlighted element positions/colors when geometry or theme changes
+
+  // Sync highlighted internal tree node color when theme changes
+  // Internal nodes use themeColors.treeEdges, so we need to update when theme changes
+  useEffect(() => {
+    if (!highlightedTreeNodeData || highlightedTreeNodeData.length === 0) return;
+    
+    const newColor = themeColors.treeEdges || [100, 180, 255, 255];
+    const currentColor = highlightedTreeNodeData[0]?.color;
+    
+    // Only update if color actually changed
+    const colorChanged = !currentColor || 
+      newColor[0] !== currentColor[0] || 
+      newColor[1] !== currentColor[1] || 
+      newColor[2] !== currentColor[2];
+    
+    if (colorChanged) {
+      setHighlightedTreeNodeData(prev => 
+        prev ? prev.map(node => ({ ...node, color: newColor })) : null
+      );
+    }
+  }, [themeColors.treeEdges, highlightedTreeNodeData?.length]);
+
+  // Sync highlighted tree node positions when tree geometry changes
+  // This ensures glow follows the node when tree scale, offset, or ySpacing changes
+  useEffect(() => {
+    if (!highlightedTreeNodeData || highlightedTreeNodeData.length === 0) return;
+    if (!cachedTreeNodesRef.current?.nodes) return;
+    
+    const nodeId = highlightedTreeNodeData[0]?.id;
+    if (!nodeId) return;
+    
+    const rafId = requestAnimationFrame(() => {
+      const node = cachedTreeNodesRef.current.nodes.find(n => n.id === nodeId);
+      if (node) {
+        const treeXScale = (effectiveConfig.tree?.xScalePercent || 100) / 100;
+        const treeOffsetVal = bounds?.treeOffset || 0;
+        const rawY = Number(node.rawY);
+        const rawX = Number(node.x);
+        if (Number.isFinite(rawY) && Number.isFinite(rawX)) {
+          const newPosition = [rawY * treeXScale + treeOffsetVal, rawX];
+          setHighlightedTreeNodeData(prev => 
+            prev ? prev.map(n => ({ ...n, position: newPosition })) : null
+          );
+        }
+      }
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [effectiveConfig.tree?.xScalePercent, bounds?.treeOffset, effectiveConfig.tree?.ySpacing, highlightedTreeNodeData?.[0]?.id]);
+
+  // Sync highlighted tree leaf positions when tree geometry changes
+  // highlightedTreeLeafData is an array: [{id, position, radius, color}]
+  useEffect(() => {
+    if (!highlightedTreeLeafData || highlightedTreeLeafData.length === 0) return;
+    if (!cachedTreeNodesRef.current?.nodes) return;
+    
+    const leafId = highlightedTreeLeafData[0]?.id;
+    if (!leafId) return;
+    
+    const rafId = requestAnimationFrame(() => {
+      // Search by multiple fields since leafId can be id, name, leaf_id, etc.
+      const node = cachedTreeNodesRef.current.nodes.find(n => 
+        n.id === leafId || 
+        n.name === leafId || 
+        n.leaf_id === leafId ||
+        n.node?.id === leafId ||
+        n.node?.name === leafId ||
+        n.node?.leaf_id === leafId
+      );
+      if (node) {
+        const treeXScale = (effectiveConfig.tree?.xScalePercent || 100) / 100;
+        const treeOffsetVal = bounds?.treeOffset || 0;
+        const rawY = Number(node.rawY);
+        const rawX = Number(node.x);
+        if (Number.isFinite(rawY) && Number.isFinite(rawX)) {
+          const newPosition = [rawY * treeXScale + treeOffsetVal, rawX];
+          setHighlightedTreeLeafData(prev => 
+            prev ? prev.map(leaf => ({ ...leaf, position: newPosition })) : null
+          );
+        }
+      }
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [effectiveConfig.tree?.xScalePercent, bounds?.treeOffset, effectiveConfig.tree?.ySpacing, highlightedTreeLeafData?.[0]?.id]);
+
+  // Helper function to compute gene polygon based on current config
+  // This is used by both initial polygon calculation and geometry sync
+  // Now accepts optional liveTrackY parameter for when ySpacing changes
+  const computeGenePolygon = React.useCallback((geneObj, liveTrackY = null) => {
+    if (!geneObj) return null;
+    
+    const currentGeneHeight = effectiveConfig.gene?.height || effectiveConfig.gene?.geneHeight || 20;
+    const currentArrowheadHeight = effectiveConfig.gene?.arrowheadHeight || 10;
+    const genomeXScale = (effectiveConfig.genome?.xScalePercent || 100) / 100;
+    
+    // Get gene data - might be wrapped in gene property or direct
+    const gene = geneObj.gene || geneObj;
+    
+    // Use live trackY if provided (from genomeView.getTrackYByHoodId), otherwise fallback to stored value
+    const trackY = liveTrackY ?? geneObj.trackY ?? gene.trackY ?? 0;
+    
+    // Scale coordinates by genomeXScale
+    const start = (geneObj.start ?? gene.start) * genomeXScale;
+    const end = (geneObj.end ?? gene.end) * genomeXScale;
+    const strand = geneObj.strand ?? gene.strand;
+    
+    const halfH = currentGeneHeight / 2;
+    const arrowH = currentArrowheadHeight / 2;
+    const tipWidth = (effectiveConfig.gene?.tipWidthFactor || 0.15) * Math.abs(end - start);
+    
+    if (strand === '+' || strand === 1) {
+      const arrowStart = Math.max(start, end - tipWidth);
+      return [
+        [start, trackY - halfH],
+        [arrowStart, trackY - halfH],
+        [arrowStart, trackY - halfH - arrowH],
+        [end, trackY],
+        [arrowStart, trackY + halfH + arrowH],
+        [arrowStart, trackY + halfH],
+        [start, trackY + halfH],
+      ];
+    } else {
+      const arrowEnd = Math.min(end, start + tipWidth);
+      return [
+        [end, trackY - halfH],
+        [arrowEnd, trackY - halfH],
+        [arrowEnd, trackY - halfH - arrowH],
+        [start, trackY],
+        [arrowEnd, trackY + halfH + arrowH],
+        [arrowEnd, trackY + halfH],
+        [end, trackY + halfH],
+      ];
+    }
+  }, [effectiveConfig.gene?.height, effectiveConfig.gene?.geneHeight, effectiveConfig.gene?.arrowheadHeight, effectiveConfig.genome?.xScalePercent, effectiveConfig.gene?.tipWidthFactor]);
+
+  // Initial polygon calculation when highlightedGeneData is set without polygon
+  // This runs immediately when a gene is clicked to ensure glow appears
+  useEffect(() => {
+    if (!highlightedGeneData || highlightedGeneData.length === 0) return;
+    
+    // Check if polygon is missing - if so, calculate it immediately
+    const geneObj = highlightedGeneData[0];
+    if (geneObj.polygon && Array.isArray(geneObj.polygon) && geneObj.polygon.length > 0) {
+      return; // Already has polygon, no need to compute
+    }
+    
+    const gene = geneObj.gene || geneObj;
+    const geneId = geneObj.id || geneObj.uniqueId || geneObj.gene?.uniqueId || geneObj.gene?.id;
+    const hoodId = gene.hood_id || geneObj.hood_id;
+    
+    // Get LIVE trackY from genomeView
+    let liveTrackY = null;
+    if (genomeView && hoodId && typeof genomeView.getTrackYByHoodId === 'function') {
+      liveTrackY = genomeView.getTrackYByHoodId(hoodId);
+    }
+    if (liveTrackY === null && genomeView && geneId && genomeView.genesById) {
+      const liveGene = genomeView.genesById[geneId];
+      if (liveGene) {
+        liveTrackY = liveGene.trackY;
+      }
+    }
+    
+    // Get the gene's fill color (live lookup from geneColorMap)
+    const colorFromMap = geneColorMap?.get?.(geneId);
+    const newColor = colorFromMap || geneObj.fillColor || geneObj.gene?.fillColor || 
+                     themeColors.geneFill || config.gene?.fillColor || [100, 200, 255, 255];
+    
+    const newPolygon = computeGenePolygon(geneObj, liveTrackY);
+    if (newPolygon) {
+      setHighlightedGeneData(prev => {
+        if (!prev || prev.length === 0) return null;
+        return prev.map(g => ({
+          ...g,
+          polygon: newPolygon,
+          fillColor: newColor,
+          trackY: liveTrackY ?? g.trackY
+        }));
+      });
+    }
+  }, [highlightedGeneData, computeGenePolygon, themeColors.geneFill, config.gene?.fillColor, geneColorMap, genomeView]);
+
+  // Sync highlighted gene data when theme or gene geometry changes
+  // Updates color and polygon when geneHeight, arrowheadHeight, genomeXScale, ySpacing, alignmentVersion etc. change
+  // Gets LIVE trackY and coordinates from genomeView to follow gene position
+  useEffect(() => {
+    if (!highlightedGeneData || highlightedGeneData.length === 0) return;
+    if (!genomeView) return;
+    // Skip if polygon is not yet computed (let the initial effect handle it)
+    if (!highlightedGeneData[0]?.polygon) return;
+    
+    const geneObj = highlightedGeneData[0];
+    const geneId = geneObj.id || geneObj.uniqueId || geneObj.gene?.uniqueId || geneObj.gene?.id;
+    const gene = geneObj.gene || geneObj;
+    
+    // Get hood_id to lookup live trackY
+    const hoodId = gene.hood_id || geneObj.hood_id;
+    
+    const rafId = requestAnimationFrame(() => {
+      // Get LIVE gene data from genomeView - this updates when ySpacing or alignment changes
+      let liveTrackY = null;
+      let liveStart = geneObj.start ?? gene.start;
+      let liveEnd = geneObj.end ?? gene.end;
+      let liveStrand = geneObj.strand ?? gene.strand;
+      
+      // Try to get fresh gene data from genomeView.genesById
+      if (geneId && genomeView.genesById) {
+        const liveGene = genomeView.genesById[geneId];
+        if (liveGene) {
+          liveTrackY = liveGene.trackY;
+          liveStart = liveGene.start;
+          liveEnd = liveGene.end;
+          liveStrand = liveGene.strand;
+        }
+      }
+      
+      // Fallback: get trackY from hood
+      if (liveTrackY === null && hoodId && typeof genomeView.getTrackYByHoodId === 'function') {
+        liveTrackY = genomeView.getTrackYByHoodId(hoodId);
+      }
+      
+      // Get color from color map (live lookup)
+      const colorFromMap = geneColorMap?.get?.(geneId);
+      const newColor = colorFromMap || geneObj.fillColor || geneObj.gene?.fillColor || 
+                       themeColors.geneFill || config.gene?.fillColor || [100, 200, 255, 255];
+      
+      // Create updated gene object with live coordinates for polygon calculation
+      const updatedGeneObj = {
+        ...geneObj,
+        start: liveStart,
+        end: liveEnd,
+        strand: liveStrand,
+        trackY: liveTrackY ?? geneObj.trackY
+      };
+      
+      // Compute polygon with live data
+      const newPolygon = computeGenePolygon(updatedGeneObj, liveTrackY);
+      
+      if (newPolygon) {
+        setHighlightedGeneData(prev => {
+          if (!prev || prev.length === 0) return null;
+          return prev.map(g => ({
+            ...g,
+            polygon: newPolygon,
+            fillColor: newColor,
+            // Update stored coordinates for consistency
+            start: liveStart,
+            end: liveEnd,
+            strand: liveStrand,
+            trackY: liveTrackY ?? g.trackY
+          }));
+        });
+      }
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [
+    themeColors.geneFill,
+    config.gene?.fillColor,
+    effectiveConfig.gene?.height,
+    effectiveConfig.gene?.geneHeight,
+    effectiveConfig.gene?.arrowheadHeight,
+    effectiveConfig.genome?.xScalePercent,
+    effectiveConfig.gene?.tipWidthFactor,
+    // CRITICAL: Listen to ySpacing changes to update trackY
+    effectiveConfig.tree?.ySpacing,
+    ySpacingProp,
+    // CRITICAL: Listen to genomeXScale changes
+    genomeXScaleProp,
+    // CRITICAL: Listen to alignment changes (flip/reverse)
+    alignmentVersion,
+    geneColorMap,
+    computeGenePolygon,
+    genomeView
+  ]);
 
   // 2. Visible leaves set - critical for filtering when a clade is selected
   const visibleLeavesSet = React.useMemo(() => {
@@ -6038,12 +6338,60 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         return toRgbaColor(base);
       };
 
+      // Helper to get or compute polygon for gene glow
+      // This ensures glow works even before the effect calculates the polygon
+      const getGeneGlowPolygon = (d) => {
+        // Use pre-computed polygon if available
+        if (d.polygon && Array.isArray(d.polygon) && d.polygon.length > 0) {
+          return d.polygon;
+        }
+        
+        // Compute on-the-fly if not available
+        const gene = d.gene || d;
+        const trackY = d.trackY ?? gene.trackY ?? 0;
+        const currentGeneHeight = effectiveConfig.gene?.height || effectiveConfig.gene?.geneHeight || 20;
+        const currentArrowheadHeight = effectiveConfig.gene?.arrowheadHeight || 10;
+        const genomeXScale = (effectiveConfig.genome?.xScalePercent || 100) / 100;
+        
+        const start = (d.start ?? gene.start) * genomeXScale;
+        const end = (d.end ?? gene.end) * genomeXScale;
+        const strand = d.strand ?? gene.strand;
+        
+        const halfH = currentGeneHeight / 2;
+        const arrowH = currentArrowheadHeight / 2;
+        const tipWidth = (effectiveConfig.gene?.tipWidthFactor || 0.15) * Math.abs(end - start);
+        
+        if (strand === '+' || strand === 1) {
+          const arrowStart = Math.max(start, end - tipWidth);
+          return [
+            [start, trackY - halfH],
+            [arrowStart, trackY - halfH],
+            [arrowStart, trackY - halfH - arrowH],
+            [end, trackY],
+            [arrowStart, trackY + halfH + arrowH],
+            [arrowStart, trackY + halfH],
+            [start, trackY + halfH],
+          ];
+        } else {
+          const arrowEnd = Math.min(end, start + tipWidth);
+          return [
+            [end, trackY - halfH],
+            [arrowEnd, trackY - halfH],
+            [arrowEnd, trackY - halfH - arrowH],
+            [start, trackY],
+            [arrowEnd, trackY + halfH + arrowH],
+            [arrowEnd, trackY + halfH],
+            [end, trackY + halfH],
+          ];
+        }
+      };
+
       // Outer glow halo (additive blend for light effect)
       result.push(
         new PolygonLayer({
           id: 'genes-glow-outer',
           data: highlightedGeneData,
-          getPolygon: d => d.polygon,
+          getPolygon: getGeneGlowPolygon,
           stroked: true,
           filled: false,
           getLineWidth: 35,
@@ -6067,7 +6415,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         new PolygonLayer({
           id: 'genes-glow-mid',
           data: highlightedGeneData,
-          getPolygon: d => d.polygon,
+          getPolygon: getGeneGlowPolygon,
           stroked: true,
           filled: false,
           getLineWidth: 18,
@@ -6091,7 +6439,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         new PolygonLayer({
           id: 'genes-glow-core',
           data: highlightedGeneData,
-          getPolygon: d => d.polygon,
+          getPolygon: getGeneGlowPolygon,
           stroked: true,
           filled: true,
           getFillColor: d => {
@@ -6160,6 +6508,79 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       );
     }
 
+    // ======= INTERNAL TREE NODE GLOW LAYERS (NEON STYLE) =======
+    if (highlightedTreeNodeData && highlightedTreeNodeData.length > 0) {
+      // Outer glow - slightly different color to distinguish from leaf nodes
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-outer',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: d => (d.radius || 2) * 4,
+          getFillColor: d => {
+            const base = d?.color || themeColors.treeEdges || [100, 180, 255, 255];
+            const [r, g, b] = toRgbaColor(base);
+            return [r, g, b, 80];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'meters',
+          radiusMinPixels: 14,
+          parameters: {
+            blendFunc: [770, 1],
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Mid glow
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-mid',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: d => (d.radius || 2) * 2.5,
+          getFillColor: d => {
+            const base = d?.color || themeColors.treeEdges || [100, 180, 255, 255];
+            const [r, g, b] = toRgbaColor(base);
+            return [r, g, b, 130];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'meters',
+          radiusMinPixels: 10,
+          parameters: {
+            blendFunc: [770, 1],
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Core - bright center
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-core',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: d => (d.radius || 2) * 1.5,
+          getFillColor: [255, 255, 255, 255],
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'meters',
+          radiusMinPixels: 5,
+          parameters: {
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+    }
+
     // ======= BASELINE GLOW LAYERS (NEON STYLE) =======
     if (highlightedHoodData && highlightedHoodData.length > 0) {
       // Outer glow
@@ -6205,13 +6626,25 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Only rebuild when highlighted data changes - no animation dependency
     highlightedGeneData,
     highlightedTreeLeafData,
+    highlightedTreeNodeData,
     highlightedHoodData,
     // Minimal styling dependencies
     themeColors.geneFill,
     themeColors.treeEdges,
     config.gene?.fillColor,
     config.stroke?.hoodWidth,
-    config.stroke?.lineWidth
+    config.stroke?.lineWidth,
+    // Gene geometry dependencies - needed for getGeneGlowPolygon to recalculate
+    effectiveConfig.gene?.height,
+    effectiveConfig.gene?.geneHeight,
+    effectiveConfig.gene?.arrowheadHeight,
+    effectiveConfig.genome?.xScalePercent,
+    effectiveConfig.gene?.tipWidthFactor,
+    // ySpacing affects trackY positions
+    effectiveConfig.tree?.ySpacing,
+    // genomeXScale and alignment affect gene coordinates
+    genomeXScaleProp,
+    alignmentVersion
   ]);
 
   // ========== ANIMATED GLOW EFFECT (BYPASS REACT) ==========
@@ -6419,6 +6852,78 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       );
     }
 
+    // ======= ANIMATED INTERNAL TREE NODE GLOW =======
+    if (highlightedTreeNodeData && highlightedTreeNodeData.length > 0) {
+      // Use gene height as reference for consistent sizing with other glows
+      const baseGlowSize = currentGeneHeight * 2.2; // Slightly larger for internal nodes
+      
+      // Helper to get valid node color
+      const getInternalNodeColor = (d) => {
+        const base = d?.color;
+        if (base && Array.isArray(base) && base.some(c => c > 0)) {
+          return toRgbaColor(base);
+        }
+        return [100, 180, 255, 255]; // Blue fallback for internal nodes
+      };
+      
+      // Outer glow halo - large and pulsing
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-outer-anim',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: baseGlowSize * (1.6 + sineWave * 0.6) * pulseScale,
+          getFillColor: d => {
+            const [r, g, b] = getInternalNodeColor(d);
+            return [r, g, b, Math.round(50 + sineWave * 30)];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'common',
+          parameters: { blendFunc: [770, 1], depthTest: false, depthMask: false }
+        })
+      );
+
+      // Mid glow - tighter, brighter
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-mid-anim',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: baseGlowSize * (0.9 + sineWave * 0.35) * pulseScale,
+          getFillColor: d => {
+            const [r, g, b] = getInternalNodeColor(d);
+            return [r, g, b, Math.round(110 + sineWave * 50)];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'common',
+          parameters: { blendFunc: [770, 1], depthTest: false, depthMask: false }
+        })
+      );
+
+      // Core - solid center with node color
+      result.push(
+        new ScatterplotLayer({
+          id: 'tree-node-glow-core-anim',
+          data: highlightedTreeNodeData,
+          getPosition: d => d.position || [0, 0],
+          getRadius: baseGlowSize * 0.35,
+          getFillColor: d => {
+            const [r, g, b] = getInternalNodeColor(d);
+            return [r, g, b, 255];
+          },
+          stroked: false,
+          filled: true,
+          pickable: false,
+          radiusUnits: 'common',
+          parameters: { depthTest: false, depthMask: false }
+        })
+      );
+    }
+
     // ======= ANIMATED BASELINE GLOW =======
     if (highlightedHoodData && highlightedHoodData.length > 0) {
       const pulseWidthBaseline = 10 + (sineWave * 8);
@@ -6452,11 +6957,36 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
 
     return result;
-  }, [highlightedGeneData, highlightedTreeLeafData, highlightedHoodData, themeColors, config.gene?.fillColor, config.gene?.geneHeight, config.gene?.arrowheadHeight, config.gene?.tipWidthFactor, geneHeight, arrowheadHeight, treeColorBy, effectivePhyloPalette?.name, effectivePhyloPalette?.enabled, effectivePhyloPalette?.numColors, effectivePhyloPalette?.reverse, layers]);
+  }, [
+    highlightedGeneData, 
+    highlightedTreeLeafData, 
+    highlightedTreeNodeData, 
+    highlightedHoodData, 
+    themeColors, 
+    config.gene?.fillColor, 
+    // Gene geometry dependencies - use effectiveConfig values
+    effectiveConfig.gene?.height,
+    effectiveConfig.gene?.geneHeight,
+    effectiveConfig.gene?.arrowheadHeight, 
+    effectiveConfig.gene?.tipWidthFactor,
+    effectiveConfig.genome?.xScalePercent,
+    // ySpacing affects trackY positions
+    effectiveConfig.tree?.ySpacing,
+    // genomeXScale and alignment affect gene coordinates
+    genomeXScaleProp,
+    alignmentVersion,
+    // Tree/palette dependencies
+    treeColorBy, 
+    effectivePhyloPalette?.name, 
+    effectivePhyloPalette?.enabled, 
+    effectivePhyloPalette?.numColors, 
+    effectivePhyloPalette?.reverse, 
+    layers
+  ]);
 
   // Check if there's any highlighted data
-  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedHoodData?.length > 0;
-  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length);
+  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedTreeNodeData?.length > 0 || highlightedHoodData?.length > 0;
+  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'treeNode:', highlightedTreeNodeData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length);
 
   // Animation loop that updates DeckGL directly (bypasses React)
   useEffect(() => {
@@ -7089,6 +7619,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         onClick={({object, x, y, srcEvent}) => {
           try {
             console.debug('[HoodiniViz] DeckGL onClick event', { objectType: object && object.metadata && object.metadata.type, object, x, y });
+            // Get treeOffset from bounds for position calculations
+            const treeOffset = bounds?.treeOffset || 0;
+            const nodeRadius = effectiveConfig?.tree?.nodeRadius || { internal: 4, leaf: 2 };
+            
             // Tree leaf click: flash/glow the leaf node
             const isLeafNode = object && object.node && Array.isArray(object.node.branchset) && object.node.branchset.length === 0;
             if (isLeafNode) {
@@ -7102,15 +7636,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
                 setFlashTreeLeaf(null);
                 setTimeout(() => setFlashTreeLeaf(String(leafId)), 0);
                 // OVERLAY STRATEGY: Build highlighted tree leaf data directly
-                const rawY = Number.isFinite(Number(object.node?.y)) ? Number(object.node.y) : Number(object.node?.rawY);
-                const rawX = Number.isFinite(Number(object.node?.x)) ? Number(object.node.x) : Number(object.node?.rawX);
+                // Use object.rawY/object.x from treeNode first, then fallback to nested node
+                const rawY = Number.isFinite(Number(object.rawY)) ? Number(object.rawY) :
+                             (Number.isFinite(Number(object.node?.y)) ? Number(object.node.y) : Number(object.node?.rawY));
+                const rawX = Number.isFinite(Number(object.x)) ? Number(object.x) : Number(object.node?.x);
                 const treeXScale = (effectiveConfig.tree && typeof effectiveConfig.tree.xScalePercent === 'number') ? effectiveConfig.tree.xScalePercent / 100 : 1;
                 if (Number.isFinite(rawY) && Number.isFinite(rawX)) {
                   setHighlightedTreeLeafData([{
                     id: leafId,
                     position: [rawY * treeXScale + treeOffset, rawX],
-                    radius: (nodeRadius && nodeRadius.leaf) || 2,
-                    color: object.node?.color || themeColors.treeEdges || [220, 180, 60, 255]
+                    radius: object.radius || nodeRadius.leaf || 2,
+                    // Use object.color (computed treeNode color with palette) first
+                    color: object.color || object.node?.color || themeColors.treeEdges || [220, 180, 60, 255]
                   }]);
                 }
               }
@@ -7146,17 +7683,37 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             }
             
             // If user clicked an internal tree node, toggle selection to filter by clade
-            if (object && object.node && object.node.branchset && object.node.branchset.length > 0) {
+            const isInternalNode = object && object.node && object.node.branchset && object.node.branchset.length > 0;
+            if (isInternalNode) {
               const clicked = object.node;
               // Toggle: deselect if same node clicked twice
               if (selectedNode && selectedNode.id === clicked.id) {
                 console.debug('[HoodiniViz] deselecting node', clicked.id);
                 setSelectedNode(null);
+                stopTreeNodeFlash(); // Clear glow when deselecting
               } else {
                 console.debug('[HoodiniViz] selecting node', clicked.id);
                 setSelectedNode(clicked);
+                
+                // Add glow effect for internal node
+                // Use object.rawY/object.x from treeNode, or fallback to clicked (the nested node)
+                const rawY = Number.isFinite(Number(object.rawY)) ? Number(object.rawY) : 
+                             (Number.isFinite(Number(clicked.y)) ? Number(clicked.y) : Number(clicked.rawY));
+                const rawX = Number.isFinite(Number(object.x)) ? Number(object.x) : Number(clicked.x);
+                const treeXScale = (effectiveConfig.tree && typeof effectiveConfig.tree.xScalePercent === 'number') ? effectiveConfig.tree.xScalePercent / 100 : 1;
+                if (Number.isFinite(rawY) && Number.isFinite(rawX)) {
+                  // Use object.color (computed treeNode color) first, then fallback
+                  setHighlightedTreeNodeData([{
+                    id: clicked.id,
+                    position: [rawY * treeXScale + treeOffset, rawX],
+                    radius: object.radius || (nodeRadius && nodeRadius.internal) || 4,
+                    color: object.color || themeColors.treeEdges || [100, 180, 255, 255]
+                  }]);
+                }
               }
             }
+            // NOTE: Internal node glow is NOT cleared when clicking other objects
+            // It stays visible as long as the clade is selected (linked to selectedNode)
           } catch (e) {
             console.warn('[HoodiniViz] onClick handler error', e);
           }
@@ -7170,6 +7727,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             stopGeneFlash();
             stopHoodFlash();
             stopTreeLeafFlash();
+            // NOTE: Don't stop tree node flash on empty click - keep clade selection visible
           }
         }}
      
