@@ -334,8 +334,12 @@ function DataGridView({
     if (!activeVisibility || !rows.length) return undefined;
     const selRows = rows.reduce((acc, rowObj, idx) => {
       const rowId = activeVisibility.getRowId ? activeVisibility.getRowId(rowObj) : null;
-      const visible = rowId ? !(activeVisibility.hiddenSet?.has(rowId)) : true;
-      if (visible) {
+      // Standard: !hidden => visible => selected
+      // Inverted: hidden => selected (checkbox means "hidden")
+      const isHidden = activeVisibility.hiddenSet?.has(rowId);
+      const isSelected = activeVisibility.invert ? isHidden : (rowId ? !isHidden : true);
+      
+      if (isSelected) {
         return acc.add(idx);
       }
       return acc;
@@ -578,12 +582,15 @@ function DataGridView({
             }
           }}
           onGridSelectionChange={(sel) => {
+            console.log('[DataGridView] onGridSelectionChange', sel);
             // Ignore selection changes triggered by external sync (visibility -> grid)
             if (syncingFromExternalRef.current) {
+               console.log('[DataGridView] skipping sync from external');
               return;
             }
             
             if (!activeVisibility || !sel) {
+              console.log('[DataGridView] no activeVisibility or sel');
               setGridSelection(sel);
               return;
             }
@@ -592,6 +599,7 @@ function DataGridView({
 
             // If the dataset changed, reset selection bookkeeping and do not toggle visibility based on stale row indices
             if (datasetChanged) {
+               console.log('[DataGridView] dataset changed');
               selectionDatasetRef.current = activeKey;
               selectionRowCountRef.current = rows.length;
               setGridSelection(sel);
@@ -639,8 +647,15 @@ function DataGridView({
             rows.forEach((rowObj, idx) => {
               const rowId = getRowId ? getRowId(rowObj) : null;
               if (!rowId) return;
-              const desiredVisible = applyRows.hasIndex(idx);
-              const currentVisible = !hiddenSet.has(rowId);
+              const desiredSelected = applyRows.hasIndex(idx); // Is row selected in the grid?
+              const isHidden = hiddenSet.has(rowId);
+              
+              // Standard: Selected = Visible. DesiredVisible = Selected. CurrentVisible = !Hidden.
+              // Inverted: Selected = Hidden. DesiredVisible = !Selected. CurrentVisible = !Hidden.
+              
+              console.log("DEBUG: invert=", activeVisibility.invert, "rowId=", rowId, "desiredSelected=", desiredSelected); const desiredVisible = activeVisibility.invert ? !desiredSelected : desiredSelected;
+              const currentVisible = !isHidden;
+              
               if (desiredVisible !== currentVisible) {
                 changes.push({ rowId, desiredVisible });
               }

@@ -19,9 +19,6 @@ export type {
 export { default as HoodiniViz } from './components/HoodiniViz';
 export type { HoodiniVizProps } from './components/HoodiniViz';
 
-// Legacy: Full dashboard with UI and data loading
-export { HoodiniVizDash } from './HoodiniVizDash';
-
 // Export types and models for external use
 export { default as PhyloTree } from './models/PhyloTree';
 export { default as GenomeView } from './models/GenomeView';

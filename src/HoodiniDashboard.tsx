@@ -1115,7 +1115,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
     if (!row || !vizRef.current) return;
     const hood = row.hood_id || row.hoodId || row.seqid;
     if (hood) {
-      vizRef.current.focusHoodByHoodId?.(String(hood));
+      vizRef.current.focusBaselineByHood?.(String(hood));
     }
   }, []);
 
@@ -1130,46 +1130,106 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
   const isRowZoomable = useCallback((row: any, datasetKey: string) => {
     if (datasetKey === 'hoods') {
       // If visualization isn't ready or doesn't support filtering, show by default
-      if (!vizRef.current || !vizRef.current.getGenomeView) return true;
-      const gv = vizRef.current.getGenomeView();
-      if (!gv || !gv.leaves) return true;
+      if (!vizRef.current) return true;
       
       const hoodId = row.hood_id || row.hoodId || row.seqid;
       if (!hoodId) return true;
       
-      // Check if hood is in the active tree leaves (rendered leaves)
-      return gv.leaves.includes(String(hoodId));
+      // Check if hood is hidden via checkbox
+      if (hiddenHoodIds.has(String(hoodId)) || hiddenHoodIds.has(Number(hoodId))) {
+        return false;
+      }
+      
+      // Check if hood is currently visible (e.g. filtered by clade)
+      const visibleHoods = vizRef.current.getVisibleHoods?.();
+      if (visibleHoods && visibleHoods instanceof Set) {
+        return visibleHoods.has(String(hoodId));
+      }
+      
+      // Fallback to static leaves if dynamic set not available
+      const gv = vizRef.current.genomeView;
+      if (gv && gv.leaves) {
+        return gv.leaves.includes(String(hoodId));
+      }
+    }
+    
+    if (datasetKey === 'treeMetadata') {
+       if (!vizRef.current) return true;
+       const leafId = row.leaf_id || row.leafId || row.leaf_name || row.leafName || row.id || row.name;
+       if (!leafId) return true;
+       
+       // Check if this leaf's corresponding hood is hidden via checkbox
+       // (Assuming leaf ID === hood ID, which is standard in this app)
+       if (hiddenHoodIds.has(String(leafId)) || hiddenHoodIds.has(Number(leafId))) {
+         return false;
+       }
+       
+       // Check if leaf is currently visible (e.g. filtered by clade)
+       const visibleLeaves = vizRef.current.getVisibleHoods?.();
+       if (visibleLeaves && visibleLeaves instanceof Set) {
+         return visibleLeaves.has(String(leafId));
+       }
     }
     return true;
-  }, []);
+  }, [hiddenHoodIds, selectedObject]);
 
   const visibilityConfig = useMemo(() => {
     return {
       genes: {
         hiddenSet: hiddenGeneIds,
+        // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
+        invert: true,
         getRowId: (rowObj: any) => {
           return rowObj?.gene_id || rowObj?.uniqueId || rowObj?.id || rowObj?.originalGeneId;
         },
         onToggle: (id: string, visible: boolean) => {
+          console.log('[Dashboard] onToggle Gene:', id, 'visible:', visible);
           if (!id) return;
           setHiddenGeneIds(prev => {
             const next = new Set(prev);
             if (visible) next.delete(id);
             else next.add(id);
+            console.log('[Dashboard] updated hiddenGeneIds size:', next.size);
             return next;
           });
         }
       },
       hoods: {
         hiddenSet: hiddenHoodIds,
+        // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
+        invert: true,
         getRowId: (rowObj: any) => rowObj?.hood_id || rowObj?.seqid || rowObj?.id || rowObj?.name,
         onToggle: (id: string | number, visible: boolean) => {
+          console.log('[Dashboard] onToggle Hood:', id, 'visible:', visible);
           if (!id) return;
           setHiddenHoodIds(prev => {
             const next = new Set(prev);
             // Ensure ID type consistency
             const key = String(id);
             // Handle both string/number removal to be safe
+            if (visible) {
+              next.delete(key);
+              next.delete(Number(key));
+            } else {
+              next.add(key);
+            }
+            console.log('[Dashboard] updated hiddenHoods size:', next.size);
+            return next;
+          });
+        }
+      },
+      treeMetadata: {
+        hiddenSet: hiddenHoodIds, // Shares visibility filter with hoods
+        // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
+        invert: true,
+        getRowId: (rowObj: any) => rowObj?.leaf_id || rowObj?.leafId || rowObj?.leaf_name || rowObj?.leafName || rowObj?.id || rowObj?.name,
+        onToggle: (id: string | number, visible: boolean) => {
+          console.log('[Dashboard] onToggle Tree:', id, 'visible:', visible);
+          // Reuse hood visibility toggle logic
+          if (!id) return;
+          setHiddenHoodIds(prev => {
+            const next = new Set(prev);
+            const key = String(id);
             if (visible) {
               next.delete(key);
               next.delete(Number(key));
@@ -1196,7 +1256,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
     
     // Navigation
     focusGeneById: (geneId: string) => vizRef.current?.focusGeneById?.(geneId),
-    focusHoodById: (hoodId: string) => vizRef.current?.focusHoodByHoodId?.(hoodId),
+    focusHoodById: (hoodId: string) => vizRef.current?.focusBaselineByHood?.(hoodId),
     focusTreeLeafById: (leafId: string) => vizRef.current?.focusTreeLeafById?.(leafId),
     
     // Alignment

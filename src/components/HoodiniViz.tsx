@@ -397,6 +397,11 @@ export interface HoodiniVizProps {
    */
   visibleGeneIds?: Set<string> | null;
   
+  /**
+   * Set of hidden gene IDs. Takes precedence over visibleGeneIds.
+   */
+  hiddenGeneIds?: Set<string> | null;
+  
   /** 
    * Set of hidden hood IDs.
    */
@@ -583,7 +588,7 @@ export interface HoodiniVizProps {
 }
 
 // Toggle verbose debug/perf logging in Storybook
-const DEBUG_LOGS = true;
+const DEBUG_LOGS = false;
 
 const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   newickStr,
@@ -594,6 +599,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   hoods,
   hiddenHoodIds,
   visibleGeneIds,
+  hiddenGeneIds,
   showScrollbar,
   setGenomeViewRef,
   onLegendChange,
@@ -699,6 +705,20 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (Array.isArray(hiddenHoodIds)) return new Set(hiddenHoodIds);
     return new Set();
   }, [hiddenHoodIds]);
+
+  // Helper to check if a hood is hidden - checks both string and number formats
+  const isHoodHidden = React.useCallback((hoodId: string | number | null | undefined): boolean => {
+    if (hiddenHoodSet.size === 0 || hoodId == null) return false;
+    return hiddenHoodSet.has(String(hoodId)) || hiddenHoodSet.has(Number(hoodId));
+  }, [hiddenHoodSet]);
+
+  // Normalize hiddenGeneIds to Set<string>
+  const hiddenGeneSet = React.useMemo(() => {
+    if (!hiddenGeneIds) return new Set<string>();
+    if (hiddenGeneIds instanceof Set) return hiddenGeneIds;
+    if (Array.isArray(hiddenGeneIds)) return new Set(hiddenGeneIds.map(String));
+    return new Set<string>();
+  }, [hiddenGeneIds]);
 
   // Normalize custom color maps to Map<string, RGBA> format
   // Accepts: null, Map, or plain object { id: [r,g,b,a] }
@@ -1380,7 +1400,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Otherwise use GenomeView's authoritative global bounds
     const filterByVisibleHoods = visibleHoods && visibleHoods.size > 0;
     
-    console.log('[computeBounds] filterByVisibleHoods:', filterByVisibleHoods, 'visibleHoods size:', visibleHoods?.size || 0);
+    if (DEBUG_LOGS) console.log('[computeBounds] filterByVisibleHoods:', filterByVisibleHoods, 'visibleHoods size:', visibleHoods?.size || 0);
     
     if (filterByVisibleHoods) {
       // Calculate X bounds only from visible hoods
@@ -1521,7 +1541,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
     // Debug: print key values to trace skew
     // Always log when filtering by visible hoods to debug ruler positioning
-    if (filterByVisibleHoods) {
+    if (DEBUG_LOGS && filterByVisibleHoods) {
       console.log('[computeBounds] FILTERED bounds:', { minX, maxX, minY, maxY, visibleHoodsSize: visibleHoods?.size });
     }
     try {
@@ -1588,7 +1608,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // This determines which hoods are visible when filtering by tree node selection
   const visibleLeavesSetForBounds = React.useMemo(() => {
     const gv = genomeViewRef.current;
-    console.log('[visibleLeavesSetForBounds] gv:', !!gv, 'tree:', !!tree, 'selectedNode:', selectedNode?.name || selectedNode?.id || selectedNode);
+    if (DEBUG_LOGS) console.log('[visibleLeavesSetForBounds] gv:', !!gv, 'tree:', !!tree, 'selectedNode:', selectedNode?.name || selectedNode?.id || selectedNode);
     if (!gv || !tree) return null; // null means no filtering
     if (!selectedNode) return null; // no selection means show all hoods
     
@@ -1599,10 +1619,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           ? tree.getNodeDescendantLeaves(selectedNode)
           : []);
       const visibleLeaves = Array.isArray(leaves) ? leaves : [];
-      console.log('[visibleLeavesSetForBounds] leaves:', visibleLeaves.length, visibleLeaves.slice(0, 5));
+      if (DEBUG_LOGS) console.log('[visibleLeavesSetForBounds] leaves:', visibleLeaves.length, visibleLeaves.slice(0, 5));
       return new Set(visibleLeaves.map(l => String(l)));
     } catch (e) {
-      console.log('[visibleLeavesSetForBounds] error:', e);
+      if (DEBUG_LOGS) console.log('[visibleLeavesSetForBounds] error:', e);
       return null;
     }
   }, [tree, selectedNode]);
@@ -1808,10 +1828,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Find first (highest trackY) and last (lowest trackY) hood IDs
     let allowedHoodId: string | null = null;
     const posLower = (geneLabelPosition || 'bottom').toLowerCase();
-    console.log('[buildGeneLabels] ySpacing:', ySpacing, 'posLower:', posLower, 'condition:', ySpacing < 150 && posLower !== 'center');
+    if (DEBUG_LOGS) console.log('[buildGeneLabels] ySpacing:', ySpacing, 'posLower:', posLower, 'condition:', ySpacing < 150 && posLower !== 'center');
     
     // Debug: check first gene structure
-    if (genes.length > 0) {
+    if (DEBUG_LOGS && genes.length > 0) {
       const firstGene = genes[0];
       console.log('[buildGeneLabels] first gene:', firstGene);
       console.log('[buildGeneLabels] first gene.metadata:', firstGene.metadata);
@@ -1834,7 +1854,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }
       }
       
-      console.log('[buildGeneLabels] hoodTrackYs.size:', hoodTrackYs.size, 'entries:', Array.from(hoodTrackYs.entries()));
+      if (DEBUG_LOGS) console.log('[buildGeneLabels] hoodTrackYs.size:', hoodTrackYs.size, 'entries:', Array.from(hoodTrackYs.entries()));
       
       if (hoodTrackYs.size > 0) {
         // Find first (max trackY = top of screen) and last (min trackY = bottom of screen)
@@ -1857,7 +1877,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         // Position 'bottom' -> show labels only in last hood (bottom of screen)
         // Position 'top' -> show labels only in first hood (top of screen)
         allowedHoodId = posLower === 'bottom' ? lastHoodId : firstHoodId;
-        console.log('[buildGeneLabels] firstHoodId:', firstHoodId, 'lastHoodId:', lastHoodId, 'allowedHoodId:', allowedHoodId);
+        if (DEBUG_LOGS) console.log('[buildGeneLabels] firstHoodId:', firstHoodId, 'lastHoodId:', lastHoodId, 'allowedHoodId:', allowedHoodId);
       }
     }
 
@@ -2234,7 +2254,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             newColor[2] !== currentColor[2];
           
           if (colorChanged) {
-            console.log('[TreeLeafColor] Syncing color from palette change:', newColor);
+            if (DEBUG_LOGS) console.log('[TreeLeafColor] Syncing color from palette change:', newColor);
             setHighlightedTreeLeafData(prev => 
               prev ? prev.map(leaf => ({ ...leaf, color: newColor })) : null
             );
@@ -2894,12 +2914,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       consecutivePairs.add(`${a}__${b}`);
     }
     
-    // Filter protein polygons
+    // Filter protein polygons - also exclude hidden hoods
     const filteredProtein = proteinPolygons.filter(p => {
       if (!p.metadata) return false;
       const { gAId, gBId, hoodA, hoodB, seqids } = p.metadata;
       let hood1 = hoodA || (gAId && genomeView.genesById[gAId]?.hood_id) || seqids?.[0];
       let hood2 = hoodB || (gBId && genomeView.genesById[gBId]?.hood_id) || seqids?.[1];
+      
+      // Check if either hood is hidden
+      if (hiddenHoodSet.size > 0) {
+        if (hood1 != null && (hiddenHoodSet.has(String(hood1)) || hiddenHoodSet.has(Number(hood1)))) return false;
+        if (hood2 != null && (hiddenHoodSet.has(String(hood2)) || hiddenHoodSet.has(Number(hood2)))) return false;
+      }
+      
       if (hood1 && hood2) {
         const [sortedHood1, sortedHood2] = [hood1, hood2].sort();
         return consecutivePairs.has(`${sortedHood1}__${sortedHood2}`);
@@ -2914,12 +2941,21 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       validConsecutivePairs.add(`${a}__${b}`);
     }
     
-    // Filter nucleotide polygons
+    // Filter nucleotide polygons - also exclude hidden hoods
     const assignedPairs = new Set();
     const filteredNucleotide = nucleotidePolygons.filter(p => {
       if (!p.metadata) return false;
-      const { seqids } = p.metadata;
+      const { seqids, hoodA, hoodB } = p.metadata;
       if (!seqids || seqids.length < 2) return false;
+      
+      // Check if either hood is hidden
+      const hood1 = hoodA || seqids[0];
+      const hood2 = hoodB || seqids[1];
+      if (hiddenHoodSet.size > 0) {
+        if (hood1 != null && (hiddenHoodSet.has(String(hood1)) || hiddenHoodSet.has(Number(hood1)))) return false;
+        if (hood2 != null && (hiddenHoodSet.has(String(hood2)) || hiddenHoodSet.has(Number(hood2)))) return false;
+      }
+      
       const [sortedSeqid1, sortedSeqid2] = seqids.sort();
       const pairKey = `${sortedSeqid1}__${sortedSeqid2}`;
       if (validConsecutivePairs.has(pairKey) && !assignedPairs.has(pairKey)) {
@@ -2933,7 +2969,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       filteredProteinPolygons: filteredProtein, 
       filteredNucleotidePolygons: filteredNucleotide 
     };
-  }, [genomeView, proteinLinks, nucleotideLinks, alignmentVersion, proteinLinkConfig, nucleotideLinkConfig, geneColorMap, effectiveGenePalette, selectedNode]);
+  }, [genomeView, proteinLinks, nucleotideLinks, alignmentVersion, proteinLinkConfig, nucleotideLinkConfig, geneColorMap, effectiveGenePalette, selectedNode, hiddenHoodSet]);
 
   // 🚀 CRITICAL: Extract genes AFTER pre-filtering applies colors
   const genes = React.useMemo(() => {
@@ -3725,16 +3761,37 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (!genomeView) return [];
     const visibleSet = visibleGeneIds instanceof Set ? visibleGeneIds : null;
 
-    const isVisible = (geneObj) => {
-      if (!visibleSet) return true;
-      const key =
-        geneObj?.gene_id ||
+    // Helper to get gene key for visibility checks
+    const getGeneKey = (geneObj) => {
+      return geneObj?.gene_id ||
         geneObj?.originalGeneId ||
         geneObj?.originalId ||
         geneObj?.id ||
-        geneObj?.uniqueId;
-      if (!key) return true;
-      return visibleSet.has(String(key));
+        geneObj?.uniqueId || '';
+    };
+
+    // Check if gene is visible based on visibleGeneIds, hiddenGeneSet, and hiddenHoodSet
+    const isGeneVisible = (geneObj) => {
+      const key = getGeneKey(geneObj);
+      
+      // Check if gene's hood is hidden (PRIORITY: hood visibility overrides gene visibility)
+      const hoodId = geneObj?.hood_id ?? geneObj?.hoodId;
+      if (isHoodHidden(hoodId)) {
+        return false;
+      }
+      
+      // Check if gene is individually hidden
+      if (hiddenGeneSet.size > 0 && key && hiddenGeneSet.has(String(key))) {
+        return false;
+      }
+      
+      // Check visibleGeneIds (whitelist)
+      if (visibleSet) {
+        if (!key) return true;
+        return visibleSet.has(String(key));
+      }
+      
+      return true;
     };
 
     // If a clade is selected, prefer the filtered gene set from the model so
@@ -3744,7 +3801,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const filtered = genomeView.filterBySelectedNode(selectedNode);
         if (filtered && Array.isArray(filtered.genes)) {
           return filtered.genes
-            .filter(isVisible)
+            .filter(isGeneVisible)
             .map(g => {
             const uid = g.uniqueId || g.id || '';
             return {
@@ -3764,7 +3821,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
 
     const result = Object.entries(genomeView.genesById)
-      .filter(([, g]) => isVisible(g))
+      .filter(([, g]) => isGeneVisible(g))
       .map(([uid, g]) => ({
         id: uid,
         gene: g,
@@ -3785,7 +3842,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
     }
     return result;
-  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, geneColorMapMemo, themeColors, paletteVersion, visibleGeneIds, selectedNode, alignmentVersion, genomeXScaleProp, ySpacingProp]);
+  }, [genomeView, genomeView?._paletteVersion, effectiveGenePalette?.enabled, geneColorMapMemo, themeColors, paletteVersion, visibleGeneIds, hiddenGeneSet, isHoodHidden, selectedNode, alignmentVersion, genomeXScaleProp, ySpacingProp]);
 
   // Create stable dependency strings for link configs
   const proteinLinkConfigKey = React.useMemo(() => JSON.stringify(proteinLinkConfig), [proteinLinkConfig]);
@@ -3814,13 +3871,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Filter and map protein links
     return genomeView.proteinLinks
       .filter(pl => {
-        // If no node is selected, show all links
-        if (!visibleHoods) return true;
-        // Only show links where both genes' hoods are visible
         const gA = genomeView.genesById[pl.gAId];
         const gB = genomeView.genesById[pl.gBId];
         const hoodA = gA?.hood_id;
         const hoodB = gB?.hood_id;
+        
+        // Filter by hidden hoods (using global helper)
+        if (isHoodHidden(hoodA) || isHoodHidden(hoodB)) return false;
+        
+        // If no node is selected, show all remaining links
+        if (!visibleHoods) return true;
+        // Only show links where both genes' hoods are visible
         return hoodA && hoodB && visibleHoods.has(hoodA) && visibleHoods.has(hoodB);
       })
       .map((pl, i) => ({
@@ -3831,7 +3892,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         fillColor: pl.fillColor || [150,150,150,255],
         _k: `${alignmentVersion}_${i}`
       }));
-  }, [genomeView, genomeView?.proteinLinks, paletteVersion, alignmentVersion, proteinLinkConfigKey, geneColorMap, selectedNode]);
+  }, [genomeView, genomeView?.proteinLinks, paletteVersion, alignmentVersion, proteinLinkConfigKey, geneColorMap, selectedNode, isHoodHidden]);
 
   // Debug: log selectedNode changes
   React.useEffect(() => {
@@ -3873,11 +3934,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Filter and map nucleotide links
     const filtered = genomeView.nucleotideLinks
       .filter(nl => {
-        // If no node is selected, show all links
-        if (!visibleHoods) return true;
-        // Only show links where both hoods are visible
         const hoodA = nl.hoodA;
         const hoodB = nl.hoodB;
+        
+        // Filter by hidden hoods (using global helper)
+        if (isHoodHidden(hoodA) || isHoodHidden(hoodB)) return false;
+        
+        // If no node is selected, show all remaining links
+        if (!visibleHoods) return true;
+        // Only show links where both hoods are visible
         const hasA = visibleHoods.has(hoodA);
         const hasB = visibleHoods.has(hoodB);
         const pass = hasA && hasB;
@@ -3912,7 +3977,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         _k: `${alignmentVersion}_${i}`
       };
     });
-  }, [genomeView, genomeView?.nucleotideLinks, paletteVersion, alignmentVersion, nucleotideLinkConfigKey, selectedNode]);
+  }, [genomeView, genomeView?.nucleotideLinks, paletteVersion, alignmentVersion, nucleotideLinkConfigKey, selectedNode, isHoodHidden]);
 
   // ========== EXTRACTED USEMEMOS FOR PERFORMANCE ==========
   // These were previously computed inside the main `layers` useMemo
@@ -4284,6 +4349,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   ]);
 
   // 2. Visible leaves set - critical for filtering when a clade is selected
+  // NOTE: This set is used for tree filtering only (when clicking a tree node).
+  // hiddenHoodSet does NOT affect the tree, only the hood tracks.
   const visibleLeavesSet = React.useMemo(() => {
     if (!genomeView || !tree) return new Set();
     
@@ -4312,7 +4379,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
     
     return new Set(visibleLeaves);
-  }, [genomeView, tree, selectedNode, flashHood]);
+  }, [genomeView, tree, selectedNode, flashHood, hiddenHoodSet]);
 
   // NOTE: bounds and treeOffset are computed earlier in the component (line ~760)
   // using computeBounds(). We use those values here.
@@ -4541,7 +4608,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // --- OPTIMIZED REGION COLORING ---
     // Respect clade selection for regions as well (filter by hood_id when available)
+    // Also filter by hiddenHoodSet (using global isHoodHidden)
     const regionPolygons = (genomeView.getAllRegions() || []).filter(r => {
+      // Filter by hidden hoods using global helper
+      if (isHoodHidden(r.hood_id)) return false;
       if (!selectedNode) return true;
       try { return visibleLeavesSet.has(r.hood_id); } catch (e) { return true; }
     }).map(r => {
@@ -4581,10 +4651,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const allDomains = genomeView.getAllDomains();
     let domains = [];
     
+    // Helper to check if domain's hood is hidden (using global isHoodHidden)
+    const isDomainHoodHidden = (domain) => {
+      // Get the parent gene to check hood_id
+      const parentGene = domain.gene || (domain.geneId && genomeView.genesById[domain.geneId]);
+      const hoodId = parentGene?.hood_id ?? domain.hood_id;
+      return isHoodHidden(hoodId);
+    };
+    
     if (allDomains.length === 0) {
       if (DEBUG_LOGS) console.log(`📊 domains built in ${(performance.now() - domainsStart).toFixed(1)}ms (0 domains - skipped)`);
     } else {
-    // Domain rendering: filter by selected node (clade) first, then by source
+    // Domain rendering: filter by selected node (clade) first, then by source, then by hidden hoods
     let renderedDomains = allDomains;
     if (selectedNode) {
       try {
@@ -4599,6 +4677,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const s = (d && (d.source || (d.metadata && d.metadata.source))) || null;
         return String(s) === String(domainSource);
       });
+    }
+    // Filter by hidden hoods
+    if (hiddenHoodSet.size > 0) {
+      renderedDomains = renderedDomains.filter(d => !isDomainHoodHidden(d));
     }
 
     domains = renderedDomains.map(d => {
@@ -4688,9 +4770,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       .filter(hood_id => {
         const hoodBaseline = genomeView.hoodRanges[hood_id];
         if (!hoodBaseline) return false;
-        if (hiddenHoodSet.size) {
-          const key = getHoodKey(hood_id, hoodBaseline);
-          if (key && hiddenHoodSet.has(key)) return false;
+        // Check if hood is hidden using simple hood_id matching
+        if (hiddenHoodSet.size > 0) {
+          if (hiddenHoodSet.has(String(hood_id)) || hiddenHoodSet.has(Number(hood_id))) return false;
         }
         return genomeView.getTrackYByHoodId(hood_id) != null;
       })
@@ -4704,9 +4786,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         .filter(hood_id => {
           const hoodBaseline = genomeView.hoodRanges[hood_id];
           if (!hoodBaseline) return false;
-          if (hiddenHoodSet.size) {
-            const key = getHoodKey(hood_id, hoodBaseline);
-            if (key && hiddenHoodSet.has(key)) return false;
+          // Check if hood is hidden using simple hood_id matching
+          if (hiddenHoodSet.size > 0) {
+            if (hiddenHoodSet.has(String(hood_id)) || hiddenHoodSet.has(Number(hood_id))) return false;
           }
           return genomeView.getTrackYByHoodId(hood_id) != null;
         })
@@ -4885,6 +4967,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // 🚀 PERFORMANCE: Cache treeNodes - treeNodes DON'T depend on gene height/arrowhead
     // They only depend on tree structure, selection, node radius, ultrametric mode, and ySpacing
+    // NOTE: hiddenHoodSet does NOT affect tree - tree always shows all nodes
     // NOTE: Include effectiveConfig.tree.ySpacing so cache invalidates when ySpacing slider changes
     let treeNodesGeometrySignature = `${tree.allNodes.length}:${selectedNode?.id || 'null'}:${nodeRadius?.internal || 4}:${nodeRadius?.leaf || 2}:${ultrametric}:${effectiveConfig.tree.ySpacing}`;
     // Use structural signature (no gene height) OR geometry signature match
@@ -4926,10 +5009,12 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         ...cachedTreeNodesRef.current,
         nodes: treeNodes
       };
-      console.log(`⚡ treeNodes reused from cache, colors updated in ${(performance.now() - treeNodesStart).toFixed(1)}ms (${treeNodes.length} nodes)`);
+      if (DEBUG_LOGS) console.log(`⚡ treeNodes reused from cache, colors updated in ${(performance.now() - treeNodesStart).toFixed(1)}ms (${treeNodes.length} nodes)`);
     } else {
       // Full rebuild required
-    const highlightLeaves = selectedNode ? new Set(genomeView.getNodeDescendantLeaves(selectedNode)) : null;
+    // Use visibleLeavesSet which accounts for selectedNode (clade selection)
+    // NOTE: hiddenHoodSet does NOT affect tree - tree always shows all nodes
+    const highlightLeaves = selectedNode ? visibleLeavesSet : null;
     
     // Create a mapping from leaf names to their phylo label colors
     const leafNameToColorMap = new Map();
@@ -4943,6 +5028,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // Only include tree nodes that are under the selected node when a
     // selection exists. This removes ancestors and unrelated nodes.
+    // NOTE: hiddenHoodSet does NOT filter tree nodes
     treeNodes = tree.allNodes
       .filter(n => {
         if (!selectedNode) return true;
@@ -5099,7 +5185,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // 🚀 PERFORMANCE OPTIMIZATION: Reuse cached genesData when only colors changed
     // NOTE: Use selectedNode?.id (not name) because internal nodes have empty names!
     // NOTE: Include visibleLeavesSet.size to properly invalidate when selection changes
-    const genesDataSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${selectedNode?.id ?? 'null'}:${alignmentVersion}:${visibleLeavesSet.size}`;
+    // NOTE: Include hiddenHoodSet.size and hiddenGeneSet.size to invalidate when visibility toggles change
+    const genesDataSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${selectedNode?.id ?? 'null'}:${alignmentVersion}:${visibleLeavesSet.size}:${hiddenHoodSet.size}:${hiddenGeneSet.size}`;
     const genesDataStartTime = performance.now();
     
     if (DEBUG_LOGS) console.log('🔍 [genesData] geometryUnchanged=', geometryUnchanged, 'genesDataSignature=', genesDataSignature, 'cached=', cachedGenesDataSignatureRef.current);
@@ -5119,8 +5206,27 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Full rebuild needed - geometry or structure changed
       if (DEBUG_LOGS) console.log('🔨 genesData: full rebuild (geometry changed)');
       
-      // Start from all genes, but when a clade is selected filter to visible leaves
-      let entries = Object.entries(genomeView.genesById);
+      // Helper to check gene visibility
+      const isGeneVisibleInLayer = (g: any, uid: string) => {
+        const hoodId = g.hood_id ?? g.hoodId;
+        // Check if hood is hidden
+        if (hiddenHoodSet.size > 0 && hoodId != null) {
+          if (hiddenHoodSet.has(String(hoodId)) || hiddenHoodSet.has(Number(hoodId))) {
+            return false;
+          }
+        }
+        // Check if gene is individually hidden
+        const geneKey = g.originalGeneId || g.gene_id || uid;
+        if (hiddenGeneSet.size > 0 && geneKey && hiddenGeneSet.has(String(geneKey))) {
+          return false;
+        }
+        return true;
+      };
+      
+      // Start from all genes, filter by visibility and selected node
+      let entries = Object.entries(genomeView.genesById)
+        .filter(([uid, g]) => isGeneVisibleInLayer(g, uid));
+      
       if (selectedNode) {
         try {
           entries = entries.filter(([uid, g]) => {
@@ -5128,8 +5234,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             return hood ? visibleLeavesSet.has(hood) : false;
           });
         } catch (e) {
-          // on error fall back to full set
-          entries = Object.entries(genomeView.genesById);
+          // on error fall back to filtered set
         }
       }
 
@@ -5167,9 +5272,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
     // Gene cluster labels (below genes) — build from fresh gene data
     const effectiveYSpacingForLabels = typeof ySpacingProp === 'number' ? ySpacingProp : (config?.tree?.ySpacing || 150);
-    console.log('[layers useMemo] effectiveYSpacingForLabels:', effectiveYSpacingForLabels, 'ySpacingProp:', ySpacingProp);
+    if (DEBUG_LOGS) console.log('[layers useMemo] effectiveYSpacingForLabels:', effectiveYSpacingForLabels, 'ySpacingProp:', ySpacingProp);
   const geneLabels = buildGeneLabels(genesData, geneColorMap, geneColorBy, colorBy, themeColors, effectiveConfig || config, geneLabelPosition, geneLabelBy, genomeXScaleProp || 100, effectiveYSpacingForLabels);
-    console.log('[layers useMemo] geneLabels.length after build:', geneLabels.length);
+    if (DEBUG_LOGS) console.log('[layers useMemo] geneLabels.length after build:', geneLabels.length);
 
     // Debug: log gene label sizing/positions to help diagnose why labels might appear static
     try {
@@ -5299,7 +5404,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         metadata: l.metadata,
         _k: `${alignmentVersion}_${i}`
       };
-    }).filter(d => d.hoodA && d.hoodB);
+    }).filter(d => {
+      if (!d.hoodA || !d.hoodB) return false;
+      // Check if either hood is hidden
+      if (hiddenHoodSet.size > 0) {
+        if (hiddenHoodSet.has(String(d.hoodA)) || hiddenHoodSet.has(Number(d.hoodA))) return false;
+        if (hiddenHoodSet.has(String(d.hoodB)) || hiddenHoodSet.has(Number(d.hoodB))) return false;
+      }
+      return true;
+    });
 
     // Build lightweight link data for live polygon computation in the layer accessor
     const proteinLinkData = (proteinPolygons || []).map((p, i) => {
@@ -6395,6 +6508,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         if (Array.isArray(fd.ncRNAs)) ncRNAs = fd.ncRNAs;
       } catch (e) {}
     }
+    // Filter by hidden hoods (using global isHoodHidden)
+    ncRNAs = ncRNAs.filter(nc => !isHoodHidden(nc.hood_id ?? nc.hoodId));
     // Colors are now applied directly during GenomeView creation if palette is enabled
     ncRNAs = ncRNAs.map(nc => ({
       ...nc,
@@ -6493,6 +6608,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // ===== VISIBILITY =====
     hiddenHoodSet,
+    isHoodHidden,
     showTreeLayer,
     showGeneLayer,
     showDomainLayer,
@@ -7480,12 +7596,12 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // Expose export functionality via ref
   useImperativeHandle(ref, () => ({
     exportToSVG: () => {
-      console.log('🖼️ HoodiniViz.exportToSVG called');
+      if (DEBUG_LOGS) console.log('🖼️ HoodiniViz.exportToSVG called');
       // Use the latest viewState from the ref, not possibly stale state
       let liveViewState = viewStateRef.current || viewState;
-      console.log('🖼️ HoodiniViz.exportToSVG - layers:', layers?.length, 'viewState:', !!liveViewState);
-      console.log('🖼️ Scale to format check:', { scaleExportToFormat, cropToGuides, formatGuidePreset: !!formatGuidePreset, bounds: !!bounds });
-      console.log(`🖼️ Bounds for export: minX=${bounds.minX?.toFixed(1)} maxX=${bounds.maxX?.toFixed(1)} minY=${bounds.minY?.toFixed(1)} maxY=${bounds.maxY?.toFixed(1)} selectedNode=${selectedNode?.name || 'null'}`);
+      if (DEBUG_LOGS) console.log('🖼️ HoodiniViz.exportToSVG - layers:', layers?.length, 'viewState:', !!liveViewState);
+      if (DEBUG_LOGS) console.log('🖼️ Scale to format check:', { scaleExportToFormat, cropToGuides, formatGuidePreset: !!formatGuidePreset, bounds: !!bounds });
+      if (DEBUG_LOGS) console.log(`🖼️ Bounds for export: minX=${bounds.minX?.toFixed(1)} maxX=${bounds.maxX?.toFixed(1)} minY=${bounds.minY?.toFixed(1)} maxY=${bounds.maxY?.toFixed(1)} selectedNode=${selectedNode?.name || 'null'}`);
       if (!layers || !liveViewState) {
         console.warn('🖼️ HoodiniViz.exportToSVG - missing layers or viewState, aborting');
         return;
@@ -7496,7 +7612,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       let guideBounds: { minX: number; maxX: number; minY: number; maxY: number } | null = null;
       
       if (scaleExportToFormat && formatGuidePreset && cropToGuides) {
-        console.log('🖼️ Crop to guides ACTIVE - calculating guide bounds');
+        if (DEBUG_LOGS) console.log('🖼️ Crop to guides ACTIVE - calculating guide bounds');
         
         // Get format dimensions in pixels (same calculation as GuideOverlay)
         const dpi = formatGuidePreset.unit === 'mm' ? 300 : 96;
@@ -7543,8 +7659,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           maxY: screenToWorldY(guideTop)     // top in screen = max in world (Y flipped)
         };
         
-        console.log('🖼️ Guide bounds in world coords:', guideBounds);
-        console.log('🖼️ Guide screen coords:', { guideLeft, guideTop, guideRight, guideBottom, guideWidth, guideHeight });
+        if (DEBUG_LOGS) console.log('🖼️ Guide bounds in world coords:', guideBounds);
+        if (DEBUG_LOGS) console.log('🖼️ Guide screen coords:', { guideLeft, guideTop, guideRight, guideBottom, guideWidth, guideHeight });
       }
       
       const rulerProps = showRuler ? {
