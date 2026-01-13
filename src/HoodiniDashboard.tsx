@@ -218,6 +218,7 @@ export interface InitialState {
   formatGuidePreset?: FormatPreset | null;
   scaleExportToFormat?: boolean;
   cropToGuides?: boolean;
+  scaleRulerWithCrop?: boolean;
   
   // Layer visibility
   showTreeLayer?: boolean;
@@ -489,6 +490,7 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   formatGuidePreset: null,
   scaleExportToFormat: false,
   cropToGuides: true, // Default to true when scale to format is enabled
+  scaleRulerWithCrop: true, // Default to true - scale ruler with format
   
   // Layer visibility
   showTreeLayer: true,
@@ -1428,6 +1430,8 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           setScaleExportToFormat={createSetter('scaleExportToFormat')}
           cropToGuides={state.cropToGuides}
           setCropToGuides={createSetter('cropToGuides')}
+          scaleRulerWithCrop={state.scaleRulerWithCrop}
+          setScaleRulerWithCrop={createSetter('scaleRulerWithCrop')}
           // New visual settings
           ySpacing={state.ySpacing}
           setYSpacing={createSetter('ySpacing')}
@@ -1531,6 +1535,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               formatGuidePreset={state.formatGuidePreset}
               scaleExportToFormat={state.scaleExportToFormat}
               cropToGuides={state.cropToGuides}
+              scaleRulerWithCrop={state.scaleRulerWithCrop}
               // Visual settings (new sliders)
               ySpacing={state.ySpacing}
               phyloLabelSize={state.phyloLabelSize}

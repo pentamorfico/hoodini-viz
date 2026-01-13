@@ -789,23 +789,42 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   
   // Calculate content bounds by scanning the actual data in the layers
   // This is the most accurate way - find the actual Y extents of genes being rendered
+  // IMPORTANT: When using crop mode, only consider elements within the visible viewport bounds
   let actualMinWorldY = Infinity;
   let actualMaxWorldY = -Infinity;
   let actualMinWorldX = Infinity;
   let actualMaxWorldX = -Infinity;
   
-  // Scan gene layer for actual Y bounds
+  // Helper to check if a point is within the viewport bounds
+  const isWithinViewport = (x: number, y: number) => {
+    return y >= min_y && y <= max_y && x >= min_x && x <= max_x;
+  };
+  
+  // Helper to check if any point of a polygon is within the viewport
+  const polygonIntersectsViewport = (polygon: [number, number][]) => {
+    if (!polygon || polygon.length === 0) return false;
+    // Check if any vertex is within bounds
+    for (const [x, y] of polygon) {
+      if (isWithinViewport(x, y)) return true;
+    }
+    // Also check if polygon bounds overlap with viewport (for large polygons)
+    const polyMinY = Math.min(...polygon.map(p => p[1]));
+    const polyMaxY = Math.max(...polygon.map(p => p[1]));
+    return polyMaxY >= min_y && polyMinY <= max_y;
+  };
+  
+  // Scan gene layer for actual Y bounds (only within viewport)
   const genesLayer = layers.find(l => l.id === 'genes');
   if (genesLayer?.props?.data) {
     for (const gene of genesLayer.props.data) {
       const polygon = gene.polygon;
-      if (polygon && polygon.length > 0) {
+      if (polygon && polygon.length > 0 && polygonIntersectsViewport(polygon)) {
         for (const [x, y] of polygon) {
-          if (isFinite(y)) {
+          if (isFinite(y) && y >= min_y && y <= max_y) {
             actualMinWorldY = Math.min(actualMinWorldY, y);
             actualMaxWorldY = Math.max(actualMaxWorldY, y);
           }
-          if (isFinite(x)) {
+          if (isFinite(x) && x >= min_x && x <= max_x) {
             actualMinWorldX = Math.min(actualMinWorldX, x);
             actualMaxWorldX = Math.max(actualMaxWorldX, x);
           }
@@ -814,14 +833,14 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
   }
   
-  // Also scan hoods layer for baselines
+  // Also scan hoods layer for baselines (only within viewport)
   const hoodsLayer = layers.find(l => l.id === 'hoods');
   if (hoodsLayer?.props?.data) {
     for (const hood of hoodsLayer.props.data) {
       const polygon = hood.polygon;
-      if (polygon && polygon.length > 0) {
+      if (polygon && polygon.length > 0 && polygonIntersectsViewport(polygon)) {
         for (const [x, y] of polygon) {
-          if (isFinite(y)) {
+          if (isFinite(y) && y >= min_y && y <= max_y) {
             actualMinWorldY = Math.min(actualMinWorldY, y);
             actualMaxWorldY = Math.max(actualMaxWorldY, y);
           }
@@ -830,14 +849,14 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
   }
   
-  // Scan domains layer
+  // Scan domains layer (only within viewport)
   const domainsLayer = layers.find(l => l.id && l.id.startsWith('domains'));
   if (domainsLayer?.props?.data) {
     for (const domain of domainsLayer.props.data) {
       const polygon = domain.polygon;
-      if (polygon && polygon.length > 0) {
+      if (polygon && polygon.length > 0 && polygonIntersectsViewport(polygon)) {
         for (const [x, y] of polygon) {
-          if (isFinite(y)) {
+          if (isFinite(y) && y >= min_y && y <= max_y) {
             actualMinWorldY = Math.min(actualMinWorldY, y);
             actualMaxWorldY = Math.max(actualMaxWorldY, y);
           }
@@ -846,8 +865,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
   }
   
-  console.log('🖼️ Actual layer bounds (world coords):', { 
-    actualMinWorldY, actualMaxWorldY, actualMinWorldX, actualMaxWorldX 
+  console.log('🖼️ Actual layer bounds (world coords, filtered to viewport):', { 
+    actualMinWorldY, actualMaxWorldY, actualMinWorldX, actualMaxWorldX,
+    viewportBounds: { min_x, max_x, min_y, max_y }
   });
   
   // When using guide bounds crop, we directly map guide bounds to format dimensions
@@ -870,19 +890,32 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     compactHeight = svgHeight;
     totalSVGHeight = svgHeight; // No extra ruler space - ruler goes inside the format
     
-    // Calculate ruler scale factor to match viewport appearance (only if enabled)
+    // Calculate ruler scale factor
+    // The guide bounds span (max_x - min_x) world units which maps to svgWidth pixels
+    // In the viewport at current zoom, 1 world unit = scale pixels
+    const viewportScale = Math.pow(2, viewState.zoom || 0);
+    const guideWorldWidth = max_x - min_x;
+    const guideViewportPixels = guideWorldWidth * viewportScale;
+    
     if (scaleRulerWithCrop) {
-      // The guide bounds span (max_x - min_x) world units which maps to svgWidth pixels
-      // In the viewport at current zoom, 1 world unit = scale pixels
-      const viewportScale = Math.pow(2, viewState.zoom || 0);
-      const guideWorldWidth = max_x - min_x;
-      const guideViewportPixels = guideWorldWidth * viewportScale;
+      // Scale ruler proportionally to fit the format (ruler grows/shrinks with format)
       // How many format pixels per viewport pixel?
       rulerScaleFactor = svgWidth / guideViewportPixels;
+    } else {
+      // DON'T scale ruler - keep it at the same pixel size as in viewport
+      // This means the ruler text will be small relative to the large format
+      // but will look the same as on screen when viewed at 100%
+      // Factor of 1.0 means use base sizes (11px font, etc.) without scaling
+      rulerScaleFactor = 1.0;
     }
-    // If scaleRulerWithCrop is false, rulerScaleFactor stays at 1 (original size)
     
-    console.log('🖼️ Guide crop export dimensions:', { finalWidth, finalHeight, totalSVGHeight, rulerScaleFactor, scaleRulerWithCrop });
+    console.log('🖼️ Guide crop export dimensions:', { 
+      finalWidth, finalHeight, totalSVGHeight, 
+      rulerScaleFactor, scaleRulerWithCrop, 
+      viewportScale, guideWorldWidth, guideViewportPixels,
+      svgWidth,
+      scaledVsUnscaled: scaleRulerWithCrop ? 'SCALED to format' : 'FIXED size (viewport pixels)'
+    });
   } else {
     // Normal export: Calculate content bounds in screen space for compact SVG
     let contentScreenMinY = 0;
@@ -1588,6 +1621,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
       const geneTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
       const geneLabelColor = themeColors.text || (themeColors.background === '#ffffff' ? '#333' : '#ccc');
       const treeTickColor = themeColors.text || (themeColors.background === '#ffffff' ? '#666' : '#aaa');
+      
+  console.log('🎯 Ruler rendering with rulerScaleFactor:', rulerScaleFactor, 'base fontSize: 11 -> scaled:', 11 * rulerScaleFactor);
+      
   const _rulerHeight = configToUse.ruler.height * rulerScaleFactor;
   const _rulerTop = rulerTopY; // Position ruler right after compact content area
       const _tickHeight = configToUse.ruler.tickHeight * rulerScaleFactor;

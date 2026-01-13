@@ -1378,7 +1378,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   }, [alignmentSignature]);
 
   // Compute treeLabelPadding based on the longest leaf label length - use useMemo for synchronous calculation
-  // Now accounts for multiple columns and phylolabel size to avoid overlap with hoods
   const treeLabelPadding = React.useMemo(() => {
     if (!tree) return 100; // Default fallback
     // Helper: robustly resolve metadata for a leaf name. treeMetadata may be keyed
@@ -1399,42 +1398,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return {};
     };
 
-    // Parse treeLabelBy - can be comma-separated string for multiple columns
-    const treeLabelByColumns = treeLabelBy 
-      ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').map(s => s.trim()).filter(Boolean))
-      : null;
-
     const labels = tree.leafNodes.map(l => {
       const meta = getMetaForLeaf(l.name) || {};
-      let label;
-      // Build label from multiple columns if specified
-      if (treeLabelByColumns && treeLabelByColumns.length > 0) {
-        const values = treeLabelByColumns
-          .map(col => col === 'name' ? l.name : meta[col])
-          .filter(v => v !== null && v !== undefined && v !== '');
-        label = values.length > 0 ? values.join(' | ') : l.name;
-      } else {
-        label = meta[treeLabelBy];
-        if (label === undefined || label === null) label = l.name;
-      }
+      let label = meta[treeLabelBy];
+      if (label === undefined || label === null) label = l.name;
       return String(label);
     });
     const maxLen = labels.reduce((max, txt) => Math.max(max, txt.length), 0);
     const charWidth = config.tree.labelPadding.charWidth; // Use configurable char width
-    const baseTextPadding = maxLen * charWidth;
-    
-    // Add extra padding based on phylolabel size to avoid overlap with hoods
-    const phyloLabelSize = typeof phyloLabelSizeProp === 'number' 
-      ? phyloLabelSizeProp 
-      : (config?.text?.phyloLabelSize || 14);
-    const sizeScaleFactor = config?.text?.scaleFactors?.phylo || 1;
-    const scaledLabelSize = phyloLabelSize * sizeScaleFactor;
-    
-    // Extra padding proportional to label size (larger text needs more space)
-    const sizeBasedPadding = scaledLabelSize * 5.0; // 2.0x size factor for better spacing
-    
-    return baseTextPadding + sizeBasedPadding;
-  }, [tree, treeMetadata, treeLabelBy, config, phyloLabelSizeProp]);
+    return maxLen * charWidth;
+  }, [tree, treeMetadata, treeLabelBy, config]);
 
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree', treeXScaleOverride = null, includeTree = true, visibleHoods: Set<string> | null = null) {
@@ -2714,10 +2687,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const geneNameA = gA.metadata?.gene_name || gA.metadata?.name || gA.gene_id || object.gAId;
         const clusterA = gA.metadata?.cluster || gA.metadata?.clusterId || gA.cluster || '';
         entries.push(['source gene', geneNameA]);
-        // Only show cluster if it exists and is different from gene name (avoid redundancy)
-        if (clusterA && String(clusterA) !== String(geneNameA)) {
-          entries.push(['source cluster', clusterA]);
-        }
+        if (clusterA) entries.push(['source cluster', clusterA]);
         entries.push(['source hood', gA.hood_id || gA.seqid || '']);
       }
       
@@ -2726,10 +2696,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const geneNameB = gB.metadata?.gene_name || gB.metadata?.name || gB.gene_id || object.gBId;
         const clusterB = gB.metadata?.cluster || gB.metadata?.clusterId || gB.cluster || '';
         entries.push(['target gene', geneNameB]);
-        // Only show cluster if it exists and is different from gene name (avoid redundancy)
-        if (clusterB && String(clusterB) !== String(geneNameB)) {
-          entries.push(['target cluster', clusterB]);
-        }
+        if (clusterB) entries.push(['target cluster', clusterB]);
         entries.push(['target hood', gB.hood_id || gB.seqid || '']);
       }
       
@@ -3041,8 +3008,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // 🚀 CRITICAL: Build legend data AFTER gene coloring is complete
   const buildLegendData = React.useCallback(() => {
     const gv = genomeView;
-    const effectiveNcRNAPalette = ncRNAPalette || config?.colorPalettes?.ncRNAPalette;
-    const effectiveRegionPalette = regionPalette || config?.colorPalettes?.regionPalette;
     const legend = {
       genes: null,
       phylo: null,
@@ -3278,12 +3243,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     tree, 
     treeMetadata, 
     treeColorBy, 
-    effectivePhyloPalette,
-    ncRNAPalette,
-    regionPalette,
+    effectivePhyloPalette, 
     proteinLinkConfig, 
     nucleotideLinkConfig,
-    config
+    // Add missing dependencies to ensure legend updates on changes
+    alignmentVersion,
+    paletteVersion,
+    effectiveRegionPalette,
+    effectiveNcRNAPalette,
+    effectiveDomainPalette,
+    domainColorMap,
+    stableGeneColorMap
   ]);
 
   // Notify parent about legend changes whenever relevant inputs change.
@@ -3555,25 +3525,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       for (const [k, color] of sourceMap.entries()) {
         // Only use string keys to avoid duplicates (Map stores both "1" and 1 as separate keys)
         if (typeof k === 'string') {
-          const label = String(k).trim(); // Normalize label
-          // Only add if we haven't seen this exact label before and label is not empty
-          if (!seenLabels.has(label) && label.length > 0) {
+          const label = k;
+          if (!seenLabels.has(label)) {
             seenLabels.add(label);
             items.push({ label, color });
           }
         }
       }
-      // Final deduplication pass in case map has duplicates
-      const uniqueItems = [];
-      const seenItemLabels = new Set();
-      for (const item of items) {
-        if (!seenItemLabels.has(item.label)) {
-          seenItemLabels.add(item.label);
-          uniqueItems.push(item);
-        }
-      }
-      if (uniqueItems.length > 0) {
-        entries.push({ id: 'genes', title: 'Gene families', items: uniqueItems.slice(0, 20) });
+      if (items.length > 0) {
+        entries.push({ id: 'genes', title: 'Gene families', items: items.slice(0, 20) });
       }
     }
 
