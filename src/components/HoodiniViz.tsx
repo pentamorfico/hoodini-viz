@@ -452,6 +452,9 @@ export interface HoodiniVizProps {
   /** Show/hide ncRNA layer. @default true */
   showNcRNALayer?: boolean;
   
+  /** Show/hide regions layer. @default true */
+  showRegionsLayer?: boolean;
+  
   /** Show/hide gene text labels. @default true */
   showGeneTextLayer?: boolean;
   
@@ -646,6 +649,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   showProteinLinkLayer = true,
   showNucleotideLinkLayer = true,
   showNcRNALayer = true,
+  showRegionsLayer = true,
   showGeneTextLayer = true,
   showTreeTextLayer = true,
   geneLabelPosition = 'bottom',
@@ -813,6 +817,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   const [highlightedTreeNodeData, setHighlightedTreeNodeData] = useState(null); // Internal tree nodes
   const [highlightedHoodData, setHighlightedHoodData] = useState(null);
   const [highlightedRegionData, setHighlightedRegionData] = useState(null); // Regions/features
+  const [highlightedNcRNAData, setHighlightedNcRNAData] = useState(null); // ncRNA features
   
   // Flag to track if baseline highlight was set internally (via focusBaselineByHood)
   // This prevents the flashHood effect from overwriting internal highlights
@@ -869,6 +874,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     setHighlightedTreeNodeData(null);
   }, []);
 
+  // Stop ncRNA highlight/flash - defined early because other callbacks depend on it
+  const stopNcRNAFlash = React.useCallback(() => {
+    setHighlightedNcRNAData(null);
+  }, []);
+
   // Trigger gene highlight - accepts the full gene object to avoid filtering
   const triggerGeneFlash = React.useCallback((geneId, geneObject = null) => {
     if (!geneId) {
@@ -876,12 +886,13 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return;
     }
     stopRegionFlash(); // Clear region glow when highlighting a gene
+    stopNcRNAFlash(); // Clear ncRNA glow when highlighting a gene
     setFlashGeneId(String(geneId));
     // Store the actual gene data for the glow layer (avoids filtering large array)
     if (geneObject) {
       setHighlightedGeneData([geneObject]);
     }
-  }, [stopGeneFlash]);
+  }, [stopGeneFlash, stopRegionFlash, stopNcRNAFlash]);
 
   // Trigger region highlight - accepts region data with polygon
   const triggerRegionFlash = React.useCallback((regionData) => {
@@ -889,8 +900,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       stopRegionFlash();
       return;
     }
+    stopNcRNAFlash(); // Clear ncRNA glow when highlighting a region
     setHighlightedRegionData([regionData]);
-  }, [stopRegionFlash]);
+  }, [stopRegionFlash, stopNcRNAFlash]);
+
+  // Trigger ncRNA highlight - accepts ncRNA data with polygon
+  const triggerNcRNAFlash = React.useCallback((ncRNAData) => {
+    if (!ncRNAData) {
+      stopNcRNAFlash();
+      return;
+    }
+    stopRegionFlash(); // Clear region glow when highlighting ncRNA
+    setHighlightedNcRNAData([ncRNAData]);
+  }, [stopNcRNAFlash, stopRegionFlash]);
 
   // Track previous flashHood to avoid clearing on unrelated re-renders
   const prevFlashHoodRef = useRef(flashHood);
@@ -2876,6 +2898,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const key = String(k).toLowerCase();
         if (key === 'sequence') return false;
         if (key === 'attributes') return false; // Handle separately below
+        if (key === 'clusterid' || key === 'cluster_id') return false; // Use 'cluster' field instead (clusterId is auto-generated)
         if (isEmptyValue(v)) return false;
         // skip complex objects/arrays to avoid ugly stringification
         const t = typeof v;
@@ -3055,7 +3078,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     try {
       // Genes: prefer the computed geneColorMap (palette-derived) when available so legend matches rendering
       if (typeof geneColorMap !== 'undefined' && geneColorMap && geneColorMap.size > 0) {
-        const items = Array.from(geneColorMap.entries()).map(([k, color]) => ({ value: String(k), color, stroke: (Array.isArray(color) ? darkenColor(color) : null) }));
+        // Deduplicate entries by string key - geneColorMap stores same value as both string and number
+        const seenKeys = new Set<string>();
+        const items = Array.from(geneColorMap.entries())
+          .filter(([k]) => {
+            const strKey = String(k);
+            if (seenKeys.has(strKey)) return false;
+            seenKeys.add(strKey);
+            return true;
+          })
+          .map(([k, color]) => ({ value: String(k), color, stroke: (Array.isArray(color) ? darkenColor(color) : null) }));
         legend.genes = items;
       } else if (gv && gv.genesById) {
         const geneVals = new Map();
@@ -6296,7 +6328,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       new PolygonLayer({
         id: 'region-polygons',
         data: regionPolygons,
-        visible: showGeneLayer, // Regions are part of the genomic context
+        visible: showRegionsLayer, // Independent visibility control for regions
         getPolygon: d => d.polygon,
         getFillColor: d => {
           // Semi-transparent fill based on stroke color
@@ -6863,6 +6895,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     showProteinLinkLayer,
     showNucleotideLinkLayer,
     showNcRNALayer,
+    showRegionsLayer,
     showGeneTextLayer,
     showTreeTextLayer,
     
@@ -7130,6 +7163,100 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       );
     }
 
+    // ======= ncRNA GLOW LAYERS (NEON STYLE) =======
+    if (highlightedNcRNAData && highlightedNcRNAData.length > 0) {
+      const getNcRNAColor = (ncRNA) => {
+        const base = ncRNA?.fillColor || ncRNA?.strokeColor || [120, 200, 255, 255];
+        return toRgbaColor(base);
+      };
+
+      const getNcRNAGlowPolygon = (d) => {
+        if (d.polygon && Array.isArray(d.polygon) && d.polygon.length > 0) {
+          return d.polygon;
+        }
+        // Fallback: create polygon from coordinates
+        const minX = Math.min(d.start || 0, d.end || 0);
+        const maxX = Math.max(d.start || 0, d.end || 0);
+        const y = d.trackY || 0;
+        const halfH = 15;
+        return [
+          [minX, y - halfH],
+          [maxX, y - halfH],
+          [maxX, y + halfH],
+          [minX, y + halfH],
+        ];
+      };
+
+      // Outer glow halo
+      result.push(
+        new PolygonLayer({
+          id: 'ncrna-glow-outer',
+          data: highlightedNcRNAData,
+          getPolygon: getNcRNAGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: 25,
+          getLineColor: d => {
+            const [r, g, b] = getNcRNAColor(d);
+            return [r, g, b, 70];
+          },
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 6,
+          pickable: false,
+          parameters: {
+            blendFunc: [770, 1],
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Middle glow
+      result.push(
+        new PolygonLayer({
+          id: 'ncrna-glow-mid',
+          data: highlightedNcRNAData,
+          getPolygon: getNcRNAGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: 12,
+          getLineColor: d => {
+            const [r, g, b] = getNcRNAColor(d);
+            return [r, g, b, 150];
+          },
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 3,
+          pickable: false,
+          parameters: {
+            blendFunc: [770, 1],
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Core solid line (white/bright)
+      result.push(
+        new PolygonLayer({
+          id: 'ncrna-glow-core',
+          data: highlightedNcRNAData,
+          getPolygon: getNcRNAGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineColor: [255, 255, 255, 255],
+          getLineWidth: 3,
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 2,
+          pickable: false,
+          parameters: {
+            depthTest: false,
+            depthMask: false,
+            polygonOffset: [-2, -2]
+          }
+        })
+      );
+    }
+
     // ======= TREE LEAF GLOW LAYERS (NEON STYLE) =======
     if (highlightedTreeLeafData && highlightedTreeLeafData.length > 0) {
       // Outer glow
@@ -7299,6 +7426,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     highlightedTreeNodeData,
     highlightedHoodData,
     highlightedRegionData,
+    highlightedNcRNAData,
     // Minimal styling dependencies
     themeColors.geneFill,
     themeColors.treeEdges,
@@ -7774,6 +7902,75 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       );
     }
 
+    // ======= ANIMATED ncRNA GLOW =======
+    if (highlightedNcRNAData && highlightedNcRNAData.length > 0) {
+      const getNcRNAGlowPolygon = (d) => {
+        if (d.polygon && Array.isArray(d.polygon) && d.polygon.length > 0) {
+          return d.polygon;
+        }
+        const minX = Math.min(d.start || 0, d.end || 0);
+        const maxX = Math.max(d.start || 0, d.end || 0);
+        const y = d.trackY || 0;
+        const halfH = 15;
+        return [
+          [minX, y - halfH],
+          [maxX, y - halfH],
+          [maxX, y + halfH],
+          [minX, y + halfH],
+        ];
+      };
+
+      const getNcRNAColor = (d) => {
+        const base = d?.fillColor || d?.strokeColor || [120, 200, 255, 255];
+        return toRgbaColor(base);
+      };
+
+      const pulseWidthNcRNA = currentGeneHeight * (0.35 + (sineWave * 0.15));
+      const baseNcRNAOpacity = Math.round(100 + (sineWave * 50));
+
+      // Outer glow (pulsing)
+      result.push(
+        new PolygonLayer({
+          id: `ncrna-glow-outer-anim-${tick}`,
+          data: highlightedNcRNAData,
+          getPolygon: getNcRNAGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: pulseWidthNcRNA,
+          getLineColor: d => {
+            const [r, g, b] = getNcRNAColor(d);
+            const adjusted = adjustGlowColor(r, g, b, baseNcRNAOpacity);
+            return [...adjusted.color, adjusted.opacity];
+          },
+          lineWidthUnits: 'common',
+          pickable: false,
+          parameters: { blendFunc: [770, 1], depthTest: false, depthMask: false }
+        })
+      );
+
+      // Core line
+      result.push(
+        new PolygonLayer({
+          id: 'ncrna-glow-core-anim',
+          data: highlightedNcRNAData,
+          getPolygon: getNcRNAGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineColor: d => {
+            const [r, g, b] = getNcRNAColor(d);
+            if (isLightMode) {
+              return [Math.round(r * 0.5), Math.round(g * 0.5), Math.round(b * 0.5), 220];
+            }
+            return [255, 255, 255, 255];
+          },
+          getLineWidth: currentGeneHeight * 0.04,
+          lineWidthUnits: 'common',
+          pickable: false,
+          parameters: { depthTest: false, depthMask: false, polygonOffset: [-1, -1] }
+        })
+      );
+    }
+
     return result;
   }, [
     highlightedGeneData, 
@@ -7781,6 +7978,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     highlightedTreeNodeData, 
     highlightedHoodData, 
     highlightedRegionData,
+    highlightedNcRNAData,
     themeColors, 
     config.gene?.fillColor, 
     resolvedTheme, // Add theme dependency for light/dark mode glow adjustment
@@ -7806,8 +8004,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   ]);
 
   // Check if there's any highlighted data
-  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedTreeNodeData?.length > 0 || highlightedHoodData?.length > 0 || highlightedRegionData?.length > 0;
-  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'treeNode:', highlightedTreeNodeData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length, 'region:', highlightedRegionData?.length);
+  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedTreeNodeData?.length > 0 || highlightedHoodData?.length > 0 || highlightedRegionData?.length > 0 || highlightedNcRNAData?.length > 0;
+  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'treeNode:', highlightedTreeNodeData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length, 'region:', highlightedRegionData?.length, 'ncRNA:', highlightedNcRNAData?.length);
 
   // Animation loop that updates DeckGL directly (bypasses React)
   useEffect(() => {
@@ -8185,6 +8383,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       try {
         stopGeneFlash();
         stopRegionFlash();
+        stopNcRNAFlash();
         if (!hoodId || start == null || end == null) return false;
         
         const gv = genomeViewRef.current;
@@ -8402,6 +8601,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       try {
         stopGeneFlash();
         stopRegionFlash();
+        stopNcRNAFlash();
         if (!hoodId) return false;
         const gv = genomeViewRef.current;
         if (!gv || !gv.hoodRanges) return false;
@@ -8652,6 +8852,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             }
             const isGeneObject = object && (object.type === 'gene' || object.gene);
             const isHoodObject = object && object.type === 'hood';
+            const isRegionObject = object && object.type === 'region';
+            const isNcRNAObject = object && (object.type === 'ncRNA' || object.type === 'ncRNA_gene');
             
             if (isGeneObject) {
               // OVERLAY STRATEGY: Pass the full gene object to avoid filtering large arrays
@@ -8667,8 +8869,25 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
               stopHoodFlash();
               stopTreeLeafFlash();
               stopRegionFlash();
+              stopNcRNAFlash();
+            } else if (isRegionObject) {
+              // Trigger region glow
+              triggerRegionFlash(object);
+              stopGeneFlash();
+              stopHoodFlash();
+              stopTreeLeafFlash();
+              stopNcRNAFlash();
+            } else if (isNcRNAObject) {
+              // Trigger ncRNA glow
+              triggerNcRNAFlash(object);
+              stopGeneFlash();
+              stopHoodFlash();
+              stopTreeLeafFlash();
+              stopRegionFlash();
             } else {
               stopGeneFlash();
+              stopRegionFlash();
+              stopNcRNAFlash();
             }
             
             // Clear baseline highlight when clicking anything that's not a baseline
@@ -8727,6 +8946,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             stopHoodFlash();
             stopTreeLeafFlash();
             stopRegionFlash();
+            stopNcRNAFlash();
             // NOTE: Don't stop tree node flash on empty click - keep clade selection visible
           }
         }}

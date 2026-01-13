@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 export default function ScrollbarWidget({
@@ -6,7 +6,7 @@ export default function ScrollbarWidget({
   maxY,
   scrollNorm,
   setScrollNorm,
-  visibleFraction,
+  visibleFraction: visibleFractionProp,
   setViewState,
   containerHeight,
   viewState,
@@ -14,13 +14,26 @@ export default function ScrollbarWidget({
   config = DEFAULT_CONFIG,
   themeColors = {}
 }) {
+  // Local state for visibleFraction that updates from viewStateRef polling
+  const [liveVisibleFraction, setLiveVisibleFraction] = useState(visibleFractionProp);
+  
+  // Sync with prop when it changes (e.g., initial load or explicit viewState updates)
+  useEffect(() => {
+    if (visibleFractionProp !== undefined && isFinite(visibleFractionProp)) {
+      setLiveVisibleFraction(visibleFractionProp);
+    }
+  }, [visibleFractionProp]);
+  
   // Debug logging
   console.log('[ScrollbarWidget] Props:', { 
-    minY, maxY, scrollNorm, visibleFraction, containerHeight,
+    minY, maxY, scrollNorm, visibleFraction: liveVisibleFraction, containerHeight,
     viewStateTarget: viewState?.target,
     hasViewStateRef: !!viewStateRef,
     isValidRange: isFinite(minY) && isFinite(maxY) && maxY > minY
   });
+  
+  // Use liveVisibleFraction for all calculations
+  const visibleFraction = liveVisibleFraction;
   
   // Helper to get the thumb's top position and height for the custom scrollbar
   function getThumbMetrics(norm, barHeight, visibleFraction) {
@@ -36,12 +49,13 @@ export default function ScrollbarWidget({
   const scrollBarRef = useRef(null);
 
   // If a live viewStateRef is provided, poll it via RAF and update the
-  // normalized scroll position so the thumb follows live camera moves.
+  // normalized scroll position and visible fraction so the thumb follows live camera moves.
   useEffect(() => {
     if (!viewStateRef) return undefined;
     let rafId = null;
     // Initialize with undefined to force first update
     let lastNorm = undefined;
+    let lastZoom = undefined;
     const tick = () => {
       const vs = viewStateRef.current;
       if (vs && vs.target && isFinite(minY) && isFinite(maxY) && maxY > minY) {
@@ -54,13 +68,26 @@ export default function ScrollbarWidget({
             try { setScrollNorm(newNorm); } catch (e) { /* swallow */ }
           }
         }
+        
+        // Also update visibleFraction based on zoom
+        const zoom = vs.zoom;
+        if (isFinite(zoom) && containerHeight > 0) {
+          // Only update if zoom changed meaningfully
+          if (lastZoom === undefined || Math.abs(zoom - lastZoom) > 0.01) {
+            lastZoom = zoom;
+            const scale = Math.pow(2, zoom);
+            const visibleY = containerHeight / scale;
+            const newVisibleFraction = Math.min(1, visibleY / (maxY - minY));
+            setLiveVisibleFraction(newVisibleFraction);
+          }
+        }
       }
       rafId = requestAnimationFrame(tick);
     };
     // Start immediately
     rafId = requestAnimationFrame(tick);
     return () => { if (rafId) cancelAnimationFrame(rafId); };
-  }, [viewStateRef, minY, maxY, setScrollNorm]); // Removed scrollNorm dependency to avoid re-init
+  }, [viewStateRef, minY, maxY, containerHeight, setScrollNorm]); // Added containerHeight
 
   // Theme-aware colors
   const trackColor = themeColors.widgetBackground || '#f8f9fa';

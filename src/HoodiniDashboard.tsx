@@ -227,6 +227,7 @@ export interface InitialState {
   showProteinLinkLayer?: boolean;
   showNucleotideLinkLayer?: boolean;
   showNcRNALayer?: boolean;
+  showRegionsLayer?: boolean;
   showGeneTextLayer?: boolean;
   showTreeTextLayer?: boolean;
 }
@@ -499,6 +500,7 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   showProteinLinkLayer: true,
   showNucleotideLinkLayer: true,
   showNcRNALayer: true,
+  showRegionsLayer: true,
   showGeneTextLayer: true,
   showTreeTextLayer: true,
 };
@@ -669,6 +671,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
   const [hasProteinLinkData, setHasProteinLinkData] = useState(false);
   const [hasNucleotideLinkData, setHasNucleotideLinkData] = useState(false);
   const [hasNcRNAData, setHasNcRNAData] = useState(false);
+  const [hasRegionsData, setHasRegionsData] = useState(false);
   
   // Selection
   const [selectedObject, setSelectedObject] = useState<any>(null);
@@ -711,6 +714,11 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
       setHasDomainData(Object.keys(data.domainsByGene).length > 0);
       setHasProteinLinkData(data.proteinLinks.length > 0);
       setHasNucleotideLinkData(data.nucleotideLinks.length > 0);
+      // Detect ncRNA and region features from GFF
+      const hasNcRNA = data.gffFeatures.some((f: any) => f?.type === 'ncRNA');
+      const hasRegions = data.gffFeatures.some((f: any) => f?.type === 'region');
+      setHasNcRNAData(hasNcRNA);
+      setHasRegionsData(hasRegions);
       onDataLoaded?.(data);
       onLoadingChange?.(false);
       return;
@@ -947,6 +955,11 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
         setHasDomainData(Object.keys(finalData.domainsByGene).length > 0);
         setHasProteinLinkData(finalData.proteinLinks.length > 0);
         setHasNucleotideLinkData(finalData.nucleotideLinks.length > 0);
+        // Detect ncRNA and region features from GFF
+        const hasNcRNA = finalData.gffFeatures.some((f: any) => f?.type === 'ncRNA');
+        const hasRegions = finalData.gffFeatures.some((f: any) => f?.type === 'region');
+        setHasNcRNAData(hasNcRNA);
+        setHasRegionsData(hasRegions);
         
         // Detect metadata columns
         if (Object.keys(finalData.proteinMetadata).length > 0) {
@@ -1412,6 +1425,8 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           setShowNucleotideLinkLayer={createSetter('showNucleotideLinkLayer')}
           showNcRNALayer={state.showNcRNALayer}
           setShowNcRNALayer={createSetter('showNcRNALayer')}
+          showRegionsLayer={state.showRegionsLayer}
+          setShowRegionsLayer={createSetter('showRegionsLayer')}
           showGeneTextLayer={state.showGeneTextLayer}
           setShowGeneTextLayer={createSetter('showGeneTextLayer')}
           showTreeTextLayer={state.showTreeTextLayer}
@@ -1421,6 +1436,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           hasProteinLinkData={hasProteinLinkData}
           hasNucleotideLinkData={hasNucleotideLinkData}
           hasNcRNAData={hasNcRNAData}
+          hasRegionsData={hasRegionsData}
           // Format guides
           showFormatGuides={state.showFormatGuides}
           setShowFormatGuides={createSetter('showFormatGuides')}
@@ -1550,6 +1566,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               showProteinLinkLayer={state.showProteinLinkLayer}
               showNucleotideLinkLayer={state.showNucleotideLinkLayer}
               showNcRNALayer={state.showNcRNALayer}
+              showRegionsLayer={state.showRegionsLayer}
               showGeneTextLayer={state.showGeneTextLayer}
               showTreeTextLayer={state.showTreeTextLayer}
               // Callbacks

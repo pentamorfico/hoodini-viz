@@ -186,6 +186,8 @@ export function AppSidebar({
   setShowNucleotideLinkLayer: setShowNucleotideLinkLayerProp,
   showNcRNALayer: showNcRNALayerProp,
   setShowNcRNALayer: setShowNcRNALayerProp,
+  showRegionsLayer: showRegionsLayerProp,
+  setShowRegionsLayer: setShowRegionsLayerProp,
   showGeneTextLayer: showGeneTextLayerProp,
   setShowGeneTextLayer: setShowGeneTextLayerProp,
   showTreeTextLayer: showTreeTextLayerProp,
@@ -195,6 +197,7 @@ export function AppSidebar({
   hasProteinLinkData,
   hasNucleotideLinkData,
   hasNcRNAData,
+  hasRegionsData,
   // Format guide props
   showFormatGuides: showFormatGuidesProp,
   setShowFormatGuides: setShowFormatGuidesProp,
@@ -390,6 +393,7 @@ export function AppSidebar({
   const [localShowProteinLinkLayer, setLocalShowProteinLinkLayer] = useState(true);
   const [localShowNucleotideLinkLayer, setLocalShowNucleotideLinkLayer] = useState(true);
   const [localShowNcRNALayer, setLocalShowNcRNALayer] = useState(true);
+  const [localShowRegionsLayer, setLocalShowRegionsLayer] = useState(true);
   const [localShowGeneTextLayer, setLocalShowGeneTextLayer] = useState(true);
   const [localShowTreeTextLayer, setLocalShowTreeTextLayer] = useState(true);
   
@@ -405,6 +409,8 @@ export function AppSidebar({
   const setShowNucleotideLinkLayer = setShowNucleotideLinkLayerProp || setLocalShowNucleotideLinkLayer;
   const showNcRNALayer = showNcRNALayerProp !== undefined ? showNcRNALayerProp : localShowNcRNALayer;
   const setShowNcRNALayer = setShowNcRNALayerProp || setLocalShowNcRNALayer;
+  const showRegionsLayer = showRegionsLayerProp !== undefined ? showRegionsLayerProp : localShowRegionsLayer;
+  const setShowRegionsLayer = setShowRegionsLayerProp || setLocalShowRegionsLayer;
   const showGeneTextLayer = showGeneTextLayerProp !== undefined ? showGeneTextLayerProp : localShowGeneTextLayer;
   const setShowGeneTextLayer = setShowGeneTextLayerProp || setLocalShowGeneTextLayer;
   const showTreeTextLayer = showTreeTextLayerProp !== undefined ? showTreeTextLayerProp : localShowTreeTextLayer;
@@ -721,16 +727,58 @@ export function AppSidebar({
               </Badge>
             </div>
             
-            {/* Gene Information Display */}
+            {/* Feature Information Display (Gene, ncRNA, Region) */}
             <div className="space-y-2">
               {selectedGene ? (
                 <div className="bg-muted/30 p-3 rounded-lg border border-border/30">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="info" className="text-xs">Gene Details</Badge>
+                    <Badge variant="info" className="text-xs">
+                      {selectedGene.type === 'ncRNA' || selectedGene.type === 'ncRNA_gene' 
+                        ? 'ncRNA Details' 
+                        : selectedGene.type === 'region' 
+                          ? 'Region Details' 
+                          : 'Gene Details'}
+                    </Badge>
                   </div>
                   <div className="space-y-3">
                     {selectedGene.metadata && Object.keys(selectedGene.metadata).length > 0 ? (
                       <>
+                        {/* Parse and display attributes if they exist as a string */}
+                        {(() => {
+                          // Helper to parse attributes string into key-value pairs
+                          const parseAttributesString = (attrStr: string) => {
+                            const result: Record<string, string> = {};
+                            if (!attrStr || typeof attrStr !== 'string') return result;
+                            attrStr.split(';').filter(s => s.trim()).forEach(pair => {
+                              const [key, ...rest] = pair.split('=');
+                              if (key && rest.length > 0) {
+                                result[key.trim()] = rest.join('=').trim();
+                              }
+                            });
+                            return result;
+                          };
+                          
+                          // Get parsed attributes
+                          const parsedAttrs = selectedGene.metadata.attributes && typeof selectedGene.metadata.attributes === 'string'
+                            ? parseAttributesString(selectedGene.metadata.attributes)
+                            : (typeof selectedGene.metadata.attributes === 'object' ? selectedGene.metadata.attributes : {});
+                          
+                          // Merge parsed attributes with metadata (parsed attrs override if present)
+                          const mergedMeta = { ...selectedGene.metadata };
+                          if (parsedAttrs && Object.keys(parsedAttrs).length > 0) {
+                            Object.entries(parsedAttrs).forEach(([k, v]) => {
+                              if (!mergedMeta[k] || mergedMeta[k] === mergedMeta.attributes) {
+                                mergedMeta[k] = v;
+                              }
+                            });
+                          }
+                          // Remove the raw attributes field since we've parsed it
+                          delete mergedMeta.attributes;
+                          
+                          // Store for use below
+                          (selectedGene as any)._mergedMeta = mergedMeta;
+                          return null;
+                        })()}
 
                           
                           {(() => {
@@ -778,11 +826,14 @@ export function AppSidebar({
                             // Store the color for use in the components below
                             const geneColorForBadge = getGeneColor();
                             
+                            // Use merged metadata that includes parsed attributes
+                            const displayMeta = (selectedGene as any)._mergedMeta || selectedGene.metadata;
+                            
                             return (
                               <>
                                 {/* Product - show first if available and not an empty/placeholder value */}
-                                {!isEmptyValue(selectedGene.metadata.product) && (
-                                <div className="flex items-start gap-2">
+                                {!isEmptyValue(displayMeta.product) && (
+                                <div className="flex items-center gap-2">
                                     <Badge 
                                       variant={geneColorBy === 'product' ? "default" : "outline"} 
                                       className={`text-xs flex-shrink-0 ${geneColorBy === 'product' ? 'border-0' : ''}`}
@@ -793,12 +844,12 @@ export function AppSidebar({
                                     >
                                       Product
                                     </Badge>
-                                    <p className="text-xs break-all leading-relaxed flex-1">{String(selectedGene.metadata.product)}</p>
+                                    <p className="text-xs break-all leading-relaxed flex-1">{String(displayMeta.product)}</p>
                                   </div>
                                 )}
                                 
                                 {/* Protein Cluster - show second with color if available */}
-                                {!isEmptyValue(selectedGene.metadata.cluster) && (
+                                {!isEmptyValue(displayMeta.cluster) && (
                                   <div className="flex items-center gap-2">
                                     <Badge 
                                       variant={geneColorBy === 'cluster' ? "default" : "outline"} 
@@ -811,19 +862,19 @@ export function AppSidebar({
                                     >
                                       Cluster
                                     </Badge>
-                                    <p className="text-xs break-all leading-relaxed flex-1">{String(selectedGene.metadata.cluster)}</p>
+                                    <p className="text-xs break-all leading-relaxed flex-1">{String(displayMeta.cluster)}</p>
                                   </div>
                                 )}
                                 
-                                {/* Show any other metadata fields not already displayed (excluding sequence) */}
-                                {Object.entries(selectedGene.metadata)
-                                  .filter(([key, value]) => !['product', 'cluster', 'sequence'].includes(key) && !isEmptyValue(value))
+                                {/* Show any other metadata fields not already displayed (excluding sequence, clusterId) */}
+                                {Object.entries(displayMeta)
+                                  .filter(([key, value]) => !['product', 'cluster', 'sequence', 'clusterId', 'cluster_id', 'attributes'].includes(key) && !isEmptyValue(value))
                                   .map(([key, value]) => {
                                     // Check if this field is the one being used for gene coloring
                                     const isColorField = geneColorBy === key;
                                     
                                     return (
-                                      <div key={key} className="flex items-start gap-2">
+                                      <div key={key} className="flex items-center gap-2">
                                         <Badge 
                                           variant={isColorField ? "default" : "outline"} 
                                           className={`text-xs capitalize flex-shrink-0 ${isColorField ? 'border-0' : ''}`}
@@ -957,16 +1008,16 @@ export function AppSidebar({
                     <p className="text-xs text-muted-foreground mt-1">Gene Neighborhood Visualization</p>
                   </div>
                   <div className="space-y-2 text-xs">
-                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
-                      <Badge variant="info" className="text-xs shrink-0 mt-0.5">Settings</Badge>
+                    <div className="flex items-center gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="info" className="text-xs shrink-0">Settings</Badge>
                       <span className="text-muted-foreground">Configure tree and gene display</span>
                     </div>
-                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
-                      <Badge variant="success" className="text-xs shrink-0 mt-0.5">Palette</Badge>
+                    <div className="flex items-center gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="success" className="text-xs shrink-0">Palette</Badge>
                       <span className="text-muted-foreground">Customize colors and styling</span>
                     </div>
-                    <div className="flex items-start gap-2 p-2 bg-background/50 rounded-md">
-                      <Badge variant="warning" className="text-xs shrink-0 mt-0.5">Legend</Badge>
+                    <div className="flex items-center gap-2 p-2 bg-background/50 rounded-md">
+                      <Badge variant="warning" className="text-xs shrink-0">Legend</Badge>
                       <span className="text-muted-foreground">Understand visualization elements</span>
                     </div>
                   </div>
@@ -1076,6 +1127,17 @@ export function AppSidebar({
                       id="ncrna-layer"
                       checked={showNcRNALayer}
                       onCheckedChange={setShowNcRNALayer}
+                    />
+                  </div>
+                )}
+                {/* Regions layer - show if regions data exists */}
+                {hasRegionsData && (
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="regions-layer" className="text-xs">Regions Layer</Label>
+                    <Switch
+                      id="regions-layer"
+                      checked={showRegionsLayer}
+                      onCheckedChange={setShowRegionsLayer}
                     />
                   </div>
                 )}
