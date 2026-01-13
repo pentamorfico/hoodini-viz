@@ -1056,58 +1056,81 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
 
   const handleZoomGene = useCallback((row: any) => {
     if (!row || !vizRef.current) return;
-    const id = getGeneKey(row);
-    if (id) {
-      console.log('[HoodiniDashboard] handleZoomGene:', id);
-      vizRef.current.focusGeneById?.(String(id));
-      
-      // Also set the selected object
-      // We need to look it up from the viz if possible to get the full object with metadata
-      // Or construct a basic one from the row
-      const gv = vizRef.current.genomeView;
-      let geneObj = null;
-      if (gv && gv.genesById) {
-         // Try to find the gene in the genome view's data
-         // This logic mirrors HoodiniViz.focusGeneById's lookup
-         const idStr = String(id);
-         let uniqueId = null;
-         
-         // 1. Try direct map lookup if available
-         if (gv._genesByOriginalId && typeof gv._genesByOriginalId.get === 'function') {
-           const matches = gv._genesByOriginalId.get(idStr);
-           if (matches && matches.length) uniqueId = matches[0];
-         }
-         
-         // 2. Fallback to loop
-         if (!uniqueId) {
-            for (const [uid, g] of Object.entries(gv.genesById || {}) as any) {
-             const candidate =
-               g.originalGeneId ||
-               g.gene_id ||
-               g.originalId ||
-               g.id ||
-               (g.metadata && (g.metadata.gene_id || g.metadata.id));
-             if (candidate && String(candidate) === idStr) {
-               uniqueId = uid;
-               break;
+    
+    // Check the type of feature - CDS uses focusGeneById, others use focusFeatureByPosition
+    const featureType = row.type || row.featureType || 'CDS';
+    const isCDS = featureType === 'CDS' || featureType === 'gene';
+    
+    if (isCDS) {
+      // Original logic for CDS/genes
+      const id = getGeneKey(row);
+      if (id) {
+        vizRef.current.focusGeneById?.(String(id));
+        
+        // Also set the selected object
+        const gv = vizRef.current.genomeView;
+        let geneObj = null;
+        if (gv && gv.genesById) {
+           const idStr = String(id);
+           let uniqueId = null;
+           
+           if (gv._genesByOriginalId && typeof gv._genesByOriginalId.get === 'function') {
+             const matches = gv._genesByOriginalId.get(idStr);
+             if (matches && matches.length) uniqueId = matches[0];
+           }
+           
+           if (!uniqueId) {
+              for (const [uid, g] of Object.entries(gv.genesById || {}) as any) {
+               const candidate =
+                 g.originalGeneId ||
+                 g.gene_id ||
+                 g.originalId ||
+                 g.id ||
+                 (g.metadata && (g.metadata.gene_id || g.metadata.id));
+               if (candidate && String(candidate) === idStr) {
+                 uniqueId = uid;
+                 break;
+               }
              }
            }
-         }
-         
-         if (uniqueId) {
-           geneObj = gv.genesById[uniqueId];
-         }
+           
+           if (uniqueId) {
+             geneObj = gv.genesById[uniqueId];
+           }
+        }
+        
+        const selected = {
+          type: 'gene',
+          id: id,
+          metadata: geneObj?.metadata || row,
+          ...geneObj
+        };
+        
+        setSelectedObject(selected);
+        onSelectionChange?.(selected);
       }
+    } else {
+      // For regions, ncRNAs, and other feature types - use position-based zoom
+      const hoodId = row.seqid || row.hood_id || row.hoodId;
+      const start = row.start;
+      const end = row.end;
       
-      const selected = {
-        type: 'gene',
-        id: id,
-        metadata: geneObj?.metadata || row,
-        ...geneObj
-      };
-      
-      setSelectedObject(selected);
-      onSelectionChange?.(selected);
+      if (hoodId && start != null && end != null) {
+        // Pass featureType so focusFeatureByPosition knows where to search
+        vizRef.current.focusFeatureByPosition?.(String(hoodId), start, end, featureType);
+        
+        const selected = {
+          type: featureType,
+          id: row.id || `${hoodId}:${start}-${end}`,
+          metadata: row.metadata || row,
+          ...row
+        };
+        
+        setSelectedObject(selected);
+        onSelectionChange?.(selected);
+      } else {
+        console.warn('[HoodiniDashboard] Missing required fields for zoom:', { hoodId, start, end });
+      }
     }
   }, [getGeneKey, onSelectionChange]);
 
@@ -1174,13 +1197,31 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
   }, [hiddenHoodIds, selectedObject]);
 
   const visibilityConfig = useMemo(() => {
+    // Helper to extract gene ID from attributes (can be string or object)
+    const getGeneIdFromAttributes = (attrs: any): string | null => {
+      if (!attrs) return null;
+      if (typeof attrs === 'string') {
+        // Parse "ID=WP_347132630.1" or "ID=WP_347132630.1;Name=..."
+        const match = attrs.match(/ID=([^;]+)/);
+        return match ? match[1] : null;
+      } else if (typeof attrs === 'object') {
+        return attrs.ID || attrs.gene_id || attrs.protein_id || null;
+      }
+      return null;
+    };
+
     return {
       genes: {
         hiddenSet: hiddenGeneIds,
         // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
         invert: true,
         getRowId: (rowObj: any) => {
-          return rowObj?.gene_id || rowObj?.uniqueId || rowObj?.id || rowObj?.originalGeneId;
+          // GFF features store the gene ID in attributes (string or object)
+          return rowObj?.gene_id || 
+                 getGeneIdFromAttributes(rowObj?.attributes) ||
+                 rowObj?.uniqueId || 
+                 rowObj?.id || 
+                 rowObj?.originalGeneId;
         },
         onToggle: (id: string, visible: boolean) => {
           console.log('[Dashboard] onToggle Gene:', id, 'visible:', visible);
@@ -1217,29 +1258,8 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
             return next;
           });
         }
-      },
-      treeMetadata: {
-        hiddenSet: hiddenHoodIds, // Shares visibility filter with hoods
-        // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
-        invert: true,
-        getRowId: (rowObj: any) => rowObj?.leaf_id || rowObj?.leafId || rowObj?.leaf_name || rowObj?.leafName || rowObj?.id || rowObj?.name,
-        onToggle: (id: string | number, visible: boolean) => {
-          console.log('[Dashboard] onToggle Tree:', id, 'visible:', visible);
-          // Reuse hood visibility toggle logic
-          if (!id) return;
-          setHiddenHoodIds(prev => {
-            const next = new Set(prev);
-            const key = String(id);
-            if (visible) {
-              next.delete(key);
-              next.delete(Number(key));
-            } else {
-              next.add(key);
-            }
-            return next;
-          });
-        }
       }
+      // Note: treeMetadata does not have visibility toggles
     };
   }, [hiddenGeneIds, hiddenHoodIds]);
 

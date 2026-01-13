@@ -639,7 +639,7 @@ export function AppSidebar({
     <Sidebar collapsible="offcanvas" variant={variant} {...props}>
       {/* Header Container (simplified to avoid nesting issues) */}
       <div
-        className="mx-3 my-2 p-2.5 bg-card/80 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm"
+        className="mx-3 p-1 bg-card/80 backdrop-blur-sm rounded-xl border border-border/50 shadow-sm"
         style={{ backgroundColor: themeColors.background || undefined }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', width: '100%' }}>
@@ -708,7 +708,7 @@ export function AppSidebar({
 
       {/* Content Container */}
       <div 
-        className="mx-3 mb-4 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide"
+        className="mx-3 my-3 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide"
         style={{ backgroundColor: themeColors.background || undefined, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* Info Section */}
@@ -951,7 +951,7 @@ export function AppSidebar({
                     </div>
                   </div>
                 ) : (
-                <div className="p-4 bg-gradient-to-br from-muted/40 to-accent/20 rounded-xl border border-border/30 text-sm leading-relaxed">
+                <div className="p-4 bg-gradient-to-br from-muted/40 to-accent/20 rounded-lg border border-border/30 text-sm leading-relaxed">
                   <div className="text-center mb-4">
                     <span className="text-lg font-semibold">Hoodini 🦉🎩</span>
                     <p className="text-xs text-muted-foreground mt-1">Gene Neighborhood Visualization</p>

@@ -714,6 +714,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
   // Normalize hiddenGeneIds to Set<string>
   const hiddenGeneSet = React.useMemo(() => {
+    console.log('[HoodiniViz] hiddenGeneIds changed:', hiddenGeneIds?.size ?? 0, 'items:', hiddenGeneIds ? Array.from(hiddenGeneIds) : []);
     if (!hiddenGeneIds) return new Set<string>();
     if (hiddenGeneIds instanceof Set) return hiddenGeneIds;
     if (Array.isArray(hiddenGeneIds)) return new Set(hiddenGeneIds.map(String));
@@ -811,6 +812,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   const [highlightedTreeLeafData, setHighlightedTreeLeafData] = useState(null);
   const [highlightedTreeNodeData, setHighlightedTreeNodeData] = useState(null); // Internal tree nodes
   const [highlightedHoodData, setHighlightedHoodData] = useState(null);
+  const [highlightedRegionData, setHighlightedRegionData] = useState(null); // Regions/features
   
   // Flag to track if baseline highlight was set internally (via focusBaselineByHood)
   // This prevents the flashHood effect from overwriting internal highlights
@@ -845,6 +847,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     setHighlightedGeneData(null);
   }, []);
 
+  // Stop region highlight/flash
+  const stopRegionFlash = React.useCallback(() => {
+    setHighlightedRegionData(null);
+  }, []);
+
   // Stop baseline highlight/flash
   const stopHoodFlash = React.useCallback(() => {
     internalHoodHighlightRef.current = false;
@@ -868,12 +875,22 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       stopGeneFlash();
       return;
     }
+    stopRegionFlash(); // Clear region glow when highlighting a gene
     setFlashGeneId(String(geneId));
     // Store the actual gene data for the glow layer (avoids filtering large array)
     if (geneObject) {
       setHighlightedGeneData([geneObject]);
     }
   }, [stopGeneFlash]);
+
+  // Trigger region highlight - accepts region data with polygon
+  const triggerRegionFlash = React.useCallback((regionData) => {
+    if (!regionData) {
+      stopRegionFlash();
+      return;
+    }
+    setHighlightedRegionData([regionData]);
+  }, [stopRegionFlash]);
 
   // Track previous flashHood to avoid clearing on unrelated re-renders
   const prevFlashHoodRef = useRef(flashHood);
@@ -942,6 +959,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // 🚀 PERFORMANCE: Cache genesData to avoid rebuilding 92k+ items when only colors change
   const cachedGenesDataRef = useRef(null);
   const cachedGenesDataSignatureRef = useRef(null);
+  
+  // Cache regionPolygons for zoom functionality
+  const cachedRegionPolygonsRef = useRef([]);
   
   // 🚀 PERFORMANCE: Cache other expensive computations when only colors change
   const cachedBoundsRef = useRef(null);
@@ -4348,6 +4368,62 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     genomeView
   ]);
 
+  // Sync highlighted region data when geometry/alignment changes
+  // Looks up the region by its unique ID in genomeView.getAllRegions()
+  useEffect(() => {
+    if (!highlightedRegionData || highlightedRegionData.length === 0) return;
+    if (!genomeView) return;
+    
+    const regionObj = highlightedRegionData[0];
+    // Use the unique ID if available
+    const regionId = regionObj.id;
+    if (!regionId) return; // Can't sync without ID
+    
+    const rafId = requestAnimationFrame(() => {
+      // Get all regions directly from genomeView (always has all regions regardless of clade selection)
+      const gv = genomeView as any;
+      const allRegions = gv.getAllRegions?.() || [];
+      
+      // Find the region by its unique ID
+      const matchingRegion = allRegions.find((r: any) => r.id === regionId);
+      
+      if (!matchingRegion) return;
+      
+      // Update highlighted region with fresh data from genomeView
+      setHighlightedRegionData(prev => {
+        if (!prev || prev.length === 0) return null;
+        // Region color comes from fillColor (set by palette), falling back to strokeColor
+        const regionColor = matchingRegion.fillColor || matchingRegion.strokeColor || [255, 180, 50, 255];
+        return prev.map(r => ({
+          ...r,
+          polygon: matchingRegion.polygon,
+          startX: matchingRegion.start,
+          endX: matchingRegion.end,
+          strokeColor: regionColor,
+          fillColor: regionColor,
+          trackY: matchingRegion.trackY
+        }));
+      });
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [
+    genomeView,
+    // These deps trigger when geometry changes - genomeView.getAllRegions() will return updated data
+    effectiveConfig.gene?.height,
+    effectiveConfig.gene?.geneHeight,
+    effectiveConfig.gene?.arrowheadHeight,
+    effectiveConfig.region?.padding,
+    effectiveConfig.tree?.ySpacing,
+    effectiveConfig.genome?.xScalePercent,
+    ySpacingProp,
+    genomeXScaleProp,
+    alignmentVersion,
+    // Also need to listen to paletteVersion for color changes
+    paletteVersion
+    // NOTE: highlightedRegionData NOT in deps - we only update when geometry changes
+  ]);
+
   // 2. Visible leaves set - critical for filtering when a clade is selected
   // NOTE: This set is used for tree filtering only (when clicking a tree node).
   // hiddenHoodSet does NOT affect the tree, only the hood tracks.
@@ -4415,7 +4491,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // NOTE: Include domain.heightFactor so domain polygons update when domain relative height changes
     // NOTE: Include genome.xScalePercent so gene positions update when genomeXScale slider changes
     // Include ySpacing so changing vertical spacing forces a full track recompute
-    const geomSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${effectiveConfig.gene.arrowheadHeight}:${effectiveConfig.domain.heightFactor || 0.6}:${effectiveConfig.genome.xScalePercent}:${effectiveConfig.tree.ySpacing}:${alignmentVersion}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${selectedNode?.id ?? 'null'}:${visibleLeavesSet.size}`;
+    // NOTE: Include hiddenHoodSet.size and hiddenGeneSet.size to force rebuild when visibility toggles change
+    const geomSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${effectiveConfig.gene.arrowheadHeight}:${effectiveConfig.domain.heightFactor || 0.6}:${effectiveConfig.genome.xScalePercent}:${effectiveConfig.tree.ySpacing}:${alignmentVersion}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${selectedNode?.id ?? 'null'}:${visibleLeavesSet.size}:${hiddenHoodSet.size}:${hiddenGeneSet.size}`;
     const signatureMatches = lastGeometrySignatureRef.current === geomSignature;
     const scaleMatches = lastEffectiveTreeXScaleRef.current === effectiveTreeXScale;
     const isFirstRender = lastGeometrySignatureRef.current === null;
@@ -4608,10 +4685,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // --- OPTIMIZED REGION COLORING ---
     // Respect clade selection for regions as well (filter by hood_id when available)
-    // Also filter by hiddenHoodSet (using global isHoodHidden)
+    // Also filter by hiddenHoodSet (using global isHoodHidden) and hiddenGeneSet
+    
+    // Helper to check if a region's associated gene is hidden
+    const isRegionGeneHidden = (region) => {
+      if (hiddenGeneSet.size === 0) return false;
+      // Check if region has a gene_id in its metadata or attributes
+      const geneId = region.gene_id || region.geneId || 
+                     region.metadata?.gene_id || region.metadata?.geneId ||
+                     region.metadata?.Parent;
+      if (!geneId) return false;
+      return hiddenGeneSet.has(String(geneId));
+    };
+    
     const regionPolygons = (genomeView.getAllRegions() || []).filter(r => {
       // Filter by hidden hoods using global helper
       if (isHoodHidden(r.hood_id)) return false;
+      // Filter by hidden genes
+      if (isRegionGeneHidden(r)) return false;
       if (!selectedNode) return true;
       try { return visibleLeavesSet.has(r.hood_id); } catch (e) { return true; }
     }).map(r => {
@@ -4630,14 +4721,25 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
       
       // Convert region to polygon format for rendering
+      // Include original data for zoom/selection functionality
       return { 
         polygon: r.polygon,
         fillColor: finalFillColor,
         strokeColor: finalStrokeColor,
         strokeWidth: r.strokeWidth,
-        metadata: r.metadata
+        metadata: r.metadata,
+        // Add fields needed for zoom functionality
+        hood_id: r.hood_id,
+        seqid: r.seqid, // Original seqid from GFF (string like 'NZ_JAOPKZ010000017.1')
+        start: r.start, // Transformed pixel coordinate
+        end: r.end, // Transformed pixel coordinate
+        trackY: r.trackY,
+        type: r.type || 'region',
+        id: r.id || r.metadata?.ID || `${r.hood_id}:${r.start}-${r.end}`
       };
     });
+    // Cache regionPolygons for zoom functionality
+    cachedRegionPolygonsRef.current = regionPolygons;
     const regionPolygonsEnd = performance.now();
     if (DEBUG_LOGS) console.log(`📊 linkPolygons+regions built in ${(performance.now() - linkPolygonsStart).toFixed(1)}ms (protein: ${(proteinPolygonsEnd - linkPolygonsStart).toFixed(1)}ms, nucleotide: ${(nucleotidePolygonsEnd - proteinPolygonsEnd).toFixed(1)}ms, regions: ${(regionPolygonsEnd - nucleotidePolygonsEnd).toFixed(1)}ms)`);
     
@@ -4659,10 +4761,23 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       return isHoodHidden(hoodId);
     };
     
+    // Helper to check if domain's parent gene is hidden
+    const isDomainGeneHidden = (domain) => {
+      if (hiddenGeneSet.size === 0) return false;
+      const parentGene = domain.gene || (domain.geneId && genomeView.genesById[domain.geneId]);
+      if (!parentGene) return false;
+      // Use same ID extraction logic as gene visibility
+      const attrId = typeof parentGene.attributes === 'string' 
+        ? (parentGene.attributes.match(/ID=([^;]+)/)?.[1] || null)
+        : (parentGene.attributes?.ID || null);
+      const geneKey = parentGene.originalGeneId || parentGene.gene_id || attrId || domain.geneId;
+      return geneKey && hiddenGeneSet.has(String(geneKey));
+    };
+    
     if (allDomains.length === 0) {
       if (DEBUG_LOGS) console.log(`📊 domains built in ${(performance.now() - domainsStart).toFixed(1)}ms (0 domains - skipped)`);
     } else {
-    // Domain rendering: filter by selected node (clade) first, then by source, then by hidden hoods
+    // Domain rendering: filter by selected node (clade) first, then by source, then by hidden hoods/genes
     let renderedDomains = allDomains;
     if (selectedNode) {
       try {
@@ -4681,6 +4796,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Filter by hidden hoods
     if (hiddenHoodSet.size > 0) {
       renderedDomains = renderedDomains.filter(d => !isDomainHoodHidden(d));
+    }
+    // Filter by hidden genes
+    if (hiddenGeneSet.size > 0) {
+      renderedDomains = renderedDomains.filter(d => !isDomainGeneHidden(d));
     }
 
     domains = renderedDomains.map(d => {
@@ -5206,6 +5325,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       // Full rebuild needed - geometry or structure changed
       if (DEBUG_LOGS) console.log('🔨 genesData: full rebuild (geometry changed)');
       
+      // Helper to extract gene ID from attributes (handles both string and object formats)
+      const getGeneIdFromAttrs = (attrs: any): string | null => {
+        if (!attrs) return null;
+        if (typeof attrs === 'string') {
+          const match = attrs.match(/ID=([^;]+)/);
+          return match ? match[1] : null;
+        } else if (typeof attrs === 'object') {
+          return attrs.ID || attrs.gene_id || attrs.protein_id || null;
+        }
+        return null;
+      };
+      
       // Helper to check gene visibility
       const isGeneVisibleInLayer = (g: any, uid: string) => {
         const hoodId = g.hood_id ?? g.hoodId;
@@ -5216,7 +5347,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           }
         }
         // Check if gene is individually hidden
-        const geneKey = g.originalGeneId || g.gene_id || uid;
+        // Match the priority order used in Dashboard's getRowId for genes
+        const attrId = getGeneIdFromAttrs(g.attributes);
+        const geneKey = g.originalGeneId || g.gene_id || attrId || uid;
+        
+        // DEBUG: Log gene visibility check
+        if (hiddenGeneSet.size > 0) {
+          console.log('[isGeneVisibleInLayer] geneKey:', geneKey, 'uid:', uid, 'originalGeneId:', g.originalGeneId, 'attrId:', attrId, 'hiddenGeneSet:', Array.from(hiddenGeneSet));
+        }
+        
         if (hiddenGeneSet.size > 0 && geneKey && hiddenGeneSet.has(String(geneKey))) {
           return false;
         }
@@ -5808,6 +5947,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             }
           }
           
+          // Filter by hidden genes - if either gene is hidden, hide the link
+          if (hiddenGeneSet.size > 0) {
+            const gA = gv?.genesById?.[d.gAId];
+            const gB = gv?.genesById?.[d.gBId];
+            const getGeneKey = (g, fallbackId) => {
+              if (!g) return fallbackId;
+              const attrId = typeof g.attributes === 'string' 
+                ? (g.attributes.match(/ID=([^;]+)/)?.[1] || null)
+                : (g.attributes?.ID || null);
+              return g.originalGeneId || g.gene_id || attrId || fallbackId;
+            };
+            const keyA = getGeneKey(gA, d.gAId);
+            const keyB = getGeneKey(gB, d.gBId);
+            if ((keyA && hiddenGeneSet.has(String(keyA))) || (keyB && hiddenGeneSet.has(String(keyB)))) {
+              return []; // Return empty polygon to hide this link
+            }
+          }
+          
           const gA = gv?.genesById?.[d.gAId];
           const gB = gv?.genesById?.[d.gBId];
           return buildProteinPolygonFromGenes(gA, gB);
@@ -5892,6 +6049,26 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           // Filter by selected node - if a clade is selected, only show links within that clade
           if (selectedNode && visibleLeavesSet.size > 0) {
             if (!visibleLeavesSet.has(d.hoodA) || !visibleLeavesSet.has(d.hoodB)) {
+              return []; // Return empty polygon to hide this link
+            }
+          }
+          
+          // Filter by hidden genes - if any gene in the link regions is hidden, hide the link
+          // Note: nucleotide links connect positions, not genes directly, but we can check
+          // if the hoods they connect have any hidden genes
+          if (hiddenGeneSet.size > 0 && d.geneA && d.geneB) {
+            const getGeneKey = (g, fallbackId) => {
+              if (!g) return fallbackId;
+              const attrId = typeof g.attributes === 'string' 
+                ? (g.attributes.match(/ID=([^;]+)/)?.[1] || null)
+                : (g.attributes?.ID || null);
+              return g.originalGeneId || g.gene_id || attrId || fallbackId;
+            };
+            const gA = gv?.genesById?.[d.geneA];
+            const gB = gv?.genesById?.[d.geneB];
+            const keyA = getGeneKey(gA, d.geneA);
+            const keyB = getGeneKey(gB, d.geneB);
+            if ((keyA && hiddenGeneSet.has(String(keyA))) || (keyB && hiddenGeneSet.has(String(keyB)))) {
               return []; // Return empty polygon to hide this link
             }
           }
@@ -6052,32 +6229,30 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           ]
         }
       }),
-      // Region outlines with dashed strokes (using PathLayer for dash support)
+      // Region polygons (using PolygonLayer for consistency with genes)
       // Placed after link polygons so regions appear on top of protein/nucleotide links
-      new PathLayer({
-        id: 'region-outlines',
+      new PolygonLayer({
+        id: 'region-polygons',
         data: regionPolygons,
         visible: showGeneLayer, // Regions are part of the genomic context
-        getPath: d => {
-          // Close the polygon path by appending the first point at the end
-          const polygon = d.polygon;
-          if (polygon && polygon.length > 0) {
-            return [...polygon, polygon[0]];
-          }
-          return polygon;
+        getPolygon: d => d.polygon,
+        getFillColor: d => {
+          // Semi-transparent fill based on stroke color
+          const stroke = d.strokeColor || [100, 100, 100, 255];
+          return [stroke[0], stroke[1], stroke[2], 30]; // Very light fill
         },
-        getColor: d => d.strokeColor,
-        getWidth: d => d.strokeWidth || 2,
-        widthUnits: 'pixels',
-        getDashArray: [6, 4], // dash length, gap length in pixels
-        dashJustified: true,
-        extensions: [new PathStyleExtension({ dash: true })],
+        stroked: true,
+        getLineColor: d => d.strokeColor || [100, 100, 100, 255],
+        getLineWidth: d => d.strokeWidth || 2,
+        lineWidthUnits: 'pixels',
+        filled: true,
         autoHighlight: true,
         pickable: true,
         updateTriggers: {
-          getPath: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
-          getColor: [regionPolygons, alignmentVersion],
-          getWidth: [regionPolygons, alignmentVersion]
+          getPolygon: [regionPolygons, alignmentVersion, ySpacingProp, genomeXScaleProp],
+          getFillColor: [regionPolygons, alignmentVersion],
+          getLineColor: [regionPolygons, alignmentVersion],
+          getLineWidth: [regionPolygons, alignmentVersion]
         }
       }),
   // Phylogenetic tree paths
@@ -6510,6 +6685,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
     // Filter by hidden hoods (using global isHoodHidden)
     ncRNAs = ncRNAs.filter(nc => !isHoodHidden(nc.hood_id ?? nc.hoodId));
+    // Filter by hidden genes - ncRNAs may have a parent gene_id
+    if (hiddenGeneSet.size > 0) {
+      ncRNAs = ncRNAs.filter(nc => {
+        const geneId = nc.gene_id || nc.geneId || 
+                       nc.metadata?.gene_id || nc.metadata?.geneId ||
+                       nc.metadata?.Parent;
+        if (!geneId) return true; // Keep ncRNA if no gene association
+        return !hiddenGeneSet.has(String(geneId));
+      });
+    }
     // Colors are now applied directly during GenomeView creation if palette is enabled
     ncRNAs = ncRNAs.map(nc => ({
       ...nc,
@@ -6608,6 +6793,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // ===== VISIBILITY =====
     hiddenHoodSet,
+    hiddenGeneSet,
     isHoodHidden,
     showTreeLayer,
     showGeneLayer,
@@ -6768,6 +6954,102 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             const [r, g, b] = getGeneColor(d);
             return [r, g, b, 40]; // Subtle fill
           },
+          getLineColor: [255, 255, 255, 255], // Bright white core
+          getLineWidth: 3,
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 2,
+          pickable: false,
+          parameters: {
+            depthTest: false,
+            depthMask: false,
+            polygonOffset: [-2, -2]
+          }
+        })
+      );
+    }
+
+    // ======= REGION GLOW LAYERS (NEON STYLE) =======
+    if (highlightedRegionData && highlightedRegionData.length > 0) {
+      const getRegionColor = (region) => {
+        // fillColor has the palette color, strokeColor may be default gray
+        const base = region?.fillColor || region?.strokeColor || [255, 180, 50, 255];
+        return toRgbaColor(base);
+      };
+
+      // Helper to get polygon for region glow
+      const getRegionGlowPolygon = (d) => {
+        if (d.polygon && Array.isArray(d.polygon) && d.polygon.length > 0) {
+          return d.polygon;
+        }
+        // Fallback: create rectangle from coordinates
+        const minX = Math.min(d.startX || 0, d.endX || 0);
+        const maxX = Math.max(d.startX || 0, d.endX || 0);
+        const y = d.trackY || 0;
+        const halfH = 25; // Default height
+        return [
+          [minX, y - halfH],
+          [maxX, y - halfH],
+          [maxX, y + halfH],
+          [minX, y + halfH],
+        ];
+      };
+
+      // Outer glow halo (additive blend for light effect)
+      result.push(
+        new PolygonLayer({
+          id: 'regions-glow-outer',
+          data: highlightedRegionData,
+          getPolygon: getRegionGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: 30,
+          getLineColor: d => {
+            const [r, g, b] = getRegionColor(d);
+            return [r, g, b, 70];
+          },
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 6,
+          pickable: false,
+          parameters: {
+            blendFunc: [770, 1], // Additive blending
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Mid glow (tighter, brighter)
+      result.push(
+        new PolygonLayer({
+          id: 'regions-glow-mid',
+          data: highlightedRegionData,
+          getPolygon: getRegionGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: 15,
+          getLineColor: d => {
+            const [r, g, b] = getRegionColor(d);
+            return [r, g, b, 130];
+          },
+          lineWidthUnits: 'pixels',
+          lineWidthMinPixels: 3,
+          pickable: false,
+          parameters: {
+            blendFunc: [770, 1],
+            depthTest: false,
+            depthMask: false
+          }
+        })
+      );
+
+      // Core solid line (white/bright)
+      result.push(
+        new PolygonLayer({
+          id: 'regions-glow-core',
+          data: highlightedRegionData,
+          getPolygon: getRegionGlowPolygon,
+          stroked: true,
+          filled: false,
           getLineColor: [255, 255, 255, 255], // Bright white core
           getLineWidth: 3,
           lineWidthUnits: 'pixels',
@@ -6950,6 +7232,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     highlightedTreeLeafData,
     highlightedTreeNodeData,
     highlightedHoodData,
+    highlightedRegionData,
     // Minimal styling dependencies
     themeColors.geneFill,
     themeColors.treeEdges,
@@ -7348,12 +7631,90 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       );
     }
 
+    // ======= ANIMATED REGION GLOW =======
+    if (highlightedRegionData && highlightedRegionData.length > 0) {
+      const getRegionGlowPolygon = (d) => {
+        if (d.polygon && Array.isArray(d.polygon) && d.polygon.length > 0) {
+          return d.polygon;
+        }
+        // Fallback: create rectangle from coordinates using stored geometry params
+        const minX = Math.min(d.startX || 0, d.endX || 0);
+        const maxX = Math.max(d.startX || 0, d.endX || 0);
+        const y = d.trackY || 0;
+        // Use stored geometry or current config
+        const gh = d.geneHeight || currentGeneHeight;
+        const ah = d.arrowheadHeight || currentArrowheadHeight;
+        const pd = d.padding || 10;
+        const effectiveH = Math.max(gh, ah);
+        const halfH = effectiveH / 2 + pd;
+        return [
+          [minX, y - halfH],
+          [maxX, y - halfH],
+          [maxX, y + halfH],
+          [minX, y + halfH],
+        ];
+      };
+
+      const getRegionColor = (d) => {
+        const base = d?.strokeColor || d?.fillColor || [255, 180, 50, 255]; // Use region's actual color
+        return toRgbaColor(base);
+      };
+
+      // Pulse width proportional to effect
+      const pulseWidthRegion = currentGeneHeight * (0.4 + (sineWave * 0.2));
+      const baseRegionOpacity = Math.round(120 + (sineWave * 60));
+
+      // Outer glow (pulsing)
+      result.push(
+        new PolygonLayer({
+          id: `regions-glow-outer-anim-${tick}`,
+          data: highlightedRegionData,
+          getPolygon: getRegionGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineWidth: pulseWidthRegion,
+          getLineColor: d => {
+            const [r, g, b] = getRegionColor(d);
+            const adjusted = adjustGlowColor(r, g, b, baseRegionOpacity);
+            return [...adjusted.color, adjusted.opacity];
+          },
+          lineWidthUnits: 'common',
+          pickable: false,
+          parameters: { blendFunc: [770, 1], depthTest: false, depthMask: false }
+        })
+      );
+
+      // Core line - use darkened region color for better contrast
+      result.push(
+        new PolygonLayer({
+          id: 'regions-glow-core-anim',
+          data: highlightedRegionData,
+          getPolygon: getRegionGlowPolygon,
+          stroked: true,
+          filled: false,
+          getLineColor: d => {
+            const [r, g, b] = getRegionColor(d);
+            // In light mode, darken the color; in dark mode, use white
+            if (isLightMode) {
+              return [Math.round(r * 0.5), Math.round(g * 0.5), Math.round(b * 0.5), 220];
+            }
+            return [255, 255, 255, 255];
+          },
+          getLineWidth: currentGeneHeight * 0.04,
+          lineWidthUnits: 'common',
+          pickable: false,
+          parameters: { depthTest: false, depthMask: false, polygonOffset: [-1, -1] }
+        })
+      );
+    }
+
     return result;
   }, [
     highlightedGeneData, 
     highlightedTreeLeafData, 
     highlightedTreeNodeData, 
     highlightedHoodData, 
+    highlightedRegionData,
     themeColors, 
     config.gene?.fillColor, 
     resolvedTheme, // Add theme dependency for light/dark mode glow adjustment
@@ -7379,8 +7740,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   ]);
 
   // Check if there's any highlighted data
-  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedTreeNodeData?.length > 0 || highlightedHoodData?.length > 0;
-  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'treeNode:', highlightedTreeNodeData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length);
+  const hasHighlightedData = highlightedGeneData?.length > 0 || highlightedTreeLeafData?.length > 0 || highlightedTreeNodeData?.length > 0 || highlightedHoodData?.length > 0 || highlightedRegionData?.length > 0;
+  if (DEBUG_LOGS) console.log('[HoodiniViz] hasHighlightedData:', hasHighlightedData, 'treeLeaf:', highlightedTreeLeafData?.length, 'treeNode:', highlightedTreeNodeData?.length, 'hood:', highlightedHoodData?.length, 'gene:', highlightedGeneData?.length, 'region:', highlightedRegionData?.length);
 
   // Animation loop that updates DeckGL directly (bypasses React)
   useEffect(() => {
@@ -7751,6 +8112,157 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         return true;
       } catch (e) { return false; }
     },
+    // Zoom to any feature by position (for regions, ncRNAs, etc.)
+    // Calculates position using GenomeView transformation logic
+    // Supports both unique ID lookup (region.id) and position-based lookup as fallback
+    focusFeatureByPosition: (hoodId, start, end, featureType = 'region', featureId = null) => {
+      try {
+        stopGeneFlash();
+        if (!hoodId || start == null || end == null) return false;
+        
+        const gv = genomeViewRef.current;
+        if (!gv) return false;
+        
+        const seqid = String(hoodId);
+        const allRegions = gv.getAllRegions?.() || [];
+        
+        // ---- Find the region ----
+        let matchingRegion = null;
+        let effectiveHoodId = null;
+        
+        // Strategy 1: If featureId is provided, look up directly by ID
+        if (featureId) {
+          matchingRegion = allRegions.find(r => r.id === featureId);
+          if (matchingRegion) {
+            effectiveHoodId = matchingRegion.hood_id;
+          }
+        }
+        
+        // Strategy 2: Try to construct the unique ID from hood_id + originalId
+        // The unique ID format is: `${hood_id}_${originalId}`
+        if (!matchingRegion) {
+          // First, find which hood_id this seqid belongs to
+          let candidateHoodIds = [];
+          
+          // Direct lookup - seqid might be the hood_id
+          if (gv.hoodRanges?.[seqid]) {
+            candidateHoodIds.push(seqid);
+          }
+          
+          // Use seqidToHoodsMap
+          if (gv.seqidToHoodsMap?.[seqid]) {
+            candidateHoodIds.push(...gv.seqidToHoodsMap[seqid]);
+          }
+          
+          // Search in all hoods that might contain this position
+          for (const hid of candidateHoodIds) {
+            const hr = gv.hoodRanges?.[hid];
+            if (!hr) continue;
+            
+            // Check if the position is within this hood's range
+            if (start >= hr.origStart && end <= hr.origEnd) {
+              // Found the hood, now look for the region
+              matchingRegion = allRegions.find(r => 
+                r.hood_id === hid && 
+                r.origStart === (start - hr.origStart) &&
+                r.origEnd === (end - hr.origStart)
+              );
+              
+              if (matchingRegion) {
+                effectiveHoodId = hid;
+                break;
+              }
+            }
+          }
+        }
+        
+        // Strategy 3: Fallback - search by metadata coordinates 
+        if (!matchingRegion) {
+          for (const region of allRegions) {
+            // Check if seqid matches
+            if (region.metadata?.seqid === seqid || region.hood_id === seqid) {
+              // Check coordinates - metadata.start/end are relative to hood
+              const hr = gv.hoodRanges?.[region.hood_id];
+              if (hr) {
+                const relStart = start - (hr.origStart || 0);
+                const relEnd = end - (hr.origStart || 0);
+                if (region.metadata?.start === relStart && region.metadata?.end === relEnd) {
+                  matchingRegion = region;
+                  effectiveHoodId = region.hood_id;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        
+        if (!matchingRegion || !effectiveHoodId) {
+          console.warn('[focusFeatureByPosition] Region not found. seqid:', seqid, 'start:', start, 'end:', end);
+          return false;
+        }
+        
+        // Get hoodRange and trackY
+        const hoodRange = gv.hoodRanges?.[effectiveHoodId];
+        if (!hoodRange) {
+          console.warn('[focusFeatureByPosition] No hoodRange found for hood:', effectiveHoodId);
+          return false;
+        }
+        
+        const trackY = gv.getTrackYByHoodId?.(effectiveHoodId);
+        if (trackY == null) {
+          console.warn('[focusFeatureByPosition] No trackY found for hood:', effectiveHoodId);
+          return false;
+        }
+        
+        // Calculate center from the region's transformed coordinates
+        const centerX = (matchingRegion.start + matchingRegion.end) / 2;
+        const centerY = matchingRegion.trackY ?? trackY;
+        
+        // Get the region's color (fillColor from palette, or fallback to strokeColor)
+        let regionColor = [255, 180, 50, 255]; // Default orange
+        if (matchingRegion.fillColor && Array.isArray(matchingRegion.fillColor) && matchingRegion.fillColor[3] !== 0) {
+          regionColor = matchingRegion.fillColor;
+        } else if (matchingRegion.strokeColor && Array.isArray(matchingRegion.strokeColor) && matchingRegion.strokeColor[3] !== 0) {
+          regionColor = matchingRegion.strokeColor;
+        } else if (typeof matchingRegion.getStrokeColor === 'function') {
+          // Try getStrokeColor method which may compute color from type
+          const computed = matchingRegion.getStrokeColor();
+          if (computed && Array.isArray(computed) && computed[3] !== 0) {
+            regionColor = computed;
+          }
+        }
+        
+        // Use the region's data directly - it has correct polygon and coordinates
+        const regionGlowData = {
+          id: matchingRegion.id, // Use unique ID for tracking
+          polygon: matchingRegion.polygon,
+          startX: matchingRegion.start,
+          endX: matchingRegion.end,
+          trackY: matchingRegion.trackY,
+          strokeColor: regionColor,
+          fillColor: regionColor,
+          featureType: featureType,
+          hoodId: effectiveHoodId
+        };
+        
+        // Trigger region glow
+        triggerRegionFlash(regionGlowData);
+        
+        // Zoom to the calculated position
+        const liveZoom = (viewStateRef.current && viewStateRef.current.zoom !== undefined) 
+          ? viewStateRef.current.zoom : (viewState.zoom || -3);
+        setViewState((prev) => ({
+          ...prev,
+          target: [centerX, centerY, 0],
+          zoom: liveZoom,
+        }));
+        viewStateRef.current = { ...(viewStateRef.current || {}), target: [centerX, centerY, 0], zoom: liveZoom };
+        return true;
+      } catch (e) { 
+        console.error('[focusFeatureByPosition] Error:', e);
+        return false; 
+      }
+    },
     // Zoom to a gene by original id (gene_id)
     focusGeneById: (geneId) => {
       try {
@@ -7798,6 +8310,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     focusBaselineByHood: (hoodId) => {
       try {
         stopGeneFlash();
+        stopRegionFlash();
         if (!hoodId) return false;
         const gv = genomeViewRef.current;
         if (!gv || !gv.hoodRanges) return false;
@@ -8062,6 +8575,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
               // Clear other highlights when clicking a gene
               stopHoodFlash();
               stopTreeLeafFlash();
+              stopRegionFlash();
             } else {
               stopGeneFlash();
             }
@@ -8121,6 +8635,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             stopGeneFlash();
             stopHoodFlash();
             stopTreeLeafFlash();
+            stopRegionFlash();
             // NOTE: Don't stop tree node flash on empty click - keep clade selection visible
           }
         }}

@@ -292,6 +292,7 @@ class GenomeView {
           const originalId = this.getGeneIdFromAttributes(f.attributes);
           const uniqueId = `${hood_id}_${originalId}`;
           let region = new RegionFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
+          region.id = uniqueId; // Unique ID for tracking
           region.hood_id = hood_id;
           region.originalId = originalId;
           region.origStart = adjustedStart;
