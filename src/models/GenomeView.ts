@@ -259,6 +259,7 @@ class GenomeView {
           const uniqueId = `${hood_id}_${originalId}`;
       let nc = new NonCodingFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
               nc.hood_id = hood_id;
+              nc.id = uniqueId; // Unique ID for tracking
               nc.originalId = originalId;
               nc.origStart = adjustedStart;
               nc.origEnd = adjustedEnd;
@@ -272,13 +273,19 @@ class GenomeView {
                 }
                 if (typeof ncrnaType === 'object') ncrnaType = String(ncrnaType);
                 if (ncrnaType) ncrnaType = String(ncrnaType).replace(/^ID=/, '').replace(/;$/, '').trim();
+                // Treat "null", "none", empty strings as null
+                if (ncrnaType && (ncrnaType.toLowerCase() === 'null' || ncrnaType.toLowerCase() === 'none' || ncrnaType === '')) {
+                  ncrnaType = null;
+                }
               } catch (e) {
                 ncrnaType = null;
               }
               // Set a simple name and metadata.type so UI/legend/coloring sees a primitive string
-              nc.name = ncrnaType || originalId || uniqueId;
+              // Use f.type (e.g. 'ncRNA') as fallback to avoid "null" appearing in legend
+              const effectiveType = ncrnaType || originalId || f.type || 'ncRNA';
+              nc.name = effectiveType;
               if (!nc.metadata || typeof nc.metadata !== 'object') nc.metadata = {};
-              nc.metadata.type = ncrnaType || originalId || 'ncRNA';
+              nc.metadata.type = effectiveType;
               // Keep attributes accessible under metadata.attributes for downstream consumers
               nc.metadata.attributes = f.attributes;
               this.ncRNAsById[uniqueId] = nc;
@@ -1274,15 +1281,25 @@ class GenomeView {
     }
 
     const ncRNAs = Object.values(this.ncRNAsById);
+    console.log('[setNcRNAColorsWithPalette] Total ncRNAs:', ncRNAs.length);
+    if (ncRNAs.length > 0) {
+      console.log('[setNcRNAColorsWithPalette] First ncRNA metadata:', ncRNAs[0]?.metadata);
+    }
     
     const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
       const key = nc.metadata && nc.metadata.type;
-      return !isEmptyValue(key);
+      const isEmpty = isEmptyValue(key);
+      if (isEmpty) {
+        console.log('[setNcRNAColorsWithPalette] ncRNA filtered out, type=', key, 'metadata=', nc.metadata);
+      }
+      return !isEmpty;
     });
     
+    console.log('[setNcRNAColorsWithPalette] ncRNAs with valid types:', ncRNAsWithValidTypes.length);
     if (ncRNAsWithValidTypes.length === 0) return;
 
   const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => normalizeKey(nc.metadata.type))));
+    console.log('[setNcRNAColorsWithPalette] Unique type keys:', ncRNATypeKeys);
     let ncRNAColors = [];
     
     if (paletteConfig.name) {

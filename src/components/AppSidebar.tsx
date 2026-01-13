@@ -1566,32 +1566,24 @@ export function AppSidebar({
                 <Badge variant="muted" className="text-xs">Visualization Legend</Badge>
               </div>
               <div className="space-y-2">
-                {(() => {
-                  
-                  const getterLegend = (phyloTreeViewerRef && phyloTreeViewerRef.current && typeof phyloTreeViewerRef.current.getLegendData === 'function') ? phyloTreeViewerRef.current.getLegendData() : null;
-                  const legendToShow = viewerLegend || getterLegend || null;
-                  if (legendToShow) {
-                    return (
-                      <LegendWidget
-                        legend={legendToShow}
-                        genePalette={genePalette}
-                        phyloPalette={phyloPalette}
-                        regionPalette={regionPalette}
-                        proteinLinkConfig={proteinLinkConfig}
-                        nucleotideLinkConfig={nucleotideLinkConfig}
-                        styleConfig={styleConfig}
-                        className=""
-                        style={{}}
-                      />
-                    );
-                  }
-                  return (
-                    <div className="p-3 bg-accent/30 rounded-lg text-center">
-                      <p className="text-xs text-muted-foreground mb-1">No legend data available yet</p>
-                      <p className="text-xs text-muted-foreground">Legend will appear once data is loaded</p>
-                    </div>
-                  );
-                })()}
+                {viewerLegend ? (
+                  <LegendWidget
+                    legend={viewerLegend}
+                    genePalette={genePalette}
+                    phyloPalette={phyloPalette}
+                    regionPalette={regionPalette}
+                    proteinLinkConfig={proteinLinkConfig}
+                    nucleotideLinkConfig={nucleotideLinkConfig}
+                    styleConfig={styleConfig}
+                    className=""
+                    style={{}}
+                  />
+                ) : (
+                  <div className="p-3 bg-accent/30 rounded-lg text-center">
+                    <p className="text-xs text-muted-foreground mb-1">No legend data available yet</p>
+                    <p className="text-xs text-muted-foreground">Legend will appear once data is loaded</p>
+                  </div>
+                )}
               </div>
             </div>
             

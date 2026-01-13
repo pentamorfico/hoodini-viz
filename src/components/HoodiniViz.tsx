@@ -6970,9 +6970,13 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
     // ======= REGION GLOW LAYERS (NEON STYLE) =======
     if (highlightedRegionData && highlightedRegionData.length > 0) {
+      // Debug: log region data to see what colors we have
+      console.log('[glowLayers] highlightedRegionData:', highlightedRegionData[0]);
+      
       const getRegionColor = (region) => {
         // fillColor has the palette color, strokeColor may be default gray
         const base = region?.fillColor || region?.strokeColor || [255, 180, 50, 255];
+        console.log('[glowLayers] getRegionColor:', { fillColor: region?.fillColor, strokeColor: region?.strokeColor, base });
         return toRgbaColor(base);
       };
 
@@ -8114,33 +8118,40 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     },
     // Zoom to any feature by position (for regions, ncRNAs, etc.)
     // Calculates position using GenomeView transformation logic
-    // Supports both unique ID lookup (region.id) and position-based lookup as fallback
+    // Supports both unique ID lookup and position-based lookup as fallback
     focusFeatureByPosition: (hoodId, start, end, featureType = 'region', featureId = null) => {
       try {
         stopGeneFlash();
+        stopRegionFlash();
         if (!hoodId || start == null || end == null) return false;
         
         const gv = genomeViewRef.current;
         if (!gv) return false;
         
         const seqid = String(hoodId);
-        const allRegions = gv.getAllRegions?.() || [];
+        const isNcRNA = featureType === 'ncRNA' || featureType === 'ncRNA_gene';
         
-        // ---- Find the region ----
-        let matchingRegion = null;
+        // Get the appropriate feature collection based on type
+        const allFeatures = isNcRNA 
+          ? (gv.getAllNcRNAs?.() || [])
+          : (gv.getAllRegions?.() || []);
+        
+        console.log(`[focusFeatureByPosition] Searching for ${featureType}:`, { seqid, start, end, featureCount: allFeatures.length });
+        
+        // ---- Find the feature ----
+        let matchingFeature = null;
         let effectiveHoodId = null;
         
         // Strategy 1: If featureId is provided, look up directly by ID
         if (featureId) {
-          matchingRegion = allRegions.find(r => r.id === featureId);
-          if (matchingRegion) {
-            effectiveHoodId = matchingRegion.hood_id;
+          matchingFeature = allFeatures.find(f => f.id === featureId);
+          if (matchingFeature) {
+            effectiveHoodId = matchingFeature.hood_id;
           }
         }
         
-        // Strategy 2: Try to construct the unique ID from hood_id + originalId
-        // The unique ID format is: `${hood_id}_${originalId}`
-        if (!matchingRegion) {
+        // Strategy 2: Search by hood_id and coordinates
+        if (!matchingFeature) {
           // First, find which hood_id this seqid belongs to
           let candidateHoodIds = [];
           
@@ -8161,14 +8172,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             
             // Check if the position is within this hood's range
             if (start >= hr.origStart && end <= hr.origEnd) {
-              // Found the hood, now look for the region
-              matchingRegion = allRegions.find(r => 
-                r.hood_id === hid && 
-                r.origStart === (start - hr.origStart) &&
-                r.origEnd === (end - hr.origStart)
+              // Found the hood, now look for the feature
+              const relStart = start - hr.origStart;
+              const relEnd = end - hr.origStart;
+              
+              matchingFeature = allFeatures.find(f => 
+                f.hood_id === hid && 
+                (f.origStart === relStart || f.start === relStart || f.metadata?.start === relStart) &&
+                (f.origEnd === relEnd || f.end === relEnd || f.metadata?.end === relEnd)
               );
               
-              if (matchingRegion) {
+              if (matchingFeature) {
                 effectiveHoodId = hid;
                 break;
               }
@@ -8177,18 +8191,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }
         
         // Strategy 3: Fallback - search by metadata coordinates 
-        if (!matchingRegion) {
-          for (const region of allRegions) {
+        if (!matchingFeature) {
+          for (const feature of allFeatures) {
             // Check if seqid matches
-            if (region.metadata?.seqid === seqid || region.hood_id === seqid) {
-              // Check coordinates - metadata.start/end are relative to hood
-              const hr = gv.hoodRanges?.[region.hood_id];
+            if (feature.metadata?.seqid === seqid || feature.hood_id === seqid || feature.seqid === seqid) {
+              // Check coordinates
+              const hr = gv.hoodRanges?.[feature.hood_id];
               if (hr) {
                 const relStart = start - (hr.origStart || 0);
                 const relEnd = end - (hr.origStart || 0);
-                if (region.metadata?.start === relStart && region.metadata?.end === relEnd) {
-                  matchingRegion = region;
-                  effectiveHoodId = region.hood_id;
+                if ((feature.metadata?.start === relStart && feature.metadata?.end === relEnd) ||
+                    (feature.origStart === relStart && feature.origEnd === relEnd)) {
+                  matchingFeature = feature;
+                  effectiveHoodId = feature.hood_id;
                   break;
                 }
               }
@@ -8196,10 +8211,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           }
         }
         
-        if (!matchingRegion || !effectiveHoodId) {
-          console.warn('[focusFeatureByPosition] Region not found. seqid:', seqid, 'start:', start, 'end:', end);
+        if (!matchingFeature || !effectiveHoodId) {
+          console.warn(`[focusFeatureByPosition] ${featureType} not found. seqid:`, seqid, 'start:', start, 'end:', end);
           return false;
         }
+        
+        console.log(`[focusFeatureByPosition] Found ${featureType}:`, { 
+          id: matchingFeature.id, 
+          hood_id: effectiveHoodId,
+          start: matchingFeature.start,
+          end: matchingFeature.end
+        });
         
         // Get hoodRange and trackY
         const hoodRange = gv.hoodRanges?.[effectiveHoodId];
@@ -8214,39 +8236,46 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           return false;
         }
         
-        // Calculate center from the region's transformed coordinates
-        const centerX = (matchingRegion.start + matchingRegion.end) / 2;
-        const centerY = matchingRegion.trackY ?? trackY;
+        // Calculate center from the feature's transformed coordinates
+        const centerX = (matchingFeature.start + matchingFeature.end) / 2;
+        const centerY = matchingFeature.trackY ?? trackY;
         
-        // Get the region's color (fillColor from palette, or fallback to strokeColor)
-        let regionColor = [255, 180, 50, 255]; // Default orange
-        if (matchingRegion.fillColor && Array.isArray(matchingRegion.fillColor) && matchingRegion.fillColor[3] !== 0) {
-          regionColor = matchingRegion.fillColor;
-        } else if (matchingRegion.strokeColor && Array.isArray(matchingRegion.strokeColor) && matchingRegion.strokeColor[3] !== 0) {
-          regionColor = matchingRegion.strokeColor;
-        } else if (typeof matchingRegion.getStrokeColor === 'function') {
-          // Try getStrokeColor method which may compute color from type
-          const computed = matchingRegion.getStrokeColor();
+        // Get the feature's color (fillColor from palette, or fallback to strokeColor)
+        console.log(`[focusFeatureByPosition] ${featureType} colors:`, {
+          fillColor: matchingFeature.fillColor,
+          strokeColor: matchingFeature.strokeColor,
+          color: matchingFeature.color
+        });
+        
+        let featureColor = [255, 180, 50, 255]; // Default orange
+        if (matchingFeature.fillColor && Array.isArray(matchingFeature.fillColor) && matchingFeature.fillColor[3] !== 0) {
+          featureColor = matchingFeature.fillColor;
+        } else if (matchingFeature.color && Array.isArray(matchingFeature.color) && matchingFeature.color[3] !== 0) {
+          featureColor = matchingFeature.color;
+        } else if (matchingFeature.strokeColor && Array.isArray(matchingFeature.strokeColor) && matchingFeature.strokeColor[3] !== 0) {
+          featureColor = matchingFeature.strokeColor;
+        } else if (typeof matchingFeature.getStrokeColor === 'function') {
+          const computed = matchingFeature.getStrokeColor();
           if (computed && Array.isArray(computed) && computed[3] !== 0) {
-            regionColor = computed;
+            featureColor = computed;
           }
         }
         
-        // Use the region's data directly - it has correct polygon and coordinates
-        const regionGlowData = {
-          id: matchingRegion.id, // Use unique ID for tracking
-          polygon: matchingRegion.polygon,
-          startX: matchingRegion.start,
-          endX: matchingRegion.end,
-          trackY: matchingRegion.trackY,
-          strokeColor: regionColor,
-          fillColor: regionColor,
+        // Use the feature's data directly - it has correct polygon and coordinates
+        const glowData = {
+          id: matchingFeature.id, // Use unique ID for tracking
+          polygon: matchingFeature.polygon,
+          startX: matchingFeature.start,
+          endX: matchingFeature.end,
+          trackY: matchingFeature.trackY,
+          strokeColor: featureColor,
+          fillColor: featureColor,
           featureType: featureType,
           hoodId: effectiveHoodId
         };
         
-        // Trigger region glow
-        triggerRegionFlash(regionGlowData);
+        // Trigger glow (regions use regionGlow, ncRNAs also use regionGlow for now)
+        triggerRegionFlash(glowData);
         
         // Zoom to the calculated position
         const liveZoom = (viewStateRef.current && viewStateRef.current.zoom !== undefined) 

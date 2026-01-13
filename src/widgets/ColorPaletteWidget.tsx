@@ -94,19 +94,28 @@ const ColorPaletteWidget = ({
 
   const colorCounts = useMemo(() => {
     if (safePaletteConfig.name) {
-      const counts = getPaletteColorCounts(safePaletteConfig.name);
-
-      if (counts.length > 0 && !counts.includes(safePaletteConfig.numColors)) {
-        effectiveOnChange({
-          ...safePaletteConfig,
-          numColors: counts[0]
-        });
-      }
-
-      return counts;
+      return getPaletteColorCounts(safePaletteConfig.name);
     }
     return [];
-  }, [safePaletteConfig.name, safePaletteConfig.numColors]);
+  }, [safePaletteConfig.name]);
+
+  // Auto-correct numColors if current value is not in available counts
+  // This must be in useEffect, not useMemo, to avoid setState during render
+  // Use a ref to track if we've already corrected to avoid infinite loops
+  const hasAutoCorrectednumColors = React.useRef(false);
+  React.useEffect(() => {
+    if (colorCounts.length > 0 && !colorCounts.includes(safePaletteConfig.numColors)) {
+      if (!hasAutoCorrectednumColors.current) {
+        hasAutoCorrectednumColors.current = true;
+        effectiveOnChange({
+          ...safePaletteConfig,
+          numColors: colorCounts[0]
+        });
+      }
+    } else {
+      hasAutoCorrectednumColors.current = false;
+    }
+  }, [colorCounts, safePaletteConfig.numColors, safePaletteConfig, effectiveOnChange]);
 
   const previewColors = useMemo(() => {
     if (safePaletteConfig.name && safePaletteConfig.numColors) {

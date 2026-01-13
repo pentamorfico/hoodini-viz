@@ -5,7 +5,183 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/contexts/ThemeContext';
 
-const LegendWidget = ({ 
+// Lightweight virtualized grid for legend items - MOVED OUTSIDE component to prevent re-creation on each render
+const VirtualGrid = ({ items = [], renderItem, cellWidth = 2040, cellHeight = 28, gap = 6, containerHeight = undefined, className = "", minContentWidth = 80, getItemLabel = null, charWidthEstimate = 7, labelPadding = 36, columns: columnsProp = undefined }) => {
+  const containerRef = useRef(null);
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const [scrollTop, setScrollTop] = useState(0);
+  const draggingRef = useRef(false);
+  const dragStartY = useRef(0);
+  const dragStartScroll = useRef(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(entries => {
+      const { width: w, height: h } = entries[0].contentRect;
+      setWidth(Math.floor(w));
+      setHeight(Math.floor(h));
+    });
+    ro.observe(el);
+    // ensure initial measurement
+    setTimeout(() => {
+      setWidth(el.clientWidth || 0);
+      setHeight(el.clientHeight || 0);
+    }, 0);
+    return () => ro.disconnect();
+  }, []);
+
+  // compute an "effective" cell width based on the longest item label so
+  // short labels can pack into more columns. We keep `cellWidth` as a
+  // maximum (fixed parameter). getItemLabel optionally extracts the text
+  // from an item; otherwise we try common fields.
+  const extractLabel = (it) => {
+    if (typeof getItemLabel === 'function') return getItemLabel(it);
+    try {
+      if (it == null) return '';
+      if (typeof it === 'string' || typeof it === 'number') return String(it);
+      if (typeof it === 'object') return String(it.label ?? it.value ?? (Array.isArray(it) ? it[0] : ''));
+      return String(it);
+    } catch (e) { return '' }
+  };
+
+  // precompute the longest label length in characters
+  const maxLabelLen = (items && items.length) ? items.reduce((m, it) => Math.max(m, (String(extractLabel(it) || '')).length), 0) : 0;
+  // approximate pixel width for the label area (characters * estimate + padding for swatch/gap)
+  const measuredLabelPx = Math.ceil(maxLabelLen * (charWidthEstimate || 7) + (labelPadding || 36));
+  const effectiveCellWidth = Math.max(40, Math.min(cellWidth || 2040, measuredLabelPx || cellWidth));
+
+  // compute columns: prefer explicit columnsProp, otherwise compute from available width
+  const availForCols = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
+  const computedCols = Math.max(1, Math.min(items.length || 1, Math.floor((availForCols + gap) / (effectiveCellWidth + gap))));
+  const columns = (typeof columnsProp === 'number' && columnsProp >= 1) ? Math.max(1, Math.min(items.length || 1, Math.floor(columnsProp))) : computedCols;
+
+  const totalRows = Math.max(1, Math.ceil(items.length / columns));
+  const rowHeight = cellHeight + gap;
+  const totalHeight = totalRows * rowHeight;
+
+  // Compute actual cell width so items evenly fill the container width
+  const availW = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
+  const colsUsed = Math.max(1, columns);
+  const cellWidthActual = Math.floor((Math.max(0, availW - (colsUsed - 1) * gap)) / colsUsed) || cellWidth;
+
+  // If no explicit containerHeight is provided, let the grid expand to content height
+  const measuredHeight = (height && height > 0) ? height : 0;
+  const effectiveContainerHeight = (typeof containerHeight === 'number' && containerHeight > 0) ? containerHeight : (measuredHeight > 0 ? measuredHeight : totalHeight);
+  const maxScroll = Math.max(0, totalHeight - effectiveContainerHeight);
+  
+  useEffect(() => {
+    // Only update scrollTop if it actually exceeds maxScroll to prevent infinite loops
+    setScrollTop(prev => {
+      const newVal = Math.min(prev, maxScroll);
+      return newVal !== prev ? newVal : prev;
+    });
+  }, [maxScroll]);
+
+  const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - 1);
+  const endRow = Math.min(totalRows - 1, startRow + Math.ceil(effectiveContainerHeight / rowHeight) + 3);
+
+  const visible = [];
+  for (let r = startRow; r <= endRow; r++) {
+    for (let c = 0; c < columns; c++) {
+      const idx = r * columns + c;
+      if (idx >= items.length) break;
+      visible.push({ idx, item: items[idx], row: r, col: c });
+    }
+  }
+
+  // Register wheel event listener as non-passive to allow preventDefault
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY;
+      setScrollTop(s => Math.max(0, Math.min(maxScroll, s + delta)));
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, [maxScroll]);
+
+  const showScrollbar = typeof containerHeight === 'number' && totalHeight > effectiveContainerHeight + 1;
+  const thumbHeight = showScrollbar ? Math.max(20, Math.round((effectiveContainerHeight / totalHeight) * effectiveContainerHeight)) : effectiveContainerHeight;
+  const thumbMaxTop = Math.max(0, effectiveContainerHeight - thumbHeight);
+  const thumbTop = showScrollbar && maxScroll > 0 ? Math.round((scrollTop / maxScroll) * thumbMaxTop) : 0;
+  
+  useEffect(() => {
+    const onMove = (ev) => {
+      if (!draggingRef.current) return;
+      const clientY = (ev && ev.clientY) || (ev.touches && ev.touches[0] && ev.touches[0].clientY) || 0;
+      const dy = clientY - dragStartY.current;
+      const ratio = thumbMaxTop > 0 ? dy / thumbMaxTop : 0;
+      const newScroll = Math.max(0, Math.min(maxScroll, Math.round(dragStartScroll.current + ratio * maxScroll)));
+      setScrollTop(newScroll);
+    };
+    const onUp = () => { draggingRef.current = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, [thumbMaxTop, maxScroll]);
+
+  // Scrollbar handlers
+  const onThumbMouseDown = (e) => {
+    e.preventDefault();
+    draggingRef.current = true;
+    dragStartY.current = (e && e.clientY) || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
+    dragStartScroll.current = scrollTop;
+  };
+
+  const onTrackClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0) - rect.top;
+    const ratio = thumbMaxTop > 0 ? (y - Math.round(thumbHeight / 2)) / thumbMaxTop : 0;
+    const newScroll = Math.max(0, Math.min(maxScroll, Math.round(ratio * maxScroll)));
+    setScrollTop(newScroll);
+  };
+
+  return (
+    <div ref={containerRef} className={className} style={{ width: '100%', height: effectiveContainerHeight, overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
+      <div style={{ height: totalHeight, position: 'relative' }}>
+        {visible.map(v => {
+          const left = v.col * (cellWidthActual + gap);
+          const top = v.row * rowHeight - scrollTop;
+          const style = { position: 'absolute', left, top, width: cellWidthActual, height: cellHeight, boxSizing: 'border-box' };
+          return (
+            <div key={v.idx} style={style}>
+              <div style={{ height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
+                {renderItem(v.item, v.idx)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {showScrollbar && (
+        <div style={{ position: 'absolute', right: 2, top: 2, bottom: 2, width: 10, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+          <div onClick={onTrackClick} style={{ width: 8, height: effectiveContainerHeight - 4, background: 'rgba(0,0,0,0.06)', borderRadius: 6, position: 'relative', cursor: 'pointer' }}>
+            <div onMouseDown={onThumbMouseDown} onTouchStart={onThumbMouseDown} style={{ position: 'absolute', left: 1, width: 6, top: thumbTop + 2, height: thumbHeight, background: 'rgba(0,0,0,0.35)', borderRadius: 6, cursor: 'grab' }} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const LegendWidgetInner = ({ 
   legend, 
   styleConfig,
   genePalette,
@@ -19,13 +195,6 @@ const LegendWidget = ({
   className,
   style
 }) => {
-  // debug props during development to catch missing legend/phylo data
-  useEffect(() => {
-    try {
-      console.log('LegendWidget props', { hasLegend: !!legend, legendKeys: legend ? Object.keys(legend) : [], phyloSample: legend && legend.phylo ? legend.phylo.slice(0,6) : undefined, phyloPalette });
-    } catch (e) { /* ignore */ }
-  }, [legend, phyloPalette]);
-
   // Theme: prefer ThemeContext via `useTheme()` hook, fall back to styleConfig.legend, then sane defaults
   let themeObj = {};
   try {
@@ -68,183 +237,6 @@ const LegendWidget = ({
       return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${a})`;
     }
     return String(color);
-  };
-
-  // Lightweight virtualized grid for legend items
-  const VirtualGrid = ({ items = [], renderItem, cellWidth = 2040, cellHeight = 28, gap = 6, containerHeight = undefined, className, minContentWidth = 80, getItemLabel = null, charWidthEstimate = 7, labelPadding = 36, columns: columnsProp = undefined }) => {
-  const containerRef = useRef(null);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-    const [scrollTop, setScrollTop] = useState(0);
-  const draggingRef = useRef(false);
-    const dragStartY = useRef(0);
-    const dragStartScroll = useRef(0);
-
-    useEffect(() => {
-      const el = containerRef.current;
-      if (!el) return;
-      const ro = new ResizeObserver(entries => {
-        const { width: w, height: h } = entries[0].contentRect;
-        setWidth(Math.floor(w));
-        setHeight(Math.floor(h));
-      });
-      ro.observe(el);
-      // ensure initial measurement
-      setTimeout(() => {
-        setWidth(el.clientWidth || 0);
-        setHeight(el.clientHeight || 0);
-      }, 0);
-      return () => ro.disconnect();
-    }, []);
-
-    // compute an "effective" cell width based on the longest item label so
-    // short labels can pack into more columns. We keep `cellWidth` as a
-    // maximum (fixed parameter). getItemLabel optionally extracts the text
-    // from an item; otherwise we try common fields.
-    const extractLabel = (it) => {
-      if (typeof getItemLabel === 'function') return getItemLabel(it);
-      try {
-        if (it == null) return '';
-        if (typeof it === 'string' || typeof it === 'number') return String(it);
-        if (typeof it === 'object') return String(it.label ?? it.value ?? (Array.isArray(it) ? it[0] : ''));
-        return String(it);
-      } catch (e) { return '' }
-    };
-
-    // precompute the longest label length in characters
-    const maxLabelLen = (items && items.length) ? items.reduce((m, it) => Math.max(m, (String(extractLabel(it) || '')).length), 0) : 0;
-    // approximate pixel width for the label area (characters * estimate + padding for swatch/gap)
-    const measuredLabelPx = Math.ceil(maxLabelLen * (charWidthEstimate || 7) + (labelPadding || 36));
-    const effectiveCellWidth = Math.max(40, Math.min(cellWidth || 2040, measuredLabelPx || cellWidth));
-
-  // compute columns: prefer explicit columnsProp, otherwise compute from available width
-  const availForCols = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
-  const computedCols = Math.max(1, Math.min(items.length || 1, Math.floor((availForCols + gap) / (effectiveCellWidth + gap))));
-  const columns = (typeof columnsProp === 'number' && columnsProp >= 1) ? Math.max(1, Math.min(items.length || 1, Math.floor(columnsProp))) : computedCols;
-
-  const totalRows = Math.max(1, Math.ceil(items.length / columns));
-    const rowHeight = cellHeight + gap;
-    const totalHeight = totalRows * rowHeight;
-
-    // Compute actual cell width so items evenly fill the container width
-    const availW = (width && width > 0) ? width : Math.max(minContentWidth, (containerRef.current && containerRef.current.clientWidth) || 0);
-    const colsUsed = Math.max(1, columns);
-    const cellWidthActual = Math.floor((Math.max(0, availW - (colsUsed - 1) * gap)) / colsUsed) || cellWidth;
-
-  // If no explicit containerHeight is provided, let the grid expand to content height
-  const measuredHeight = (height && height > 0) ? height : 0;
-  const effectiveContainerHeight = (typeof containerHeight === 'number' && containerHeight > 0) ? containerHeight : (measuredHeight > 0 ? measuredHeight : totalHeight);
-    const maxScroll = Math.max(0, totalHeight - effectiveContainerHeight);
-    useEffect(() => {
-      setScrollTop(prev => Math.min(prev, maxScroll));
-    }, [maxScroll]);
-
-    const startRow = Math.max(0, Math.floor(scrollTop / rowHeight) - 1);
-    const endRow = Math.min(totalRows - 1, startRow + Math.ceil(effectiveContainerHeight / rowHeight) + 3);
-
-    const visible = [];
-    for (let r = startRow; r <= endRow; r++) {
-      for (let c = 0; c < columns; c++) {
-        const idx = r * columns + c;
-        if (idx >= items.length) break;
-        visible.push({ idx, item: items[idx], row: r, col: c });
-      }
-    }
-
-    const onWheel = (e) => {
-      e.preventDefault();
-      e.stopPropagation(); // Prevent wheel events from bubbling up to parent scroll containers
-      const delta = e.deltaY;
-      setScrollTop(s => Math.max(0, Math.min(maxScroll, s + delta)));
-    };
-
-    // Register wheel event listener as non-passive to allow preventDefault
-    useEffect(() => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const handleWheel = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const delta = e.deltaY;
-        setScrollTop(s => Math.max(0, Math.min(maxScroll, s + delta)));
-      };
-
-      container.addEventListener('wheel', handleWheel, { passive: false });
-      
-      return () => {
-        container.removeEventListener('wheel', handleWheel);
-      };
-    }, [maxScroll]);
-
-  const showScrollbar = typeof containerHeight === 'number' && totalHeight > effectiveContainerHeight + 1;
-  const thumbHeight = showScrollbar ? Math.max(20, Math.round((effectiveContainerHeight / totalHeight) * effectiveContainerHeight)) : effectiveContainerHeight;
-  const thumbMaxTop = Math.max(0, effectiveContainerHeight - thumbHeight);
-  const thumbTop = showScrollbar && maxScroll > 0 ? Math.round((scrollTop / maxScroll) * thumbMaxTop) : 0;
-    useEffect(() => {
-      const onMove = (ev) => {
-        if (!draggingRef.current) return;
-        const clientY = (ev && ev.clientY) || (ev.touches && ev.touches[0] && ev.touches[0].clientY) || 0;
-        const dy = clientY - dragStartY.current;
-        const ratio = thumbMaxTop > 0 ? dy / thumbMaxTop : 0;
-        const newScroll = Math.max(0, Math.min(maxScroll, Math.round(dragStartScroll.current + ratio * maxScroll)));
-        setScrollTop(newScroll);
-      };
-      const onUp = () => { draggingRef.current = false; };
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onUp);
-      window.addEventListener('touchmove', onMove, { passive: false });
-      window.addEventListener('touchend', onUp);
-      return () => {
-        window.removeEventListener('mousemove', onMove);
-        window.removeEventListener('mouseup', onUp);
-        window.removeEventListener('touchmove', onMove);
-        window.removeEventListener('touchend', onUp);
-      };
-    }, [thumbMaxTop, maxScroll]);
-
-    // Scrollbar handlers
-    const onThumbMouseDown = (e) => {
-      e.preventDefault();
-      draggingRef.current = true;
-      dragStartY.current = (e && e.clientY) || (e.touches && e.touches[0] && e.touches[0].clientY) || 0;
-      dragStartScroll.current = scrollTop;
-    };
-
-    const onTrackClick = (e) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || 0) - rect.top;
-      const ratio = thumbMaxTop > 0 ? (y - Math.round(thumbHeight / 2)) / thumbMaxTop : 0;
-      const newScroll = Math.max(0, Math.min(maxScroll, Math.round(ratio * maxScroll)));
-      setScrollTop(newScroll);
-    };
-
-    return (
-      <div ref={containerRef} className={className} style={{ width: '100%', height: effectiveContainerHeight, overflow: 'hidden', position: 'relative', boxSizing: 'border-box' }}>
-        <div style={{ height: totalHeight, position: 'relative' }}>
-          {visible.map(v => {
-            const left = v.col * (cellWidthActual + gap);
-            const top = v.row * rowHeight - scrollTop;
-            const style = { position: 'absolute', left, top, width: cellWidthActual, height: cellHeight, boxSizing: 'border-box' };
-            return (
-              <div key={v.idx} style={style}>
-                <div style={{ height: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', boxSizing: 'border-box' }}>
-                  {renderItem(v.item, v.idx)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {showScrollbar && (
-            <div style={{ position: 'absolute', right: 2, top: 2, bottom: 2, width: 10, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
-            <div onClick={onTrackClick} style={{ width: 8, height: effectiveContainerHeight - 4, background: 'rgba(0,0,0,0.06)', borderRadius: 6, position: 'relative', cursor: 'pointer' }}>
-              <div onMouseDown={onThumbMouseDown} onTouchStart={onThumbMouseDown} style={{ position: 'absolute', left: 1, width: 6, top: thumbTop + 2, height: thumbHeight, background: 'rgba(0,0,0,0.35)', borderRadius: 6, cursor: 'grab' }} />
-            </div>
-          </div>
-        )}
-      </div>
-    );
   };
 
   // Compare helper
@@ -921,5 +913,25 @@ if (legend && legend.genes && Array.isArray(legend.genes)) {
     </div>
   );
 };
+
+// Memoize LegendWidget to prevent unnecessary re-renders
+// Only re-render when legend data actually changes (using JSON comparison)
+const LegendWidget = React.memo(LegendWidgetInner, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if legend content actually changed
+  try {
+    const prevLegend = JSON.stringify(prevProps.legend);
+    const nextLegend = JSON.stringify(nextProps.legend);
+    if (prevLegend !== nextLegend) return false; // Different legend, re-render
+    
+    // Check other important props
+    if (prevProps.genePalette?.name !== nextProps.genePalette?.name) return false;
+    if (prevProps.phyloPalette?.name !== nextProps.phyloPalette?.name) return false;
+    if (prevProps.regionPalette?.name !== nextProps.regionPalette?.name) return false;
+    
+    return true; // Props are equal, don't re-render
+  } catch (e) {
+    return false; // On error, allow re-render
+  }
+});
 
 export default LegendWidget;
