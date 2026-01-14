@@ -1068,12 +1068,10 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           return m;
         };
 
-        const gv = vizRef.current?.genomeView;
-        const hoodId = ncObj.hood_id || ncObj.hoodId || (gv && gv.getHoodIdFromSeqid ? gv.getHoodIdFromSeqid(ncObj.seqid) : null);
-        const hoodRange = hoodId && gv?.hoodRanges ? gv.hoodRanges[hoodId] : null;
-        const hoodAbsStart = hoodRange && Number.isFinite(Number(hoodRange.start)) ? Number(hoodRange.start) : null;
-        const rawStart = Number.isFinite(Number(ncObj.origStart)) ? Number(ncObj.origStart) : Number(ncObj.start);
-        const rawEnd = Number.isFinite(Number(ncObj.origEnd)) ? Number(ncObj.origEnd) : Number(ncObj.end);
+        // genomicStart/genomicEnd contain the ORIGINAL genomic coordinates from GFF (absolute)
+        // These are the true absolute positions that match the ncrna_metadata keys
+        const absStart = Number.isFinite(Number(ncObj.genomicStart)) ? Number(ncObj.genomicStart) : null;
+        const absEnd = Number.isFinite(Number(ncObj.genomicEnd)) ? Number(ncObj.genomicEnd) : null;
 
         const tryAttach = (key: string | null | undefined) => {
           if (!key) return false;
@@ -1088,17 +1086,22 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           return false;
         };
 
-        if (hoodAbsStart !== null && Number.isFinite(rawStart) && Number.isFinite(rawEnd)) {
-          const absKey = `${ncObj.seqid}:${rawStart + hoodAbsStart}:${rawEnd + hoodAbsStart}`;
+        // Try composite key with original genomic coordinates
+        if (absStart !== null && absEnd !== null) {
+          const absKey = `${ncObj.seqid}:${absStart}:${absEnd}`;
           if (tryAttach(absKey)) return ncObj;
+          // Try swapped start/end for reverse-strand datasets
+          const swapKey = `${ncObj.seqid}:${absEnd}:${absStart}`;
+          if (tryAttach(swapKey)) return ncObj;
         }
 
-        const relKey = `${ncObj.seqid}:${rawStart}:${rawEnd}`;
-        if (tryAttach(relKey)) return ncObj;
-
-        // Try swapped start/end for reverse-strand datasets
-        const swapKey = `${ncObj.seqid}:${rawEnd}:${rawStart}`;
-        if (tryAttach(swapKey)) return ncObj;
+        // Fallback: try adjusted coordinates (start/end from ncRNA object)
+        const relStart = Number.isFinite(Number(ncObj.start)) ? Number(ncObj.start) : null;
+        const relEnd = Number.isFinite(Number(ncObj.end)) ? Number(ncObj.end) : null;
+        if (relStart !== null && relEnd !== null) {
+          const relKey = `${ncObj.seqid}:${relStart}:${relEnd}`;
+          if (tryAttach(relKey)) return ncObj;
+        }
 
         const origId = ncObj.id || ncObj.originalId;
         tryAttach(origId);

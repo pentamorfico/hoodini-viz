@@ -256,13 +256,18 @@ class GenomeView {
           const adjustedStart = fStartNc - hoodStart;
           const adjustedEnd   = fEndNc   - hoodStart;
           const originalId = this.getGeneIdFromAttributes(f.attributes);
-          const uniqueId = `${hood_id}_${originalId}`;
+          // Use coordinates in uniqueId to avoid collisions when multiple ncRNAs have same ID (e.g., all "tracrRNA")
+          const uniqueId = `${hood_id}_${originalId}_${fStartNc}_${fEndNc}`;
       let nc = new NonCodingFeature(f.seqid, adjustedStart, adjustedEnd, f.strand, f.type, f.attributes, this.config);
               nc.hood_id = hood_id;
               nc.id = uniqueId; // Unique ID for tracking
               nc.originalId = originalId;
+              // origStart/origEnd: RELATIVE to hood (for visualization/transforms)
               nc.origStart = adjustedStart;
               nc.origEnd = adjustedEnd;
+              // genomicStart/genomicEnd: ABSOLUTE genome coordinates (for metadata matching)
+              nc.genomicStart = fStartNc;
+              nc.genomicEnd = fEndNc;
               nc.origStrand = f.strand;
               // Normalize ncRNA subtype / display name from attributes (prefer attributes.ncrna_type then ID)
               let ncrnaType = null;

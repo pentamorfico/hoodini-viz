@@ -1233,37 +1233,42 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   if (nonCodingMetadata && Object.keys(nonCodingMetadata).length > 0) {
     for (const ncRNAId in newGenomeView.ncRNAsById) {
       const ncRNA = newGenomeView.ncRNAsById[ncRNAId];
-      // Prefer original genomic coordinates (pre-alignment) for key construction
-      const rawStart = Number.isFinite(Number(ncRNA.origStart)) ? Number(ncRNA.origStart) : Number(ncRNA.start);
-      const rawEnd = Number.isFinite(Number(ncRNA.origEnd)) ? Number(ncRNA.origEnd) : Number(ncRNA.end);
-      // Build absolute composite key using hood range start
-      const hoodId = ncRNA.hood_id || ncRNA.hoodId;
-      const hoodRange = hoodId ? newGenomeView.hoodRanges?.[hoodId] : null;
-      const hoodAbsStart = hoodRange && Number.isFinite(Number(hoodRange.start)) ? Number(hoodRange.start) : null;
+      // genomicStart/genomicEnd contain the ORIGINAL genomic coordinates from GFF (absolute)
+      // These are the true absolute positions that match the ncrna_metadata keys
+      const absStart = Number.isFinite(Number(ncRNA.genomicStart)) ? Number(ncRNA.genomicStart) : null;
+      const absEnd = Number.isFinite(Number(ncRNA.genomicEnd)) ? Number(ncRNA.genomicEnd) : null;
       let attached = false;
-      if (hoodAbsStart !== null && Number.isFinite(rawStart) && Number.isFinite(rawEnd)) {
-        const absStart = rawStart + hoodAbsStart;
-        const absEnd = rawEnd + hoodAbsStart;
-        const compositeAbsKey = `${ncRNA.seqid}:${absStart}:${absEnd}`;
-        if (nonCodingMetadata[compositeAbsKey]) {
-          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeAbsKey]) };
+      
+      // Try composite key with original genomic coordinates
+      if (absStart !== null && absEnd !== null) {
+        const compositeKey = `${ncRNA.seqid}:${absStart}:${absEnd}`;
+        if (nonCodingMetadata[compositeKey]) {
+          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeKey]) };
           attached = true;
-          if (DEBUG_LOGS) console.log('[ncRNA attach] abs hit', compositeAbsKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+          if (DEBUG_LOGS) console.log('[ncRNA attach] abs hit', compositeKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        }
+        // Try swapped start/end (some sources store reverse-strand intervals swapped)
+        if (!attached) {
+          const compositeKeySwapped = `${ncRNA.seqid}:${absEnd}:${absStart}`;
+          if (nonCodingMetadata[compositeKeySwapped]) {
+            ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeKeySwapped]) };
+            attached = true;
+            if (DEBUG_LOGS) console.log('[ncRNA attach] abs-swap hit', compositeKeySwapped, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+          }
         }
       }
+      
+      // Fallback: try adjusted coordinates (start/end from ncRNA object)
       if (!attached) {
-        // Fallback 1: try relative composite key (if metadata happens to be relative)
-        const compositeRelKey = `${ncRNA.seqid}:${rawStart}:${rawEnd}`;
-        if (nonCodingMetadata[compositeRelKey]) {
-          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeRelKey]) };
-          attached = true;
-          if (DEBUG_LOGS) console.log('[ncRNA attach] rel hit', compositeRelKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
-        }
-        // Fallback 1b: try swapped start/end (some sources store reverse-strand intervals swapped)
-        if (!attached && nonCodingMetadata[`${ncRNA.seqid}:${rawEnd}:${rawStart}`]) {
-          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[`${ncRNA.seqid}:${rawEnd}:${rawStart}`]) };
-          attached = true;
-          if (DEBUG_LOGS) console.log('[ncRNA attach] rel-swap hit', `${ncRNA.seqid}:${rawEnd}:${rawStart}`, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        const relStart = Number.isFinite(Number(ncRNA.start)) ? Number(ncRNA.start) : null;
+        const relEnd = Number.isFinite(Number(ncRNA.end)) ? Number(ncRNA.end) : null;
+        if (relStart !== null && relEnd !== null) {
+          const compositeRelKey = `${ncRNA.seqid}:${relStart}:${relEnd}`;
+          if (nonCodingMetadata[compositeRelKey]) {
+            ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeRelKey]) };
+            attached = true;
+            if (DEBUG_LOGS) console.log('[ncRNA attach] rel hit', compositeRelKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+          }
         }
       }
       if (!attached) {
@@ -1278,7 +1283,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       if (!attached) {
         // No metadata found; ensure metadata object exists so sidebar doesn't crash
         if (!ncRNA.metadata) ncRNA.metadata = {};
-        if (DEBUG_LOGS) console.log('[ncRNA attach] miss', ncRNA.seqid, rawStart, rawEnd, 'hood', hoodId, 'absStart', hoodAbsStart);
+        if (DEBUG_LOGS) console.log('[ncRNA attach] miss', ncRNA.seqid, absStart, absEnd);
       }
     }
   } else {

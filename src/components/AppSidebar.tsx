@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Info, Settings, Palette, BookOpen, Crop } from "lucide-react"
+import { Info, Settings, Palette, BookOpen, Crop, ChevronRight } from "lucide-react"
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DEFAULT_CONFIG } from '@/config/visualizationConfig.js';
@@ -10,6 +10,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
@@ -29,6 +34,7 @@ import LegendWidget from '@/widgets/LegendWidget';
 import GuideControlsWidget from '@/widgets/GuideControlsWidget';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import ProteinViewer from '@/components/ProteinViewer3DMol';
+import { RNAStructureViewer } from '@/components/RNAStructureViewer';
 import ErrorBoundary from '@/components/ErrorBoundary';
 // Inline the SVG logo as raw text so the single-file build can embed it
 import hoodiniLogoRaw from '@/assets/hoodini_logo.svg?raw';
@@ -907,14 +913,27 @@ export function AppSidebar({
                                       {selectedGene.metadata.sequence.replace(/\*+$/, '')}
                                     </div>
                                     {selectedGene.metadata.structure && (
-                                      <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                          <Badge variant="outline" className="text-xs">Secondary Structure</Badge>
-                                          <span className="text-xs text-muted-foreground">Dot-bracket</span>
-                                        </div>
-                                        <div className="p-2 bg-muted rounded text-xs font-mono" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                                          {String(selectedGene.metadata.structure)}
-                                        </div>
+                                      <div className="space-y-2">
+                                        {/* RNA 2D Structure Visualization - shown first */}
+                                        <ErrorBoundary fallback={<div className="text-xs text-muted-foreground">RNA viewer error</div>}>
+                                          <RNAStructureViewer
+                                            sequence={selectedGene.metadata.sequence?.replace(/\*+$/, '') || ''}
+                                            dotBracket={String(selectedGene.metadata.structure) || ''}
+                                          />
+                                        </ErrorBoundary>
+                                        {/* Collapsible Dot-bracket notation - shown below viewer */}
+                                        <Collapsible>
+                                          <CollapsibleTrigger className="flex items-center gap-2 w-full hover:bg-muted/50 rounded p-1 -ml-1">
+                                            <ChevronRight className="h-3 w-3 transition-transform duration-200 [[data-state=open]>&]:rotate-90" />
+                                            <Badge variant="outline" className="text-xs">Dot-bracket</Badge>
+                                            <span className="text-xs text-muted-foreground">({String(selectedGene.metadata.structure).length} chars)</span>
+                                          </CollapsibleTrigger>
+                                          <CollapsibleContent>
+                                            <div className="mt-1 p-2 bg-muted rounded text-xs font-mono" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+                                              {String(selectedGene.metadata.structure)}
+                                            </div>
+                                          </CollapsibleContent>
+                                        </Collapsible>
                                       </div>
                                     )}
                                   </div>
