@@ -20,23 +20,15 @@
   <a href="#api-reference">API</a>
 </p>
 
-<br>
 
 <div align = center>
 
 [<kbd> <br> Click here for an interactive demo <br> </kbd>][KBD]
+
 </div>
-
-<br>
-<br>
-
-
-
 
 
 [KBD]: https://github.com/pentamorfico/hoodini
-
-
 
 
 ---
