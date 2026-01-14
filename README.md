@@ -20,7 +20,10 @@
   <a href="#api-reference">API</a>
 </p>
 
+<p align="center">
+
 <kbd> <br> [Title][Link] <br> </kbd>
+</p>
 
 
 ---
