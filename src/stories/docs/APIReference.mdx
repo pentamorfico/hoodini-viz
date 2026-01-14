@@ -35,31 +35,129 @@ import { HoodiniDashboard } from 'hoodini-viz';
 
 #### DataPaths
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `gffParquet` | `string` | Path to GFF features parquet file |
-| `gffText` | `string` | Path to GFF features text file (fallback) |
-| `hoodsParquet` | `string` | Path to hoods parquet file |
-| `hoodsText` | `string` | Path to hoods TSV file (fallback) |
-| `newick` | `string` | Path to Newick tree file |
-| `proteinLinksParquet` | `string` | Path to protein links parquet file |
-| `proteinLinksText` | `string` | Path to protein links TSV file |
-| `nucleotideLinksParquet` | `string` | Path to nucleotide links parquet file |
-| `domainsParquet` | `string` | Path to domains parquet file |
-| `proteinMetadataParquet` | `string` | Path to protein metadata parquet file |
-| `treeMetadataParquet` | `string` | Path to tree metadata parquet file |
+<table>
+  <thead>
+    <tr>
+      <th>Property</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>gffParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to GFF features parquet file</td>
+    </tr>
+    <tr>
+      <td><code>gffText</code></td>
+      <td><code>string</code></td>
+      <td>Path to GFF features text file (fallback)</td>
+    </tr>
+    <tr>
+      <td><code>hoodsParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to hoods parquet file</td>
+    </tr>
+    <tr>
+      <td><code>hoodsText</code></td>
+      <td><code>string</code></td>
+      <td>Path to hoods TSV file (fallback)</td>
+    </tr>
+    <tr>
+      <td><code>newick</code></td>
+      <td><code>string</code></td>
+      <td>Path to Newick tree file</td>
+    </tr>
+    <tr>
+      <td><code>proteinLinksParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to protein links parquet file</td>
+    </tr>
+    <tr>
+      <td><code>proteinLinksText</code></td>
+      <td><code>string</code></td>
+      <td>Path to protein links TSV file</td>
+    </tr>
+    <tr>
+      <td><code>nucleotideLinksParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to nucleotide links parquet file</td>
+    </tr>
+    <tr>
+      <td><code>domainsParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to domains parquet file</td>
+    </tr>
+    <tr>
+      <td><code>proteinMetadataParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to protein metadata parquet file</td>
+    </tr>
+    <tr>
+      <td><code>treeMetadataParquet</code></td>
+      <td><code>string</code></td>
+      <td>Path to tree metadata parquet file</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Dashboard Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `dataPaths` | `DataPaths` | - | Paths to data files |
-| `initialState` | `InitialState` | `{}` | Initial visualization state |
-| `showSidebar` | `boolean` | `true` | Show control sidebar |
-| `showDataGrid` | `boolean` | `true` | Show data browser panel |
-| `showToolbar` | `boolean` | `true` | Show toolbar |
-| `onDataLoaded` | `(data) => void` | - | Callback when data finishes loading |
-| `ref` | `Ref<HoodiniDashboardRef>` | - | Imperative handle for programmatic control |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>dataPaths</code></td>
+      <td><code>DataPaths</code></td>
+      <td>-</td>
+      <td>Paths to data files</td>
+    </tr>
+    <tr>
+      <td><code>initialState</code></td>
+      <td><code>InitialState</code></td>
+      <td><code>{}</code></td>
+      <td>Initial visualization state</td>
+    </tr>
+    <tr>
+      <td><code>showSidebar</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show control sidebar</td>
+    </tr>
+    <tr>
+      <td><code>showDataGrid</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show data browser panel</td>
+    </tr>
+    <tr>
+      <td><code>showToolbar</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show toolbar</td>
+    </tr>
+    <tr>
+      <td><code>onDataLoaded</code></td>
+      <td><code>(data) =&gt; void</code></td>
+      <td>-</td>
+      <td>Callback when data finishes loading</td>
+    </tr>
+    <tr>
+      <td><code>ref</code></td>
+      <td><code>Ref&lt;HoodiniDashboardRef&gt;</code></td>
+      <td>-</td>
+      <td>Imperative handle for programmatic control</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -73,89 +171,383 @@ import { HoodiniViz } from 'hoodini-viz';
 
 #### Data Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `newickStr` | `string` | Newick format phylogenetic tree |
-| `gffFeatures` | `GFFFeature[]` | Parsed GFF3 gene features |
-| `proteinLinks` | `ProteinLink[]` | Protein-protein homology links |
-| `nucleotideLinks` | `NucleotideLink[]` | Nucleotide synteny blocks |
-| `domainsByGene` | `Record<string, Domain[]>` | Domain annotations by gene ID |
-| `hoods` | `Hood[]` | Genomic neighborhood definitions |
-| `proteinMetadata` | `Record<string, object>` | Gene metadata (clusters, products, sequences) |
-| `treeMetadata` | `Record<string, object>` | Tree leaf metadata (taxonomy, etc.) |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>newickStr</code></td>
+      <td><code>string</code></td>
+      <td>Newick format phylogenetic tree</td>
+    </tr>
+    <tr>
+      <td><code>gffFeatures</code></td>
+      <td><code>GFFFeature[]</code></td>
+      <td>Parsed GFF3 gene features</td>
+    </tr>
+    <tr>
+      <td><code>proteinLinks</code></td>
+      <td><code>ProteinLink[]</code></td>
+      <td>Protein-protein homology links</td>
+    </tr>
+    <tr>
+      <td><code>nucleotideLinks</code></td>
+      <td><code>NucleotideLink[]</code></td>
+      <td>Nucleotide synteny blocks</td>
+    </tr>
+    <tr>
+      <td><code>domainsByGene</code></td>
+      <td><code>Record&lt;string, Domain[]&gt;</code></td>
+      <td>Domain annotations by gene ID</td>
+    </tr>
+    <tr>
+      <td><code>hoods</code></td>
+      <td><code>Hood[]</code></td>
+      <td>Genomic neighborhood definitions</td>
+    </tr>
+    <tr>
+      <td><code>proteinMetadata</code></td>
+      <td><code>Record&lt;string, object&gt;</code></td>
+      <td>Gene metadata (clusters, products, sequences)</td>
+    </tr>
+    <tr>
+      <td><code>treeMetadata</code></td>
+      <td><code>Record&lt;string, object&gt;</code></td>
+      <td>Tree leaf metadata (taxonomy, etc.)</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Visual Settings Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `ultrametric` | `boolean` | `false` | Render tree as ultrametric |
-| `geneHeight` | `number` | `60` | Height of gene arrows (pixels) |
-| `arrowheadHeight` | `number` | `0` | Arrowhead height (0 = proportional) |
-| `treeXScale` | `number` | `100` | Tree horizontal scale (%) |
-| `phyloLabelPosition` | `'after-tree' \| 'after-tracks'` | `'after-tree'` | Position of tree labels |
-| `alignLabels` | `boolean` | `true` | Align tree labels to same X |
-| `geneLabelPosition` | `'top' \| 'bottom' \| 'center'` | `'bottom'` | Gene label position |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ultrametric</code></td>
+      <td><code>boolean</code></td>
+      <td><code>false</code></td>
+      <td>Render tree as ultrametric</td>
+    </tr>
+    <tr>
+      <td><code>geneHeight</code></td>
+      <td><code>number</code></td>
+      <td><code>60</code></td>
+      <td>Height of gene arrows (pixels)</td>
+    </tr>
+    <tr>
+      <td><code>arrowheadHeight</code></td>
+      <td><code>number</code></td>
+      <td><code>0</code></td>
+      <td>Arrowhead height (0 = proportional)</td>
+    </tr>
+    <tr>
+      <td><code>treeXScale</code></td>
+      <td><code>number</code></td>
+      <td><code>100</code></td>
+      <td>Tree horizontal scale (%)</td>
+    </tr>
+    <tr>
+      <td><code>phyloLabelPosition</code></td>
+      <td><code>'after-tree' | 'after-tracks'</code></td>
+      <td><code>'after-tree'</code></td>
+      <td>Position of tree labels</td>
+    </tr>
+    <tr>
+      <td><code>alignLabels</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Align tree labels to same X</td>
+    </tr>
+    <tr>
+      <td><code>geneLabelPosition</code></td>
+      <td><code>'top' | 'bottom' | 'center'</code></td>
+      <td><code>'bottom'</code></td>
+      <td>Gene label position</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Alignment Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `alignCluster` | `string \| null` | `null` | Cluster ID to align by |
-| `useDefaultGeneAlignment` | `boolean` | `true` | Use align_gene from hoods |
-| `defaultAlign` | `'start' \| 'center' \| 'end'` | `'start'` | Fallback alignment |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>alignCluster</code></td>
+      <td><code>string | null</code></td>
+      <td><code>null</code></td>
+      <td>Cluster ID to align by</td>
+    </tr>
+    <tr>
+      <td><code>useDefaultGeneAlignment</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Use align_gene from hoods</td>
+    </tr>
+    <tr>
+      <td><code>defaultAlign</code></td>
+      <td><code>'start' | 'center' | 'end'</code></td>
+      <td><code>'start'</code></td>
+      <td>Fallback alignment</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Coloring Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `colorBy` / `geneColorBy` | `string` | `'cluster'` | Gene color-by field |
-| `labelBy` / `geneLabelBy` | `string` | - | Gene label field |
-| `treeColorBy` | `string` | - | Tree label color-by field |
-| `treeLabelBy` | `string` | - | Tree label field |
-| `domainColorBy` | `string` | `'domainName'` | Domain color-by field |
-| `domainSource` | `string` | `'all'` | Domain source filter |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>colorBy</code> / <code>geneColorBy</code></td>
+      <td><code>string</code></td>
+      <td><code>'cluster'</code></td>
+      <td>Gene color-by field</td>
+    </tr>
+    <tr>
+      <td><code>labelBy</code> / <code>geneLabelBy</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Gene label field</td>
+    </tr>
+    <tr>
+      <td><code>treeColorBy</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Tree label color-by field</td>
+    </tr>
+    <tr>
+      <td><code>treeLabelBy</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Tree label field</td>
+    </tr>
+    <tr>
+      <td><code>domainColorBy</code></td>
+      <td><code>string</code></td>
+      <td><code>'domainName'</code></td>
+      <td>Domain color-by field</td>
+    </tr>
+    <tr>
+      <td><code>domainSource</code></td>
+      <td><code>string</code></td>
+      <td><code>'all'</code></td>
+      <td>Domain source filter</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Palette Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `genePalette` | `PaletteConfig` | Bold | Gene coloring palette |
-| `domainPalette` | `PaletteConfig` | Gray | Domain coloring palette |
-| `phyloPalette` | `PaletteConfig` | Vivid | Tree label palette |
-| `ncRNAPalette` | `PaletteConfig` | Prism | ncRNA coloring palette |
-| `regionPalette` | `PaletteConfig` | Margot2 | Region coloring palette |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>genePalette</code></td>
+      <td><code>PaletteConfig</code></td>
+      <td>Bold</td>
+      <td>Gene coloring palette</td>
+    </tr>
+    <tr>
+      <td><code>domainPalette</code></td>
+      <td><code>PaletteConfig</code></td>
+      <td>Gray</td>
+      <td>Domain coloring palette</td>
+    </tr>
+    <tr>
+      <td><code>phyloPalette</code></td>
+      <td><code>PaletteConfig</code></td>
+      <td>Vivid</td>
+      <td>Tree label palette</td>
+    </tr>
+    <tr>
+      <td><code>ncRNAPalette</code></td>
+      <td><code>PaletteConfig</code></td>
+      <td>Prism</td>
+      <td>ncRNA coloring palette</td>
+    </tr>
+    <tr>
+      <td><code>regionPalette</code></td>
+      <td><code>PaletteConfig</code></td>
+      <td>Margot2</td>
+      <td>Region coloring palette</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Layer Visibility Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `showTreeLayer` | `boolean` | `true` | Show phylogenetic tree |
-| `showGeneLayer` | `boolean` | `true` | Show gene arrows |
-| `showDomainLayer` | `boolean` | `true` | Show protein domains |
-| `showProteinLinkLayer` | `boolean` | `true` | Show protein links |
-| `showNucleotideLinkLayer` | `boolean` | `true` | Show synteny blocks |
-| `showNcRNALayer` | `boolean` | `true` | Show ncRNA features |
-| `showRegionsLayer` | `boolean` | `true` | Show region annotations |
-| `showGeneTextLayer` | `boolean` | `true` | Show gene labels |
-| `showTreeTextLayer` | `boolean` | `true` | Show tree labels |
-| `showRuler` | `boolean` | `true` | Show position ruler |
-| `showScrollbar` | `boolean` | `true` | Show vertical scrollbar |
-| `showConnectingLines` | `boolean` | `false` | Show tree-to-track lines |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>showTreeLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show phylogenetic tree</td>
+    </tr>
+    <tr>
+      <td><code>showGeneLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show gene arrows</td>
+    </tr>
+    <tr>
+      <td><code>showDomainLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show protein domains</td>
+    </tr>
+    <tr>
+      <td><code>showProteinLinkLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show protein links</td>
+    </tr>
+    <tr>
+      <td><code>showNucleotideLinkLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show synteny blocks</td>
+    </tr>
+    <tr>
+      <td><code>showNcRNALayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show ncRNA features</td>
+    </tr>
+    <tr>
+      <td><code>showRegionsLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show region annotations</td>
+    </tr>
+    <tr>
+      <td><code>showGeneTextLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show gene labels</td>
+    </tr>
+    <tr>
+      <td><code>showTreeTextLayer</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show tree labels</td>
+    </tr>
+    <tr>
+      <td><code>showRuler</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show position ruler</td>
+    </tr>
+    <tr>
+      <td><code>showScrollbar</code></td>
+      <td><code>boolean</code></td>
+      <td><code>true</code></td>
+      <td>Show vertical scrollbar</td>
+    </tr>
+    <tr>
+      <td><code>showConnectingLines</code></td>
+      <td><code>boolean</code></td>
+      <td><code>false</code></td>
+      <td>Show tree-to-track lines</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Link Configuration Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `proteinLinkConfig` | `ProteinLinkConfig` | Protein link visualization config |
-| `nucleotideLinkConfig` | `NucleotideLinkConfig` | Nucleotide link visualization config |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>proteinLinkConfig</code></td>
+      <td><code>ProteinLinkConfig</code></td>
+      <td>Protein link visualization config</td>
+    </tr>
+    <tr>
+      <td><code>nucleotideLinkConfig</code></td>
+      <td><code>NucleotideLinkConfig</code></td>
+      <td>Nucleotide link visualization config</td>
+    </tr>
+  </tbody>
+</table>
 
 #### Callback Props
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `onObjectClick` | `(info) => void` | Click handler for features |
-| `onLegendChange` | `(data) => void` | Legend data change handler |
-| `setGenomeViewRef` | `(gv) => void` | Receive GenomeView instance |
+<table>
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>onObjectClick</code></td>
+      <td><code>(info) =&gt; void</code></td>
+      <td>Click handler for features</td>
+    </tr>
+    <tr>
+      <td><code>onLegendChange</code></td>
+      <td><code>(data) =&gt; void</code></td>
+      <td>Legend data change handler</td>
+    </tr>
+    <tr>
+      <td><code>setGenomeViewRef</code></td>
+      <td><code>(gv) =&gt; void</code></td>
+      <td>Receive GenomeView instance</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -289,51 +681,194 @@ interface FormatPreset {
 
 Best for discrete categories like clusters, species, or feature types.
 
-| Name | Colors | Description |
-|------|--------|-------------|
-| **Bold** | 10 | High-contrast categorical |
-| **Vivid** | 8 | Bright, saturated colors |
-| **Prism** | 9 | Diverse color set |
-| **Margot2** | 5 | Wes Anderson inspired |
-| **Set1** | 9 | Classic ColorBrewer |
-| **Set2** | 8 | Softer categorical |
-| **Set3** | 12 | Pastel categorical |
-| **Paired** | 12 | Paired colors |
-| **Dark2** | 8 | Darker variant |
-| **Okabe_Ito_Categorical** | 8 | Colorblind-safe |
-| **Safe** | 10 | Colorblind-safe |
-| **Tableau** | 10 | Tableau default |
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Colors</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Bold</strong></td>
+      <td>10</td>
+      <td>High-contrast categorical</td>
+    </tr>
+    <tr>
+      <td><strong>Vivid</strong></td>
+      <td>8</td>
+      <td>Bright, saturated colors</td>
+    </tr>
+    <tr>
+      <td><strong>Prism</strong></td>
+      <td>9</td>
+      <td>Diverse color set</td>
+    </tr>
+    <tr>
+      <td><strong>Margot2</strong></td>
+      <td>5</td>
+      <td>Wes Anderson inspired</td>
+    </tr>
+    <tr>
+      <td><strong>Set1</strong></td>
+      <td>9</td>
+      <td>Classic ColorBrewer</td>
+    </tr>
+    <tr>
+      <td><strong>Set2</strong></td>
+      <td>8</td>
+      <td>Softer categorical</td>
+    </tr>
+    <tr>
+      <td><strong>Set3</strong></td>
+      <td>12</td>
+      <td>Pastel categorical</td>
+    </tr>
+    <tr>
+      <td><strong>Paired</strong></td>
+      <td>12</td>
+      <td>Paired colors</td>
+    </tr>
+    <tr>
+      <td><strong>Dark2</strong></td>
+      <td>8</td>
+      <td>Darker variant</td>
+    </tr>
+    <tr>
+      <td><strong>Okabe_Ito_Categorical</strong></td>
+      <td>8</td>
+      <td>Colorblind-safe</td>
+    </tr>
+    <tr>
+      <td><strong>Safe</strong></td>
+      <td>10</td>
+      <td>Colorblind-safe</td>
+    </tr>
+    <tr>
+      <td><strong>Tableau</strong></td>
+      <td>10</td>
+      <td>Tableau default</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Sequential (Continuous)
 
 Best for continuous values like e-value, identity, or coverage.
 
-| Name | Colors | Description |
-|------|--------|-------------|
-| **Gray** | 9 | Grayscale gradient |
-| **Blues** | 9 | Blue gradient |
-| **Greens** | 9 | Green gradient |
-| **Oranges** | 9 | Orange gradient |
-| **Reds** | 9 | Red gradient |
-| **viridis** | 9 | Perceptually uniform |
-| **plasma** | 9 | Purple to yellow |
-| **inferno** | 9 | Black to yellow |
-| **magma** | 9 | Black to pink |
-| **cividis** | 9 | Colorblind-safe |
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Colors</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Gray</strong></td>
+      <td>9</td>
+      <td>Grayscale gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Blues</strong></td>
+      <td>9</td>
+      <td>Blue gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Greens</strong></td>
+      <td>9</td>
+      <td>Green gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Oranges</strong></td>
+      <td>9</td>
+      <td>Orange gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Reds</strong></td>
+      <td>9</td>
+      <td>Red gradient</td>
+    </tr>
+    <tr>
+      <td><strong>viridis</strong></td>
+      <td>9</td>
+      <td>Perceptually uniform</td>
+    </tr>
+    <tr>
+      <td><strong>plasma</strong></td>
+      <td>9</td>
+      <td>Purple to yellow</td>
+    </tr>
+    <tr>
+      <td><strong>inferno</strong></td>
+      <td>9</td>
+      <td>Black to yellow</td>
+    </tr>
+    <tr>
+      <td><strong>magma</strong></td>
+      <td>9</td>
+      <td>Black to pink</td>
+    </tr>
+    <tr>
+      <td><strong>cividis</strong></td>
+      <td>9</td>
+      <td>Colorblind-safe</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Diverging
 
 Best for values with a meaningful midpoint.
 
-| Name | Colors | Description |
-|------|--------|-------------|
-| **RdBu** | 11 | Red-Blue |
-| **RdYlBu** | 11 | Red-Yellow-Blue |
-| **RdYlGn** | 11 | Red-Yellow-Green |
-| **PiYG** | 11 | Pink-Yellow-Green |
-| **PRGn** | 11 | Purple-Green |
-| **BrBG** | 11 | Brown-Blue-Green |
-| **Spectral** | 11 | Rainbow diverging |
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Colors</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>RdBu</strong></td>
+      <td>11</td>
+      <td>Red-Blue</td>
+    </tr>
+    <tr>
+      <td><strong>RdYlBu</strong></td>
+      <td>11</td>
+      <td>Red-Yellow-Blue</td>
+    </tr>
+    <tr>
+      <td><strong>RdYlGn</strong></td>
+      <td>11</td>
+      <td>Red-Yellow-Green</td>
+    </tr>
+    <tr>
+      <td><strong>PiYG</strong></td>
+      <td>11</td>
+      <td>Pink-Yellow-Green</td>
+    </tr>
+    <tr>
+      <td><strong>PRGn</strong></td>
+      <td>11</td>
+      <td>Purple-Green</td>
+    </tr>
+    <tr>
+      <td><strong>BrBG</strong></td>
+      <td>11</td>
+      <td>Brown-Blue-Green</td>
+    </tr>
+    <tr>
+      <td><strong>Spectral</strong></td>
+      <td>11</td>
+      <td>Rainbow diverging</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -463,12 +998,41 @@ const customConfig = createConfig({
 
 ### Config Sections
 
-| Section | Description |
-|---------|-------------|
-| `tree` | Tree layout: ySpacing, xScalePercent, edgeColor |
-| `gene` | Gene styling: height, arrowheadHeight, tipWidthFactor |
-| `domain` | Domain styling: heightFactor, edgeWidth |
-| `proteinLink` | Link styling: bezierSegments, color, alpha range |
-| `nucleotideLink` | Synteny styling: color, strand colors |
-| `theme` | Theme colors: light and dark mode |
-| `colorPalettes` | Default palettes for each layer |
+<table>
+  <thead>
+    <tr>
+      <th>Section</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>tree</code></td>
+      <td>Tree layout: ySpacing, xScalePercent, edgeColor</td>
+    </tr>
+    <tr>
+      <td><code>gene</code></td>
+      <td>Gene styling: height, arrowheadHeight, tipWidthFactor</td>
+    </tr>
+    <tr>
+      <td><code>domain</code></td>
+      <td>Domain styling: heightFactor, edgeWidth</td>
+    </tr>
+    <tr>
+      <td><code>proteinLink</code></td>
+      <td>Link styling: bezierSegments, color, alpha range</td>
+    </tr>
+    <tr>
+      <td><code>nucleotideLink</code></td>
+      <td>Synteny styling: color, strand colors</td>
+    </tr>
+    <tr>
+      <td><code>theme</code></td>
+      <td>Theme colors: light and dark mode</td>
+    </tr>
+    <tr>
+      <td><code>colorPalettes</code></td>
+      <td>Default palettes for each layer</td>
+    </tr>
+  </tbody>
+</table>

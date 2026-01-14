@@ -170,13 +170,42 @@ hood_001    NC_000001.1    0    50000    gene003
 hood_002    NC_000002.1    25000    75000    gene050
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `hood_id` | string | Unique identifier |
-| `seqid` | string | Sequence/contig ID |
-| `start` | integer | Window start position |
-| `end` | integer | Window end position |
-| `align_gene` | string (optional) | Gene to align by |
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>hood_id</code></td>
+      <td>string</td>
+      <td>Unique identifier</td>
+    </tr>
+    <tr>
+      <td><code>seqid</code></td>
+      <td>string</td>
+      <td>Sequence/contig ID</td>
+    </tr>
+    <tr>
+      <td><code>start</code></td>
+      <td>integer</td>
+      <td>Window start position</td>
+    </tr>
+    <tr>
+      <td><code>end</code></td>
+      <td>integer</td>
+      <td>Window end position</td>
+    </tr>
+    <tr>
+      <td><code>align_gene</code></td>
+      <td>string (optional)</td>
+      <td>Gene to align by</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -191,11 +220,32 @@ gene002    gene051    72.3
 gene003    gene052    91.2
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `geneA` | string | First gene ID |
-| `geneB` | string | Second gene ID |
-| `identity` | float | Percent identity (0-100) |
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>geneA</code></td>
+      <td>string</td>
+      <td>First gene ID</td>
+    </tr>
+    <tr>
+      <td><code>geneB</code></td>
+      <td>string</td>
+      <td>Second gene ID</td>
+    </tr>
+    <tr>
+      <td><code>identity</code></td>
+      <td>float</td>
+      <td>Percent identity (0-100)</td>
+    </tr>
+  </tbody>
+</table>
 
 > 💡 **From BLAST/Diamond:** Use `-outfmt 6` and extract columns 1, 2, 3.
 
@@ -211,15 +261,52 @@ NC_001    1000    5000    NC_002    2000    6000    92.5
 NC_001    8000    12000    NC_003    5000    9000    87.3
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `seqidA` | string | First sequence ID |
-| `startA` | integer | Start on sequence A |
-| `endA` | integer | End on sequence A |
-| `seqidB` | string | Second sequence ID |
-| `startB` | integer | Start on sequence B |
-| `endB` | integer | End on sequence B |
-| `identity` | float | Percent identity |
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>seqidA</code></td>
+      <td>string</td>
+      <td>First sequence ID</td>
+    </tr>
+    <tr>
+      <td><code>startA</code></td>
+      <td>integer</td>
+      <td>Start on sequence A</td>
+    </tr>
+    <tr>
+      <td><code>endA</code></td>
+      <td>integer</td>
+      <td>End on sequence A</td>
+    </tr>
+    <tr>
+      <td><code>seqidB</code></td>
+      <td>string</td>
+      <td>Second sequence ID</td>
+    </tr>
+    <tr>
+      <td><code>startB</code></td>
+      <td>integer</td>
+      <td>Start on sequence B</td>
+    </tr>
+    <tr>
+      <td><code>endB</code></td>
+      <td>integer</td>
+      <td>End on sequence B</td>
+    </tr>
+    <tr>
+      <td><code>identity</code></td>
+      <td>float</td>
+      <td>Percent identity</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -234,15 +321,52 @@ gene001    PF00002    200    300    Pfam    1e-30    0.65
 gene002    TIGR00001    5    120    TIGRFAM    1e-40    0.78
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `geneId` | string | Parent gene ID |
-| `domainName` | string | Domain accession |
-| `start` | integer | Start in protein (aa) |
-| `end` | integer | End in protein (aa) |
-| `source` | string | Database (Pfam, TIGRFAM, CDD) |
-| `evalue` | float | E-value |
-| `coverage` | float | Domain coverage (0-1) |
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>geneId</code></td>
+      <td>string</td>
+      <td>Parent gene ID</td>
+    </tr>
+    <tr>
+      <td><code>domainName</code></td>
+      <td>string</td>
+      <td>Domain accession</td>
+    </tr>
+    <tr>
+      <td><code>start</code></td>
+      <td>integer</td>
+      <td>Start in protein (aa)</td>
+    </tr>
+    <tr>
+      <td><code>end</code></td>
+      <td>integer</td>
+      <td>End in protein (aa)</td>
+    </tr>
+    <tr>
+      <td><code>source</code></td>
+      <td>string</td>
+      <td>Database (Pfam, TIGRFAM, CDD)</td>
+    </tr>
+    <tr>
+      <td><code>evalue</code></td>
+      <td>float</td>
+      <td>E-value</td>
+    </tr>
+    <tr>
+      <td><code>coverage</code></td>
+      <td>float</td>
+      <td>Domain coverage (0-1)</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -256,12 +380,37 @@ gene001    cluster_1    Hypothetical protein    MKFLIL...
 gene002    cluster_2    ABC transporter    MTLSPA...
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | string | Gene ID (matches GFF) |
-| `cluster` | string | Protein cluster ID |
-| `product` | string | Functional annotation |
-| `sequence` | string | Amino acid sequence |
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>id</code></td>
+      <td>string</td>
+      <td>Gene ID (matches GFF)</td>
+    </tr>
+    <tr>
+      <td><code>cluster</code></td>
+      <td>string</td>
+      <td>Protein cluster ID</td>
+    </tr>
+    <tr>
+      <td><code>product</code></td>
+      <td>string</td>
+      <td>Functional annotation</td>
+    </tr>
+    <tr>
+      <td><code>sequence</code></td>
+      <td>string</td>
+      <td>Amino acid sequence</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 

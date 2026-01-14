@@ -18,8 +18,7 @@
 </div>
 
 
-[KBD]: https://github.com/pentamorfico/hoodini
-
+[KBD]: https://storage.hoodini.bio/hoodini-demo.html
 
 <p align="center">
   <a href="#installation">Installation</a> •

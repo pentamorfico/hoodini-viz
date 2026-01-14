@@ -26,13 +26,36 @@ Hoodini-Viz is a high-performance React library for interactive visualization of
 
 Built on deck.gl for WebGL-accelerated visualization:
 
-| Layer Type | Purpose |
-|------------|---------|
-| **LineLayer** | Phylogenetic tree edges |
-| **PolygonLayer** | Gene arrows, domains, synteny blocks |
-| **PathLayer** | Bézier curves for protein links |
-| **ScatterplotLayer** | Tree nodes with interactions |
-| **TextLayer** | Labels with dynamic sizing |
+<table>
+  <thead>
+    <tr>
+      <th>Layer Type</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>LineLayer</strong></td>
+      <td>Phylogenetic tree edges</td>
+    </tr>
+    <tr>
+      <td><strong>PolygonLayer</strong></td>
+      <td>Gene arrows, domains, synteny blocks</td>
+    </tr>
+    <tr>
+      <td><strong>PathLayer</strong></td>
+      <td>Bézier curves for protein links</td>
+    </tr>
+    <tr>
+      <td><strong>ScatterplotLayer</strong></td>
+      <td>Tree nodes with interactions</td>
+    </tr>
+    <tr>
+      <td><strong>TextLayer</strong></td>
+      <td>Labels with dynamic sizing</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Core Visualization Components
 
@@ -99,15 +122,52 @@ function App() {
 
 ## 📁 Supported Data Formats
 
-| Data Type | Format | Description |
-|-----------|--------|-------------|
-| **Genes** | GFF3 / Parquet | Standard genome feature format |
-| **Hoods** | TSV / Parquet | Neighborhood boundaries + align_gene |
-| **Tree** | Newick | Phylogenetic tree topology |
-| **Protein Links** | TSV / Parquet | Pairwise homology (BLAST/Diamond) |
-| **Nucleotide Links** | TSV / Parquet | Synteny blocks between sequences |
-| **Domains** | TSV / Parquet | Protein domain annotations |
-| **Regions** | GFF3 / Parquet | Genomic regions (CRISPR, prophage, etc.) |
+<table>
+  <thead>
+    <tr>
+      <th>Data Type</th>
+      <th>Format</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Genes</strong></td>
+      <td>GFF3 / Parquet</td>
+      <td>Standard genome feature format</td>
+    </tr>
+    <tr>
+      <td><strong>Hoods</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Neighborhood boundaries + align_gene</td>
+    </tr>
+    <tr>
+      <td><strong>Tree</strong></td>
+      <td>Newick</td>
+      <td>Phylogenetic tree topology</td>
+    </tr>
+    <tr>
+      <td><strong>Protein Links</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Pairwise homology (BLAST/Diamond)</td>
+    </tr>
+    <tr>
+      <td><strong>Nucleotide Links</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Synteny blocks between sequences</td>
+    </tr>
+    <tr>
+      <td><strong>Domains</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Protein domain annotations</td>
+    </tr>
+    <tr>
+      <td><strong>Regions</strong></td>
+      <td>GFF3 / Parquet</td>
+      <td>Genomic regions (CRISPR, prophage, etc.)</td>
+    </tr>
+  </tbody>
+</table>
 
 > 💡 **Tip:** Parquet files load 3-10x faster than TSV. Use the included `convert_to_parquet.py` script.
 
@@ -115,13 +175,48 @@ function App() {
 
 ## 🎨 Default Color Palettes
 
-| Element | Palette | Type | Use Case |
-|---------|---------|------|----------|
-| **Genes** | Bold | Qualitative | Cluster coloring |
-| **Tree** | Vivid | Qualitative | Taxonomic labels |
-| **Domains** | Gray | Sequential | E-value gradient |
-| **Regions** | Margot2 | Qualitative | Region types |
-| **ncRNAs** | Prism | Qualitative | RNA types |
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Palette</th>
+      <th>Type</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Genes</strong></td>
+      <td>Bold</td>
+      <td>Qualitative</td>
+      <td>Cluster coloring</td>
+    </tr>
+    <tr>
+      <td><strong>Tree</strong></td>
+      <td>Vivid</td>
+      <td>Qualitative</td>
+      <td>Taxonomic labels</td>
+    </tr>
+    <tr>
+      <td><strong>Domains</strong></td>
+      <td>Gray</td>
+      <td>Sequential</td>
+      <td>E-value gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Regions</strong></td>
+      <td>Margot2</td>
+      <td>Qualitative</td>
+      <td>Region types</td>
+    </tr>
+    <tr>
+      <td><strong>ncRNAs</strong></td>
+      <td>Prism</td>
+      <td>Qualitative</td>
+      <td>RNA types</td>
+    </tr>
+  </tbody>
+</table>
 
 All palettes support:
 - Reverse order
@@ -133,13 +228,36 @@ All palettes support:
 
 ## 🖱️ Navigation
 
-| Action | Control |
-|--------|---------|
-| **Zoom** | Mouse wheel |
-| **Pan** | Click + drag |
-| **Select** | Click on feature |
-| **Details** | Hover for tooltip |
-| **Vertical scroll** | Scrollbar widget |
+<table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Control</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Zoom</strong></td>
+      <td>Mouse wheel</td>
+    </tr>
+    <tr>
+      <td><strong>Pan</strong></td>
+      <td>Click + drag</td>
+    </tr>
+    <tr>
+      <td><strong>Select</strong></td>
+      <td>Click on feature</td>
+    </tr>
+    <tr>
+      <td><strong>Details</strong></td>
+      <td>Hover for tooltip</td>
+    </tr>
+    <tr>
+      <td><strong>Vertical scroll</strong></td>
+      <td>Scrollbar widget</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
@@ -168,22 +286,62 @@ Export features:
 
 ## 🔧 Performance Tips
 
-| Dataset Size | Recommendation |
-|--------------|----------------|
-| Small (&lt;1,000 genes) | Default settings |
-| Medium (1K-10K genes) | Enable Parquet loading |
-| Large (10K-100K genes) | Filter links by identity threshold |
-| Very Large (&gt;100K genes) | Server-side pre-filtering |
+<table>
+  <thead>
+    <tr>
+      <th>Dataset Size</th>
+      <th>Recommendation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Small (&lt;1,000 genes)</td>
+      <td>Default settings</td>
+    </tr>
+    <tr>
+      <td>Medium (1K-10K genes)</td>
+      <td>Enable Parquet loading</td>
+    </tr>
+    <tr>
+      <td>Large (10K-100K genes)</td>
+      <td>Filter links by identity threshold</td>
+    </tr>
+    <tr>
+      <td>Very Large (&gt;100K genes)</td>
+      <td>Server-side pre-filtering</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
 ## 🌐 Browser Support
 
-| Browser | Version |
-|---------|---------|
-| Chrome | 90+ |
-| Firefox | 88+ |
-| Safari | 14+ |
-| Edge | 90+ |
+<table>
+  <thead>
+    <tr>
+      <th>Browser</th>
+      <th>Version</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome</td>
+      <td>90+</td>
+    </tr>
+    <tr>
+      <td>Firefox</td>
+      <td>88+</td>
+    </tr>
+    <tr>
+      <td>Safari</td>
+      <td>14+</td>
+    </tr>
+    <tr>
+      <td>Edge</td>
+      <td>90+</td>
+    </tr>
+  </tbody>
+</table>
 
 Requires WebGL 2.0 support.
