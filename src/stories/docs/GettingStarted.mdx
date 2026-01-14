@@ -4,199 +4,344 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Getting Started
 
+This guide covers installation, basic usage, and data format specifications for Hoodini-Viz.
+
+---
+
 ## Installation
+
+### npm
 
 ```bash
 npm install hoodini-viz
 ```
 
-## Basic Usage
+### yarn
 
-### Option 1: Full Dashboard (Recommended)
+```bash
+yarn add hoodini-viz
+```
 
-The dashboard includes a sidebar with all controls for visualization, data loading, and export.
+### pnpm
 
-```tsx
-import { HoodiniVizDash } from 'hoodini-viz';
-import 'hoodini-viz/dist/style.css';
+```bash
+pnpm add hoodini-viz
+```
 
-function App() {
-  return <HoodiniVizDash />;
+### Peer Dependencies
+
+Ensure React is installed in your project:
+
+```json
+{
+  "react": "^18.0.0 || ^19.0.0",
+  "react-dom": "^18.0.0 || ^19.0.0"
 }
 ```
 
-### Option 2: Core Visualization Only
+---
 
-For custom integrations, use the core component with your own data.
+## Basic Usage
+
+### Option 1: HoodiniDashboard (Recommended)
+
+The full-featured dashboard with sidebar controls, data loading, and all visualization features.
 
 ```tsx
-import HoodiniViz from 'hoodini-viz';
+import { HoodiniDashboard } from 'hoodini-viz';
 
 function App() {
   return (
-    <HoodiniViz
-      gffFeatures={gffData}
-      hoods={hoodsData}
-      newickStr={treeNewick}
-      proteinLinks={proteinLinks}
-      nucleotideLinks={nucleotideLinks}
-      domainsByGene={domains}
-      regionFeatures={regions}
-      // Visual settings
-      ySpacing={150}
-      genomeXScale={30}
-      geneHeight={60}
-      phyloLabelSize={20}
-      geneLabelSize={12}
-      // Layer visibility
-      showTreeLayer={true}
-      showGeneLayer={true}
-      showDomainLayer={true}
-      showProteinLinkLayer={true}
-      showNucleotideLinkLayer={true}
-      // Palettes
-      genePalette={{ type: 'qualitative', name: 'Bold', numColors: 8, enabled: true }}
-      phyloPalette={{ type: 'qualitative', name: 'Vivid', numColors: 8, enabled: true }}
-      regionPalette={{ type: 'qualitative', name: 'Margot2', numColors: 8, enabled: true }}
-      ncRNAPalette={{ type: 'qualitative', name: 'Prism', numColors: 8, enabled: true }}
+    <HoodiniDashboard
+      dataPaths={{
+        gffParquet: '/data/genes.parquet',
+        hoodsParquet: '/data/hoods.parquet',
+        newick: '/data/tree.nwk',
+        proteinLinksParquet: '/data/protein_links.parquet',
+        domainsParquet: '/data/domains.parquet',
+        proteinMetadataParquet: '/data/protein_metadata.parquet',
+        treeMetadataParquet: '/data/tree_metadata.parquet',
+      }}
+      initialState={{
+        ultrametric: true,
+        colorBy: 'cluster',
+      }}
+      showSidebar={true}
+      showDataGrid={true}
     />
   );
 }
 ```
 
+### Option 2: HoodiniViz (Core Visualization)
+
+For custom integrations where you handle data loading yourself.
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+
+function CustomViewer({ newick, genes, links, domains, hoods }) {
+  return (
+    <HoodiniViz
+      // Data
+      newickStr={newick}
+      gffFeatures={genes}
+      proteinLinks={links}
+      domainsByGene={domains}
+      hoods={hoods}
+      
+      // Visual settings
+      ultrametric={false}
+      geneHeight={60}
+      
+      // Layer visibility
+      showTreeLayer={true}
+      showGeneLayer={true}
+      showDomainLayer={true}
+      showProteinLinkLayer={true}
+      
+      // Palettes
+      genePalette={{ type: 'qualitative', name: 'Bold', numColors: 8, enabled: true }}
+      phyloPalette={{ type: 'qualitative', name: 'Vivid', numColors: 8, enabled: true }}
+      domainPalette={{ type: 'sequential', name: 'Gray', numColors: 9, enabled: true }}
+      
+      // Callbacks
+      onObjectClick={(info) => {
+        console.log('Clicked:', info.object);
+      }}
+    />
+  );
+}
+```
+
+---
+
 ## Data Formats
 
-### GFF3 (Genes and ncRNAs)
+### GFF3 (Genes, ncRNAs, Regions)
+
+Standard GFF3 format with tab-separated fields:
 
 ```
+##gff-version 3
 seqid    source    type    start    end    score    strand    phase    attributes
-contig_A    hoodini    CDS    1000    2500    .    +    .    ID=gene_A1;Name=proteinA1;cluster=cluster_001
-contig_A    hoodini    ncRNA    3000    3100    .    +    .    ID=ncrna_1;Name=tRNA-Ala;ncRNA_class=tRNA
 ```
 
-### Hoods (TSV)
+**Gene Example:**
+```
+NC_000001.1    RefSeq    CDS    1000    2500    .    +    .    ID=gene001;Name=geneA;product=Hypothetical protein
+NC_000001.1    RefSeq    CDS    2700    4200    .    -    .    ID=gene002;Name=geneB;product=ABC transporter
+```
+
+**ncRNA Example:**
+```
+NC_000001.1    Rfam    ncRNA    3000    3100    .    +    .    ID=ncrna_1;Name=tRNA-Ala;ncRNA_class=tRNA
+```
+
+**Region Example:**
+```
+NC_000001.1    CRISPRFinder    region    5000    5500    .    .    .    ID=crispr_1;Name=CRISPR_array;region_type=CRISPR
+```
+
+---
+
+### Newick (Phylogenetic Tree)
+
+Standard Newick format with optional branch lengths:
+
+```
+((species_A:0.1,species_B:0.15):0.05,(species_C:0.12,species_D:0.18):0.08);
+```
+
+**Features:**
+- Branch lengths after colon (`:0.1`)
+- Internal node labels supported
+- Semicolon terminator required
+
+---
+
+### Hoods (Gene Neighborhoods)
+
+Tab-separated file defining genomic windows:
 
 ```
 hood_id    seqid    start    end    align_gene
-1    contig_A    0    10000    gene_A3
-2    contig_B    0    12000    gene_B5
+hood_001    NC_000001.1    0    50000    gene003
+hood_002    NC_000002.1    25000    75000    gene050
 ```
 
-### Newick Tree
+| Column | Type | Description |
+|--------|------|-------------|
+| `hood_id` | string | Unique identifier |
+| `seqid` | string | Sequence/contig ID |
+| `start` | integer | Window start position |
+| `end` | integer | Window end position |
+| `align_gene` | string (optional) | Gene to align by |
+
+---
+
+### Protein Links (Homology)
+
+Tab-separated file for pairwise protein similarity:
 
 ```
-((contig_A:0.1,contig_B:0.15):0.05,contig_C:0.2);
+geneA    geneB    identity
+gene001    gene050    85.5
+gene002    gene051    72.3
+gene003    gene052    91.2
 ```
 
-### Protein Links (BLAST/Diamond output)
+| Column | Type | Description |
+|--------|------|-------------|
+| `geneA` | string | First gene ID |
+| `geneB` | string | Second gene ID |
+| `identity` | float | Percent identity (0-100) |
 
-```
-gene_id_1    gene_id_2    identity    evalue    bitscore
-gene_A1    gene_B1    85.5    1e-50    250
-gene_A2    gene_C2    72.3    1e-30    180
-```
+> 💡 **From BLAST/Diamond:** Use `-outfmt 6` and extract columns 1, 2, 3.
+
+---
 
 ### Nucleotide Links (Synteny)
 
-```
-seqid_1    start_1    end_1    seqid_2    start_2    end_2    strand_1    strand_2    identity
-contig_A    1000    5000    contig_B    2000    6000    +    +    92.5
-```
-
-### Domains (TSV)
+Tab-separated file for synteny blocks:
 
 ```
-gene_id    domain_id    start    end    evalue    source
-gene_A1    PF00001    10    150    1e-20    Pfam
-gene_A1    TIGR00123    200    350    1e-15    TIGRFAM
+seqidA    startA    endA    seqidB    startB    endB    identity
+NC_001    1000    5000    NC_002    2000    6000    92.5
+NC_001    8000    12000    NC_003    5000    9000    87.3
 ```
 
-### Regions (GFF3)
+| Column | Type | Description |
+|--------|------|-------------|
+| `seqidA` | string | First sequence ID |
+| `startA` | integer | Start on sequence A |
+| `endA` | integer | End on sequence A |
+| `seqidB` | string | Second sequence ID |
+| `startB` | integer | Start on sequence B |
+| `endB` | integer | End on sequence B |
+| `identity` | float | Percent identity |
+
+---
+
+### Domains (Protein Domains)
+
+Tab-separated file for domain annotations:
 
 ```
-seqid    source    type    start    end    score    strand    phase    attributes
-contig_A    CRISPRCasFinder    CRISPR    5000    5500    .    .    .    ID=crispr_1;Name=CRISPR_array
-contig_B    PHASTER    prophage    8000    25000    .    .    .    ID=prophage_1;Name=Prophage_region
+geneId    domainName    start    end    source    evalue    coverage
+gene001    PF00001    10    150    Pfam    1e-50    0.85
+gene001    PF00002    200    300    Pfam    1e-30    0.65
+gene002    TIGR00001    5    120    TIGRFAM    1e-40    0.78
 ```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `geneId` | string | Parent gene ID |
+| `domainName` | string | Domain accession |
+| `start` | integer | Start in protein (aa) |
+| `end` | integer | End in protein (aa) |
+| `source` | string | Database (Pfam, TIGRFAM, CDD) |
+| `evalue` | float | E-value |
+| `coverage` | float | Domain coverage (0-1) |
+
+---
+
+### Protein Metadata
+
+Tab-separated file with additional gene information:
+
+```
+id    cluster    product    sequence
+gene001    cluster_1    Hypothetical protein    MKFLIL...
+gene002    cluster_2    ABC transporter    MTLSPA...
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | string | Gene ID (matches GFF) |
+| `cluster` | string | Protein cluster ID |
+| `product` | string | Functional annotation |
+| `sequence` | string | Amino acid sequence |
+
+---
+
+### Tree Metadata
+
+Tab-separated file with leaf annotations:
+
+```
+leaf_id    species    genus    family    phylum
+hood_001    Escherichia coli    Escherichia    Enterobacteriaceae    Proteobacteria
+hood_002    Bacillus subtilis    Bacillus    Bacillaceae    Firmicutes
+```
+
+---
+
+## Converting to Parquet
+
+For optimal performance, convert TSV files to Parquet:
+
+```python
+# Using the included script
+python scripts/convert_to_parquet.py
+
+# Or manually with polars
+import polars as pl
+df = pl.read_csv("genes.tsv", separator="\t")
+df.write_parquet("genes.parquet", compression="zstd")
+```
+
+**Benefits:**
+- 3-10x faster loading
+- 50-80% smaller file size
+- Type preservation
+
+---
 
 ## Visual Settings
 
 ### Y Spacing
 
-Controls vertical distance between tracks. Useful for adjusting density.
+Controls vertical distance between tracks:
 
 ```tsx
-<HoodiniViz ySpacing={150} /> // Default: 150
-```
+// Compact view
+<HoodiniViz ySpacing={100} />
 
-### Genome X Scale
+// Default
+<HoodiniViz ySpacing={150} />
 
-Controls horizontal compression/expansion of genomic coordinates.
-
-```tsx
-<HoodiniViz genomeXScale={30} /> // Default: 30 (30% of original)
+// Expanded view
+<HoodiniViz ySpacing={200} />
 ```
 
 ### Gene Height
 
-Height of gene arrows in world coordinates.
+Height of gene arrow shapes:
 
 ```tsx
-<HoodiniViz geneHeight={60} /> // Default: 60
+<HoodiniViz geneHeight={60} />  // Default
+<HoodiniViz geneHeight={40} />  // Compact
+<HoodiniViz geneHeight={80} />  // Large
 ```
 
-### Label Sizes
+### Tree Scale
+
+Horizontal compression of tree:
 
 ```tsx
-<HoodiniViz 
-  phyloLabelSize={20}  // Tree leaf labels
-  geneLabelSize={12}   // Gene metadata labels
-/>
+<HoodiniViz treeXScale={100} />  // Full width
+<HoodiniViz treeXScale={50} />   // Compressed
+<HoodiniViz treeXScale={150} />  // Expanded
 ```
 
-## Format Guides & Export
+---
 
-### Enabling Format Guides
+## Next Steps
 
-Format guides help you prepare figures for publication or presentation.
-
-```tsx
-<HoodiniViz
-  showFormatGuides={true}
-  formatGuidePreset={{ id: 'a4-portrait', name: 'A4 Portrait', width: 210, height: 297, unit: 'mm' }}
-  scaleExportToFormat={true}
-  cropToGuides={true}
-/>
-```
-
-### Available Presets
-
-| Preset | Dimensions | Use Case |
-|--------|------------|----------|
-| A4 Portrait | 210×297mm | Papers, reports |
-| A4 Landscape | 297×210mm | Wide figures |
-| A3 Portrait | 297×420mm | Posters |
-| Letter Portrait | 216×279mm | US papers |
-| PowerPoint 16:9 | 1920×1080px | Presentations |
-| HD 1080p | 1920×1080px | Screen display |
-
-## Layer Controls
-
-Toggle visibility of different visualization layers:
-
-```tsx
-<HoodiniViz
-  showTreeLayer={true}
-  showGeneLayer={true}
-  showDomainLayer={true}
-  showProteinLinkLayer={true}
-  showNucleotideLinkLayer={true}
-  showNcRNALayer={true}
-  showRegionLayer={true}
-/>
-```
-
-## Filtering
+- **[API Reference](/docs/api-reference)** - Complete props documentation
+- **[Examples](/examples)** - Interactive component stories
+- **[Color Palettes](/docs/api-reference#available-palettes)** - Full palette list
 
 ### Prevalence Filter
 

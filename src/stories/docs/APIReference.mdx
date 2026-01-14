@@ -4,54 +4,128 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # API Reference
 
-## HoodiniVizDash
-
-The full dashboard component with sidebar controls, data loading, and all visualization features.
-
-```tsx
-import { HoodiniVizDash } from 'hoodini-viz';
-```
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `theme` | `"light" \| "dark"` | `"light"` | Color theme |
+Complete documentation for all Hoodini-Viz components, props, and types.
 
 ---
 
-## HoodiniViz
+## Components
 
-The core visualization component for custom integrations.
+### HoodiniDashboard
+
+The full-featured dashboard with automatic data loading, sidebar controls, and data grid.
 
 ```tsx
-import HoodiniViz from 'hoodini-viz';
+import { HoodiniDashboard } from 'hoodini-viz';
+
+<HoodiniDashboard
+  dataPaths={{
+    gffParquet: '/data/genes.parquet',
+    hoodsParquet: '/data/hoods.parquet',
+    newick: '/data/tree.nwk',
+  }}
+  initialState={{
+    ultrametric: true,
+    colorBy: 'cluster',
+  }}
+  showSidebar={true}
+  showDataGrid={true}
+  onDataLoaded={(data) => console.log('Data loaded:', data)}
+/>
 ```
 
-### Data Props
+#### DataPaths
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `gffFeatures` | `GFFFeature[]` | Parsed GFF3 gene features |
-| `hoods` | `Hood[]` | Genomic neighborhood definitions |
-| `newickStr` | `string` | Newick tree string |
-| `proteinLinks` | `ProteinLink[]` | Protein homology links |
-| `nucleotideLinks` | `NucleotideLink[]` | Synteny blocks |
-| `domainsByGene` | `Record<string, Domain[]>` | Protein domains by gene ID |
-| `regionFeatures` | `RegionFeature[]` | Region annotations (CRISPR, prophage, etc.) |
+| Property | Type | Description |
+|----------|------|-------------|
+| `gffParquet` | `string` | Path to GFF features parquet file |
+| `gffText` | `string` | Path to GFF features text file (fallback) |
+| `hoodsParquet` | `string` | Path to hoods parquet file |
+| `hoodsText` | `string` | Path to hoods TSV file (fallback) |
+| `newick` | `string` | Path to Newick tree file |
+| `proteinLinksParquet` | `string` | Path to protein links parquet file |
+| `proteinLinksText` | `string` | Path to protein links TSV file |
+| `nucleotideLinksParquet` | `string` | Path to nucleotide links parquet file |
+| `domainsParquet` | `string` | Path to domains parquet file |
+| `proteinMetadataParquet` | `string` | Path to protein metadata parquet file |
+| `treeMetadataParquet` | `string` | Path to tree metadata parquet file |
 
-### Visual Settings Props
+#### Dashboard Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `ySpacing` | `number` | `150` | Vertical spacing between tracks |
-| `genomeXScale` | `number` | `30` | Horizontal scale percentage |
-| `geneHeight` | `number` | `60` | Height of gene arrows |
-| `arrowheadHeight` | `number` | `0` | Height of arrowhead (0 = auto) |
-| `phyloLabelSize` | `number` | `20` | Size of tree leaf labels |
-| `geneLabelSize` | `number` | `12` | Size of gene metadata labels |
-| `strokeLineWidth` | `number` | `1` | Width of gene/domain strokes |
-| `treeXScale` | `number` | `100` | Tree horizontal scale percentage |
+| `dataPaths` | `DataPaths` | - | Paths to data files |
+| `initialState` | `InitialState` | `{}` | Initial visualization state |
+| `showSidebar` | `boolean` | `true` | Show control sidebar |
+| `showDataGrid` | `boolean` | `true` | Show data browser panel |
+| `showToolbar` | `boolean` | `true` | Show toolbar |
+| `onDataLoaded` | `(data) => void` | - | Callback when data finishes loading |
+| `ref` | `Ref<HoodiniDashboardRef>` | - | Imperative handle for programmatic control |
 
-### Layer Visibility Props
+---
+
+### HoodiniViz
+
+The core visualization component. Props-driven, no internal data loading.
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+```
+
+#### Data Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `newickStr` | `string` | Newick format phylogenetic tree |
+| `gffFeatures` | `GFFFeature[]` | Parsed GFF3 gene features |
+| `proteinLinks` | `ProteinLink[]` | Protein-protein homology links |
+| `nucleotideLinks` | `NucleotideLink[]` | Nucleotide synteny blocks |
+| `domainsByGene` | `Record<string, Domain[]>` | Domain annotations by gene ID |
+| `hoods` | `Hood[]` | Genomic neighborhood definitions |
+| `proteinMetadata` | `Record<string, object>` | Gene metadata (clusters, products, sequences) |
+| `treeMetadata` | `Record<string, object>` | Tree leaf metadata (taxonomy, etc.) |
+
+#### Visual Settings Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `ultrametric` | `boolean` | `false` | Render tree as ultrametric |
+| `geneHeight` | `number` | `60` | Height of gene arrows (pixels) |
+| `arrowheadHeight` | `number` | `0` | Arrowhead height (0 = proportional) |
+| `treeXScale` | `number` | `100` | Tree horizontal scale (%) |
+| `phyloLabelPosition` | `'after-tree' \| 'after-tracks'` | `'after-tree'` | Position of tree labels |
+| `alignLabels` | `boolean` | `true` | Align tree labels to same X |
+| `geneLabelPosition` | `'top' \| 'bottom' \| 'center'` | `'bottom'` | Gene label position |
+
+#### Alignment Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `alignCluster` | `string \| null` | `null` | Cluster ID to align by |
+| `useDefaultGeneAlignment` | `boolean` | `true` | Use align_gene from hoods |
+| `defaultAlign` | `'start' \| 'center' \| 'end'` | `'start'` | Fallback alignment |
+
+#### Coloring Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `colorBy` / `geneColorBy` | `string` | `'cluster'` | Gene color-by field |
+| `labelBy` / `geneLabelBy` | `string` | - | Gene label field |
+| `treeColorBy` | `string` | - | Tree label color-by field |
+| `treeLabelBy` | `string` | - | Tree label field |
+| `domainColorBy` | `string` | `'domainName'` | Domain color-by field |
+| `domainSource` | `string` | `'all'` | Domain source filter |
+
+#### Palette Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `genePalette` | `PaletteConfig` | Bold | Gene coloring palette |
+| `domainPalette` | `PaletteConfig` | Gray | Domain coloring palette |
+| `phyloPalette` | `PaletteConfig` | Vivid | Tree label palette |
+| `ncRNAPalette` | `PaletteConfig` | Prism | ncRNA coloring palette |
+| `regionPalette` | `PaletteConfig` | Margot2 | Region coloring palette |
+
+#### Layer Visibility Props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
@@ -59,83 +133,72 @@ import HoodiniViz from 'hoodini-viz';
 | `showGeneLayer` | `boolean` | `true` | Show gene arrows |
 | `showDomainLayer` | `boolean` | `true` | Show protein domains |
 | `showProteinLinkLayer` | `boolean` | `true` | Show protein links |
-| `showNucleotideLinkLayer` | `boolean` | `true` | Show nucleotide links |
+| `showNucleotideLinkLayer` | `boolean` | `true` | Show synteny blocks |
 | `showNcRNALayer` | `boolean` | `true` | Show ncRNA features |
-| `showRegionLayer` | `boolean` | `true` | Show region annotations |
+| `showRegionsLayer` | `boolean` | `true` | Show region annotations |
+| `showGeneTextLayer` | `boolean` | `true` | Show gene labels |
+| `showTreeTextLayer` | `boolean` | `true` | Show tree labels |
 | `showRuler` | `boolean` | `true` | Show position ruler |
 | `showScrollbar` | `boolean` | `true` | Show vertical scrollbar |
+| `showConnectingLines` | `boolean` | `false` | Show tree-to-track lines |
 
-### Alignment Props
+#### Link Configuration Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `alignCluster` | `string \| null` | `null` | Protein cluster ID to align by |
-| `useDefaultGeneAlignment` | `boolean` | `true` | Use align_gene from hoods |
-| `defaultAlign` | `"start" \| "center" \| "end"` | `"end"` | Fallback alignment |
+| Prop | Type | Description |
+|------|------|-------------|
+| `proteinLinkConfig` | `ProteinLinkConfig` | Protein link visualization config |
+| `nucleotideLinkConfig` | `NucleotideLinkConfig` | Nucleotide link visualization config |
 
-### Palette Props
+#### Callback Props
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `genePalette` | `PaletteConfig` | Bold | Gene coloring palette |
-| `phyloPalette` | `PaletteConfig` | Vivid | Tree label palette |
-| `domainPalette` | `PaletteConfig` | Gray | Domain coloring palette |
-| `regionPalette` | `PaletteConfig` | Margot2 | Region coloring palette |
-| `ncRNAPalette` | `PaletteConfig` | Prism | ncRNA coloring palette |
-
-### Coloring Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `geneColorBy` | `string` | `"cluster"` | Gene color-by field |
-| `domainColorBy` | `string` | `"evalue"` | Domain color-by field |
-| `phyloColorBy` | `string` | `"species"` | Tree label color-by field |
-
-### Filter Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `prevalenceThreshold` | `number` | `0` | Minimum cluster prevalence % |
-| `domainSource` | `string` | `"all"` | Domain source filter |
-
-### Format Guide Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `showFormatGuides` | `boolean` | `false` | Show format guides |
-| `formatGuidePreset` | `FormatPreset` | A4 Portrait | Selected format preset |
-| `scaleExportToFormat` | `boolean` | `false` | Scale SVG to format |
-| `cropToGuides` | `boolean` | `true` | Crop export to guides |
-| `scaleRulerWithCrop` | `boolean` | `true` | Scale ruler with crop |
+| Prop | Type | Description |
+|------|------|-------------|
+| `onObjectClick` | `(info) => void` | Click handler for features |
+| `onLegendChange` | `(data) => void` | Legend data change handler |
+| `setGenomeViewRef` | `(gv) => void` | Receive GenomeView instance |
 
 ---
 
-## Data Types
+## Types
 
 ### PaletteConfig
 
 ```typescript
 interface PaletteConfig {
   type: 'qualitative' | 'sequential' | 'diverging';
-  name: string;           // Dicopal palette name (e.g., 'Bold', 'Vivid', 'Gray')
-  numColors: number;      // Number of colors to use
-  reverse?: boolean;      // Reverse palette order
-  enabled: boolean;       // Whether palette is active
-  alphaRange?: [number, number];  // Alpha range for sequential palettes
-  desaturateByPrevalence?: boolean;  // Desaturate by cluster prevalence
+  name: string;              // Palette name (e.g., 'Bold', 'viridis')
+  numColors?: number;        // Number of colors to use
+  reverse?: boolean;         // Reverse palette order
+  enabled?: boolean;         // Whether palette is active
+  alphaRange?: [number, number];  // Alpha range [min, max] for sequential
 }
 ```
 
-### FormatPreset
+### ProteinLinkConfig
 
 ```typescript
-interface FormatPreset {
-  id: string;
-  name: string;
-  width: number;
-  height: number;
-  unit: 'mm' | 'px';
-  category: 'print' | 'screen' | 'presentation';
+interface ProteinLinkConfig {
+  colorBy?: 'source_gene' | 'target_gene' | 'identity_solid' | 'identity_gradient';
+  solidColor?: [number, number, number, number];  // RGBA
+  useAlpha?: boolean;
+  minAlpha?: number;         // 0-1
+  maxAlpha?: number;         // 0-1
+  palette?: PaletteConfig;
+}
+```
+
+### NucleotideLinkConfig
+
+```typescript
+interface NucleotideLinkConfig {
+  colorBy?: 'solid' | 'identity_gradient';
+  solidColor?: [number, number, number, number];
+  strandColoring?: boolean;  // Different colors for same/opposite strand
+  sameStrandColor?: [number, number, number, number];
+  oppositeStrandColor?: [number, number, number, number];
+  useAlpha?: boolean;
+  minAlpha?: number;
+  maxAlpha?: number;
 }
 ```
 
@@ -155,11 +218,9 @@ interface Hood {
 
 ```typescript
 interface ProteinLink {
-  gene_id_1: string;
-  gene_id_2: string;
-  identity: number;
-  evalue?: number;
-  bitscore?: number;
+  gAId: string;              // First gene ID
+  gBId: string;              // Second gene ID
+  similarity: number;        // Percent identity (0-100)
 }
 ```
 
@@ -167,15 +228,13 @@ interface ProteinLink {
 
 ```typescript
 interface NucleotideLink {
-  seqid_1: string;
-  start_1: number;
-  end_1: number;
-  seqid_2: string;
-  start_2: number;
-  end_2: number;
-  strand_1: string;
-  strand_2: string;
-  identity: number;
+  seqidA: string;
+  startA: number;
+  endA: number;
+  seqidB: string;
+  startB: number;
+  endB: number;
+  similarity: number;
 }
 ```
 
@@ -183,25 +242,42 @@ interface NucleotideLink {
 
 ```typescript
 interface Domain {
-  gene_id: string;
-  domain_id: string;
-  start: number;
+  geneId: string;
+  domainName: string;
+  start: number;             // Amino acid position
   end: number;
+  source: string;            // Pfam, TIGRFAM, CDD, etc.
   evalue?: number;
-  source: string;
+  coverage?: number;         // 0-1
 }
 ```
 
-### RegionFeature
+### GFFFeature
 
 ```typescript
-interface RegionFeature {
+interface GFFFeature {
   seqid: string;
-  type: string;         // 'CRISPR', 'prophage', 'operon', etc.
+  source: string;
+  type: string;              // CDS, ncRNA, region, etc.
   start: number;
   end: number;
-  name?: string;
-  metadata?: Record<string, any>;
+  score: number | null;
+  strand: '+' | '-';
+  phase: string | null;
+  attributes: Record<string, string>;
+}
+```
+
+### FormatPreset
+
+```typescript
+interface FormatPreset {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  unit: 'mm' | 'px';
+  category?: 'print' | 'screen' | 'presentation';
 }
 ```
 
@@ -211,46 +287,59 @@ interface RegionFeature {
 
 ### Qualitative (Categorical)
 
-Good for discrete categories like clusters, species, or region types.
+Best for discrete categories like clusters, species, or feature types.
 
 | Name | Colors | Description |
 |------|--------|-------------|
-| Bold | 10 | High-contrast categorical |
-| Vivid | 8 | Bright, saturated colors |
-| Prism | 9 | Diverse color set |
-| Margot2 | 5 | Wes Anderson inspired |
-| Set1 | 9 | Classic ColorBrewer |
-| Set2 | 8 | Softer categorical |
-| Set3 | 12 | Pastel categorical |
-| Okabe_Ito_Categorigal | 8 | Colorblind-safe |
-| Safe | 10 | Colorblind-safe |
-| Tableau | 10 | Tableau default |
+| **Bold** | 10 | High-contrast categorical |
+| **Vivid** | 8 | Bright, saturated colors |
+| **Prism** | 9 | Diverse color set |
+| **Margot2** | 5 | Wes Anderson inspired |
+| **Set1** | 9 | Classic ColorBrewer |
+| **Set2** | 8 | Softer categorical |
+| **Set3** | 12 | Pastel categorical |
+| **Paired** | 12 | Paired colors |
+| **Dark2** | 8 | Darker variant |
+| **Okabe_Ito_Categorical** | 8 | Colorblind-safe |
+| **Safe** | 10 | Colorblind-safe |
+| **Tableau** | 10 | Tableau default |
 
-### Sequential
+### Sequential (Continuous)
 
-Good for continuous values like e-value or identity.
+Best for continuous values like e-value, identity, or coverage.
 
 | Name | Colors | Description |
 |------|--------|-------------|
-| Gray | 9 | Grayscale |
-| Blues | 9 | Blue gradient |
-| Viridis | 9 | Perceptually uniform |
-| Plasma | 9 | Purple to yellow |
-| OrRd | 9 | Orange to red |
+| **Gray** | 9 | Grayscale gradient |
+| **Blues** | 9 | Blue gradient |
+| **Greens** | 9 | Green gradient |
+| **Oranges** | 9 | Orange gradient |
+| **Reds** | 9 | Red gradient |
+| **viridis** | 9 | Perceptually uniform |
+| **plasma** | 9 | Purple to yellow |
+| **inferno** | 9 | Black to yellow |
+| **magma** | 9 | Black to pink |
+| **cividis** | 9 | Colorblind-safe |
 
 ### Diverging
 
-Good for values with a meaningful midpoint.
+Best for values with a meaningful midpoint.
 
 | Name | Colors | Description |
 |------|--------|-------------|
-| RdYlBu | 11 | Red-Yellow-Blue |
-| RdBu | 11 | Red-Blue |
-| PiYG | 11 | Pink-Yellow-Green |
+| **RdBu** | 11 | Red-Blue |
+| **RdYlBu** | 11 | Red-Yellow-Blue |
+| **RdYlGn** | 11 | Red-Yellow-Green |
+| **PiYG** | 11 | Pink-Yellow-Green |
+| **PRGn** | 11 | Purple-Green |
+| **BrBG** | 11 | Brown-Blue-Green |
+| **Spectral** | 11 | Rainbow diverging |
 
 ---
 
 ## Utility Functions
+
+### Parsers
 
 ```typescript
 import { 
@@ -259,25 +348,127 @@ import {
   parseLinks, 
   parseDomains,
   parseNucleotideLinks,
-  parseRegions
+  parseProteinMetadata,
+  parseTreeMetadata
 } from 'hoodini-viz';
 
+// Parse GFF3 text
 const features = parseGFF(gffString);
+
+// Parse hoods TSV
 const hoods = parseHoods(tsvString);
-const proteinLinks = parseLinks(tsvString);
-const domains = parseDomains(tsvString);
-const nucleotideLinks = parseNucleotideLinks(tsvString);
+
+// Parse protein links
+const proteinLinks = parseLinks(linksTsv);
+
+// Parse domains
+const domains = parseDomains(domainsTsv);
+```
+
+### Color Utilities
+
+```typescript
+import { 
+  getPaletteColors, 
+  getQualitativePalettes, 
+  getSequentialPalettes,
+  getDivergingPalettes 
+} from 'hoodini-viz';
+
+// Get colors from a palette
+const colors = getPaletteColors('Bold', 8, false);
+// Returns: [[r,g,b,a], [r,g,b,a], ...]
+
+// List available palettes
+const qualitative = getQualitativePalettes();
+const sequential = getSequentialPalettes();
+```
+
+### Export
+
+```typescript
+import { exportToSVG } from 'hoodini-viz';
+
+// Export visualization to SVG
+exportToSVG(layers, bounds, config, {
+  formatPreset: { width: 210, height: 297, unit: 'mm' },
+  cropToGuides: true,
+  scaleRulerWithCrop: true
+});
 ```
 
 ---
 
-## Export Functions
+## Models
+
+### PhyloTree
 
 ```typescript
-// Export current view to SVG
-const svgString = await exportToSVG(vizRef.current, {
-  cropToGuides: true,
-  formatPreset: { width: 210, height: 297, unit: 'mm' },
-  scaleRulerWithCrop: true
+import { PhyloTree } from 'hoodini-viz';
+
+const tree = new PhyloTree(newickString, config, ultrametric);
+
+// Properties
+tree.root;        // Root PhyloNode
+tree.allNodes;    // All nodes array
+tree.leafNodes;   // Leaf nodes only
+tree.hasTree;     // True if Newick was parsed
+
+// Methods
+tree.makeUltrametric();  // Convert to ultrametric
+```
+
+### GenomeView
+
+```typescript
+import { GenomeView } from 'hoodini-viz';
+
+// GenomeView manages visualization state
+genomeView.genesById;       // Map of gene ID → Gene
+genomeView.hoodRanges;      // Map of hood ID → Hood
+genomeView.proteinLinks;    // ProteinLink array
+genomeView.domainsByGene;   // Map of gene ID → Domain[]
+
+// Methods
+genomeView.flipTrackToggle(hoodId);     // Flip track orientation
+genomeView.shiftTrackPlus1kb(hoodId);   // Shift track window
+```
+
+---
+
+## Configuration
+
+### DEFAULT_CONFIG
+
+```typescript
+import { DEFAULT_CONFIG, createConfig } from 'hoodini-viz';
+
+// Customize configuration
+const customConfig = createConfig({
+  gene: {
+    height: 80,
+    arrowheadHeight: 15,
+  },
+  tree: {
+    ySpacing: 200,
+    xScalePercent: 50,
+  },
+  proteinLink: {
+    bezierSegments: 60,  // Reduce for performance
+    minAlpha: 0.1,
+    maxAlpha: 0.6,
+  },
 });
 ```
+
+### Config Sections
+
+| Section | Description |
+|---------|-------------|
+| `tree` | Tree layout: ySpacing, xScalePercent, edgeColor |
+| `gene` | Gene styling: height, arrowheadHeight, tipWidthFactor |
+| `domain` | Domain styling: heightFactor, edgeWidth |
+| `proteinLink` | Link styling: bezierSegments, color, alpha range |
+| `nucleotideLink` | Synteny styling: color, strand colors |
+| `theme` | Theme colors: light and dark mode |
+| `colorPalettes` | Default palettes for each layer |
