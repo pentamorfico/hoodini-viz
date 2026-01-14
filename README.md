@@ -31,11 +31,18 @@
 
 --- 
 
+
+
 ## Overview
 
 **Hoodini-viz** is a GPU-accelerated React library for interactive visualization of phylogenetic trees, gene neighborhoods, protein domains, and homology relationships. Built on [deck.gl](https://deck.gl/).
 
 **Fully portable**: Import as React component, embed via CDN, or deploy as a self-contained HTML file.
+
+
+<p align="center">
+    <img src="src/assets/hoodini-viz-export - 2026-01-14T051133.869.svg" alt="Hoodini Visualization Example" width="800"/>
+</p>
 
 
 
