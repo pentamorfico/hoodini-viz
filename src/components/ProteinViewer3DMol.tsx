@@ -1,8 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+// Constants for folding APIs
+const ESMFOLD_MAX_LENGTH = 400;
+const ESMFOLD_API_URL = 'https://api.esmatlas.com/foldSequence/v1/pdb/';
+
+// NVIDIA Boltz2 API URL
+const BOLTZ2_DIRECT_URL = 'https://health.api.nvidia.com/v1/biology/mit/boltz2/predict';
+
+// CORS proxy configuration - try multiple free proxies as fallback
+const CORS_PROXIES = [
+  // corsproxy.io - most reliable, forwards all headers
+  (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  // cors.sh - alternative proxy
+  (url: string) => `https://cors.sh/${url}`,
+  // thingproxy - another option
+  (url: string) => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+const NVIDIA_API_KEY_STORAGE = 'hoodini_nvidia_api_key';
+
 /**
  * ProteinViewer Component
  * Displays 3D protein structures using 3DMol.js viewer
+ * Supports ESMFold (≤400 aa) and Boltz2 (>400 aa with NVIDIA API key)
  */
 const ProteinViewer = ({
   pdbData,
@@ -51,6 +71,11 @@ const ProteinViewer = ({
       try {
         setIsLoading(true);
         setError(null);
+
+        // Detect format: mmCIF starts with "data_" or contains "_entry.id"
+        const isMMCIF = pdbToUse.trim().startsWith('data_') || pdbToUse.includes('_entry.id');
+        const format = isMMCIF ? 'cif' : 'pdb';
+        console.log('[ProteinViewer] Detected format:', format, '- isMMCIF:', isMMCIF);
 
         // Wait until container has a real size
         const waitForSize = async (el, attempts = 30, delay = 100) => {
@@ -101,9 +126,11 @@ const ProteinViewer = ({
           }
         } catch {}
 
-        // Add model
-        const model = newViewer.addModel(pdbToUse, 'pdb');
-        if (!model?.atoms?.length) throw new Error('No atoms loaded from PDB data');
+        // Add model with detected format
+        console.log('[ProteinViewer] Adding model with format:', format);
+        const model = newViewer.addModel(pdbToUse, format);
+        console.log('[ProteinViewer] Model loaded, atoms:', model?.atoms?.length);
+        if (!model?.atoms?.length) throw new Error('No atoms loaded from structure data');
 
         // --- Detect B-factor scale (0..1 vs 0..100) ---
         let avgB = null, minB = +Infinity, maxB = -Infinity;
@@ -191,25 +218,150 @@ const ProteinViewer = ({
     };
   }, [pdbData, confidence, localPdb, themeBackground]);
 
-  // Fetch PDB from ESM Atlas when a sequence prop is provided
+  // Fetch PDB from ESM Atlas or Boltz2 when a sequence prop is provided
   useEffect(() => {
+    // Fetch with ESMFold (for sequences ≤400 aa)
+    const fetchWithESMFold = async (seq: string) => {
+      console.log('[ProteinViewer] Using ESMFold for sequence of', seq.length, 'aa');
+      console.log('[ProteinViewer] ESMFold URL:', ESMFOLD_API_URL);
+      const resp = await fetch(ESMFOLD_API_URL, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'text/plain' }, 
+        body: seq 
+      });
+      console.log('[ProteinViewer] ESMFold response status:', resp.status);
+      if (!resp.ok) throw new Error(`ESMFold error ${resp.status}`);
+      const pdbText = await resp.text();
+      console.log('[ProteinViewer] ESMFold returned PDB of', pdbText.length, 'chars');
+      return pdbText;
+    };
+
+    // Fetch with Boltz2 (for sequences >400 aa, requires NVIDIA API key)
+    // Uses CORS proxies with fallback for single-file HTML deployment
+    const fetchWithBoltz2 = async (seq: string, apiKey: string) => {
+      console.log('[ProteinViewer] Using Boltz2 for sequence of', seq.length, 'aa');
+      console.log('[ProteinViewer] API Key present:', !!apiKey, '- length:', apiKey?.length);
+      
+      const payload = {
+        polymers: [{
+          id: "A",
+          molecule_type: "protein",
+          sequence: seq,
+          msa: {
+            uniref90: {
+              a3m: {
+                alignment: `>seq1\n${seq}`,
+                format: "a3m"
+              }
+            }
+          }
+        }],
+        recycling_steps: 1,
+        sampling_steps: 50,
+        diffusion_samples: 1,
+        step_scale: 1.2,
+        without_potentials: true
+      };
+
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'NVCF-POLL-SECONDS': '300',
+      };
+      
+      // Use CORS proxies with fallback
+      const urlsToTry: string[] = CORS_PROXIES.map(proxyFn => proxyFn(BOLTZ2_DIRECT_URL));
+      
+      let lastError: Error | null = null;
+      
+      for (const url of urlsToTry) {
+        console.log('[ProteinViewer] Trying Boltz2 URL:', url);
+        
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+          });
+
+          console.log('[ProteinViewer] Boltz2 response status:', resp.status);
+
+          if (resp.status === 401 || resp.status === 403) {
+            throw new Error('Invalid NVIDIA API key. Please update your key.');
+          }
+
+          if (resp.status === 202) {
+            const reqId = resp.headers.get('nvcf-reqid');
+            console.log('[ProteinViewer] Boltz2 task queued, reqId:', reqId);
+            throw new Error(`Boltz2 task queued (ID: ${reqId}). Large proteins may take a few minutes. Please retry.`);
+          }
+
+          if (!resp.ok) {
+            const errorText = await resp.text();
+            console.log('[ProteinViewer] Boltz2 error response:', errorText.substring(0, 500));
+            throw new Error(`Boltz2 error ${resp.status}`);
+          }
+
+          const result = await resp.json();
+          console.log('[ProteinViewer] Boltz2 success! Result keys:', Object.keys(result));
+          console.log('[ProteinViewer] Structures count:', result.structures?.length);
+          
+          if (!result.structures || result.structures.length === 0) {
+            throw new Error('No structures returned from Boltz2');
+          }
+
+          const structureData = result.structures[0].structure || result.structures[0].pdb;
+          console.log('[ProteinViewer] Structure data type:', typeof structureData, 'length:', structureData?.length);
+          
+          return structureData;
+          
+        } catch (err) {
+          console.warn('[ProteinViewer] Failed with URL:', url, 'Error:', err.message);
+          lastError = err;
+          // If it's an auth error, don't try other proxies
+          if (err.message.includes('API key') || err.message.includes('queued')) {
+            throw err;
+          }
+          // Continue to next proxy
+        }
+      }
+      
+      // All proxies failed
+      throw lastError || new Error('All Boltz2 endpoints failed. CORS proxy may be unavailable.');
+    };
+
     const fetchPDB = async (seq) => {
       if (!seq) return;
+      console.log('[ProteinViewer] fetchPDB called with sequence length:', seq.length);
+      console.log('[ProteinViewer] ESMFOLD_MAX_LENGTH:', ESMFOLD_MAX_LENGTH);
+      console.log('[ProteinViewer] Will use:', seq.length <= ESMFOLD_MAX_LENGTH ? 'ESMFold' : 'Boltz2');
+      
       try {
         setIsLoading(true);
         setError(null);
         reportedRef.current = false;
 
-        if (seq.length > 400) throw new Error('Sequence too long for ESM Atlas API (max 400 residues)');
-
-        const url = 'https://api.esmatlas.com/foldSequence/v1/pdb/';
-        const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: seq });
-        if (!resp.ok) throw new Error(`ESM Atlas error ${resp.status}`);
-        const pdbText = await resp.text();
+        let pdbText: string;
+        
+        if (seq.length <= ESMFOLD_MAX_LENGTH) {
+          // Use ESMFold for short sequences
+          pdbText = await fetchWithESMFold(seq);
+        } else {
+          // Use Boltz2 for long sequences
+          const apiKey = localStorage.getItem(NVIDIA_API_KEY_STORAGE);
+          console.log('[ProteinViewer] Retrieved API key from localStorage:', !!apiKey);
+          if (!apiKey) {
+            throw new Error(`Sequence too long for ESMFold (${seq.length} > ${ESMFOLD_MAX_LENGTH} aa). Please enter your NVIDIA API key for Boltz2.`);
+          }
+          pdbText = await fetchWithBoltz2(seq, apiKey);
+        }
+        
+        console.log('[ProteinViewer] Setting localPdb, length:', pdbText?.length);
         setLocalPdb(pdbText);
       } catch (err) {
+        console.error('[ProteinViewer] Fetch error:', err);
         const msg = err?.message || String(err);
-        setError(msg || 'ESM Atlas fetch failed');
+        setError(msg || 'Folding failed');
         setIsLoading(false);
         try { onError?.(msg); } catch {}
       }

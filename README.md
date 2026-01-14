@@ -1,872 +1,799 @@
-# 🎨 Hoodini-viz
+# 🧬 Hoodini-viz
 
-> Interactive phylogenetic and genomic visualization tool
+<p align="center">
+  <img src="src/assets/hoodini_logo.svg" alt="Hoodini Logo" width="200"/>
+</p>
 
-Hoodini-viz provides **three ways to use** the same powerful visualization:
+<p align="center">
+  <strong>GPU-Accelerated Visualization Library for Comparative Genomics & Phylogenomics</strong>
+</p>
 
-1. 🌐 **Standalone HTML** - Single-file web application (no installation needed)
-2. 📦 **npm Package** - Install `HoodiniVizDash` component in your React app
-3. 🎨 **Component Library** - Use `HoodiniViz` for custom integrations
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="#api-reference">API</a> •
+  <a href="#data-formats">Data Formats</a>
+</p>
 
-## 🚀 Three Usage Modes
+---
 
-### Mode 1: Standalone HTML (Zero Installation)
+## Overview
 
-**Best for:** Quick visualization, sharing with colleagues, embedding in websites
+**Hoodini-viz** is a high-performance React library for interactive visualization of phylogenetic trees, gene neighborhoods (synteny), protein domains, and homology relationships at genomic scale. Built on [deck.gl](https://deck.gl/) and WebGL, it enables fluid exploration of datasets with thousands of genes and complex evolutionary relationships.
 
-```bash
-# Build single HTML file
-npm run build:html
+Designed for computational biologists, bioinformaticians, and researchers working with:
+- **Comparative genomics** and synteny analysis
+- **Gene neighborhood/cluster visualization** (genomic islands, operons, gene clusters)
+- **Phylogenomics** and evolutionary studies
+- **Protein domain architecture** visualization
+- **Multi-scale genome browsers**
 
-# Output: dist-html/index.html (3.3 MB, self-contained)
-# Open directly in browser - no server needed!
+## 🎯 Key Features
+
+### GPU-Powered Rendering with deck.gl
+
+Hoodini-viz leverages deck.gl's WebGL rendering pipeline for handling large-scale genomic data:
+
+- **LineLayer** - Phylogenetic tree edges with configurable styling
+- **PolygonLayer** - Gene arrows, protein domains, and synteny blocks
+- **PathLayer** - Bezier curves for protein homology links
+- **ScatterplotLayer** - Tree nodes with hover/click interactions
+- **TextLayer** - Gene labels, phylogenetic names, taxonomic annotations
+
+Performance optimizations include:
+- **Memoized layer generation** - Expensive calculations cached across renders
+- **Web Worker parsing** - Parquet/TSV parsing offloaded to background threads
+- **Virtualized data grid** - Only visible rows rendered in the data browser
+- **Orthographic camera** - Optimized 2D rendering with smooth pan/zoom
+
+### Phylogenetic Tree Visualization
+
+```
+                    ┌─── Leaf A
+              ┌─────┤
+              │     └─── Leaf B
+        ──────┤
+              │     ┌─── Leaf C
+              └─────┤
+                    └─── Leaf D
 ```
 
-**Usage:**
-1. Download `dist-html/index.html`
-2. Open in browser
-3. Load your data files (Parquet or TSV)
+- **Newick format** parsing with support for branch lengths
+- **Ultrametric conversion** - Normalize all leaves to same distance from root
+- **No-tree mode** - Flat layout when phylogeny is unavailable
+- **Customizable styling** - Edge colors, widths, node sizes
+- **Interactive** - Click nodes, hover for tooltips
 
-### Mode 2: npm Package - Dashboard Component
+### Gene Neighborhood (Hood) Visualization
 
-**Best for:** Integrating visualization into existing React applications
+```
+Hood 1:  ◄────  ────►  ◄────  ────►  ────►
+Hood 2:        ────►  ◄────  ────►  ◄────
+Hood 3:  ────►  ────►        ────►  ◄────
+           │      │      │      │
+         Aligned by cluster/gene
+```
+
+- **GFF3 format** support for gene annotations
+- **Directional arrows** showing strand orientation (+/-)
+- **Track alignment** - Align neighborhoods by gene cluster, gene ID, or position
+- **Track operations** - Flip strand, shift window, zoom to region
+- **Configurable arrow geometry** - Height, arrowhead style
+
+### Protein Domain Architecture
+
+```
+Gene:    ┌──────────────────────────────────────┐
+         │  ████ Domain A  ████  ████ Domain B ████  │
+         └──────────────────────────────────────┘
+```
+
+- **Multiple annotation sources** - Pfam, InterPro, CDD, custom
+- **Domain overlap handling** - Automatic polygon clipping
+- **E-value filtering** - Filter by significance threshold
+- **Coverage visualization** - Domain coverage as fraction of gene
+
+### Homology Link Visualization
+
+#### Protein-Protein Links (Bézier Curves)
+
+```
+Gene A  ────►
+         ╲
+          ╲   Similarity: 85%
+           ╲
+Gene B      ────►
+```
+
+- **Bézier curve rendering** - Smooth, aesthetically pleasing connections
+- **Configurable coloring** - By source gene, target gene, identity gradient
+- **Alpha transparency** - Opacity scaled by similarity score
+- **Identity filtering** - Show only links above threshold
+
+#### Nucleotide-Level Synteny Blocks
+
+```
+Seq A:  ════════════════════
+            ╱         ╲
+           ╱           ╲
+Seq B:  ════════════════════
+```
+
+- **Synteny polygon rendering** - Parallelogram/trapezoid blocks
+- **Strand-aware coloring** - Different colors for same vs inverted orientation
+- **Identity gradient** - Color intensity by sequence similarity
+
+### Interactive Data Browser
+
+Built with [@glideapps/glide-data-grid](https://github.com/glideapps/glide-data-grid):
+
+- **Virtualized rendering** - Handle millions of rows efficiently
+- **Multi-dataset tabs** - Switch between genes, domains, links, metadata
+- **Column filtering** - Search across all columns
+- **Zoom-to-feature** - Click to navigate to gene/hood in visualization
+- **Export capabilities** - Copy data to clipboard
+
+### Color Palette System
+
+Powered by [dicopal](https://github.com/riatelab/dicopal) for scientifically accurate color schemes:
+
+| Palette Type | Use Case | Examples |
+|--------------|----------|----------|
+| **Qualitative** | Categorical data (clusters, species) | Set1, Dark2, Paired, Bold |
+| **Sequential** | Continuous data (identity, e-value) | viridis, plasma, Blues |
+| **Diverging** | Comparative data (+/- deviation) | RdBu, RdYlBu, PRGn |
+
+Features:
+- **Colorblind-friendly palettes** - viridis, cividis
+- **Palette preview** - Visual swatches in UI
+- **Reverse palettes** - Invert color order
+- **Alpha ranges** - Configurable transparency for sequential palettes
+
+### Protein Structure Prediction Integration
+
+Built-in 3D protein structure prediction and visualization:
+
+#### ESMFold (Meta AI)
+- **Direct API access** - No API key required
+- **Sequence limit** - ≤400 amino acids
+- **Output format** - PDB
+- **pLDDT coloring** - Confidence score visualization
+
+#### Boltz2 (NVIDIA)
+- **Longer sequences** - >400 amino acids
+- **API key required** - Stored locally in browser
+- **Output format** - mmCIF
+- **CORS proxy fallback** - Multiple proxy options for reliability
+
+#### 3DMol.js Viewer
+- **Interactive 3D** - Rotate, zoom, pan
+- **Confidence coloring** - pLDDT rainbow gradient (blue=high, red=low)
+- **Surface rendering** - Toggle molecular surface
+- **Responsive design** - Adapts to panel size
+
+### RNA Secondary Structure Viewer
+
+- **NAview-inspired layout** - Optimized 2D structure positioning
+- **Dot-bracket parsing** - Standard RNA structure notation
+- **Nucleotide coloring** - A=red, U=blue, G=green, C=orange
+- **Base pair visualization** - Connected pairs shown as arcs
+- **Interactive zoom/pan** - Wheel zoom centered on cursor
+
+### SVG Export for Publication
+
+High-quality vector export for publications and presentations:
+
+```javascript
+// Export current view as SVG
+exportToSVG(layers, bounds, config, options);
+```
+
+- **Format presets** - A4, Letter, custom dimensions
+- **DPI control** - 300 DPI for print, 96 DPI for screen
+- **Theme-aware** - Light/dark background export
+- **Adobe Illustrator compatible** - Proper opacity handling
+- **All layers included** - Tree, genes, domains, links, labels
+
+### Theme Support
+
+- **Light mode** - White background, dark text
+- **Dark mode** - Black background, light text
+- **System preference** - Automatic detection
+- **CSS variables** - Customizable via CSS
+
+---
+
+## Installation
+
+### npm
 
 ```bash
 npm install hoodini-viz
 ```
 
-```tsx
-import { HoodiniVizDash, ThemeProvider } from 'hoodini-viz';
-import 'hoodini-viz/dist/hoodini-viz.css';
-
-export default function App() {
-  return (
-    <ThemeProvider>
-      <HoodiniVizDash
-        newickUrl="/data/tree.nwk"
-        gffUrl="/data/genes.parquet"
-      />
-    </ThemeProvider>
-  );
-}
-```
-
-> **Note:** Wrapping with `ThemeProvider` is optional but recommended for theme switching support. Components work without it using default light theme.
-
-### Mode 3: npm Package - Visualization Component
-
-**Best for:** Custom data loading, advanced integrations
+### yarn
 
 ```bash
-npm install hoodini-viz
+yarn add hoodini-viz
 ```
 
-```tsx
-import { HoodiniViz, DEFAULT_CONFIG } from 'hoodini-viz';
-import 'hoodini-viz/dist/hoodini-viz.css';
+### pnpm
 
-export default function MyVisualization() {
-  return (
-    <HoodiniViz
-      newickStr={treeData}
-      gffFeatures={genes}
-      domainsByGene={domains}
-      proteinLinks={[]}
-      hoods={[]}
-      config={DEFAULT_CONFIG}
-    />
-  );
+```bash
+pnpm add hoodini-viz
+```
+
+### Peer Dependencies
+
+Ensure these are installed in your project:
+
+```json
+{
+  "react": "^18.0.0 || ^19.0.0",
+  "react-dom": "^18.0.0 || ^19.0.0"
 }
 ```
 
-## 🚀 Quick Start
+---
 
-### Option 1: Full Dashboard with Data Loading (Recommended)
+## Quick Start
 
-The dashboard component handles data loading, parsing, and provides a complete UI with controls.
-
-**Minimum Required:** Phylogenetic tree + Gene features
+### Basic Usage (Dashboard with Data Loading)
 
 ```tsx
-import { HoodiniVizDash } from 'hoodini-viz';
+import { HoodiniDashboard } from 'hoodini-viz';
 
-export default function App() {
+function App() {
   return (
-    <HoodiniVizDash
-      newickUrl="/data/tree.nwk"              // Required: Phylogenetic tree
-      gffUrl="/data/genes.parquet"            // Required: Gene annotations
-    />
-  );
-}
-```
-
-**Full Featured:** All data layers
-
-```tsx
-import { HoodiniVizDash } from 'hoodini-viz';
-
-export default function App() {
-  return (
-    <HoodiniVizDash
-      // Required data
-      newickUrl="/data/tree.nwk"              // Phylogenetic tree
-      gffUrl="/data/genes.parquet"            // Gene annotations
-      
-      // Optional data layers
-      parquetUrls={{
-        hoods: "/data/hoods.parquet",         // Gene neighborhoods
-        domains: "/data/domains.parquet",     // Protein domains
-        proteinLinks: "/data/protein_links.parquet",  // Homology links
-        nucleotideLinks: "/data/nucleotide_links.parquet",  // DNA similarity
-        proteinMetadata: "/data/protein_metadata.parquet",   // Additional info
-        domainMetadata: "/data/domain_metadata.parquet",     // Domain info
-        treeMetadata: "/data/tree_metadata.parquet"          // Tree node info
+    <HoodiniDashboard
+      dataPaths={{
+        gffParquet: '/data/genes.parquet',
+        hoodsParquet: '/data/hoods.parquet',
+        newick: '/data/tree.nwk',
+        proteinLinksParquet: '/data/links.parquet',
+        domainsParquet: '/data/domains.parquet',
+        proteinMetadataParquet: '/data/protein_metadata.parquet',
+        treeMetadataParquet: '/data/tree_metadata.parquet',
       }}
-      
-      // Optional configuration
-      config={customConfig}                   // Visualization settings
+      initialState={{
+        ultrametric: true,
+        colorBy: 'cluster',
+        showDomains: true,
+      }}
+      showSidebar={true}
+      showDataGrid={true}
     />
   );
 }
 ```
 
-### Option 2: Visualization Component Only (Advanced)
+### Core Visualization (Props-Driven)
 
-Use when you have your own data loading/parsing logic. This component is **props-driven** and doesn't fetch data.
-
-**Minimum Required:**
+For custom data loading or embedding in existing applications:
 
 ```tsx
 import { HoodiniViz } from 'hoodini-viz';
+
+function CustomViewer({ newick, genes, links, domains }) {
+  return (
+    <HoodiniViz
+      newickStr={newick}
+      gffFeatures={genes}
+      proteinLinks={links}
+      domainsByGene={domains}
+      genePalette={{
+        type: 'qualitative',
+        name: 'Set1',
+        numColors: 8,
+        enabled: true,
+      }}
+      showTreeLayer={true}
+      showGeneLayer={true}
+      showProteinLinkLayer={true}
+      showDomainLayer={true}
+      ultrametric={false}
+      onObjectClick={(info) => {
+        console.log('Clicked:', info.object);
+      }}
+    />
+  );
+}
+```
+
+---
+
+## Architecture
+
+### Component Hierarchy
+
+```
+┌─ HoodiniDashboard ─────────────────────────────────────┐
+│  Full-featured dashboard with data loading & UI        │
+│                                                         │
+│  ┌─ AppSidebar ──────────────────────────┐             │
+│  │  • Layer visibility controls          │             │
+│  │  • Color palette selection            │             │
+│  │  • Alignment options                  │             │
+│  │  • Label configuration                │             │
+│  │  • Export options                     │             │
+│  │  • Protein structure viewer           │             │
+│  └───────────────────────────────────────┘             │
+│                                                         │
+│  ┌─ HoodiniViz ─────────────────────────────────────┐  │
+│  │  Core deck.gl visualization engine               │  │
+│  │                                                   │  │
+│  │  ┌─ deck.gl Layers ────────────────────────┐    │  │
+│  │  │ LineLayer      - Tree edges             │    │  │
+│  │  │ ScatterplotLayer - Tree nodes           │    │  │
+│  │  │ PolygonLayer   - Genes, domains, links  │    │  │
+│  │  │ PathLayer      - Protein link curves    │    │  │
+│  │  │ TextLayer      - Labels                 │    │  │
+│  │  └──────────────────────────────────────────┘    │  │
+│  │                                                   │  │
+│  │  ┌─ Widgets ───────────────────────────────┐    │  │
+│  │  │ RulerWidget    - Genomic scale ruler    │    │  │
+│  │  │ ScrollbarWidget - Y-axis navigation     │    │  │
+│  │  │ TreeScaleWidget - Phylo distance ruler  │    │  │
+│  │  └──────────────────────────────────────────┘    │  │
+│  └───────────────────────────────────────────────────┘  │
+│                                                         │
+│  ┌─ DataGridView ──────────────────────────────────┐   │
+│  │  Virtualized data browser (glide-data-grid)     │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+```
+┌──────────────────┐     ┌───────────────────┐     ┌─────────────────┐
+│   Data Sources   │────▶│   Web Worker      │────▶│   React State   │
+│                  │     │   (Parsing)       │     │                 │
+│  • Parquet files │     │                   │     │  • parsedGFF    │
+│  • TSV fallbacks │     │  parseGFF()       │     │  • parsedLinks  │
+│  • Newick tree   │     │  parseLinks()     │     │  • parsedDomains│
+│                  │     │  parseDomains()   │     │  • tree         │
+└──────────────────┘     │  parseHoods()     │     └────────┬────────┘
+                         └───────────────────┘              │
+                                                            ▼
+┌──────────────────┐     ┌───────────────────┐     ┌─────────────────┐
+│   User Actions   │────▶│   State Updates   │────▶│   HoodiniViz    │
+│                  │     │                   │     │                 │
+│  • Pan/zoom      │     │  setGenePalette() │     │  PhyloTree      │
+│  • Click gene    │     │  setColorBy()     │     │  GenomeView     │
+│  • Toggle layer  │     │  setAlignCluster()│     │  deck.gl layers │
+│  • Change palette│     │  setVisibility()  │     │  WebGL canvas   │
+└──────────────────┘     └───────────────────┘     └─────────────────┘
+```
+
+### Core Data Models
+
+#### PhyloTree
+
+Represents the phylogenetic tree structure:
+
+```typescript
+class PhyloTree {
+  root: PhyloNode;           // Root node
+  allNodes: PhyloNode[];     // All nodes (internal + leaves)
+  leafNodes: PhyloNode[];    // Only leaf nodes
+  hasTree: boolean;          // True if Newick was provided
+  
+  // Methods
+  parseNewick(s: string): PhyloNode;
+  makeUltrametric(): void;   // Convert to ultrametric
+  assignX(leaves): void;     // Layout X coordinates
+  assignY(node): void;       // Layout Y coordinates
+}
+```
+
+#### GenomeView
+
+Manages the genomic visualization state:
+
+```typescript
+class GenomeView {
+  genesById: Record<string, Gene>;
+  ncRNAsById: Record<string, NonCodingFeature>;
+  regionsById: Record<string, RegionFeature>;
+  hoodRanges: Record<string, Hood>;
+  proteinLinks: ProteinLink[];
+  nucleotideLinks: NucleotideLink[];
+  domainsByGene: Record<string, Domain[]>;
+  
+  // Layout state
+  trackFlipped: Record<string, boolean>;
+  trackOffset: Record<string, number>;
+  
+  // Methods
+  addGene(gene: Gene): void;
+  flipTrackToggle(hoodId: string): void;
+  shiftTrackPlus1kb(hoodId: string): void;
+  applyGenePalette(palette, colorBy, metadata): void;
+}
+```
+
+#### Gene
+
+Represents a gene feature with arrow geometry:
+
+```typescript
+class Gene extends GFFFeature {
+  seqid: string;
+  start: number;
+  end: number;
+  strand: '+' | '-';
+  attributes: Record<string, string>;
+  fillColor: [number, number, number, number];
+  polygon: number[][];       // Arrow vertices
+  trackY: number;            // Y position on track
+  domains: Domain[];         // Associated domains
+  
+  // Methods
+  setTrackY(y: number): void;
+  updatePolygon(): void;
+}
+```
+
+---
+
+## API Reference
+
+### HoodiniDashboard Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `dataPaths` | `DataPaths` | required | Paths to data files |
+| `initialState` | `InitialState` | `{}` | Initial visualization state |
+| `showSidebar` | `boolean` | `true` | Show control sidebar |
+| `showDataGrid` | `boolean` | `true` | Show data browser |
+| `onDataLoaded` | `(data) => void` | - | Callback when data loads |
+| `ref` | `Ref<HoodiniDashboardRef>` | - | Imperative handle |
+
+### HoodiniViz Props
+
+#### Data Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `newickStr` | `string` | Newick format phylogenetic tree |
+| `gffFeatures` | `GFFFeature[]` | Gene annotations array |
+| `proteinLinks` | `ProteinLink[]` | Protein homology links |
+| `nucleotideLinks` | `NucleotideLink[]` | Nucleotide synteny blocks |
+| `domainsByGene` | `Record<string, Domain[]>` | Domain annotations |
+| `hoods` | `Hood[]` | Genomic neighborhood definitions |
+| `proteinMetadata` | `Record<string, object>` | Gene metadata (clusters, etc.) |
+| `treeMetadata` | `Record<string, object>` | Leaf metadata (taxonomy, etc.) |
+
+#### Visualization Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `ultrametric` | `boolean` | `false` | Ultrametric tree layout |
+| `alignCluster` | `string \| null` | `null` | Cluster ID to align by |
+| `colorBy` | `string` | `'cluster'` | Gene coloring field |
+| `labelBy` | `string` | - | Gene labeling field |
+| `treeColorBy` | `string` | - | Tree label coloring field |
+| `treeLabelBy` | `string` | - | Tree label field |
+| `domainColorBy` | `string` | `'domainName'` | Domain coloring field |
+| `domainSource` | `string` | `'all'` | Filter domains by source |
+
+#### Palette Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `genePalette` | `PaletteConfig` | Gene color palette |
+| `domainPalette` | `PaletteConfig` | Domain color palette |
+| `phyloPalette` | `PaletteConfig` | Tree label color palette |
+| `ncRNAPalette` | `PaletteConfig` | ncRNA color palette |
+| `regionPalette` | `PaletteConfig` | Region color palette |
+
+#### Layer Visibility Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `showTreeLayer` | `boolean` | `true` | Show phylogenetic tree |
+| `showGeneLayer` | `boolean` | `true` | Show gene arrows |
+| `showDomainLayer` | `boolean` | `true` | Show protein domains |
+| `showProteinLinkLayer` | `boolean` | `true` | Show protein links |
+| `showNucleotideLinkLayer` | `boolean` | `true` | Show synteny blocks |
+| `showNcRNALayer` | `boolean` | `true` | Show ncRNA features |
+| `showGeneTextLayer` | `boolean` | `true` | Show gene labels |
+| `showTreeTextLayer` | `boolean` | `true` | Show tree labels |
+
+#### Callback Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `onObjectClick` | `(info) => void` | Click handler for features |
+| `onLegendChange` | `(data) => void` | Legend data change handler |
+| `setGenomeViewRef` | `(gv) => void` | Receive GenomeView instance |
+
+---
+
+## Data Formats
+
+### Parquet (Recommended)
+
+Hoodini-viz uses [hyparquet](https://github.com/hyparam/hyparquet) for blazing-fast Parquet loading directly in the browser. Convert your TSV files to Parquet for optimal performance:
+
+```bash
+# Using the included conversion script
+python scripts/convert_to_parquet.py
+
+# Or using polars directly
+import polars as pl
+df = pl.read_csv("genes.tsv", separator="\t")
+df.write_parquet("genes.parquet", compression="zstd")
+```
+
+### GFF3 (Gene Features)
+
+Standard GFF3 format for gene annotations:
+
+```
+##gff-version 3
+NC_000001.1	RefSeq	gene	1000	2000	.	+	.	ID=gene001;Name=geneA;cluster=1
+NC_000001.1	RefSeq	gene	2500	3500	.	-	.	ID=gene002;Name=geneB;cluster=2
+```
+
+### Newick (Phylogenetic Tree)
+
+Standard Newick format with branch lengths:
+
+```
+((species_A:0.1,species_B:0.2):0.3,(species_C:0.15,species_D:0.25):0.35);
+```
+
+### Hoods (Gene Neighborhoods)
+
+Tab-separated file defining genomic windows:
+
+```
+hood_id	seqid	start	end	align_gene
+hood_001	NC_000001.1	1000	50000	gene001
+hood_002	NC_000002.1	25000	75000	gene050
+```
+
+### Protein Links
+
+Tab-separated file for protein homology:
+
+```
+geneA	geneB	similarity
+gene001	gene050	85.5
+gene002	gene051	72.3
+```
+
+### Domains
+
+Tab-separated domain annotations:
+
+```
+geneId	domainName	start	end	source	evalue	coverage
+gene001	PF00001	10	150	Pfam	1e-50	0.85
+gene001	PF00002	200	300	Pfam	1e-30	0.65
+```
+
+### Protein Metadata
+
+Tab-separated metadata for genes:
+
+```
+id	cluster	product	sequence
+gene001	cluster_1	hypothetical protein	MKFLIL...
+gene002	cluster_2	kinase	MTLSPA...
+```
+
+### Tree Metadata
+
+Tab-separated metadata for tree leaves:
+
+```
+leaf_id	species	genus	family	phylum
+hood_001	Escherichia coli	Escherichia	Enterobacteriaceae	Proteobacteria
+hood_002	Bacillus subtilis	Bacillus	Bacillaceae	Firmicutes
+```
+
+---
+
+## Configuration
+
+### Default Configuration
+
+```typescript
 import { DEFAULT_CONFIG } from 'hoodini-viz';
 
-export default function MyVisualization() {
-  // Your data loading logic here
-  const treeNewick = "((A:0.1,B:0.2):0.3,C:0.15);";
-  const genes = [
-    { id: 'gene1', seqid: 'A', start: 1000, end: 2000, strand: '+', metadata: {} }
-  ];
-  
-  return (
-    <HoodiniViz
-      newickStr={treeNewick}                  // Required: Newick tree string
-      gffFeatures={genes}                     // Required: Array of gene features
-      domainsByGene={{}}                      // Required: Map or empty object
-      proteinLinks={[]}                       // Required: Array or empty
-      hoods={[]}                              // Required: Array or empty
-      config={DEFAULT_CONFIG}                 // Required: Config object
-    />
-  );
-}
-```
+// Tree parameters
+DEFAULT_CONFIG.tree.ySpacing = 150;        // Vertical spacing between leaves
+DEFAULT_CONFIG.tree.xScalePercent = 100;   // Tree X-axis scale
+DEFAULT_CONFIG.tree.edgeWidth = 0.5;       // Edge line width
 
-**With All Data Layers:**
+// Gene parameters
+DEFAULT_CONFIG.gene.height = 60;           // Gene arrow height
+DEFAULT_CONFIG.gene.arrowheadHeight = 0;   // Arrowhead height (0 = flat tip)
+DEFAULT_CONFIG.gene.tipWidthFactor = 0.1;  // Arrow tip as fraction of length
 
-```tsx
-import { HoodiniViz } from 'hoodini-viz';
+// Domain parameters
+DEFAULT_CONFIG.domain.heightFactor = 0.7;  // Domain height relative to gene
 
-export default function MyVisualization() {
-  return (
-    <HoodiniViz
-      // Required props
-      newickStr={newickData}
-      gffFeatures={genes}
-      domainsByGene={domainsMap}
-      proteinLinks={proteinLinkArray}
-      hoods={neighborhoodsArray}
-      config={DEFAULT_CONFIG}
-      
-      // Optional data
-      nucleotideLinks={nucleotideLinkArray}
-      visibleGeneIds={filteredGeneSet}
-      hiddenHoodIds={hiddenNeighborhoods}
-      
-      // Optional customization
-      genePalette={{ type: 'qualitative', name: 'Set2' }}
-      phyloPalette={{ type: 'sequential', name: 'Blues' }}
-      
-      // Optional callbacks
-      onObjectClick={(obj) => console.log('Clicked:', obj)}
-      onLegendChange={(config) => console.log('Legend updated:', config)}
-    />
-  );
-}
-```
-
-## ✨ Features
-
-### Core Visualization
-- 🌳 **Phylogenetic Trees** - Interactive visualization with deck.gl, ultrametric support
-- 🧬 **Gene Neighborhoods** - Browse genomic regions across species with alignment
-- 🔗 **Multi-layer Analysis** - Protein domains, protein links, nucleotide links
-- 🧫 **ncRNA Tracks** - Non-coding RNA annotations (tRNA, sRNA, tmRNA, etc.)
-- 📍 **Genomic Regions** - CRISPR arrays, prophage regions, genomic islands
-
-### Visual Customization
-- 🎨 **Color Palettes** - 50+ qualitative, sequential, and diverging palettes
-  - Genes: Bold (default), Vivid, Set1, etc.
-  - Tree: Vivid (default), Okabe-Ito, Tableau, etc.
-  - Regions: Margot2 (default), Dark2, etc.
-  - ncRNAs: Prism (default), Set3, etc.
-  - Domains: Gray sequential (default)
-- 🎚️ **Visual Settings** - Y spacing, genome scale, label sizes, stroke widths
-- 🌙 **Theme Support** - Light and dark mode with full customization
-
-### Interactive Controls
-- 📐 **Format Guides** - A4, A3, Letter, PowerPoint presets for export
-- 📤 **SVG Export** - High-quality publication-ready figures with crop to guides
-- 📈 **Prevalence Filtering** - Filter genes by cluster prevalence percentage
-- 🔍 **Layer Toggles** - Show/hide tree, genes, domains, links, ncRNAs, regions
-
-### Data & UI
-- 📊 **Data Grid** - Browse, filter, and search genomic data
-- 📱 **Responsive UI** - Works on desktop and tablets
-- 🎯 **Full TypeScript** - Complete type safety and IDE support
-
-## � Data Formats
-
-Hoodini-viz supports **two data formats** with automatic fallback:
-
-### 1. Parquet (Recommended) ⚡
-- **Binary format** for fast loading (10-100x faster than text)
-- **Compressed** - smaller file sizes
-- **Preferred** for production use
-
-### 2. TSV/Text (Fallback) 📄
-- **Human-readable** - easy to inspect and edit
-- **Automatic detection** - if Parquet fails, falls back to TSV
-- **Development friendly** - simpler to generate
-
-### Required Data Files
-
-#### Phylogenetic Tree (Required)
-**Format:** Newick (`.nwk`)
-
-```newick
-((speciesA:0.1,speciesB:0.2):0.3,(speciesC:0.15,speciesD:0.25):0.35);
-```
-
-**What it does:** Defines the evolutionary relationships between species/genomes.
-
-**Requirements:**
-- Valid Newick format with branch lengths
-- Leaf names must match `seqid` field in GFF data
-
-#### Gene Features (Required)
-**Format:** GFF3 (`.gff` or `.gff.parquet`)
-
-```gff
-# Tab-separated values
-seqid  source  type  start  end  score  strand  phase  attributes
-chr1   maker   gene  1000   2000  .     +       .      ID=gene1;Name=GeneA;cluster=1
-chr1   maker   gene  3000   4000  .     -       .      ID=gene2;Name=GeneB;cluster=1
-```
-
-**Parquet columns:**
-```
-seqid: string          // Species/genome identifier (matches tree leaf)
-source: string         // Source database (optional)
-type: string           // Feature type (usually "gene" or "CDS")
-start: int64          // Start position (1-based, inclusive)
-end: int64            // End position (1-based, inclusive)
-strand: string         // '+' or '-'
-attributes: string     // Key=Value pairs (ID, Name, cluster, etc.)
-```
-
-**What it does:** Defines genes, their positions, and basic metadata.
-
-**Requirements:**
-- `seqid` must match phylogenetic tree leaf names
-- `ID` attribute is required for linking to other data
-- `start` < `end` always (even for reverse strand)
-
-### Optional Data Files
-
-#### Gene Neighborhoods (Optional)
-**Format:** TSV (`.hoods.txt` or `.hoods.parquet`)
-
-```tsv
-# Tab-separated
-hood_id  gene_id  seqid  start_bp  end_bp
-hood1    gene1    chr1   500       2500
-hood1    gene2    chr1   500       2500
-hood2    gene3    chr2   1000      3000
-```
-
-**What it does:** Groups genes into genomic regions ("neighborhoods") for synchronized visualization.
-
-**Requirements:**
-- `gene_id` must match gene feature IDs
-- Multiple genes can share the same `hood_id`
-- `start_bp` and `end_bp` define the visible window
-
-#### Protein Domains (Optional)
-**Format:** TSV (`.domains.txt` or `.domains.parquet`)
-
-```tsv
-# Tab-separated
-gene_id  domain_id  start  end  evalue      domain_name
-gene1    PF00001   150    400  1.2e-15     Kinase
-gene1    PF00002   500    650  3.4e-10     SH3
-gene2    PF00001   200    450  5.6e-20     Kinase
-```
-
-**What it does:** Annotates protein domains within genes (visual highlights on gene arrows).
-
-**Requirements:**
-- `gene_id` must match gene feature IDs
-- `start`/`end` are positions **relative to gene start** (not absolute)
-- `domain_name` is used for coloring and legend
-
-#### Protein Links (Optional)
-**Format:** TSV (`.protein_links.txt` or `.protein_links.parquet`)
-
-```tsv
-# Tab-separated
-source_gene  target_gene  identity  evalue     cluster_id
-gene1        gene3        85.5      1.2e-50    cluster_A
-gene2        gene4        92.1      3.4e-80    cluster_A
-```
-
-**What it does:** Shows homology relationships between genes (visual connecting lines).
-
-**Requirements:**
-- `source_gene` and `target_gene` must match gene IDs
-- Used for gene coloring when `colorBy="cluster"`
-
-#### Nucleotide Links (Optional)
-**Format:** TSV (`.nucleotide_links.txt` or `.nucleotide_links.parquet`)
-
-```tsv
-# Tab-separated
-source_gene  target_gene  identity  start1  end1  start2  end2
-gene1        gene3        95.2      100     500   150     550
-```
-
-**What it does:** Shows DNA sequence similarity between genomic regions.
-
-#### Metadata Files (Optional)
-**Format:** TSV (`.metadata.txt` or `.metadata.parquet`)
-
-```tsv
-# Protein metadata
-gene_id  annotation         function           go_terms
-gene1    Protein kinase     Phosphorylation    GO:0004672
-gene2    DNA helicase       DNA unwinding      GO:0003678
-
-# Domain metadata
-domain_name  description              family
-PF00001      Protein kinase domain    Kinase superfamily
-PF00002      SH3 domain               Signal transduction
-
-# Tree metadata
-leaf_id   organism              strain     isolation_date
-chr1      E. coli K-12          MG1655     1922
-chr2      E. coli O157:H7       EDL933     1982
-```
-
-**What it does:** Adds custom fields for filtering, coloring, and tooltips.
-
-**Requirements:**
-- First column must be an ID field matching other data
-- Additional columns are free-form (any name/content)
-
-## 📁 Data Loading Examples
-
-### Example 1: Parquet Files (Fast)
-
-```tsx
-<HoodiniVizDash
-  newickUrl="/api/tree.nwk"
-  parquetUrls={{
-    gff: "/api/data/genes.parquet",
-    hoods: "/api/data/hoods.parquet",
-    domains: "/api/data/domains.parquet",
-    proteinLinks: "/api/data/protein_links.parquet"
-  }}
-/>
-```
-
-### Example 2: TSV Files (Readable)
-
-```tsx
-<HoodiniVizDash
-  newickUrl="/data/tree.nwk"
-  gffUrl="/data/genes.gff"              // Will use text parser
-  parquetUrls={{
-    hoods: "/data/hoods.txt",           // .txt extension = TSV
-    domains: "/data/domains.txt"
-  }}
-/>
-```
-
-### Example 3: Mixed Formats (Auto-fallback)
-
-```tsx
-<HoodiniVizDash
-  newickUrl="/data/tree.nwk"
-  gffUrl="/data/genes.parquet"          // Try Parquet first
-  parquetUrls={{
-    gff: "/data/genes.parquet",         // Primary
-    domains: "/data/domains.parquet"    // If fails → tries domains.txt
-  }}
-/>
-```
-
-### Example 4: Dynamic Data (Fetch Yourself)
-
-```tsx
-import { HoodiniViz, DEFAULT_CONFIG } from 'hoodini-viz';
-
-function MyComponent() {
-  const [data, setData] = useState(null);
-  
-  useEffect(() => {
-    async function loadData() {
-      const treeRes = await fetch('/api/tree');
-      const tree = await treeRes.text();
-      
-      const genesRes = await fetch('/api/genes');
-      const genes = await genesRes.json();
-      
-      setData({ tree, genes });
-    }
-    loadData();
-  }, []);
-  
-  if (!data) return <div>Loading...</div>;
-  
-  return (
-    <HoodiniViz
-      newickStr={data.tree}
-      gffFeatures={data.genes}
-      domainsByGene={{}}
-      proteinLinks={[]}
-      hoods={[]}
-      config={DEFAULT_CONFIG}
-    />
-  );
-}
-```
-
-## 🎨 Customization Examples
-
-### Color Schemes
-
-```tsx
-<HoodiniViz
-  genePalette={{
-    type: 'qualitative',              // 'qualitative' or 'sequential'
-    name: 'Set2',                     // Palette name (Set1, Set2, Blues, etc.)
-    colors: ['#e41a1c', '#377eb8']   // Or custom colors
-  }}
-  colorBy="cluster"                   // Color genes by: cluster, name, strand
-/>
-```
-
-### Event Handlers
-
-```tsx
-<HoodiniViz
-  onObjectClick={(obj) => {
-    if (obj.type === 'gene') {
-      console.log('Gene clicked:', obj.id, obj.metadata);
-    } else if (obj.type === 'tree-node') {
-      console.log('Tree node clicked:', obj.name);
-    }
-  }}
-/>
+// Link parameters
+DEFAULT_CONFIG.proteinLink.bezierSegments = 120;  // Curve smoothness
+DEFAULT_CONFIG.proteinLink.minAlpha = 0;          // Min opacity
+DEFAULT_CONFIG.proteinLink.maxAlpha = 0.5;        // Max opacity
 ```
 
 ### Custom Configuration
 
-```tsx
-import { DEFAULT_CONFIG } from 'hoodini-viz';
+```typescript
+import { createConfig, HoodiniDashboard } from 'hoodini-viz';
 
-const myConfig = {
-  ...DEFAULT_CONFIG,
+const customConfig = createConfig({
   gene: {
-    ...DEFAULT_CONFIG.gene,
-    height: 120,                      // Gene arrow height
-    arrowheadHeight: 25,              // Arrow tip height
-    opacity: 0.9                      // Transparency
+    height: 80,
+    arrowheadHeight: 15,
   },
   tree: {
-    ...DEFAULT_CONFIG.tree,
-    nodeSize: 10,                     // Tree node radius
-    lineWidth: 3                      // Tree edge thickness
-  }
-};
+    ySpacing: 200,
+  },
+});
 
-<HoodiniViz config={myConfig} />
+<HoodiniDashboard
+  dataPaths={...}
+  config={customConfig}
+/>
 ```
 
-## �📚 Documentation
+---
 
-For complete documentation, see [README_LIBRARY.md](./README_LIBRARY.md).
-
-### Key Concepts
-
-**HoodiniVizDash vs HoodiniViz:**
-- **HoodiniVizDash**: Complete application with data loading, UI controls, sidebar, data grid
-  - ✅ Use when you want everything out-of-the-box
-  - ✅ Handles Parquet/TSV loading automatically
-  - ✅ Includes all widgets and controls
-  
-- **HoodiniViz**: Core visualization component only
-  - ✅ Use when you have custom data loading
-  - ✅ Props-driven (no internal state)
-  - ✅ Composable with your own UI
-
-**Data Flow:**
-1. Load tree (Newick) + genes (GFF) → minimum viable visualization
-2. Add domains → protein domain annotations appear on genes
-3. Add protein links → homology relationships drawn as curves
-4. Add hoods → genes grouped into synchronized neighborhoods
-5. Add metadata → custom filtering/coloring/labels
-
-### Architecture
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for:
-- Component hierarchy and data flow
-- Model classes (PhyloTree, GenomeView, Gene, Domain)
-- Design patterns and extension points
-- Performance optimizations
-- Development guidelines
-
-### Project Structure
-
-```
-src/
-├── index.ts                 # Library entry point
-├── HoodiniViz.tsx          # Core visualization component
-├── HoodiniVizDash.tsx      # Full-featured dashboard
-├── components/             # UI components
-├── models/                 # Data models (Gene, Domain, etc.)
-├── utils/                  # Utility functions and parsers
-├── widgets/                # Visualization widgets
-├── config/                 # Configuration defaults
-├── contexts/               # React contexts (Theme)
-└── workers/                # Web Workers for parsing
-```
-
-## 🔧 Development
+## Development
 
 ### Prerequisites
 
-- **Node.js 18+** - JavaScript runtime
-- **npm 9+** - Package manager
-- **WebGL-enabled browser** - Chrome, Firefox, Safari, or Edge
+- Node.js 18+
+- npm, yarn, or pnpm
 
-### Local Development
+### Setup
 
 ```bash
-# Clone repository
-git clone <your-repo-url>
+git clone https://github.com/your-org/hoodini-viz.git
 cd hoodini-viz
-
-# Install dependencies
 npm install
+```
 
-# Start dev server
+### Development Server
+
+```bash
 npm run dev
-# Opens http://localhost:5173
+# Open http://localhost:5173
 ```
 
-### Building - Three Options
+### Build Library
 
-#### 1. Build Everything
 ```bash
-npm run build:all
+npm run build
 # Outputs:
-# - dist/ (library for npm)
-# - dist-html/ (standalone HTML)
+#   dist/hoodini-viz.js (ESM)
+#   dist/hoodini-viz.umd.js (UMD)
+#   dist/index.d.ts (TypeScript types)
 ```
 
-#### 2. Build Library Only (for npm)
-```bash
-npm run build
-# Output: dist/
-# - hoodini-viz.js       → ES module (361 bytes entry + chunks)
-# - hoodini-viz.umd.js   → UMD bundle (2.1 MB, standalone)
-# - hoodini-viz.css      → Styles (13 KB)
-```
+### Build Single-File HTML
 
-#### 3. Build HTML Template Only
 ```bash
 npm run build:html
-# Output: dist-html/
-# - index.html           → Single file (3.3 MB, all-in-one)
+# Outputs: dist-html/index.html (self-contained)
 ```
 
-### Testing Your Build Locally
-
-**Test HTML template:**
-```bash
-npm run build:html
-# Open dist-html/index.html in browser
-```
-
-**Test npm package:**
-```bash
-# Build the library
-npm run build
-
-# Link it globally
-npm link
-
-# In another project
-npm link hoodini-viz
-
-# Test import
-import { HoodiniViz } from 'hoodini-viz';
-```
-
-### Linting
+### Storybook
 
 ```bash
-npm run lint
+npm run storybook
+# Open http://localhost:6006
 ```
 
-## 🚨 Common Issues & Solutions
-
-### Issue 1: "Cannot find module 'hoodini-viz'"
-
-**Solution:** Make sure you've installed the package:
-```bash
-npm install hoodini-viz
-```
-
-### Issue 2: Tree doesn't render
-
-**Cause:** Leaf names in Newick don't match `seqid` in GFF data
-
-**Solution:** Ensure exact match:
-```newick
-(speciesA:0.1,speciesB:0.2);  ← Leaf names
-```
-```gff
-speciesA  ...  ← Must match exactly
-speciesB  ...
-```
-
-### Issue 3: Genes not appearing
-
-**Checklist:**
-1. ✅ GFF file loaded successfully?
-2. ✅ `seqid` matches tree leaf names?
-3. ✅ `start` < `end` in GFF?
-4. ✅ Valid `strand` ('+' or '-')?
-
-### Issue 4: Domains not showing
-
-**Cause:** Domain positions outside gene boundaries
-
-**Solution:** Domain coordinates are **relative to gene start**:
-```
-Gene:   start=1000, end=2000 (length 1000)
-Domain: start=100, end=400   ← position 100-400 within gene
-```
-
-### Issue 5: Performance issues with large datasets
-
-**Solutions:**
-1. ✅ Use Parquet format (10-100x faster than TSV)
-2. ✅ Reduce visible genes with `visibleGeneIds` prop
-3. ✅ Hide neighborhoods with `hiddenHoodIds`
-4. ✅ Limit protein links to high-confidence only
-
-## 📤 Publishing to npm
-
-### First-time Setup
+### Convert Data to Parquet
 
 ```bash
-# Login to npm (one time only)
-npm login
+# Requires polars: pip install polars
+python scripts/convert_to_parquet.py
+```
 
-# Update package.json with your info
-{
-  "name": "hoodini-viz",
-  "version": "0.1.0",
-  "repository": "github:username/hoodini-viz",
-  "homepage": "https://github.com/username/hoodini-viz",
-  "author": "Your Name <you@example.com>",
-  "license": "MIT"
+---
+
+## Performance Considerations
+
+### Large Dataset Recommendations
+
+| Dataset Size | Genes | Links | Recommendation |
+|--------------|-------|-------|----------------|
+| Small | <1,000 | <5,000 | Default settings |
+| Medium | 1,000-10,000 | 5,000-50,000 | Enable Parquet loading |
+| Large | 10,000-100,000 | 50,000-500,000 | Filter links by identity, reduce bezier segments |
+| Very Large | >100,000 | >500,000 | Consider server-side filtering |
+
+### Optimization Tips
+
+1. **Use Parquet format** - 3-10x faster than TSV
+2. **Filter protein links** - Show only links above identity threshold
+3. **Reduce bezier segments** - `proteinLinkConfig.bezierSegments: 60`
+4. **Disable unused layers** - `showNucleotideLinkLayer: false`
+5. **Limit domain sources** - Filter by single source (e.g., Pfam only)
+
+---
+
+## Browser Support
+
+| Browser | Version | Notes |
+|---------|---------|-------|
+| Chrome | 90+ | Full support |
+| Firefox | 88+ | Full support |
+| Safari | 14+ | Full support |
+| Edge | 90+ | Full support |
+
+Requires WebGL 2.0 support.
+
+---
+
+## Dependencies
+
+### Core
+
+| Package | Purpose |
+|---------|---------|
+| deck.gl | WebGL rendering |
+| @luma.gl | WebGL utilities |
+| hyparquet | Parquet file loading |
+| react | UI framework |
+
+### UI Components
+
+| Package | Purpose |
+|---------|---------|
+| @radix-ui/* | Accessible UI primitives |
+| @glideapps/glide-data-grid | Virtualized data grid |
+| tailwindcss | Styling |
+| lucide-react | Icons |
+
+### Visualization
+
+| Package | Purpose |
+|---------|---------|
+| dicopal | Color palettes |
+| 3dmol | Protein 3D viewer |
+| polygon-clipping | Domain clipping |
+| recharts | Charts |
+
+---
+
+## Citation
+
+If you use Hoodini-viz in your research, please cite:
+
+```bibtex
+@software{hoodini-viz,
+  title = {Hoodini-viz: GPU-Accelerated Visualization for Comparative Genomics},
+  author = {Your Name},
+  year = {2025},
+  url = {https://github.com/your-org/hoodini-viz}
 }
 ```
 
-### Publishing
+---
 
-```bash
-# Test before publishing (dry run)
-npm publish --dry-run
+## License
 
-# Publish to npm
-npm publish
+MIT License - see [LICENSE](LICENSE) for details.
 
-# Publish with tag (for beta versions)
-npm publish --tag beta
-```
+---
 
-The `files` field in package.json ensures only the `dist/` directory is published.
+## Acknowledgments
 
-### Version Bumping
-
-```bash
-# Patch version (0.1.0 → 0.1.1)
-npm version patch
-
-# Minor version (0.1.0 → 0.2.0)
-npm version minor
-
-# Major version (0.1.0 → 1.0.0)
-npm version major
-
-# Then publish
-npm publish
-```
-
-## 💡 Usage Tips
-
-### Tip 1: Start Simple, Add Layers
-
-```tsx
-// Step 1: Minimum viable (tree + genes)
-<HoodiniVizDash
-  newickUrl="/data/tree.nwk"
-  gffUrl="/data/genes.parquet"
-/>
-
-// Step 2: Add domains for protein annotations
-<HoodiniVizDash
-  newickUrl="/data/tree.nwk"
-  gffUrl="/data/genes.parquet"
-  parquetUrls={{ domains: "/data/domains.parquet" }}
-/>
-
-// Step 3: Add protein links for homology
-<HoodiniVizDash
-  newickUrl="/data/tree.nwk"
-  gffUrl="/data/genes.parquet"
-  parquetUrls={{
-    domains: "/data/domains.parquet",
-    proteinLinks: "/data/protein_links.parquet"
-  }}
-/>
-```
-
-### Tip 2: Parquet Format for Production
-
-**Development:** Use TSV for easy editing
-```bash
-# Easy to create and inspect
-echo -e "seqid\ttype\tstart\tend" > genes.tsv
-echo -e "chr1\tgene\t1000\t2000" >> genes.tsv
-```
-
-**Production:** Convert to Parquet for performance
-```python
-import pandas as pd
-
-# Convert TSV to Parquet
-df = pd.read_csv('genes.tsv', sep='\t')
-df.to_parquet('genes.parquet', compression='snappy')
-```
-
-### Tip 3: CSS Styling
-
-Import the CSS file in your app:
-
-```tsx
-// Option 1: Import in your component
-import 'hoodini-viz/dist/hoodini-viz.css';
-
-// Option 2: Import in your main CSS file
-@import 'hoodini-viz/dist/hoodini-viz.css';
-
-// Option 3: Add to HTML
-<link rel="stylesheet" href="node_modules/hoodini-viz/dist/hoodini-viz.css">
-```
-
-### Tip 4: TypeScript Support
-
-The library exports full TypeScript definitions:
-
-```tsx
-import type { 
-  HoodiniVizProps,
-  Gene,
-  Domain,
-  PhyloTree,
-  PaletteConfig
-} from 'hoodini-viz';
-
-// Full type safety
-const genes: Gene[] = [
-  { id: 'g1', seqid: 'chr1', start: 100, end: 500, strand: '+', metadata: {} }
-];
-
-const config: PaletteConfig = {
-  type: 'qualitative',
-  name: 'Set2'
-};
-```
-
-## 🌐 Browser Support
-
-**Minimum Requirements:**
-- **Chrome 90+** / **Edge 90+** - Full support
-- **Firefox 88+** - Full support
-- **Safari 14+** - Full support
-
-**Critical:** Requires **WebGL** support for deck.gl visualization.
-
-**Check WebGL support:** Visit [get.webgl.org](https://get.webgl.org)
-
-**Mobile/Tablet:**
-- ✅ iPad Pro / iPad Air - Full support
-- ⚠️ Small phones - Limited (UI optimized for larger screens)
-
-## 🛠️ Tech Stack
-
-- **React 19** - UI framework with latest features
-- **TypeScript 5.8** - Type safety and developer experience
-- **deck.gl 9.1** - High-performance WebGL visualization engine
-- **Vite 7** - Lightning-fast build tool and dev server
-- **shadcn/ui** - Accessible, customizable UI components
-- **Tailwind CSS 4** - Utility-first styling
-- **Radix UI** - Unstyled, accessible component primitives
-- **hyparquet** - Fast Parquet file parsing in browser
-- **loaders.gl** - Optimized data loading utilities
-
-## 🔗 Related Projects
-
-- **deck.gl** - [deck.gl](https://deck.gl) - WebGL visualization framework
-- **React** - [react.dev](https://react.dev) - UI library
-- **Vite** - [vitejs.dev](https://vitejs.dev) - Build tool
-- **Parquet** - [parquet.apache.org](https://parquet.apache.org) - Columnar storage format
-
-## 📖 Additional Resources
-
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Deep dive into component architecture
-- **[README_LIBRARY.md](./README_LIBRARY.md)** - Complete API reference
-- **[LIBRARY_TRANSFORMATION.md](./LIBRARY_TRANSFORMATION.md)** - Project transformation notes
-
-## 🎓 Learning Path
-
-1. **Beginner:** Start with `HoodiniVizDash` + minimal data (tree + genes)
-2. **Intermediate:** Add domains and protein links, customize colors
-3. **Advanced:** Use `HoodiniViz` directly with custom data loading
-4. **Expert:** Extend with custom layers, widgets, and parsers
-
-## 📄 License
-
-MIT
-
-## 🤝 Contributing
-
-Contributions welcome! Start by reading the [ARCHITECTURE.md](./ARCHITECTURE.md).
-
-## 📞 Support
-
-For issues and questions, please open an issue on the repository.
+- [deck.gl](https://deck.gl/) - GPU-powered visualization framework
+- [hyparquet](https://github.com/hyparam/hyparquet) - Browser-native Parquet reader
+- [dicopal](https://github.com/riatelab/dicopal) - Color palette library
+- [3Dmol.js](https://3dmol.org/) - Molecular visualization
+- [ESMFold](https://esmatlas.com/) - Protein structure prediction
+- [shadcn/ui](https://ui.shadcn.com/) - UI component system

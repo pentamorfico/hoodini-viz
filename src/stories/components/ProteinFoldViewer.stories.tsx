@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import ESMFoldViewer from '@/components/ESMFoldViewer';
+import ProteinFoldViewer from '@/components/ProteinFoldViewer';
 
 /**
- * ESMFoldViewer renders 3D protein structures predicted by ESMFold.
+ * ProteinFoldViewer renders 3D protein structures predicted by ESMFold or Boltz2.
  */
 const meta = {
-  title: 'Examples/Components/ESMFoldViewer',
-  component: ESMFoldViewer,
+  title: 'Examples/Components/ProteinFoldViewer',
+  component: ProteinFoldViewer,
   parameters: {
     layout: 'centered',
   },
@@ -21,7 +21,7 @@ const meta = {
       description: 'UniProt identifier for the protein',
     },
   },
-} satisfies Meta<typeof ESMFoldViewer>;
+} satisfies Meta<typeof ProteinFoldViewer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

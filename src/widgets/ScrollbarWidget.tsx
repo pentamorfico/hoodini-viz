@@ -114,11 +114,16 @@ export default function ScrollbarWidget({
     if (!container) return;
     
     const handleWheel = (e) => {
+      // Stop ALL propagation to prevent DeckGL from zooming
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
       
-      const scrollSpeed = 0.25; // Smooth scroll - smaller value = finer control
-      const delta = e.deltaY > 0 ? scrollSpeed : -scrollSpeed;
+      // Scale scroll speed based on deltaY magnitude for better control
+      // deltaY is typically ~100 for regular scroll, but can vary by device/browser
+      const baseDelta = Math.abs(e.deltaY) > 50 ? e.deltaY / 100 : e.deltaY / 50;
+      const scrollSpeed = 3; // Higher value = faster scrolling per wheel tick
+      const delta = baseDelta * scrollSpeed;
       
       let newNorm = scrollNormRef.current + delta;
       newNorm = Math.max(0, Math.min(100, newNorm));
@@ -127,19 +132,31 @@ export default function ScrollbarWidget({
       if (isFinite(minY) && isFinite(maxY) && maxY > minY) {
         const newY = maxY - (newNorm / 100) * (maxY - minY);
         if (isFinite(newY)) {
+          // Use viewStateRef for the most up-to-date zoom value
+          const currentViewState = viewStateRef?.current;
+          const currentZoom = currentViewState?.zoom ?? 0;
+          const currentX = currentViewState?.target?.[0] ?? 0;
+          const currentZ = currentViewState?.target?.[2] ?? 0;
+          
           setViewState(vs => {
             if (!vs) return vs;
-            const z = (vs.target && isFinite(vs.target[2])) ? vs.target[2] : 0;
-            return { ...vs, target: [vs.target[0], newY, z] };
+            // Preserve the current zoom from viewStateRef (most accurate)
+            return { 
+              ...vs, 
+              target: [currentX, newY, currentZ],
+              zoom: currentZoom  // Explicitly preserve zoom
+            };
           });
         }
       }
+      
+      return false; // Extra safety to prevent default
     };
     
-    // Add with passive: false to allow preventDefault
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, [minY, maxY, setScrollNorm, setViewState]); // Removed scrollNorm - using ref instead
+    // Add with passive: false and capture: true to intercept before DeckGL
+    container.addEventListener('wheel', handleWheel, { passive: false, capture: true });
+    return () => container.removeEventListener('wheel', handleWheel, { capture: true });
+  }, [minY, maxY, setScrollNorm, setViewState, viewStateRef]); // Added viewStateRef
 
   return (
     <div

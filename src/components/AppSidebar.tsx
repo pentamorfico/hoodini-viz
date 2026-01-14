@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Info, Settings, Palette, BookOpen, Crop, ChevronRight } from "lucide-react"
+import { Info, Settings, Palette, BookOpen, Crop, ChevronRight, Key } from "lucide-react"
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { DEFAULT_CONFIG } from '@/config/visualizationConfig.js';
@@ -424,10 +424,23 @@ export function AppSidebar({
   
   // Protein folding states
   const [foldingSequence, setFoldingSequence] = useState(null);
-  const [foldingStatus, setFoldingStatus] = useState('idle'); // 'idle', 'folding', 'success', 'error'
+  const [foldingStatus, setFoldingStatus] = useState('idle'); // 'idle', 'folding', 'success', 'error', 'needsApiKey'
   const [foldedStructure, setFoldedStructure] = useState(null);
   // Track which gene the viewer is currently associated with
   const [lastViewerGeneId, setLastViewerGeneId] = useState<string | null>(null);
+  
+  // NVIDIA API key for Boltz2 (sequences > 400 aa)
+  const ESMFOLD_MAX_LENGTH = 400;
+  const NVIDIA_API_KEY_STORAGE = 'hoodini_nvidia_api_key';
+  const [nvidiaApiKey, setNvidiaApiKey] = useState('');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [foldingMethod, setFoldingMethod] = useState<'esmfold' | 'boltz2' | null>(null);
+  
+  // Load NVIDIA API key from localStorage on mount
+  useEffect(() => {
+    const savedKey = localStorage.getItem(NVIDIA_API_KEY_STORAGE);
+    if (savedKey) setNvidiaApiKey(savedKey);
+  }, []);
   
   // Live cluster options computed from GenomeView at runtime
   const [availableClusters, setAvailableClusters] = useState<Array<{ id: string, size: number, label: string }>>([]);
@@ -571,12 +584,22 @@ export function AppSidebar({
   const handleArrowheadHeightChange = typeof handleArrowheadHeightChangeProp === 'function' ? handleArrowheadHeightChangeProp : (val) => setArrowheadHeightDisplay(val);
   const handleGeneHeightChange = typeof handleGeneHeightChangeProp === 'function' ? handleGeneHeightChangeProp : (val) => setGeneHeightDisplay(val);
 
-  // Protein folding handler
-  const handleFoldSequence = async (sequence) => {
-    if (!sequence || sequence.length >= 400) return;
+  // Protein folding handler - supports ESMFold (<= 400 aa) and Boltz2 (> 400 aa)
+  const handleFoldSequence = async (sequence, forceMethod?: 'esmfold' | 'boltz2') => {
+    if (!sequence) return;
+    
+    const method = forceMethod || (sequence.length <= ESMFOLD_MAX_LENGTH ? 'esmfold' : 'boltz2');
+    
+    // For Boltz2, check if we have API key
+    if (method === 'boltz2' && !nvidiaApiKey) {
+      setFoldingStatus('needsApiKey');
+      setShowApiKeyInput(true);
+      setFoldingSequence(sequence);
+      return;
+    }
     
     // Check if we're already folding this sequence
-    if (foldingSequence === sequence && foldingStatus !== 'idle') {
+    if (foldingSequence === sequence && foldingStatus === 'folding') {
       return;
     }
     
@@ -585,10 +608,11 @@ export function AppSidebar({
       return;
     }
     
-    const currentFoldingSequence = sequence; // Store the sequence we're folding
     setFoldingSequence(sequence);
     setFoldingStatus('folding');
+    setFoldingMethod(method);
     setFoldedStructure(null); // Clear any previous structure
+    
     // Remember which gene this structure belongs to
     try {
       const gid = (selectedGene && (selectedGene as any).id) || (selectedGene && (selectedGene as any).geneId) || null;
@@ -601,10 +625,27 @@ export function AppSidebar({
       // Hand off the sequence to the viewer to fetch/process the PDB
       // Viewer will call back via onStructureReady when done
       setViewerSequence(sequence);
-      setFoldingStatus('folding');
     } catch (error) {
       setFoldingStatus('error');
     }
+  };
+  
+  // Save NVIDIA API key and retry folding
+  const saveNvidiaApiKey = () => {
+    if (nvidiaApiKey.trim()) {
+      localStorage.setItem(NVIDIA_API_KEY_STORAGE, nvidiaApiKey.trim());
+      setShowApiKeyInput(false);
+      // Retry folding with the saved key
+      if (foldingSequence && foldingStatus === 'needsApiKey') {
+        handleFoldSequence(foldingSequence, 'boltz2');
+      }
+    }
+  };
+  
+  // Clear NVIDIA API key
+  const clearNvidiaApiKey = () => {
+    localStorage.removeItem(NVIDIA_API_KEY_STORAGE);
+    setNvidiaApiKey('');
   };
 
   // Debug: log when structure ready is called
@@ -947,14 +988,23 @@ export function AppSidebar({
                                       {(() => {
                                         // Clean sequence by removing trailing "*" from prodigal
                                         const cleanSequence = selectedGene.metadata.sequence.replace(/\*+$/, '');
-                                        const isEligibleForFolding = cleanSequence.length < 400;
+                                        const usesBoltz2 = cleanSequence.length > ESMFOLD_MAX_LENGTH;
                                         
-                                        return isEligibleForFolding ? (
+                                        return (
                                           <Badge 
-                                            variant={foldingStatus === 'folding' ? "default" : foldingStatus === 'success' ? "default" : foldingStatus === 'error' ? "destructive" : "secondary"} 
-                                            className={`text-xs ${foldingStatus === 'folding' ? 'animate-pulse' : foldingStatus === 'idle' ? 'cursor-pointer hover:bg-secondary/80' : ''}`}
+                                            variant={
+                                              foldingStatus === 'folding' ? "default" : 
+                                              foldingStatus === 'success' ? "default" : 
+                                              foldingStatus === 'error' ? "destructive" : 
+                                              foldingStatus === 'needsApiKey' ? "outline" :
+                                              "secondary"
+                                            } 
+                                            className={`text-xs ${
+                                              foldingStatus === 'folding' ? 'animate-pulse' : 
+                                              foldingStatus === 'idle' || foldingStatus === 'needsApiKey' ? 'cursor-pointer hover:bg-secondary/80' : ''
+                                            } ${usesBoltz2 ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200' : ''}`}
                                             onClick={() => {
-                                              if (foldingStatus === 'idle') {
+                                              if (foldingStatus === 'idle' || foldingStatus === 'needsApiKey') {
                                                 setViewerError(null);
                                                 handleFoldSequence(cleanSequence);
                                               } else if (foldingStatus === 'success' || foldingStatus === 'error') {
@@ -962,30 +1012,94 @@ export function AppSidebar({
                                                 setFoldingStatus('idle');
                                                 setFoldedStructure(null);
                                                 setFoldingSequence(null);
+                                                setFoldingMethod(null);
                                               }
                                             }}
                                           >
-                                            {foldingStatus === 'idle' && 'Fold Sequence'}
-                                            {foldingStatus === 'folding' && 'Folding...'}
+                                            {foldingStatus === 'idle' && (usesBoltz2 ? 'Fold with Boltz2' : 'Fold Sequence')}
+                                            {foldingStatus === 'needsApiKey' && '🔑 Enter API Key'}
+                                            {foldingStatus === 'folding' && (foldingMethod === 'boltz2' ? 'Boltz2...' : 'Folding...')}
                                             {foldingStatus === 'success' && 'View Structure'}
                                             {foldingStatus === 'error' && 'Retry Folding'}
                                           </Badge>
-                                        ) : null;
+                                        );
+                                      })()}
+                                      {/* Show saved API key indicator for Boltz2 proteins */}
+                                      {(() => {
+                                        const cleanSequence = selectedGene.metadata.sequence.replace(/\*+$/, '');
+                                        const usesBoltz2 = cleanSequence.length > ESMFOLD_MAX_LENGTH;
+                                        if (usesBoltz2 && nvidiaApiKey && !showApiKeyInput && foldingStatus !== 'needsApiKey') {
+                                          return (
+                                            <Badge 
+                                              variant="secondary"
+                                              className="text-xs bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 cursor-pointer hover:bg-green-200 dark:hover:bg-green-800/50 px-2"
+                                              onClick={() => setShowApiKeyInput(true)}
+                                              title="API key saved - click to manage"
+                                            >
+                                              <Key className="h-3 w-3" />
+                                            </Badge>
+                                          );
+                                        }
+                                        return null;
                                       })()}
                                     </div>
+                                    
+                                    {/* NVIDIA API Key input for Boltz2 */}
+                                    {(showApiKeyInput || foldingStatus === 'needsApiKey') && (
+                                      <div className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-md border border-purple-200 dark:border-purple-800 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs font-medium text-purple-800 dark:text-purple-200">NVIDIA API Key (for Boltz2)</span>
+                                          {nvidiaApiKey && (
+                                            <Badge variant="outline" className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                              ✓ Saved
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <div className="flex gap-2">
+                                          <Input
+                                            type="password"
+                                            placeholder="nvapi-..."
+                                            value={nvidiaApiKey}
+                                            onChange={(e) => setNvidiaApiKey(e.target.value)}
+                                            className="flex-1 font-mono text-xs h-8"
+                                          />
+                                          <Button size="sm" onClick={saveNvidiaApiKey} disabled={!nvidiaApiKey.trim()} className="h-8 text-xs rounded-full px-4">
+                                            Save & Fold
+                                          </Button>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">
+                                          Get your key at{' '}
+                                          <a 
+                                            href="https://build.nvidia.com/mit/boltz2" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-purple-600 dark:text-purple-400 underline hover:no-underline"
+                                          >
+                                            build.nvidia.com
+                                          </a>
+                                          {' '}• Stored locally in your browser
+                                        </p>
+                                        {nvidiaApiKey && (
+                                          <Button variant="ghost" size="sm" onClick={clearNvidiaApiKey} className="h-6 text-xs text-destructive hover:text-destructive">
+                                            Clear saved key
+                                          </Button>
+                                        )}
+                                      </div>
+                                    )}
+                                    
                                     <div className="mt-1 p-2 bg-muted rounded text-xs font-mono break-all leading-relaxed">
                                       {/* Display clean sequence without trailing "*" */}
                                       {selectedGene.metadata.sequence.replace(/\*+$/, '')}
                                     </div>
                                     {(() => {
                                       const cleanSequence = selectedGene.metadata.sequence.replace(/\*+$/, '');
-                                      return cleanSequence.length < 400 ? (
+                                      const usesBoltz2 = cleanSequence.length > ESMFOLD_MAX_LENGTH;
+                                      return (
                                         <p className="text-xs text-muted-foreground">
-                                          Sequence length: {cleanSequence.length} aa (eligible for folding)
-                                        </p>
-                                      ) : (
-                                        <p className="text-xs text-muted-foreground">
-                                          Sequence length: {cleanSequence.length} aa (too long for folding)
+                                          Sequence length: {cleanSequence.length} aa 
+                                          {usesBoltz2 
+                                            ? ` (requires Boltz2, >${ESMFOLD_MAX_LENGTH} aa)` 
+                                            : ' (ESMFold compatible)'}
                                         </p>
                                       );
                                     })()}
@@ -997,7 +1111,8 @@ export function AppSidebar({
                                           <h5 className="font-title text-xs font-medium">3D Structure</h5>
                                           {(() => {
                                             const rawConf = foldedStructure && typeof foldedStructure.confidence === 'number' ? foldedStructure.confidence : null;
-                                            const displayConf = rawConf !== null ? rawConf * 100 : null;
+                                            // confidence is already 0-100 scale from the viewer
+                                            const displayConf = rawConf !== null ? (rawConf <= 1 ? rawConf * 100 : rawConf) : null;
                                             const bg = displayConf !== null ? getSemaphoreColor(displayConf) : 'transparent';
                                             const fg = displayConf !== null ? (displayConf > 50 ? '#000' : '#fff') : '#fff';
                                             return (
@@ -1033,7 +1148,7 @@ export function AppSidebar({
                                           </div>
                                         ) : (
                                           <p className="text-xs text-muted-foreground mt-2">
-                                            Structure predicted using ESMFold • {foldedStructure?.sequenceLength || viewerSequence?.length || '...'} residues
+                                            Structure predicted using {foldingMethod === 'boltz2' ? 'Boltz2' : 'ESMFold'} • {foldedStructure?.sequenceLength || viewerSequence?.length || '...'} residues
                                           </p>
                                         )}
                                       </div>

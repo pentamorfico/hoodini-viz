@@ -200,6 +200,9 @@ src/
 │   ├── HoodiniViz.tsx              # ⭐ Core visualization (props-driven)
 │   ├── AppSidebar.tsx              # Control panel
 │   ├── DataGridView.tsx            # Data browser
+│   ├── ProteinFoldViewer.tsx       # 🧬 Protein folding (ESMFold/Boltz2)
+│   ├── ProteinViewer3DMol.tsx      # 🔬 3D structure viewer (3Dmol.js)
+│   ├── RNAStructureViewer.tsx      # RNA secondary structure viewer
 │   ├── ErrorBoundary.tsx           # Error handler
 │   └── ui/                         # shadcn/ui components (Button, Card, etc.)
 │
@@ -354,6 +357,69 @@ return parseGFF(txt);  // Use text parser
 4. **Lazy Loading** - Tree nodes expanded on demand
 5. **WebGL Rendering** - Deck.gl handles efficient canvas updates
 6. **CSS Modules** - No runtime style recalculation
+
+## Protein Structure Prediction
+
+The library integrates two protein folding APIs for 3D structure prediction:
+
+### ESMFold (Meta AI)
+- **URL:** `https://api.esmatlas.com/foldSequence/v1/pdb/`
+- **Limit:** ≤400 amino acids
+- **Output:** PDB format
+- **CORS:** Supported (direct browser access)
+- **No API key required**
+
+### Boltz2 (NVIDIA)
+- **URL:** `https://health.api.nvidia.com/v1/biology/mit/boltz2/predict`
+- **Limit:** >400 amino acids (longer sequences)
+- **Output:** mmCIF format
+- **CORS:** Not supported (requires proxy)
+- **API key required** (stored in localStorage)
+
+### Architecture
+
+```
+┌─ AppSidebar ─────────────────────────────────────────┐
+│  User clicks "Fold Sequence" or "Fold with Boltz2"   │
+│  └─ Stores NVIDIA API key in localStorage            │
+│                                                        │
+│  ┌─ ProteinViewer3DMol ──────────────────────────┐   │
+│  │  Determines folding method based on length:   │   │
+│  │  • ≤400 aa → ESMFold (direct)                 │   │
+│  │  • >400 aa → Boltz2 (via CORS proxy)          │   │
+│  │                                                │   │
+│  │  CORS Proxy Fallback Chain:                   │   │
+│  │  1. corsproxy.io                              │   │
+│  │  2. cors.sh                                   │   │
+│  │  3. thingproxy.freeboard.io                   │   │
+│  │                                                │   │
+│  │  ┌─ 3Dmol.js Viewer ───────────────────┐     │   │
+│  │  │  Renders PDB or mmCIF structure     │     │   │
+│  │  │  Colors by pLDDT confidence score   │     │   │
+│  │  └─────────────────────────────────────┘     │   │
+│  └────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────┘
+```
+
+### Key Components
+
+**`ProteinViewer3DMol.tsx`** - Handles API calls and 3D rendering:
+- Automatic format detection (PDB vs mmCIF)
+- pLDDT confidence coloring
+- CORS proxy fallback system
+
+**`AppSidebar.tsx`** - User interface:
+- API key management (save/clear)
+- Folding status indicators
+- Method display (ESMFold vs Boltz2)
+
+### Storage
+
+```typescript
+// NVIDIA API key stored in localStorage
+const NVIDIA_API_KEY_STORAGE = 'hoodini_nvidia_api_key';
+localStorage.setItem(NVIDIA_API_KEY_STORAGE, apiKey);
+```
 
 ## Adding New Layers
 
