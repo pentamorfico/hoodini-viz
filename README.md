@@ -20,6 +20,13 @@
   <a href="#api-reference">API</a>
 </p>
 
+---
+
+## Overview
+
+**Hoodini-viz** is a GPU-accelerated React library for interactive visualization of phylogenetic trees, gene neighborhoods, protein domains, and homology relationships. Built on [deck.gl](https://deck.gl/).
+
+**Fully portable**: Import as React component, embed via CDN, or deploy as a self-contained HTML file.
 
 <div align = center>
 
@@ -29,15 +36,6 @@
 
 
 [KBD]: https://github.com/pentamorfico/hoodini
-
-
----
-
-## Overview
-
-**Hoodini-viz** is a GPU-accelerated React library for interactive visualization of phylogenetic trees, gene neighborhoods, protein domains, and homology relationships. Built on [deck.gl](https://deck.gl/).
-
-**Fully portable**: Import as React component, embed via CDN, or deploy as a self-contained HTML file.
 
 ---
 
