@@ -11,7 +11,40 @@ import parseTreeMetadata from '@/utils/parseTreeMetadata';
 
 /**
  * HoodiniViz is the core visualization component for genomic neighborhoods.
- * It renders phylogenetic trees, genes, domains, and links.
+ * It renders phylogenetic trees, genes, domains, ncRNAs, regions, and links.
+ * 
+ * ## Key Features
+ * 
+ * ### Visual Settings
+ * - `ySpacing`: Vertical distance between tracks (default: 150)
+ * - `genomeXScale`: Horizontal compression percentage (default: 30)
+ * - `geneHeight`: Height of gene arrows (default: 60)
+ * - `arrowheadHeight`: Height of arrowhead (0 = auto)
+ * - `phyloLabelSize`: Size of tree leaf labels (default: 20)
+ * - `geneLabelSize`: Size of gene metadata labels (default: 12)
+ * - `strokeLineWidth`: Width of gene/domain strokes (default: 1)
+ * 
+ * ### Layer Visibility
+ * - `showTreeLayer`, `showGeneLayer`, `showDomainLayer`
+ * - `showProteinLinkLayer`, `showNucleotideLinkLayer`
+ * - `showNcRNALayer`, `showRegionLayer`
+ * - `showRuler`, `showScrollbar`
+ * 
+ * ### Color Palettes (via props)
+ * - `genePalette`: Gene coloring (default: Bold)
+ * - `phyloPalette`: Tree label coloring (default: Vivid)
+ * - `domainPalette`: Domain coloring (default: Gray sequential)
+ * - `regionPalette`: Region coloring (default: Margot2)
+ * - `ncRNAPalette`: ncRNA coloring (default: Prism)
+ * 
+ * ### Format Guides
+ * - `showFormatGuides`: Enable format guides
+ * - `formatGuidePreset`: A4, A3, Letter, PowerPoint presets
+ * - `scaleExportToFormat`, `cropToGuides`, `scaleRulerWithCrop`
+ * 
+ * ### Filtering
+ * - `prevalenceThreshold`: Filter genes by cluster prevalence %
+ * - `domainSource`: Filter domains by source (Pfam, TIGRFAM, etc.)
  */
 
 // ============================================================================
@@ -177,6 +210,29 @@ leaf_id\tsuperkingdom\tphylum\tspecies\tcolor
 contig_A\tBacteria\tProteobacteria\tEscherichia coli\t200,50,100,255
 contig_B\tBacteria\tProteobacteria\tSalmonella enterica\t50,200,150,255
 contig_C\tBacteria\tProteobacteria\tPseudomonas aeruginosa\t150,100,200,255
+`.trim();
+
+/**
+ * ncRNA GFF3 Format: Non-coding RNA annotations
+ */
+const SAMPLE_NCRNA_GFF = `
+contig_A\tRfam\tncRNA\t200\t280\t.\t+\t.\tID=ncrna_A1;Name=tRNA-Ala;ncRNA_class=tRNA
+contig_A\thoodini\tncRNA\t9600\t9750\t.\t-\t.\tID=ncrna_A2;Name=sRNA_regulator;ncRNA_class=sRNA
+contig_B\tRfam\tncRNA\t100\t180\t.\t+\t.\tID=ncrna_B1;Name=tRNA-Gly;ncRNA_class=tRNA
+contig_B\thoodini\tncRNA\t9000\t9120\t.\t+\t.\tID=ncrna_B2;Name=tmRNA;ncRNA_class=tmRNA
+contig_C\tRfam\tncRNA\t300\t380\t.\t-\t.\tID=ncrna_C1;Name=tRNA-Ser;ncRNA_class=tRNA
+contig_C\thoodini\tncRNA\t9300\t9500\t.\t-\t.\tID=ncrna_C2;Name=RNaseP;ncRNA_class=ribozyme
+`.trim();
+
+/**
+ * Regions GFF3 Format: Genomic region annotations (CRISPR, prophage, etc.)
+ */
+const SAMPLE_REGIONS_GFF = `
+contig_A\tCRISPRCasFinder\tCRISPR\t2600\t4300\t.\t.\t.\tID=crispr_A1;Name=CRISPR_array_1;region_type=CRISPR
+contig_A\tPHASTER\tprophage\t6100\t8100\t.\t.\t.\tID=prophage_A1;Name=Prophage_region;region_type=prophage
+contig_B\tCRISPRCasFinder\tCRISPR\t2100\t3800\t.\t.\t.\tID=crispr_B1;Name=CRISPR_array_2;region_type=CRISPR
+contig_C\tPHASTER\tprophage\t4200\t7600\t.\t.\t.\tID=prophage_C1;Name=Prophage_region_2;region_type=prophage
+contig_C\tIslandViewer\tgenomic_island\t7600\t9300\t.\t.\t.\tID=island_C1;Name=Genomic_island_1;region_type=genomic_island
 `.trim();
 
 // ============================================================================
@@ -363,6 +419,94 @@ export const BasicWithProteinMetadata: Story = {
         visibleGeneIds={null}
         showScrollbar={true}
         showRuler={true}
+      />
+    );
+  },
+};
+
+/**
+ * 5b. Basic With ncRNAs - Shows non-coding RNA annotations (tRNA, sRNA, etc.)
+ */
+export const BasicWithNcRNAs: Story = {
+  render: () => {
+    const data = useMemo(() => {
+      // Combine genes and ncRNAs in the same GFF
+      const combinedGff = SAMPLE_GFF + '\n' + SAMPLE_NCRNA_GFF;
+      const gffFeatures = parseGFF(combinedGff);
+      const hoods = parseHoods(SAMPLE_HOODS);
+      return { gffFeatures, hoods };
+    }, []);
+
+    return (
+      <HoodiniViz
+        gffFeatures={data.gffFeatures}
+        proteinLinks={[]}
+        nucleotideLinks={[]}
+        domainsByGene={{}}
+        hoods={data.hoods}
+        visibleGeneIds={null}
+        showScrollbar={true}
+        showRuler={true}
+        ncRNAPalette={{ type: 'qualitative', name: 'Prism', numColors: 8, reverse: false, enabled: true }}
+      />
+    );
+  },
+};
+
+/**
+ * 5c. Basic With Regions - Shows genomic regions (CRISPR, prophage, genomic islands)
+ */
+export const BasicWithRegions: Story = {
+  render: () => {
+    const data = useMemo(() => {
+      // Combine genes and regions in the same GFF
+      const combinedGff = SAMPLE_GFF + '\n' + SAMPLE_REGIONS_GFF;
+      const gffFeatures = parseGFF(combinedGff);
+      const hoods = parseHoods(SAMPLE_HOODS);
+      return { gffFeatures, hoods };
+    }, []);
+
+    return (
+      <HoodiniViz
+        gffFeatures={data.gffFeatures}
+        proteinLinks={[]}
+        nucleotideLinks={[]}
+        domainsByGene={{}}
+        hoods={data.hoods}
+        visibleGeneIds={null}
+        showScrollbar={true}
+        showRuler={true}
+        regionPalette={{ type: 'qualitative', name: 'Margot2', numColors: 8, reverse: false, enabled: true }}
+      />
+    );
+  },
+};
+
+/**
+ * 5d. Basic With ncRNAs and Regions - Shows both ncRNAs and genomic regions
+ */
+export const BasicWithNcRNAsAndRegions: Story = {
+  render: () => {
+    const data = useMemo(() => {
+      // Combine genes, ncRNAs, and regions in the same GFF
+      const combinedGff = SAMPLE_GFF + '\n' + SAMPLE_NCRNA_GFF + '\n' + SAMPLE_REGIONS_GFF;
+      const gffFeatures = parseGFF(combinedGff);
+      const hoods = parseHoods(SAMPLE_HOODS);
+      return { gffFeatures, hoods };
+    }, []);
+
+    return (
+      <HoodiniViz
+        gffFeatures={data.gffFeatures}
+        proteinLinks={[]}
+        nucleotideLinks={[]}
+        domainsByGene={{}}
+        hoods={data.hoods}
+        visibleGeneIds={null}
+        showScrollbar={true}
+        showRuler={true}
+        ncRNAPalette={{ type: 'qualitative', name: 'Prism', numColors: 8, reverse: false, enabled: true }}
+        regionPalette={{ type: 'qualitative', name: 'Margot2', numColors: 8, reverse: false, enabled: true }}
       />
     );
   },

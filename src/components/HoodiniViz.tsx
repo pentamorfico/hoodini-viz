@@ -831,8 +831,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   const glowTickRef = useRef(0);
   const baseLayersRef = useRef([]); // Store base layers for combining with animated glow
   
-  // Static bounds for scrollbar - computed once when data loads, not affected by visibility toggles
-  const staticBoundsRef = React.useRef(null);
+  // Static bounds for scrollbar - tracks last computed bounds including scale/spacing changes
+  const staticBoundsRef = React.useRef<{ minY: number; maxY: number; minX: number; maxX: number; ySpacing?: number; genomeXScale?: number } | null>(null);
   
   // Debug: log selection changes so we can confirm click handling
   React.useEffect(() => {
@@ -1799,10 +1799,21 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     visibleLeavesSetForBounds,
   ]);
   
-  // Initialize static bounds once when we have valid data - these won't change with visibility toggles
-  if (!staticBoundsRef.current && isFinite(bounds.minY) && isFinite(bounds.maxY) && bounds.maxY > bounds.minY) {
-    staticBoundsRef.current = { minY: bounds.minY, maxY: bounds.maxY };
-  }
+  // Update static bounds when we have valid data OR when scale/spacing parameters change
+  // This ensures bounds update when ySpacing or genomeXScale sliders are moved
+  React.useEffect(() => {
+    if (isFinite(bounds.minY) && isFinite(bounds.maxY) && bounds.maxY > bounds.minY &&
+        isFinite(bounds.minX) && isFinite(bounds.maxX)) {
+      staticBoundsRef.current = { 
+        minY: bounds.minY, 
+        maxY: bounds.maxY, 
+        minX: bounds.minX, 
+        maxX: bounds.maxX,
+        ySpacing: ySpacingProp,
+        genomeXScale: genomeXScaleProp
+      };
+    }
+  }, [bounds.minY, bounds.maxY, bounds.minX, bounds.maxX, ySpacingProp, genomeXScaleProp, geneHeight, arrowheadHeight, effectiveTreeXScale]);
   
   // Auto-fit zoom on initial load - calculate optimal zoom to fit content
   // Use boundsWithTree to include tree in centering calculation
@@ -1841,11 +1852,14 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   }, [containerSize.width, containerSize.height, boundsWithTree.minX, boundsWithTree.maxX, boundsWithTree.minY, boundsWithTree.maxY]);
   
   // Use static bounds for scrollbar if available, otherwise fall back to current bounds
+  // scrollBounds now includes both Y and X bounds that update when scale/spacing changes
   const scrollBounds = staticBoundsRef.current || bounds;
   const minY = scrollBounds.minY;
   const maxY = scrollBounds.maxY;
+  const scrollMinX = scrollBounds.minX ?? bounds.minX;
+  const scrollMaxX = scrollBounds.maxX ?? bounds.maxX;
   // Compute minY/maxY from bounds with padding for scrollbar
-  const paddingY = config?.scrollbar?.panPaddingY ?? 200;
+  const paddingY = config?.scrollbar?.panPaddingY ?? 50;
   const scrollMinY = minY - paddingY;
   const scrollMaxY = maxY + paddingY;
   
@@ -8809,17 +8823,25 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }}
         // Update the live ref AND React state on camera moves
         // Clamp X/Y position within bounds + padding, and limit zoom dynamically
+        // When format guides are visible, allow free movement without bounds constraints
         onViewStateChange={e => {
           try {
             const vs = e.viewState;
-            const paddingY = config?.scrollbar?.panPaddingY ?? 200;
-            const paddingX = config?.scrollbar?.panPaddingX ?? 5000;
+            
+            // When format guides are shown, allow completely free movement
+            if (showFormatGuides) {
+              viewStateRef.current = vs;
+              return;
+            }
+            
+            const paddingY = config?.scrollbar?.panPaddingY ?? 50;
+            const paddingX = config?.scrollbar?.panPaddingX ?? 500;
             
             // Calculate dynamic zoom limits based on data bounds and container size
             // minZoom: allow seeing all data + padding with some margin
             // maxZoom: allow zooming in to see individual genes clearly
             const dataRangeY = (maxY - minY) || 1000;
-            const dataRangeX = (bounds.maxX - bounds.minX) || 10000;
+            const dataRangeX = (scrollMaxX - scrollMinX) || 10000;
             const containerH = containerSize.height || 600;
             const containerW = containerSize.width || 800;
             
@@ -8847,9 +8869,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
               }
             }
             
-            // Clamp X position if bounds are valid
-            const clampedMinX = bounds.minX - paddingX;
-            const clampedMaxX = bounds.maxX + paddingX;
+            // Clamp X position using scroll bounds (which update when scale/spacing changes)
+            const clampedMinX = scrollMinX - paddingX;
+            const clampedMaxX = scrollMaxX + paddingX;
             if (isFinite(clampedMinX) && isFinite(clampedMaxX) && clampedMaxX > clampedMinX) {
               const x = vs.target[0];
               const clampedX = Math.max(clampedMinX, Math.min(clampedMaxX, x));

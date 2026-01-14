@@ -168,8 +168,8 @@ export const DEFAULT_CONFIG = {
     minThumbHeight: 24,     // Minimum height for scrollbar thumb
     margin: '2%',           // Margin around scrollbar
     borderRadius: '0',      // Border radius for scrollbar elements (no rounding)
-    panPaddingY: 200,       // Allowed padding (in world units) beyond Y bounds when panning
-    panPaddingX: 5000,      // Allowed padding (in world units) beyond X bounds when panning
+    panPaddingY: 50,        // Allowed padding (in world units) beyond Y bounds when panning
+    panPaddingX: 500,       // Allowed padding (in world units) beyond X bounds when panning
     minZoom: -5,            // Minimum zoom level (zoomed out)
     maxZoom: 2              // Maximum zoom level (zoomed in)
   },
@@ -242,10 +242,10 @@ export const DEFAULT_CONFIG = {
     // Default palette settings
     genePalette: {
       type: 'qualitative',    // 'qualitative', 'sequential', 'diverging'
-      name: 'Set2',           // Dicopal palette name
+      name: 'Bold',           // Dicopal palette name
       numColors: 8,           // Number of colors to use
       reverse: false,         // Whether to reverse the palette
-  enabled: false,         // Whether to use palette coloring (false = use default gray)
+  enabled: true,          // Whether to use palette coloring
   desaturateByPrevalence: true
     },
     domainPalette: {
@@ -260,14 +260,21 @@ export const DEFAULT_CONFIG = {
     },
     phyloPalette: {
       type: 'qualitative',
-      name: 'Set1',
+      name: 'Vivid',
       numColors: 9,
       reverse: false,
-      enabled: false          // For coloring phylo labels by species/metadata
+      enabled: true           // For coloring phylo labels by species/metadata
+    },
+    ncRNAPalette: {
+      type: 'qualitative',
+      name: 'Prism',
+      numColors: 8,
+      reverse: false,
+      enabled: true           // For coloring ncRNAs by type
     },
     regionPalette: {
       type: 'qualitative',
-      name: 'Dark2',
+      name: 'Margot2',
       numColors: 8,
       reverse: false,
       enabled: true           // Enable palette coloring for regions by default

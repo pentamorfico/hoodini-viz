@@ -2,19 +2,34 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 <Meta title="Docs/Welcome" />
 
-# Welcome to Hoodini-Viz
+# Welcome to Hoodini-Viz 🦉🎩
 
-**Hoodini-Viz** is a React library for visualizing genomic neighborhoods with phylogenetic context.
+**Hoodini-Viz** is a React library for visualizing genomic neighborhoods with phylogenetic context. It provides an interactive, high-performance visualization platform for exploring gene synteny, protein domains, and evolutionary relationships.
 
 ## Features
 
-- 🌳 **Phylogenetic Tree** - Interactive tree with customizable labels and colors
-- 🧬 **Genomic Neighborhoods** - Visualize genes, domains, and synteny links
-- 🔗 **Protein & Nucleotide Links** - Show homology relationships between sequences
-- 🎨 **Color Palettes** - Customizable color schemes for domains and clusters
-- 📊 **Data Grids** - Tabular views for detailed inspection
-- 🔬 **3D Structures** - ESMFold protein structure viewer
-- 📤 **Export** - SVG export for publication-quality figures
+### Core Visualization
+- 🌳 **Phylogenetic Tree** - Interactive tree with customizable labels, colors, and scale
+- 🧬 **Genomic Neighborhoods** - Visualize genes, ncRNAs, domains, and regions
+- 🔗 **Protein & Nucleotide Links** - Show similarity relationships with identity-based coloring
+- 🎨 **Color Palettes** - Rich palette system with 50+ qualitative, sequential, and diverging palettes
+- 📊 **Data Grids** - Tabular views for detailed inspection of genes, domains, and links
+- 🔬 **3D Structures** - ESMFold protein structure prediction viewer
+- 📤 **Export** - High-quality SVG export with format guides
+
+### Interactive Controls
+- 🎚️ **Visual Settings** - Sliders for Y spacing, label sizes, stroke widths, genome scaling
+- 🔍 **Layer Toggles** - Show/hide tree, genes, domains, protein links, nucleotide links
+- 🎯 **Alignment** - Align neighborhoods by cluster or specific gene
+- 📐 **Format Guides** - Built-in guides for A4, A3, Letter, PowerPoint, and screen formats
+- 🌙 **Theme Support** - Light and dark mode with full customization
+
+### Advanced Features
+- 📈 **Prevalence Filtering** - Filter genes by cluster prevalence percentage
+- 🏷️ **Gene Labels** - Configurable labels showing cluster, product, or custom metadata
+- 🎨 **Palette Customization** - Per-layer palette configuration with color-by options
+- 🔄 **Dynamic Bounds** - Auto-updating view bounds when adjusting scale/spacing
+- ⚡ **Performance** - WebGL rendering with DeckGL for smooth interaction
 
 ## Quick Start
 
@@ -35,44 +50,48 @@ function App() {
 
 Hoodini-Viz accepts data in several formats:
 
-<table>
-  <thead>
-    <tr>
-      <th>Data Type</th>
-      <th>Format</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Genes</td>
-      <td>GFF3</td>
-      <td>Standard genome feature format</td>
-    </tr>
-    <tr>
-      <td>Hoods</td>
-      <td>TSV</td>
-      <td>Hood boundaries with optional align_gene</td>
-    </tr>
-    <tr>
-      <td>Tree</td>
-      <td>Newick</td>
-      <td>Phylogenetic tree topology</td>
-    </tr>
-    <tr>
-      <td>Protein Links</td>
-      <td>TSV</td>
-      <td>Pairwise protein homology</td>
-    </tr>
-    <tr>
-      <td>Nucleotide Links</td>
-      <td>TSV</td>
-      <td>Synteny blocks between sequences</td>
-    </tr>
-    <tr>
-      <td>Domains</td>
-      <td>TSV</td>
-      <td>Protein domain annotations</td>
-    </tr>
-  </tbody>
-</table>
+| Data Type | Format | Description |
+|-----------|--------|-------------|
+| Genes | GFF3/Parquet | Standard genome feature format |
+| ncRNAs | GFF3/Parquet | Non-coding RNA annotations |
+| Hoods | TSV/Parquet | Hood boundaries with optional align_gene |
+| Tree | Newick | Phylogenetic tree topology |
+| Protein Links | TSV/Parquet | Pairwise protein homology (BLAST/Diamond) |
+| Nucleotide Links | TSV/Parquet | Synteny blocks between sequences |
+| Domains | TSV/Parquet | Protein domain annotations (Pfam, TIGRFAM, etc.) |
+| Regions | GFF3/Parquet | Genomic regions (CRISPR, prophage, etc.) |
+
+## Default Color Palettes
+
+Hoodini-Viz comes with carefully selected default palettes:
+
+| Element | Palette | Type |
+|---------|---------|------|
+| Genes | Bold | Qualitative |
+| Tree (Phylo) | Vivid | Qualitative |
+| Regions | Margot2 | Qualitative |
+| ncRNAs | Prism | Qualitative |
+| Domains | Gray | Sequential |
+
+All palettes can be customized through the sidebar controls.
+
+## Navigation
+
+- Use **mouse wheel** to zoom in/out
+- **Click and drag** to pan the view
+- **Click** on genes, domains, or tree nodes for details
+- Use the **scrollbar** for vertical navigation
+- Enable **format guides** for export preparation
+
+## Export
+
+1. Enable **Format Guides** in the sidebar
+2. Select a format preset (e.g., A4 Portrait)
+3. Adjust the view to fit your content within the guides
+4. Click **Export SVG** to download
+
+The export system supports:
+- Scaling to match format dimensions
+- Cropping to guide bounds
+- Ruler scaling with crop
+- High-DPI output for print quality

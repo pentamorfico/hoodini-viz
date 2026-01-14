@@ -79,6 +79,18 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
     onFormatChange(format || null);
   };
 
+  // Handler for guides visibility - auto-select A4 Portrait when enabling guides
+  const handleGuidesVisibleChange = (visible: boolean) => {
+    onGuidesVisibleChange(visible);
+    // If enabling guides and no format is selected, default to A4 Portrait
+    if (visible && !selectedFormat) {
+      const a4Portrait = FORMAT_PRESETS.find(p => p.id === 'a4-portrait');
+      if (a4Portrait) {
+        onFormatChange(a4Portrait);
+      }
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Guide Controls */}
@@ -99,7 +111,7 @@ export const GuideControlsWidget: React.FC<GuideControlsProps> = ({
             <Switch
               id="guides-visible"
               checked={guidesVisible}
-              onCheckedChange={onGuidesVisibleChange}
+              onCheckedChange={handleGuidesVisibleChange}
             />
           </div>
 

@@ -14,6 +14,32 @@ import { useRef, useState } from 'react';
  * - Full theme support
  * - Complete ref API for programmatic control
  * 
+ * ## Features
+ * 
+ * ### Visual Settings
+ * - **Y Spacing**: Vertical distance between tracks (default: 150)
+ * - **Genome X Scale**: Horizontal compression (default: 30%)
+ * - **Gene Height**: Height of gene arrows (default: 60)
+ * - **Label Sizes**: Phylo labels (20) and gene labels (12)
+ * - **Stroke Width**: Gene/domain edge width
+ * 
+ * ### Layer Controls
+ * - Tree, Genes, Domains, ncRNAs, Regions
+ * - Protein Links, Nucleotide Links
+ * - Connecting Lines
+ * 
+ * ### Color Palettes
+ * - **Genes**: Bold (qualitative)
+ * - **Tree**: Vivid (qualitative)
+ * - **Regions**: Margot2 (qualitative)
+ * - **ncRNAs**: Prism (qualitative)
+ * - **Domains**: Gray (sequential)
+ * 
+ * ### Format Guides & Export
+ * - A4, A3, Letter, PowerPoint presets
+ * - SVG export with crop to guides
+ * - Scale ruler with crop option
+ * 
  * **Recommended for most use cases.**
  */
 const meta = {

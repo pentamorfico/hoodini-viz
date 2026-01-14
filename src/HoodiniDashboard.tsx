@@ -461,11 +461,11 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   domainSource: 'all',
   
   // Palettes
-  genePalette: { type: 'qualitative', name: 'Set2', numColors: 8, reverse: false, enabled: true },
+  genePalette: { type: 'qualitative', name: 'Bold', numColors: 8, reverse: false, enabled: true },
   domainPalette: { type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.2, 0.5] },
-  phyloPalette: { type: 'qualitative', name: 'Set2', numColors: 8, reverse: false, enabled: true },
-  ncRNAPalette: { type: 'qualitative', name: 'Set3', numColors: 8, reverse: false, enabled: true },
-  regionPalette: { type: 'qualitative', name: 'Dark2', numColors: 8, reverse: false, enabled: true },
+  phyloPalette: { type: 'qualitative', name: 'Vivid', numColors: 8, reverse: false, enabled: true },
+  ncRNAPalette: { type: 'qualitative', name: 'Prism', numColors: 8, reverse: false, enabled: true },
+  regionPalette: { type: 'qualitative', name: 'Margot2', numColors: 8, reverse: false, enabled: true },
   
   // Links
   proteinLinkConfig: {

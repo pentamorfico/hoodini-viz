@@ -195,10 +195,30 @@ export default function MyVisualization() {
 
 ## ✨ Features
 
-- 🌳 **Phylogenetic Trees** - Interactive visualization with deck.gl
-- 🧬 **Gene Neighborhoods** - Browse genomic regions across species
-- 🔗 **Multi-layer Analysis** - Domains, protein links, ncRNA tracks
-- 🎨 **Customizable Palettes** - Gene, domain, and phylogenetic coloring
+### Core Visualization
+- 🌳 **Phylogenetic Trees** - Interactive visualization with deck.gl, ultrametric support
+- 🧬 **Gene Neighborhoods** - Browse genomic regions across species with alignment
+- 🔗 **Multi-layer Analysis** - Protein domains, protein links, nucleotide links
+- 🧫 **ncRNA Tracks** - Non-coding RNA annotations (tRNA, sRNA, tmRNA, etc.)
+- 📍 **Genomic Regions** - CRISPR arrays, prophage regions, genomic islands
+
+### Visual Customization
+- 🎨 **Color Palettes** - 50+ qualitative, sequential, and diverging palettes
+  - Genes: Bold (default), Vivid, Set1, etc.
+  - Tree: Vivid (default), Okabe-Ito, Tableau, etc.
+  - Regions: Margot2 (default), Dark2, etc.
+  - ncRNAs: Prism (default), Set3, etc.
+  - Domains: Gray sequential (default)
+- 🎚️ **Visual Settings** - Y spacing, genome scale, label sizes, stroke widths
+- 🌙 **Theme Support** - Light and dark mode with full customization
+
+### Interactive Controls
+- 📐 **Format Guides** - A4, A3, Letter, PowerPoint presets for export
+- 📤 **SVG Export** - High-quality publication-ready figures with crop to guides
+- 📈 **Prevalence Filtering** - Filter genes by cluster prevalence percentage
+- 🔍 **Layer Toggles** - Show/hide tree, genes, domains, links, ncRNAs, regions
+
+### Data & UI
 - 📊 **Data Grid** - Browse, filter, and search genomic data
 - 📱 **Responsive UI** - Works on desktop and tablets
 - 🎯 **Full TypeScript** - Complete type safety and IDE support
