@@ -20,8 +20,6 @@
 
 [KBD]: https://github.com/pentamorfico/hoodini
 
----
-
 
 <p align="center">
   <a href="#installation">Installation</a> •
