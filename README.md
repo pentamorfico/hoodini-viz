@@ -1,7 +1,7 @@
 # 🧬 Hoodini-viz
 
 <p align="center">
-  <img src="src/assets/hoodini_logo.svg" alt="Hoodini Logo" width="200"/>
+  <img src="src/assets/hoodini-viz_logo_github.svg" alt="Hoodini Logo" width="200"/>
 </p>
 
 <p align="center">
@@ -193,7 +193,8 @@ exportToSVG(layers, bounds, config, options);
 - **Format presets** - A4, Letter, custom dimensions
 - **DPI control** - 300 DPI for print, 96 DPI for screen
 - **Theme-aware** - Light/dark background export
-- **Adobe Illustrator compatible** - Proper opacity handling
+- **Cross-application compatible** - Works with Adobe Illustrator, Affinity Designer, Inkscape
+- **Manual text positioning** - Uses Y-offset instead of `dominant-baseline` for maximum compatibility
 - **All layers included** - Tree, genes, domains, links, labels
 
 ### Theme Support

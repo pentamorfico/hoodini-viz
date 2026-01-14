@@ -561,13 +561,26 @@ function renderTextLayerScaled(props, worldToSVG, layerId, textScale, themeColor
     if (anchor === 'start') textAnchorSVG = 'start';
     else if (anchor === 'end') textAnchorSVG = 'end';
     
-    let dominantBaseline = 'middle';
-    if (baseline === 'top') dominantBaseline = 'hanging';
-    else if (baseline === 'bottom') dominantBaseline = 'baseline';
+    // Affinity Designer doesn't support dominant-baseline properly.
+    // Use manual dy offset instead for cross-application compatibility.
+    // SVG default baseline is alphabetic (bottom of text).
+    // We calculate dy to shift text based on desired alignment.
+    let dyOffset = 0;
+    if (baseline === 'top' || baseline === 'hanging') {
+      // Text should hang below the anchor point
+      dyOffset = size * 0.85; // Approximate ascender height
+    } else if (baseline === 'center' || baseline === 'middle') {
+      // Text should be centered on the anchor point
+      dyOffset = size * 0.35; // Approximate half of cap-height
+    } else if (baseline === 'bottom' || baseline === 'baseline') {
+      // Text sits on the baseline (default SVG behavior)
+      dyOffset = 0;
+    }
     
-    const transform = angle !== 0 ? ` transform="rotate(${-angle} ${x} ${y})"` : '';
+    const adjustedY = y + dyOffset;
+    const transform = angle !== 0 ? ` transform="rotate(${-angle} ${x} ${adjustedY})"` : '';
     
-    svg += `<text x="${x}" y="${y}" font-family="Arial, sans-serif" font-size="${size}" fill="${textColor}" text-anchor="${textAnchorSVG}" dominant-baseline="${dominantBaseline}"${transform}>${escapeXML(text)}</text>`;
+    svg += `<text x="${x}" y="${adjustedY}" font-family="Arial, sans-serif" font-size="${size}" fill="${textColor}" text-anchor="${textAnchorSVG}"${transform}>${escapeXML(text)}</text>`;
   }
   
   svg += '</g>';
@@ -1582,13 +1595,23 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           svg += `<rect x="${rectX}" y="${rectY}" width="${rectWidth}" height="${rectHeight}" fill="${backgroundFill}" />`;
         }
         
-        // Apply Y offset for better Illustrator compatibility
-        const adjustedY = y + dyOffset;
+        // Apply Y offset for better Illustrator/Affinity compatibility
+        // Affinity Designer doesn't support dominant-baseline, so we use manual Y offsets.
+        // Recalculate dyOffset without relying on dominant-baseline
+        let affinityDyOffset = 0;
+        if (dominantBaseline === 'hanging') {
+          affinityDyOffset = proportionalSize * 0.85;
+        } else if (dominantBaseline === 'middle') {
+          affinityDyOffset = proportionalSize * 0.35;
+        } else if (dominantBaseline === 'alphabetic' || dominantBaseline === 'baseline') {
+          affinityDyOffset = 0;
+        }
+        const adjustedY = y + dyOffset + affinityDyOffset;
         
-        // Add opacity attribute for Illustrator compatibility
+        // Add opacity attribute for Illustrator/Affinity compatibility
         const opacityAttr = textOpacity < 1 ? ` fill-opacity="${textOpacity}"` : '';
         
-        svg += `<text x="${x}" y="${adjustedY}" fill="${fill}"${opacityAttr} font-size="${proportionalSize}px" font-family="sans-serif" text-anchor="${textAnchor}" dominant-baseline="${dominantBaseline}">${text}</text>`;
+        svg += `<text x="${x}" y="${adjustedY}" fill="${fill}"${opacityAttr} font-size="${proportionalSize}px" font-family="sans-serif" text-anchor="${textAnchor}">${text}</text>`;
       }
     }
   }
