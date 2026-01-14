@@ -591,7 +591,7 @@ export interface HoodiniVizProps {
 }
 
 // Toggle verbose debug/perf logging in Storybook
-const DEBUG_LOGS = false;
+const DEBUG_LOGS = true;
 
 const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   newickStr,
@@ -614,6 +614,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   showSVGWidget = false,
   proteinMetadata,
   domainMetadata,
+  nonCodingMetadata,
   colorBy = 'cluster',
   labelBy,
   treeMetadata,
@@ -994,8 +995,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // Track whether we're in manual manipulation mode to prevent alignment reset
   const isManualManipulation = useRef(false);
 
-  // No bundled default non-coding metadata; derive ncRNA metadata from GFF when needed
-  const nonCodingMetadata = null;
+  // Non-coding (ncRNA) metadata is provided by parent and may be empty
 
   // 🚀 PERFORMANCE: Memoize expensive proteinMetadata operations
   const proteinMetadataEntries = React.useMemo(() => {
@@ -1211,15 +1211,74 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
 
   // Apply ncRNA metadata and palette colors
+  // ncRNA metadata is keyed by "seqid:start:end" composite key using ABSOLUTE coordinates
+  // Normalize common field names from external sources to our expected keys
+  const normalizeNcRNAMetadataEntry = (entry: any) => {
+    if (!entry || typeof entry !== 'object') return entry;
+    const m: Record<string, any> = { ...entry };
+    // Normalize sequence field
+    if (!m.sequence) {
+      m.sequence = m.rna_sequence || m.sequence_nt || m.nucleotide_sequence || m.rna_seq || m.seq || null;
+    }
+    // Normalize structure field (dot-bracket)
+    if (!m.structure) {
+      m.structure = m.secondary_structure || m.dot_bracket || m.dbn || m.structure_dbn || null;
+    }
+    // Normalize type/subtype field for display/legend if missing
+    if (!m.type) {
+      m.type = m.ncrna_type || m.rna_type || m.subtype || null;
+    }
+    return m;
+  };
   if (nonCodingMetadata && Object.keys(nonCodingMetadata).length > 0) {
     for (const ncRNAId in newGenomeView.ncRNAsById) {
       const ncRNA = newGenomeView.ncRNAsById[ncRNAId];
-      const originalId = ncRNA.id || ncRNA.originalId;
-      if (originalId && nonCodingMetadata[originalId]) {
-        ncRNA.metadata = nonCodingMetadata[originalId];
-      } else {
-        // Derive from GFF attributes if no metadata found
+      // Prefer original genomic coordinates (pre-alignment) for key construction
+      const rawStart = Number.isFinite(Number(ncRNA.origStart)) ? Number(ncRNA.origStart) : Number(ncRNA.start);
+      const rawEnd = Number.isFinite(Number(ncRNA.origEnd)) ? Number(ncRNA.origEnd) : Number(ncRNA.end);
+      // Build absolute composite key using hood range start
+      const hoodId = ncRNA.hood_id || ncRNA.hoodId;
+      const hoodRange = hoodId ? newGenomeView.hoodRanges?.[hoodId] : null;
+      const hoodAbsStart = hoodRange && Number.isFinite(Number(hoodRange.start)) ? Number(hoodRange.start) : null;
+      let attached = false;
+      if (hoodAbsStart !== null && Number.isFinite(rawStart) && Number.isFinite(rawEnd)) {
+        const absStart = rawStart + hoodAbsStart;
+        const absEnd = rawEnd + hoodAbsStart;
+        const compositeAbsKey = `${ncRNA.seqid}:${absStart}:${absEnd}`;
+        if (nonCodingMetadata[compositeAbsKey]) {
+          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeAbsKey]) };
+          attached = true;
+          if (DEBUG_LOGS) console.log('[ncRNA attach] abs hit', compositeAbsKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        }
+      }
+      if (!attached) {
+        // Fallback 1: try relative composite key (if metadata happens to be relative)
+        const compositeRelKey = `${ncRNA.seqid}:${rawStart}:${rawEnd}`;
+        if (nonCodingMetadata[compositeRelKey]) {
+          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[compositeRelKey]) };
+          attached = true;
+          if (DEBUG_LOGS) console.log('[ncRNA attach] rel hit', compositeRelKey, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        }
+        // Fallback 1b: try swapped start/end (some sources store reverse-strand intervals swapped)
+        if (!attached && nonCodingMetadata[`${ncRNA.seqid}:${rawEnd}:${rawStart}`]) {
+          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[`${ncRNA.seqid}:${rawEnd}:${rawStart}`]) };
+          attached = true;
+          if (DEBUG_LOGS) console.log('[ncRNA attach] rel-swap hit', `${ncRNA.seqid}:${rawEnd}:${rawStart}`, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        }
+      }
+      if (!attached) {
+        // Fallback 2: try originalId for backward compatibility
+        const originalId = ncRNA.id || ncRNA.originalId;
+        if (originalId && nonCodingMetadata[originalId]) {
+          ncRNA.metadata = { ...(ncRNA.metadata || {}), ...normalizeNcRNAMetadataEntry(nonCodingMetadata[originalId]) };
+          attached = true;
+          if (DEBUG_LOGS) console.log('[ncRNA attach] id hit', originalId, 'seq?', !!ncRNA.metadata?.sequence, 'struct?', !!ncRNA.metadata?.structure);
+        }
+      }
+      if (!attached) {
+        // No metadata found; ensure metadata object exists so sidebar doesn't crash
         if (!ncRNA.metadata) ncRNA.metadata = {};
+        if (DEBUG_LOGS) console.log('[ncRNA attach] miss', ncRNA.seqid, rawStart, rawEnd, 'hood', hoodId, 'absStart', hoodAbsStart);
       }
     }
   } else {
@@ -2890,13 +2949,14 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     }
 
     if (object.metadata) {
-      // Format metadata as HTML table, but exclude 'sequence' field (case-insensitive),
+      // Format metadata as HTML table, but exclude 'sequence' and 'structure' fields (case-insensitive),
       // and skip any values that are empty, null, undefined, or objects to avoid '[object Object]' rendering.
       const meta = object.metadata || {};
       const entries = Object.entries(meta).filter(([k, v]) => {
         if (!k) return false;
         const key = String(k).toLowerCase();
         if (key === 'sequence') return false;
+        if (key === 'structure') return false; // Exclude structure from tooltips (too large)
         if (key === 'attributes') return false; // Handle separately below
         if (key === 'clusterid' || key === 'cluster_id') return false; // Use 'cluster' field instead (clusterId is auto-generated)
         if (isEmptyValue(v)) return false;
@@ -8854,6 +8914,67 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             const isHoodObject = object && object.type === 'hood';
             const isRegionObject = object && object.type === 'region';
             const isNcRNAObject = object && (object.type === 'ncRNA' || object.type === 'ncRNA_gene');
+
+            // Best-effort metadata hydration for ncRNA clicks (ensures sidebar has sequence/structure)
+            const ensureNcRNAMetadata = (ncObj) => {
+              try {
+                if (!ncObj || !nonCodingMetadata || Object.keys(nonCodingMetadata).length === 0) return;
+                // Normalize fields (duplicate of creation-time normalization to be safe at click time)
+                const normalizeEntry = (entry) => {
+                  if (!entry || typeof entry !== 'object') return entry;
+                  const m = { ...entry };
+                  if (!m.sequence) m.sequence = m.rna_sequence || m.sequence_nt || m.nucleotide_sequence || m.rna_seq || m.seq || null;
+                  if (!m.structure) m.structure = m.secondary_structure || m.dot_bracket || m.dbn || m.structure_dbn || null;
+                  if (!m.type) m.type = m.ncrna_type || m.rna_type || m.subtype || null;
+                  return m;
+                };
+
+                const gv = genomeViewRef.current;
+                const hoodId = ncObj.hood_id || ncObj.hoodId || (gv && gv.getHoodIdFromSeqid ? gv.getHoodIdFromSeqid(ncObj.seqid) : null);
+                const hoodRange = hoodId && gv && gv.hoodRanges ? gv.hoodRanges[hoodId] : null;
+                const hoodAbsStart = hoodRange && Number.isFinite(Number(hoodRange.start)) ? Number(hoodRange.start) : null;
+                const rawStart = Number.isFinite(Number(ncObj.origStart)) ? Number(ncObj.origStart) : Number(ncObj.start);
+                const rawEnd = Number.isFinite(Number(ncObj.origEnd)) ? Number(ncObj.origEnd) : Number(ncObj.end);
+
+                const tryAttach = (key) => {
+                  if (key && nonCodingMetadata[key]) {
+                    ncObj.metadata = { ...(ncObj.metadata || {}), ...normalizeEntry(nonCodingMetadata[key]) };
+                    return true;
+                  }
+                  return false;
+                };
+
+                if (hoodAbsStart !== null && Number.isFinite(rawStart) && Number.isFinite(rawEnd)) {
+                  const absStart = rawStart + hoodAbsStart;
+                  const absEnd = rawEnd + hoodAbsStart;
+                  const absKey = `${ncObj.seqid}:${absStart}:${absEnd}`;
+                  if (tryAttach(absKey)) {
+                    if (DEBUG_LOGS) console.log('[ncRNA click] abs hit', absKey, 'seq?', !!ncObj.metadata?.sequence, 'struct?', !!ncObj.metadata?.structure);
+                    return;
+                  }
+                }
+
+                const relKey = `${ncObj.seqid}:${rawStart}:${rawEnd}`;
+                if (tryAttach(relKey)) {
+                  if (DEBUG_LOGS) console.log('[ncRNA click] rel hit', relKey, 'seq?', !!ncObj.metadata?.sequence, 'struct?', !!ncObj.metadata?.structure);
+                  return;
+                }
+
+                const swapKey = `${ncObj.seqid}:${rawEnd}:${rawStart}`;
+                if (tryAttach(swapKey)) {
+                  if (DEBUG_LOGS) console.log('[ncRNA click] rel-swap hit', swapKey, 'seq?', !!ncObj.metadata?.sequence, 'struct?', !!ncObj.metadata?.structure);
+                  return;
+                }
+
+                const origId = ncObj.id || ncObj.originalId;
+                if (tryAttach(origId)) {
+                  if (DEBUG_LOGS) console.log('[ncRNA click] id hit', origId, 'seq?', !!ncObj.metadata?.sequence, 'struct?', !!ncObj.metadata?.structure);
+                  return;
+                }
+              } catch (err) {
+                console.debug('[HoodiniViz] ncRNA click-time metadata hydration failed', err);
+              }
+            };
             
             if (isGeneObject) {
               // OVERLAY STRATEGY: Pass the full gene object to avoid filtering large arrays
@@ -8880,6 +9001,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             } else if (isNcRNAObject) {
               // Trigger ncRNA glow
               triggerNcRNAFlash(object);
+              ensureNcRNAMetadata(object);
               stopGeneFlash();
               stopHoodFlash();
               stopTreeLeafFlash();

@@ -20,6 +20,7 @@ const PLACEHOLDERS = {
   proteinMetadataParquetUrl: 'data:application/octet-stream;base64,##HOODINI:PARQUET_PROT_META_B64##!',
   domainsMetadataParquetUrl: 'data:application/octet-stream;base64,##HOODINI:PARQUET_DOM_META_B64##!',
   treeMetadataParquetUrl: 'data:application/octet-stream;base64,##HOODINI:PARQUET_TREE_META_B64##!',
+  ncRNAMetadataParquetUrl: 'data:application/octet-stream;base64,##HOODINI:PARQUET_NCRNA_META_B64##!',
   newickUrl: 'data:text/plain;base64,##HOODINI:NEWICK_B64##!',
   gffTextUrl: 'data:text/plain;base64,##HOODINI:TSV_GFF_B64##!',
   proteinLinksTextUrl: 'data:text/plain;base64,##HOODINI:TSV_PROT_LINKS_B64##!',
@@ -29,6 +30,7 @@ const PLACEHOLDERS = {
   proteinMetadataTextUrl: 'data:text/plain;base64,##HOODINI:TSV_PROT_META_B64##!',
   domainsMetadataTextUrl: 'data:text/plain;base64,##HOODINI:TSV_DOM_META_B64##!',
   treeMetadataTextUrl: 'data:text/plain;base64,##HOODINI:TSV_TREE_META_B64##!',
+  ncRNAMetadataTextUrl: 'data:text/plain;base64,##HOODINI:TSV_NCRNA_META_B64##!',
 };
 
 // Helper to get first value from glob result or empty string
@@ -50,6 +52,7 @@ const REAL_DATA = {
   proteinMetadataParquetUrl: parquetGlob['./data/parquet/protein_metadata.parquet'] || '',
   domainsMetadataParquetUrl: parquetGlob['./data/parquet/domains_metadata.parquet'] || '',
   treeMetadataParquetUrl: parquetGlob['./data/parquet/tree_metadata.parquet'] || '',
+  ncRNAMetadataParquetUrl: parquetGlob['./data/parquet/ncrna_metadata.parquet'] || '',
   newickUrl: getGlobValue(newickGlob),
   gffTextUrl: tsvGlob['./data/tsv/gff.gff'] || '',
   proteinLinksTextUrl: tsvGlob['./data/tsv/protein_links.txt'] || '',
@@ -59,6 +62,7 @@ const REAL_DATA = {
   proteinMetadataTextUrl: tsvGlob['./data/tsv/protein_metadata.txt'] || '',
   domainsMetadataTextUrl: tsvGlob['./data/tsv/domains_metadata.txt'] || '',
   treeMetadataTextUrl: tsvGlob['./data/tsv/tree_metadata.txt'] || '',
+  ncRNAMetadataTextUrl: tsvGlob['./data/tsv/ncrna_metadata.txt'] || '',
 };
 
 // Export the appropriate URLs based on mode
@@ -73,6 +77,7 @@ export const hoodsParquetUrl = dataUrls.hoodsParquetUrl;
 export const proteinMetadataParquetUrl = dataUrls.proteinMetadataParquetUrl;
 export const domainsMetadataParquetUrl = dataUrls.domainsMetadataParquetUrl;
 export const treeMetadataParquetUrl = dataUrls.treeMetadataParquetUrl;
+export const ncRNAMetadataParquetUrl = dataUrls.ncRNAMetadataParquetUrl;
 
 // Text/TSV URLs
 export const gffTextUrl = dataUrls.gffTextUrl;
@@ -83,6 +88,7 @@ export const hoodsTextUrl = dataUrls.hoodsTextUrl;
 export const proteinMetadataTextUrl = dataUrls.proteinMetadataTextUrl;
 export const domainsMetadataTextUrl = dataUrls.domainsMetadataTextUrl;
 export const treeMetadataTextUrl = dataUrls.treeMetadataTextUrl;
+export const ncRNAMetadataTextUrl = dataUrls.ncRNAMetadataTextUrl;
 
 // Newick URL (may be gzip-compressed - HoodiniDashboard handles decompression)
 export const newickUrl = dataUrls.newickUrl;

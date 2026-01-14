@@ -9,6 +9,7 @@ import {
   proteinMetadataParquetUrl,
   domainsMetadataParquetUrl,
   treeMetadataParquetUrl,
+  ncRNAMetadataParquetUrl,
   gffTextUrl,
   proteinLinksTextUrl,
   nucleotideLinksTextUrl,
@@ -17,6 +18,7 @@ import {
   proteinMetadataTextUrl,
   domainsMetadataTextUrl,
   treeMetadataTextUrl,
+  ncRNAMetadataTextUrl,
   newickUrl,
 } from './dataUrls';
 
@@ -33,6 +35,7 @@ function App() {
           proteinMetadataParquet: proteinMetadataParquetUrl,
           domainsMetadataParquet: domainsMetadataParquetUrl,
           treeMetadataParquet: treeMetadataParquetUrl,
+          ncRNAMetadataParquet: ncRNAMetadataParquetUrl,
           gffText: gffTextUrl,
           proteinLinksText: proteinLinksTextUrl,
           nucleotideLinksText: nucleotideLinksTextUrl,
@@ -41,6 +44,7 @@ function App() {
           proteinMetadataText: proteinMetadataTextUrl,
           domainsMetadataText: domainsMetadataTextUrl,
           treeMetadataText: treeMetadataTextUrl,
+          ncRNAMetadataText: ncRNAMetadataTextUrl,
           newick: newickUrl,
         }}
         showSidebar={true}

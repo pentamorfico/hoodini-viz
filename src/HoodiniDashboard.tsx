@@ -128,6 +128,8 @@ export interface DataPaths {
   domainsMetadataParquet?: string;
   /** Path to tree metadata parquet file */
   treeMetadataParquet?: string;
+  /** Path to ncRNA metadata parquet file */
+  ncRNAMetadataParquet?: string;
   
   // Text/TSV paths (fallback)
   /** Path to GFF features text file */
@@ -146,6 +148,8 @@ export interface DataPaths {
   domainsMetadataText?: string;
   /** Path to tree metadata TSV file */
   treeMetadataText?: string;
+  /** Path to ncRNA metadata TSV file (seqid, start, end, type, sequence, structure) */
+  ncRNAMetadataText?: string;
   
   /** Path to Newick tree file */
   newick?: string;
@@ -161,6 +165,7 @@ export interface ParsedData {
   proteinMetadata: Record<string, any>;
   domainMetadata: Record<string, any>;
   treeMetadata: Record<string, any>;
+  ncRNAMetadata: Record<string, any>;
   newickStr: string;
 }
 
@@ -912,6 +917,37 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
         results.treeMetadata = results.treeMetadata || {};
         console.log('[loadData] Final tree metadata count:', Object.keys(results.treeMetadata).length);
         
+        // Load ncRNA Metadata (seqid, start, end, type, sequence, structure)
+        if (dataPaths.ncRNAMetadataParquet || dataPaths.ncRNAMetadataText) {
+          console.log('[loadData] Loading ncRNA Metadata...');
+          if (preferParquet && dataPaths.ncRNAMetadataParquet) {
+            const parquetData = await tryLoadParquet(dataPaths.ncRNAMetadataParquet);
+            if (parquetData) {
+              const byKey: Record<string, any> = {};
+              for (const row of parquetData) {
+                const seqid = row.seqid;
+                const start = parseInt(row.start, 10);
+                const end = parseInt(row.end, 10);
+                if (seqid && !isNaN(start) && !isNaN(end)) {
+                  const key = `${seqid}:${start}:${end}`;
+                  const { seqid: _s, start: _st, end: _e, ...metadata } = row;
+                  byKey[key] = metadata;
+                }
+              }
+              results.ncRNAMetadata = byKey;
+              console.log('[loadData] ncRNA Metadata from parquet:', Object.keys(byKey).length);
+            }
+          }
+          if (!results.ncRNAMetadata && dataPaths.ncRNAMetadataText) {
+            console.log('[loadData] Loading ncRNA metadata from text...');
+            const text = await fetchCompressedText(dataPaths.ncRNAMetadataText);
+            results.ncRNAMetadata = await parseNonCodingMetadataOptimized(text);
+            console.log('[loadData] Parsed ncRNA metadata keys:', Object.keys(results.ncRNAMetadata || {}).length);
+          }
+        }
+        results.ncRNAMetadata = results.ncRNAMetadata || {};
+        console.log('[loadData] Final ncRNA metadata count:', Object.keys(results.ncRNAMetadata).length);
+        
         // Load Newick (may be gzip-compressed in template mode)
         if (dataPaths.newick) {
           try {
@@ -1015,11 +1051,72 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
     // HoodiniViz passes the object directly, not wrapped in {object: ...}
     const object = objectOrInfo?.object ?? objectOrInfo;
     if (!object) return;
+
+    // ncRNA metadata hydration fallback (ensures sequence/structure for sidebar)
+    const hydrateNcRNAMetadata = (ncObj: any) => {
+      try {
+        const metadataMap = parsedData?.ncRNAMetadata || {};
+        if (!metadataMap || Object.keys(metadataMap).length === 0) return ncObj;
+        if (ncObj?.metadata?.sequence || ncObj?.metadata?.structure) return ncObj;
+
+        const normalizeEntry = (entry: any) => {
+          if (!entry || typeof entry !== 'object') return entry;
+          const m: Record<string, any> = { ...entry };
+          if (!m.sequence) m.sequence = m.rna_sequence || m.sequence_nt || m.nucleotide_sequence || m.rna_seq || m.seq || null;
+          if (!m.structure) m.structure = m.secondary_structure || m.dot_bracket || m.dbn || m.structure_dbn || null;
+          if (!m.type) m.type = m.ncrna_type || m.rna_type || m.subtype || null;
+          return m;
+        };
+
+        const gv = vizRef.current?.genomeView;
+        const hoodId = ncObj.hood_id || ncObj.hoodId || (gv && gv.getHoodIdFromSeqid ? gv.getHoodIdFromSeqid(ncObj.seqid) : null);
+        const hoodRange = hoodId && gv?.hoodRanges ? gv.hoodRanges[hoodId] : null;
+        const hoodAbsStart = hoodRange && Number.isFinite(Number(hoodRange.start)) ? Number(hoodRange.start) : null;
+        const rawStart = Number.isFinite(Number(ncObj.origStart)) ? Number(ncObj.origStart) : Number(ncObj.start);
+        const rawEnd = Number.isFinite(Number(ncObj.origEnd)) ? Number(ncObj.origEnd) : Number(ncObj.end);
+
+        const tryAttach = (key: string | null | undefined) => {
+          if (!key) return false;
+          const entry = metadataMap[key];
+          if (entry) {
+            ncObj.metadata = { ...(ncObj.metadata || {}), ...normalizeEntry(entry) };
+            if (process.env.NODE_ENV !== 'production') {
+              console.debug('[Dashboard ncRNA hydrate] key', key, 'seq?', !!ncObj.metadata?.sequence, 'struct?', !!ncObj.metadata?.structure);
+            }
+            return true;
+          }
+          return false;
+        };
+
+        if (hoodAbsStart !== null && Number.isFinite(rawStart) && Number.isFinite(rawEnd)) {
+          const absKey = `${ncObj.seqid}:${rawStart + hoodAbsStart}:${rawEnd + hoodAbsStart}`;
+          if (tryAttach(absKey)) return ncObj;
+        }
+
+        const relKey = `${ncObj.seqid}:${rawStart}:${rawEnd}`;
+        if (tryAttach(relKey)) return ncObj;
+
+        // Try swapped start/end for reverse-strand datasets
+        const swapKey = `${ncObj.seqid}:${rawEnd}:${rawStart}`;
+        if (tryAttach(swapKey)) return ncObj;
+
+        const origId = ncObj.id || ncObj.originalId;
+        tryAttach(origId);
+        return ncObj;
+      } catch (err) {
+        console.debug('[Dashboard] ncRNA hydration failed', err);
+        return ncObj;
+      }
+    };
+
+    if (object?.type === 'ncRNA' || object?.type === 'ncRNA_gene') {
+      hydrateNcRNAMetadata(object);
+    }
     
     setSelectedObject(object);
     onObjectClick?.(object);
     onSelectionChange?.(object);
-  }, [onObjectClick, onSelectionChange]);
+  }, [onObjectClick, onSelectionChange, parsedData, vizRef]);
 
   // ============================================================================
   // ZOOM HANDLERS
@@ -1512,6 +1609,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               proteinMetadata={parsedData.proteinMetadata}
               domainMetadata={parsedData.domainMetadata}
               treeMetadata={parsedData.treeMetadata}
+              nonCodingMetadata={parsedData.ncRNAMetadata}
               config={config}
               // Alignment
               alignCluster={state.alignCluster}

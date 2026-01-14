@@ -868,7 +868,7 @@ export function AppSidebar({
                                 
                                 {/* Show any other metadata fields not already displayed (excluding sequence, clusterId) */}
                                 {Object.entries(displayMeta)
-                                  .filter(([key, value]) => !['product', 'cluster', 'sequence', 'clusterId', 'cluster_id', 'attributes'].includes(key) && !isEmptyValue(value))
+                                  .filter(([key, value]) => !['product', 'cluster', 'sequence', 'structure', 'clusterId', 'cluster_id', 'attributes'].includes(key) && !isEmptyValue(value))
                                   .map(([key, value]) => {
                                     // Check if this field is the one being used for gene coloring
                                     const isColorField = geneColorBy === key;
@@ -891,8 +891,37 @@ export function AppSidebar({
                                     );
                                   })}
                                 
-                                {/* Protein Sequence - show at the very end if available */}
-                                {selectedGene.metadata.sequence && (
+                                {/* ncRNA Sequence / Structure */}
+                                {(selectedGene.type === 'ncRNA' || selectedGene.type === 'ncRNA_gene') && selectedGene.metadata.sequence && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <Badge variant="outline" className="text-xs">ncRNA Sequence</Badge>
+                                      {(() => {
+                                        const cleanSequence = selectedGene.metadata.sequence.replace(/\*+$/, '');
+                                        return (
+                                          <span className="text-xs text-muted-foreground">Length {cleanSequence.length} nt</span>
+                                        );
+                                      })()}
+                                    </div>
+                                    <div className="mt-1 p-2 bg-muted rounded text-xs font-mono break-all leading-relaxed">
+                                      {selectedGene.metadata.sequence.replace(/\*+$/, '')}
+                                    </div>
+                                    {selectedGene.metadata.structure && (
+                                      <div className="space-y-1">
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant="outline" className="text-xs">Secondary Structure</Badge>
+                                          <span className="text-xs text-muted-foreground">Dot-bracket</span>
+                                        </div>
+                                        <div className="p-2 bg-muted rounded text-xs font-mono" style={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+                                          {String(selectedGene.metadata.structure)}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* Protein Sequence - show at the very end if available (non-ncRNA only) */}
+                                {!(selectedGene.type === 'ncRNA' || selectedGene.type === 'ncRNA_gene') && selectedGene.metadata.sequence && (
                                   <div className="space-y-2">
                                     <div className="flex items-center gap-2">
                                       <Badge variant="outline" className="text-xs">Protein Sequence</Badge>
