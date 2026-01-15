@@ -1,0 +1,347 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Welcome" />
+
+# Hoodini-Viz 🧬
+
+**GPU-Accelerated Visualization Library for Comparative Genomics & Phylogenomics**
+
+Hoodini-Viz is a high-performance React library for interactive visualization of phylogenetic trees, gene neighborhoods (synteny), protein domains, and homology relationships at genomic scale. Built on [deck.gl](https://deck.gl/) and WebGL, it enables fluid exploration of datasets with thousands of genes and complex evolutionary relationships.
+
+---
+
+## 🎯 Designed For
+
+- **Comparative genomics** and synteny analysis
+- **Gene neighborhood/cluster visualization** (genomic islands, operons, gene clusters)
+- **Phylogenomics** and evolutionary studies
+- **Protein domain architecture** visualization
+- **Multi-scale genome browsers**
+
+---
+
+## ✨ Key Features
+
+### GPU-Powered Rendering
+
+Built on deck.gl for WebGL-accelerated visualization:
+
+<table>
+  <thead>
+    <tr>
+      <th>Layer Type</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>LineLayer</strong></td>
+      <td>Phylogenetic tree edges</td>
+    </tr>
+    <tr>
+      <td><strong>PolygonLayer</strong></td>
+      <td>Gene arrows, domains, synteny blocks</td>
+    </tr>
+    <tr>
+      <td><strong>PathLayer</strong></td>
+      <td>Bézier curves for protein links</td>
+    </tr>
+    <tr>
+      <td><strong>ScatterplotLayer</strong></td>
+      <td>Tree nodes with interactions</td>
+    </tr>
+    <tr>
+      <td><strong>TextLayer</strong></td>
+      <td>Labels with dynamic sizing</td>
+    </tr>
+  </tbody>
+</table>
+
+### Core Visualization Components
+
+- 🌳 **Phylogenetic Tree** - Newick parsing, ultrametric conversion, customizable styling
+- 🧬 **Genomic Neighborhoods** - Gene arrows with strand orientation, track alignment
+- 🔬 **Protein Domains** - Multi-source annotations (Pfam, InterPro, CDD), polygon clipping
+- 🔗 **Homology Links** - Protein similarity curves, nucleotide synteny blocks
+- 📊 **Interactive Data Grid** - Virtualized browser for genes, domains, links
+
+### Advanced Features
+
+- 🎨 **50+ Color Palettes** - Qualitative, sequential, and diverging via dicopal
+- 🔬 **3D Structure Prediction** - ESMFold (≤400aa) and Boltz2 (>400aa) integration
+- 🧫 **RNA Structure Viewer** - NAview-inspired secondary structure visualization
+- 📤 **Publication-Ready Export** - SVG with format guides (A4, Letter, custom)
+- 🌙 **Theme Support** - Light/dark mode with system preference detection
+
+---
+
+## 🚀 Quick Start
+
+```bash
+npm install hoodini-viz
+```
+
+### Full Dashboard (Recommended)
+
+```tsx
+import { HoodiniDashboard } from 'hoodini-viz';
+
+function App() {
+  return (
+    <HoodiniDashboard
+      dataPaths={{
+        gffParquet: '/data/genes.parquet',
+        hoodsParquet: '/data/hoods.parquet',
+        newick: '/data/tree.nwk',
+      }}
+      showSidebar={true}
+    />
+  );
+}
+```
+
+### Core Visualization Only
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+
+function App() {
+  return (
+    <HoodiniViz
+      newickStr={newickData}
+      gffFeatures={genes}
+      proteinLinks={links}
+      genePalette={{ type: 'qualitative', name: 'Bold', numColors: 8, enabled: true }}
+      onObjectClick={(info) => console.log('Clicked:', info.object)}
+    />
+  );
+}
+```
+
+---
+
+## 📁 Supported Data Formats
+
+<table>
+  <thead>
+    <tr>
+      <th>Data Type</th>
+      <th>Format</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Genes</strong></td>
+      <td>GFF3 / Parquet</td>
+      <td>Standard genome feature format</td>
+    </tr>
+    <tr>
+      <td><strong>Hoods</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Neighborhood boundaries + align_gene</td>
+    </tr>
+    <tr>
+      <td><strong>Tree</strong></td>
+      <td>Newick</td>
+      <td>Phylogenetic tree topology</td>
+    </tr>
+    <tr>
+      <td><strong>Protein Links</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Pairwise homology (BLAST/Diamond)</td>
+    </tr>
+    <tr>
+      <td><strong>Nucleotide Links</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Synteny blocks between sequences</td>
+    </tr>
+    <tr>
+      <td><strong>Domains</strong></td>
+      <td>TSV / Parquet</td>
+      <td>Protein domain annotations</td>
+    </tr>
+    <tr>
+      <td><strong>Regions</strong></td>
+      <td>GFF3 / Parquet</td>
+      <td>Genomic regions (CRISPR, prophage, etc.)</td>
+    </tr>
+  </tbody>
+</table>
+
+> 💡 **Tip:** Parquet files load 3-10x faster than TSV. Use the included `convert_to_parquet.py` script.
+
+---
+
+## 🎨 Default Color Palettes
+
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Palette</th>
+      <th>Type</th>
+      <th>Use Case</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Genes</strong></td>
+      <td>Bold</td>
+      <td>Qualitative</td>
+      <td>Cluster coloring</td>
+    </tr>
+    <tr>
+      <td><strong>Tree</strong></td>
+      <td>Vivid</td>
+      <td>Qualitative</td>
+      <td>Taxonomic labels</td>
+    </tr>
+    <tr>
+      <td><strong>Domains</strong></td>
+      <td>Gray</td>
+      <td>Sequential</td>
+      <td>E-value gradient</td>
+    </tr>
+    <tr>
+      <td><strong>Regions</strong></td>
+      <td>Margot2</td>
+      <td>Qualitative</td>
+      <td>Region types</td>
+    </tr>
+    <tr>
+      <td><strong>ncRNAs</strong></td>
+      <td>Prism</td>
+      <td>Qualitative</td>
+      <td>RNA types</td>
+    </tr>
+  </tbody>
+</table>
+
+All palettes support:
+- Reverse order
+- Custom color counts
+- Alpha transparency ranges
+- Desaturation by prevalence
+
+---
+
+## 🖱️ Navigation
+
+<table>
+  <thead>
+    <tr>
+      <th>Action</th>
+      <th>Control</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Zoom</strong></td>
+      <td>Mouse wheel</td>
+    </tr>
+    <tr>
+      <td><strong>Pan</strong></td>
+      <td>Click + drag</td>
+    </tr>
+    <tr>
+      <td><strong>Select</strong></td>
+      <td>Click on feature</td>
+    </tr>
+    <tr>
+      <td><strong>Details</strong></td>
+      <td>Hover for tooltip</td>
+    </tr>
+    <tr>
+      <td><strong>Vertical scroll</strong></td>
+      <td>Scrollbar widget</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 📤 SVG Export
+
+1. Enable **Format Guides** in sidebar
+2. Select format preset (A4, Letter, PowerPoint, etc.)
+3. Adjust view to fit content within guides
+4. Click **Export SVG**
+
+Export features:
+- Scale to format dimensions
+- Crop to guide bounds
+- Cross-application compatibility (Illustrator, Affinity, Inkscape)
+- High-DPI output for print (300 DPI)
+
+---
+
+## 📚 Documentation
+
+- **Getting Started** - Installation and basic usage
+- **API Reference** - Complete props documentation
+- **Examples** - Interactive component stories
+
+---
+
+## 🔧 Performance Tips
+
+<table>
+  <thead>
+    <tr>
+      <th>Dataset Size</th>
+      <th>Recommendation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Small (&lt;1,000 genes)</td>
+      <td>Default settings</td>
+    </tr>
+    <tr>
+      <td>Medium (1K-10K genes)</td>
+      <td>Enable Parquet loading</td>
+    </tr>
+    <tr>
+      <td>Large (10K-100K genes)</td>
+      <td>Filter links by identity threshold</td>
+    </tr>
+    <tr>
+      <td>Very Large (&gt;100K genes)</td>
+      <td>Server-side pre-filtering</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 🌐 Browser Support
+
+<table>
+  <thead>
+    <tr>
+      <th>Browser</th>
+      <th>Version</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome</td>
+      <td>90+</td>
+    </tr>
+    <tr>
+      <td>Firefox</td>
+      <td>88+</td>
+    </tr>
+    <tr>
+      <td>Safari</td>
+      <td>14+</td>
+    </tr>
+    <tr>
+      <td>Edge</td>
+      <td>90+</td>
+    </tr>
+  </tbody>
+</table>
+
+Requires WebGL 2.0 support.

@@ -1,0 +1,511 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Docs/Getting Started" />
+
+# Getting Started
+
+This guide covers installation, basic usage, and data format specifications for Hoodini-Viz.
+
+---
+
+## Installation
+
+### npm
+
+```bash
+npm install hoodini-viz
+```
+
+### yarn
+
+```bash
+yarn add hoodini-viz
+```
+
+### pnpm
+
+```bash
+pnpm add hoodini-viz
+```
+
+### Peer Dependencies
+
+Ensure React is installed in your project:
+
+```json
+{
+  "react": "^18.0.0 || ^19.0.0",
+  "react-dom": "^18.0.0 || ^19.0.0"
+}
+```
+
+---
+
+## Basic Usage
+
+### Option 1: HoodiniDashboard (Recommended)
+
+The full-featured dashboard with sidebar controls, data loading, and all visualization features.
+
+```tsx
+import { HoodiniDashboard } from 'hoodini-viz';
+
+function App() {
+  return (
+    <HoodiniDashboard
+      dataPaths={{
+        gffParquet: '/data/genes.parquet',
+        hoodsParquet: '/data/hoods.parquet',
+        newick: '/data/tree.nwk',
+        proteinLinksParquet: '/data/protein_links.parquet',
+        domainsParquet: '/data/domains.parquet',
+        proteinMetadataParquet: '/data/protein_metadata.parquet',
+        treeMetadataParquet: '/data/tree_metadata.parquet',
+      }}
+      initialState={{
+        ultrametric: true,
+        colorBy: 'cluster',
+      }}
+      showSidebar={true}
+      showDataGrid={true}
+    />
+  );
+}
+```
+
+### Option 2: HoodiniViz (Core Visualization)
+
+For custom integrations where you handle data loading yourself.
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+
+function CustomViewer({ newick, genes, links, domains, hoods }) {
+  return (
+    <HoodiniViz
+      // Data
+      newickStr={newick}
+      gffFeatures={genes}
+      proteinLinks={links}
+      domainsByGene={domains}
+      hoods={hoods}
+      
+      // Visual settings
+      ultrametric={false}
+      geneHeight={60}
+      
+      // Layer visibility
+      showTreeLayer={true}
+      showGeneLayer={true}
+      showDomainLayer={true}
+      showProteinLinkLayer={true}
+      
+      // Palettes
+      genePalette={{ type: 'qualitative', name: 'Bold', numColors: 8, enabled: true }}
+      phyloPalette={{ type: 'qualitative', name: 'Vivid', numColors: 8, enabled: true }}
+      domainPalette={{ type: 'sequential', name: 'Gray', numColors: 9, enabled: true }}
+      
+      // Callbacks
+      onObjectClick={(info) => {
+        console.log('Clicked:', info.object);
+      }}
+    />
+  );
+}
+```
+
+---
+
+## Data Formats
+
+### GFF3 (Genes, ncRNAs, Regions)
+
+Standard GFF3 format with tab-separated fields:
+
+```
+##gff-version 3
+seqid    source    type    start    end    score    strand    phase    attributes
+```
+
+**Gene Example:**
+```
+NC_000001.1    RefSeq    CDS    1000    2500    .    +    .    ID=gene001;Name=geneA;product=Hypothetical protein
+NC_000001.1    RefSeq    CDS    2700    4200    .    -    .    ID=gene002;Name=geneB;product=ABC transporter
+```
+
+**ncRNA Example:**
+```
+NC_000001.1    Rfam    ncRNA    3000    3100    .    +    .    ID=ncrna_1;Name=tRNA-Ala;ncRNA_class=tRNA
+```
+
+**Region Example:**
+```
+NC_000001.1    CRISPRFinder    region    5000    5500    .    .    .    ID=crispr_1;Name=CRISPR_array;region_type=CRISPR
+```
+
+---
+
+### Newick (Phylogenetic Tree)
+
+Standard Newick format with optional branch lengths:
+
+```
+((species_A:0.1,species_B:0.15):0.05,(species_C:0.12,species_D:0.18):0.08);
+```
+
+**Features:**
+- Branch lengths after colon (`:0.1`)
+- Internal node labels supported
+- Semicolon terminator required
+
+---
+
+### Hoods (Gene Neighborhoods)
+
+Tab-separated file defining genomic windows:
+
+```
+hood_id    seqid    start    end    align_gene
+hood_001    NC_000001.1    0    50000    gene003
+hood_002    NC_000002.1    25000    75000    gene050
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>hood_id</code></td>
+      <td>string</td>
+      <td>Unique identifier</td>
+    </tr>
+    <tr>
+      <td><code>seqid</code></td>
+      <td>string</td>
+      <td>Sequence/contig ID</td>
+    </tr>
+    <tr>
+      <td><code>start</code></td>
+      <td>integer</td>
+      <td>Window start position</td>
+    </tr>
+    <tr>
+      <td><code>end</code></td>
+      <td>integer</td>
+      <td>Window end position</td>
+    </tr>
+    <tr>
+      <td><code>align_gene</code></td>
+      <td>string (optional)</td>
+      <td>Gene to align by</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+### Protein Links (Homology)
+
+Tab-separated file for pairwise protein similarity:
+
+```
+geneA    geneB    identity
+gene001    gene050    85.5
+gene002    gene051    72.3
+gene003    gene052    91.2
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>geneA</code></td>
+      <td>string</td>
+      <td>First gene ID</td>
+    </tr>
+    <tr>
+      <td><code>geneB</code></td>
+      <td>string</td>
+      <td>Second gene ID</td>
+    </tr>
+    <tr>
+      <td><code>identity</code></td>
+      <td>float</td>
+      <td>Percent identity (0-100)</td>
+    </tr>
+  </tbody>
+</table>
+
+> 💡 **From BLAST/Diamond:** Use `-outfmt 6` and extract columns 1, 2, 3.
+
+---
+
+### Nucleotide Links (Synteny)
+
+Tab-separated file for synteny blocks:
+
+```
+seqidA    startA    endA    seqidB    startB    endB    identity
+NC_001    1000    5000    NC_002    2000    6000    92.5
+NC_001    8000    12000    NC_003    5000    9000    87.3
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>seqidA</code></td>
+      <td>string</td>
+      <td>First sequence ID</td>
+    </tr>
+    <tr>
+      <td><code>startA</code></td>
+      <td>integer</td>
+      <td>Start on sequence A</td>
+    </tr>
+    <tr>
+      <td><code>endA</code></td>
+      <td>integer</td>
+      <td>End on sequence A</td>
+    </tr>
+    <tr>
+      <td><code>seqidB</code></td>
+      <td>string</td>
+      <td>Second sequence ID</td>
+    </tr>
+    <tr>
+      <td><code>startB</code></td>
+      <td>integer</td>
+      <td>Start on sequence B</td>
+    </tr>
+    <tr>
+      <td><code>endB</code></td>
+      <td>integer</td>
+      <td>End on sequence B</td>
+    </tr>
+    <tr>
+      <td><code>identity</code></td>
+      <td>float</td>
+      <td>Percent identity</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+### Domains (Protein Domains)
+
+Tab-separated file for domain annotations:
+
+```
+geneId    domainName    start    end    source    evalue    coverage
+gene001    PF00001    10    150    Pfam    1e-50    0.85
+gene001    PF00002    200    300    Pfam    1e-30    0.65
+gene002    TIGR00001    5    120    TIGRFAM    1e-40    0.78
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>geneId</code></td>
+      <td>string</td>
+      <td>Parent gene ID</td>
+    </tr>
+    <tr>
+      <td><code>domainName</code></td>
+      <td>string</td>
+      <td>Domain accession</td>
+    </tr>
+    <tr>
+      <td><code>start</code></td>
+      <td>integer</td>
+      <td>Start in protein (aa)</td>
+    </tr>
+    <tr>
+      <td><code>end</code></td>
+      <td>integer</td>
+      <td>End in protein (aa)</td>
+    </tr>
+    <tr>
+      <td><code>source</code></td>
+      <td>string</td>
+      <td>Database (Pfam, TIGRFAM, CDD)</td>
+    </tr>
+    <tr>
+      <td><code>evalue</code></td>
+      <td>float</td>
+      <td>E-value</td>
+    </tr>
+    <tr>
+      <td><code>coverage</code></td>
+      <td>float</td>
+      <td>Domain coverage (0-1)</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+### Protein Metadata
+
+Tab-separated file with additional gene information:
+
+```
+id    cluster    product    sequence
+gene001    cluster_1    Hypothetical protein    MKFLIL...
+gene002    cluster_2    ABC transporter    MTLSPA...
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Column</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>id</code></td>
+      <td>string</td>
+      <td>Gene ID (matches GFF)</td>
+    </tr>
+    <tr>
+      <td><code>cluster</code></td>
+      <td>string</td>
+      <td>Protein cluster ID</td>
+    </tr>
+    <tr>
+      <td><code>product</code></td>
+      <td>string</td>
+      <td>Functional annotation</td>
+    </tr>
+    <tr>
+      <td><code>sequence</code></td>
+      <td>string</td>
+      <td>Amino acid sequence</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+### Tree Metadata
+
+Tab-separated file with leaf annotations:
+
+```
+leaf_id    species    genus    family    phylum
+hood_001    Escherichia coli    Escherichia    Enterobacteriaceae    Proteobacteria
+hood_002    Bacillus subtilis    Bacillus    Bacillaceae    Firmicutes
+```
+
+---
+
+## Converting to Parquet
+
+For optimal performance, convert TSV files to Parquet:
+
+```python
+# Using the included script
+python scripts/convert_to_parquet.py
+
+# Or manually with polars
+import polars as pl
+df = pl.read_csv("genes.tsv", separator="\t")
+df.write_parquet("genes.parquet", compression="zstd")
+```
+
+**Benefits:**
+- 3-10x faster loading
+- 50-80% smaller file size
+- Type preservation
+
+---
+
+## Visual Settings
+
+### Y Spacing
+
+Controls vertical distance between tracks:
+
+```tsx
+// Compact view
+<HoodiniViz ySpacing={100} />
+
+// Default
+<HoodiniViz ySpacing={150} />
+
+// Expanded view
+<HoodiniViz ySpacing={200} />
+```
+
+### Gene Height
+
+Height of gene arrow shapes:
+
+```tsx
+<HoodiniViz geneHeight={60} />  // Default
+<HoodiniViz geneHeight={40} />  // Compact
+<HoodiniViz geneHeight={80} />  // Large
+```
+
+### Tree Scale
+
+Horizontal compression of tree:
+
+```tsx
+<HoodiniViz treeXScale={100} />  // Full width
+<HoodiniViz treeXScale={50} />   // Compressed
+<HoodiniViz treeXScale={150} />  // Expanded
+```
+
+---
+
+## Next Steps
+
+- **[API Reference](/docs/api-reference)** - Complete props documentation
+- **[Examples](/examples)** - Interactive component stories
+- **[Color Palettes](/docs/api-reference#available-palettes)** - Full palette list
+
+### Prevalence Filter
+
+Filter genes by how common their cluster is across the dataset.
+
+```tsx
+<HoodiniViz
+  prevalenceThreshold={10}  // Show only clusters present in ≥10% of hoods
+/>
+```
+
+## Theme
+
+```tsx
+<HoodiniViz
+  theme="light"  // or "dark"
+/>
+```

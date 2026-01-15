@@ -1,1 +1,0 @@
-{{NEWICK_TREE_DATA}} 
