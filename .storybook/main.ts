@@ -14,6 +14,9 @@ const config: StorybookConfig = {
     "@storybook/addon-docs"
   ],
   "framework": "@storybook/react-vite",
+  "staticDirs": [
+    { from: '../src/data/small', to: '/data/small' }
+  ],
   async viteFinal(config) {
     return mergeConfig(config, {
       plugins: [base64Plugin()],

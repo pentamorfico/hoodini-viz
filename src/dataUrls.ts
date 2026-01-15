@@ -39,9 +39,10 @@ const getGlobValue = (glob: Record<string, unknown>): string =>
 
 // Import real data using glob - allows build to succeed even if files don't exist
 // Each file is optional - HoodiniDashboard handles missing data gracefully
-const parquetGlob = import.meta.glob('./data/parquet/*.parquet', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
-const tsvGlob = import.meta.glob('./data/tsv/*', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
-const newickGlob = import.meta.glob('./data/tree.nwk', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
+// IMPORTANT: Only import in non-template mode to avoid bundling data in template
+const parquetGlob = TEMPLATE_MODE ? {} : import.meta.glob('./data/parquet/*.parquet', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
+const tsvGlob = TEMPLATE_MODE ? {} : import.meta.glob('./data/tsv/*', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
+const newickGlob = TEMPLATE_MODE ? {} : import.meta.glob('./data/tree.nwk', { query: '?base64', eager: true, import: 'default' }) as Record<string, string>;
 
 const REAL_DATA = {
   gffParquetUrl: parquetGlob['./data/parquet/gff.parquet'] || '',
