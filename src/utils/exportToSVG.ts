@@ -1300,15 +1300,23 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     rulerHeight
   });
   
-  // Visualization content group
-  svg += `<g id='visualization'>`;
+  // Define clip path for visualization content to prevent overflow into ruler area
+  // The visualization area is everything above the ruler
+  const vizClipHeight = rulerOptions ? rulerTopY : totalSVGHeight;
+  svg += `<defs>`;
+  svg += `<clipPath id='viz-clip'><rect x='0' y='0' width='${finalWidth}' height='${vizClipHeight}'/></clipPath>`;
+  svg += `</defs>`;
+  
+  // Visualization content group with clip path to prevent text overflow into ruler
+  svg += `<g id='visualization' clip-path='url(#viz-clip)'>`;
   
   for(const layer of layers) {
     const props = layer.props;
     // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains, regions, ncRNA)
     // Note: domains layer has dynamic id like 'domains-{height}-{arrowhead}'
     const isDomains = layer.id === 'domains' || layer.id.startsWith('domains-');
-    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || isDomains || layer.id === 'ncrna-features') {
+    const isRegions = layer.id === 'region-polygons';
+    if(layer.id === 'genes' || layer.id === 'protein-polygons' || layer.id === 'nucleotide-polygons' || isDomains || layer.id === 'ncrna-features' || isRegions) {
       for(const feature of props.data) {
         const polygon = props.getPolygon(feature);
         const fillColor = props.getFillColor(feature);
@@ -1329,6 +1337,21 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
           lineColor = themeColors.text || config?.colors?.black || [0,0,0,255];
           strokeAttr = colorToStr(lineColor);
           strokeWidth = config?.domain?.edgeWidth || 1;
+        } else if (isRegions) {
+          // Regions have their own line color and width
+          if (typeof props.getLineColor === 'function') {
+            lineColor = props.getLineColor(feature);
+          } else if (feature.strokeColor) {
+            lineColor = feature.strokeColor;
+          }
+          strokeAttr = colorToStr(lineColor);
+          if (typeof props.getLineWidth === 'function') {
+            strokeWidth = props.getLineWidth(feature);
+          } else if (feature.strokeWidth) {
+            strokeWidth = feature.strokeWidth;
+          } else {
+            strokeWidth = 2;
+          }
         }
         
   const fill = colorToStr(fillColor);
@@ -1394,8 +1417,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='${width}' stroke-dasharray='${dashStr}'${strokeOpacity < 1 ? ` stroke-opacity='${strokeOpacity}'` : ''}/>`;
       }
     }
-    // Path/Line layers (tree, baselines, etc.)
-    if(layer.id === 'phylo-tree' || layer.id === 'hoods') {
+    // Path layers (tree paths)
+    if(layer.id === 'phylo-tree') {
       for(const feature of props.data) {
         let path = [];
         if (typeof props.getPath === 'function') {
@@ -1429,8 +1452,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   svg += `<path d='${d}' fill='none' stroke='${stroke}' stroke-width='1'/>`;
       }
     }
-    // LineLayer (connecting lines only, no per-leaf tree-ticks)
-    if(layer.id === 'connecting-lines') {
+    // LineLayer (baselines/hoods and connecting lines)
+    if(layer.id === 'connecting-lines' || layer.id === 'hoods') {
       for(const feature of props.data) {
         const sourcePos = feature.sourcePosition || (props.getSourcePosition ? props.getSourcePosition(feature) : [0,0]);
         const targetPos = feature.targetPosition || (props.getTargetPosition ? props.getTargetPosition(feature) : [0,0]);
@@ -1453,9 +1476,13 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
             color = props.getColor;
           }
         }
-        // Handle width - can be feature property, function result, or static value
+        // Handle width - for hoods/baselines use a fixed pixel width since widthUnits is 'meters'
+        // For connecting lines, use the configured width
         let width = 1; // default
-        if (feature.width) {
+        if (layer.id === 'hoods') {
+          // Baselines should be thin lines (1-2px) to match the view
+          width = config?.stroke?.hoodWidth || config?.hood?.width || 2;
+        } else if (feature.width) {
           width = feature.width;
         } else if (props.getWidth) {
           if (typeof props.getWidth === 'function') {

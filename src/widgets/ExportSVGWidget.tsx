@@ -3,7 +3,23 @@ import { exportToSVG } from '../utils/exportToSVG';
 import { useTheme } from '@/contexts/ThemeContext';
 import imageIcon from '../assets/image.svg';
 
-export default function ExportSVGWidget({ layers, viewState, containerSize, config, showRuler, rulerProps }) {
+export default function ExportSVGWidget({
+  layers,
+  viewState,
+  containerSize,
+  config,
+  showRuler,
+  rulerProps,
+  showTreeLayer = true,
+  showGeneLayer = true,
+  showDomainLayer = true,
+  showProteinLinkLayer = true,
+  showNucleotideLinkLayer = true,
+  showNcRNALayer = true,
+  showRegionsLayer = true,
+  showGeneTextLayer = true,
+  showTreeTextLayer = true
+}) {
   const { getThemeColors, resolvedTheme } = useTheme();
   const themeColors = getThemeColors(resolvedTheme);
 
@@ -28,8 +44,35 @@ export default function ExportSVGWidget({ layers, viewState, containerSize, conf
         zIndex: 30
       }}
       onClick={() => {
-  // Use an exportScale to better match on-screen deck.gl sizing; default tuned to 5
-  const svg = exportToSVG(layers, viewState, containerSize, config, showRuler ? rulerProps : undefined, themeColors, 5);
+        // Filter layers by visibility flags
+        const visibleLayers = layers.filter(layer => {
+          switch (layer.id) {
+            case 'phylo-tree':
+            case 'nodes':
+              return showTreeLayer;
+            case 'genes':
+              return showGeneLayer;
+            case 'gene-labels':
+              return showGeneTextLayer;
+            case 'domain-shapes':
+            case 'domains':
+            case 'domains-60-0': // dynamic domain layer id example
+              return showDomainLayer;
+            case 'protein-polygons':
+              return showProteinLinkLayer;
+            case 'nucleotide-polygons':
+              return showNucleotideLinkLayer;
+            case 'ncrna-features':
+              return showNcRNALayer;
+            case 'region-polygons':
+              return showRegionsLayer;
+            case 'phylo-labels':
+              return showTreeTextLayer;
+            default:
+              return true;
+          }
+        });
+        const svg = exportToSVG(visibleLayers, viewState, containerSize, config, showRuler ? rulerProps : undefined, themeColors, 5);
         if (!svg) return;
         const blob = new Blob([svg], { type: 'image/svg+xml' });
         const url = URL.createObjectURL(blob);

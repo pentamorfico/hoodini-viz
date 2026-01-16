@@ -8385,8 +8385,54 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         genomeView: genomeViewRef.current,
         precomputedTicks: rulerWidgetRef.current ? rulerWidgetRef.current.getTicks() : undefined
       } : undefined;
+      
+      // Filter layers based on current visibility settings
+      const visibleLayers = layers.filter(layer => {
+        if (!layer || !layer.id) return true;
+        const id = layer.id;
+        
+        // Tree layers
+        if (id === 'phylo-tree' || id === 'nodes' || id === 'tree-nodes') {
+          return showTreeLayer;
+        }
+        // Tree text
+        if (id === 'phylo-labels') {
+          return showTreeTextLayer;
+        }
+        // Gene layer
+        if (id === 'genes') {
+          return showGeneLayer;
+        }
+        // Gene text
+        if (id === 'gene-labels') {
+          return showGeneTextLayer;
+        }
+        // Domain layers (dynamic ID like 'domains-60-0')
+        if (id === 'domains' || id.startsWith('domains-')) {
+          return showDomainLayer;
+        }
+        // Protein links
+        if (id === 'protein-polygons') {
+          return showProteinLinkLayer;
+        }
+        // Nucleotide links
+        if (id === 'nucleotide-polygons') {
+          return showNucleotideLinkLayer;
+        }
+        // ncRNA
+        if (id === 'ncrna-features') {
+          return showNcRNALayer;
+        }
+        // Regions
+        if (id === 'region-polygons') {
+          return showRegionsLayer;
+        }
+        // Keep other layers (hoods/baselines, connecting-lines, etc.)
+        return true;
+      });
+      
       const svg = exportToSVG(
-        layers,
+        visibleLayers,
         liveViewState,
         { width: containerSize.width, height: deckHeight },
         config,
