@@ -56,7 +56,7 @@ Visit the [Hoodini repository](https://github.com/pentamorfico/hoodini) for inst
 
 ---
 
-## For Developers: Installation
+## For Developers:  (IN DEVELOPMENT, NOT IMPLEMENTED YET)
 
 Hoodini-viz is distributed as an npm package. Install it in your React project with npm, yarn, or pnpm:
 
