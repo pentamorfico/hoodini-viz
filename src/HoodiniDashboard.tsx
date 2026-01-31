@@ -360,14 +360,6 @@ export interface HoodiniDashboardProps {
    */
   style?: React.CSSProperties;
   
-  /**
-   * Enable embedded mode - constrains the dashboard to its container
-   * instead of filling the full viewport. Use this when embedding
-   * in documentation, iframes, or other constrained containers.
-   * @default false
-   */
-  embedded?: boolean;
-
   // ============================================================================
   // CALLBACK PROPS
   // ============================================================================
@@ -627,7 +619,6 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
     toolbarExtra,
     className,
     style,
-    embedded = false,
     onDataLoaded,
     onDataError,
     onLoadingChange,
@@ -1458,23 +1449,14 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
     );
   }
 
-  // Embedded mode styles - constrain to container instead of viewport
-  const embeddedStyles: React.CSSProperties = embedded ? {
-    minHeight: '100%',
-    height: '100%',
-    maxHeight: '100%',
-    overflow: 'hidden',
-  } : {};
-
   return (
     <SidebarProvider
       style={{
         '--sidebar-width': 'calc(var(--spacing) * 85)',
         '--header-height': 'calc(var(--spacing) * 12)',
-        ...embeddedStyles,
         ...style,
       } as React.CSSProperties}
-      className={`${className || ''} ${embedded ? 'hoodini-embedded' : ''}`.trim()}
+      className={className}
     >
       {showSidebar && (
         <AppSidebar

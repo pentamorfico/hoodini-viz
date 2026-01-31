@@ -1,6 +1,6 @@
 import * as ie from "react";
 import Q, { useRef as X, useState as xe, useEffect as ve, useMemo as Fe, useLayoutEffect as je } from "react";
-import { s as Le } from "./index-CuEGSU4j.js";
+import { s as Le } from "./index-DqedK8nv.js";
 const Me = /* @__PURE__ */ Le("div")({
   name: "NumberOverlayEditorStyle",
   class: "gdg-n15fjm3e",
