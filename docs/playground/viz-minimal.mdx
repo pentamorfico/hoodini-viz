@@ -1,0 +1,167 @@
+# Minimal Tree View
+
+A minimal configuration showing just the phylogenetic tree and gene neighborhoods without optional features.
+
+import { Callout, Tabs } from 'nextra/components'
+
+<Callout type="default">
+  This example demonstrates the minimum data required to render a HoodiniViz visualization.
+</Callout>
+
+## Live Demo
+
+The simplest possible example - just 3 genomes with a few genes each:
+
+<VizMinimalDemo />
+
+## Minimum Required Data
+
+To render a HoodiniViz visualization, you need only three things:
+
+1. **Newick tree** - Phylogenetic relationships
+2. **GFF features** - Gene annotations
+3. **Hoods** - Neighborhood windows
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+import 'hoodini-viz/style.css';
+
+// Minimal example
+function MinimalTree() {
+  return (
+    <HoodiniViz
+      newickStr="((A:0.1,B:0.2):0.3,C:0.4);"
+      gffFeatures={[
+        { seqid: 'A', source: 'x', type: 'CDS', start: 100, end: 400, strand: '+' },
+        { seqid: 'B', source: 'x', type: 'CDS', start: 150, end: 450, strand: '+' },
+        { seqid: 'C', source: 'x', type: 'CDS', start: 200, end: 500, strand: '-' },
+      ]}
+      hoods={[
+        { genome: 'A', contig: 'A', start: 0, end: 1000, anchor: 'g1' },
+        { genome: 'B', contig: 'B', start: 0, end: 1000, anchor: 'g2' },
+        { genome: 'C', contig: 'C', start: 0, end: 1000, anchor: 'g3' },
+      ]}
+    />
+  );
+}
+```
+
+## CDN Version
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
+  <style>
+    #root { width: 100%; height: 400px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+  <script>
+    HoodiniViz.createViz({
+      container: 'root',
+      newickStr: '((Species_A:0.1,Species_B:0.2):0.3,Species_C:0.4);',
+      gffFeatures: [
+        { seqid: 'Species_A', source: 'pred', type: 'CDS', start: 1000, end: 2000, strand: '+' },
+        { seqid: 'Species_A', source: 'pred', type: 'CDS', start: 2100, end: 3000, strand: '+' },
+        { seqid: 'Species_A', source: 'pred', type: 'CDS', start: 3200, end: 4500, strand: '-' },
+        { seqid: 'Species_B', source: 'pred', type: 'CDS', start: 1100, end: 2100, strand: '+' },
+        { seqid: 'Species_B', source: 'pred', type: 'CDS', start: 2200, end: 3100, strand: '+' },
+        { seqid: 'Species_C', source: 'pred', type: 'CDS', start: 900, end: 1900, strand: '+' },
+        { seqid: 'Species_C', source: 'pred', type: 'CDS', start: 2000, end: 3200, strand: '-' },
+      ],
+      hoods: [
+        { genome: 'Species_A', contig: 'Species_A', start: 0, end: 5000, anchor: 'gene_A1' },
+        { genome: 'Species_B', contig: 'Species_B', start: 0, end: 5000, anchor: 'gene_B1' },
+        { genome: 'Species_C', contig: 'Species_C', start: 0, end: 5000, anchor: 'gene_C1' },
+      ],
+    });
+  </script>
+</body>
+</html>
+```
+
+## Adding Optional Features
+
+Once you have the minimal setup working, you can progressively add features:
+
+<Tabs items={['Add Protein Links', 'Add Domains', 'Add Metadata']}>
+  <Tabs.Tab>
+```tsx
+// Add protein similarity links
+<HoodiniViz
+  {...minimalProps}
+  proteinLinks={[
+    { source_gene: 'gene_A1', target_gene: 'gene_B1', identity: 0.95 },
+    { source_gene: 'gene_A2', target_gene: 'gene_C1', identity: 0.78 },
+  ]}
+/>
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```tsx
+// Add protein domain annotations
+<HoodiniViz
+  {...minimalProps}
+  domains={[
+    { gene_id: 'gene_A1', domain: 'Pfam:PF00001', start: 10, end: 150, e_value: 1e-50 },
+    { gene_id: 'gene_B1', domain: 'Pfam:PF00001', start: 15, end: 155, e_value: 1e-48 },
+  ]}
+/>
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```tsx
+// Add tree metadata for coloring
+<HoodiniViz
+  {...minimalProps}
+  treeMetadata={{
+    'Species_A': { taxonomy: 'Firmicutes', habitat: 'soil' },
+    'Species_B': { taxonomy: 'Firmicutes', habitat: 'water' },
+    'Species_C': { taxonomy: 'Proteobacteria', habitat: 'soil' },
+  }}
+  colorBy="taxonomy"
+/>
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Tree Format Support
+
+HoodiniViz supports standard Newick format:
+
+```
+# Simple tree
+(A,B,C);
+
+# With branch lengths
+(A:0.1,B:0.2,C:0.3);
+
+# With internal node names
+((A:0.1,B:0.2)AB:0.3,C:0.4)root;
+
+# Complex tree
+((Ecoli:0.1,Salmonella:0.15)Entero:0.2,(Bacillus:0.3,Listeria:0.25)Firmicutes:0.35);
+```
+
+## Performance Tips
+
+For minimal/fast rendering:
+
+```tsx
+<HoodiniViz
+  {...props}
+  config={{
+    // Disable expensive features
+    showDomains: false,
+    showLinks: false,
+    // Reduce visual detail
+    geneHeight: 15,
+    // Disable animations
+    animationDuration: 0,
+  }}
+/>
+```

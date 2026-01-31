@@ -1,0 +1,137 @@
+# Dashboard (Basic)
+
+The full `HoodiniDashboard` component with data loading, sidebar controls, and all interactive features.
+
+import { Callout, Tabs } from 'nextra/components'
+
+<Callout type="info">
+  This example loads real parquet data from GitHub. The visualization may take a few seconds to initialize.
+</Callout>
+
+## Live Demo
+
+<DashboardBasicDemo />
+
+## Code
+
+<Tabs items={['HTML + CDN', 'React/TypeScript', 'ESM Import']}>
+  <Tabs.Tab>
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoodini Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+  <script>
+    const BASE_URL = 'https://raw.githubusercontent.com/pentamorfico/hoodini-viz/main/src/data';
+    
+    HoodiniViz.createDashboard({
+      container: 'root',
+      dataPaths: {
+        newick: `${BASE_URL}/small/tree.nwk`,
+        gffParquet: `${BASE_URL}/small/parquet/gff.parquet`,
+        hoodsParquet: `${BASE_URL}/small/parquet/hoods.parquet`,
+        proteinLinksParquet: `${BASE_URL}/small/parquet/protein_links.parquet`,
+        nucleotideLinksParquet: `${BASE_URL}/small/parquet/nucleotide_links.parquet`,
+        domainsParquet: `${BASE_URL}/small/parquet/domains.parquet`,
+        proteinMetadataParquet: `${BASE_URL}/small/parquet/protein_metadata.parquet`,
+        domainsMetadataParquet: `${BASE_URL}/small/parquet/domains_metadata.parquet`,
+        treeMetadataParquet: `${BASE_URL}/small/parquet/tree_metadata.parquet`,
+        ncRNAMetadataParquet: `${BASE_URL}/small/parquet/ncrna_metadata.parquet`,
+      }
+    });
+  </script>
+</body>
+</html>
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```tsx
+import { HoodiniDashboard } from 'hoodini-viz';
+import 'hoodini-viz/style.css';
+
+function App() {
+  const BASE_URL = 'https://raw.githubusercontent.com/pentamorfico/hoodini-viz/main/src/data';
+  
+  return (
+    <HoodiniDashboard
+      dataPaths={{
+        newick: `${BASE_URL}/small/tree.nwk`,
+        gffParquet: `${BASE_URL}/small/parquet/gff.parquet`,
+        hoodsParquet: `${BASE_URL}/small/parquet/hoods.parquet`,
+        proteinLinksParquet: `${BASE_URL}/small/parquet/protein_links.parquet`,
+        nucleotideLinksParquet: `${BASE_URL}/small/parquet/nucleotide_links.parquet`,
+        domainsParquet: `${BASE_URL}/small/parquet/domains.parquet`,
+        proteinMetadataParquet: `${BASE_URL}/small/parquet/protein_metadata.parquet`,
+        domainsMetadataParquet: `${BASE_URL}/small/parquet/domains_metadata.parquet`,
+        treeMetadataParquet: `${BASE_URL}/small/parquet/tree_metadata.parquet`,
+        ncRNAMetadataParquet: `${BASE_URL}/small/parquet/ncrna_metadata.parquet`,
+      }}
+    />
+  );
+}
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hoodini Dashboard (ESM)</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import { createDashboard } from 'https://esm.sh/hoodini-viz';
+    
+    const BASE_URL = 'https://raw.githubusercontent.com/pentamorfico/hoodini-viz/main/src/data';
+    
+    createDashboard({
+      container: 'root',
+      dataPaths: {
+        newick: `${BASE_URL}/small/tree.nwk`,
+        gffParquet: `${BASE_URL}/small/parquet/gff.parquet`,
+        hoodsParquet: `${BASE_URL}/small/parquet/hoods.parquet`,
+      }
+    });
+  </script>
+</body>
+</html>
+```
+  </Tabs.Tab>
+</Tabs>
+
+## Props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `dataPaths` | `DataPaths` | Object containing URLs or paths to data files |
+| `initialState` | `InitialState` | Optional initial visualization state |
+| `palette` | `PaletteConfig` | Optional color palette configuration |
+| `proteinLinkConfig` | `ProteinLinkConfig` | Optional protein link styling |
+| `nucleotideLinkConfig` | `NucleotideLinkConfig` | Optional nucleotide link styling |
+
+## DataPaths
+
+```ts
+interface DataPaths {
+  newick: string;                      // Required: Newick tree file
+  gffParquet: string;                  // Required: GFF features in parquet
+  hoodsParquet: string;                // Required: Neighborhood data
+  proteinLinksParquet?: string;        // Optional: Protein links
+  nucleotideLinksParquet?: string;     // Optional: Nucleotide links
+  domainsParquet?: string;             // Optional: Domain annotations
+  proteinMetadataParquet?: string;     // Optional: Protein metadata
+  domainsMetadataParquet?: string;     // Optional: Domain metadata
+  treeMetadataParquet?: string;        // Optional: Tree node metadata
+  ncRNAMetadataParquet?: string;       // Optional: ncRNA metadata
+}
+```

@@ -12,7 +12,7 @@
       "import": "./dist/hoodini-viz.js",
       "require": "./dist/hoodini-viz.umd.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/hoodini-viz.css"
   },
   "files": [
     "dist"

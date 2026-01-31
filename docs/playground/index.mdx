@@ -1,0 +1,46 @@
+# Component Playground
+
+Interactive examples showcasing HoodiniViz components. Each example loads live data and demonstrates different configuration options.
+
+import { Callout, Cards } from 'nextra/components'
+
+<Callout type="info">
+  These examples load real data from GitHub and are fully interactive. Try zooming, panning, and clicking on elements!
+</Callout>
+
+## Available Examples
+
+<Cards>
+  <Cards.Card title="🎛️ Dashboard (Basic)" href="/docs/hoodini-viz/playground/dashboard-basic" />
+  <Cards.Card title="🎨 Custom Palettes" href="/docs/hoodini-viz/playground/dashboard-custom" />
+  <Cards.Card title="⚙️ HoodiniViz Standalone" href="/docs/hoodini-viz/playground/viz-standalone" />
+  <Cards.Card title="🌳 Minimal Tree" href="/docs/hoodini-viz/playground/viz-minimal" />
+</Cards>
+
+## Quick Start
+
+Choose `HoodiniDashboard` or `HoodiniViz` based on your needs:
+
+| Component | Best For | Includes |
+|-----------|----------|----------|
+| **HoodiniDashboard** | Most users | Data loading, sidebar controls, full UI |
+| **HoodiniViz** | Advanced users | Visualization only, you manage data & UI |
+
+## Component Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     HoodiniDashboard                        │
+│  ┌──────────┐  ┌─────────────────────────────────────────┐  │
+│  │ Sidebar  │  │              HoodiniViz                 │  │
+│  │ Controls │  │  ┌─────────────────────────────────┐    │  │
+│  │          │  │  │   Tree    │  Gene Neighborhoods │    │  │
+│  │ • Zoom   │  │  │           │                     │    │  │
+│  │ • Filter │  │  │           │   ┌───┐ ┌──┐ ┌───┐  │    │  │
+│  │ • Colors │  │  │   ├── A   │   │   │ │  │ │   │  │    │  │
+│  │ • Links  │  │  │   ├── B   │   └───┘ └──┘ └───┘  │    │  │
+│  │          │  │  │   └── C   │                     │    │  │
+│  └──────────┘  │  └─────────────────────────────────┘    │  │
+│                └─────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
