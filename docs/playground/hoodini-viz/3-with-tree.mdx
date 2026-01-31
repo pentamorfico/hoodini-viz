@@ -1,19 +1,49 @@
 # 3. With Tree
 
-Adding a phylogenetic tree to organize the genomes.
+Adding a phylogenetic tree to organize the genomes. The tree shows the evolutionary 
+relationships between the 8 bacterial strains, reflecting their taxonomic groupings.
 
 <VizWithTreeDemo />
 
-## Data Format
+## Data
+
+### Newick Tree
 
 ```js
-// Newick format string
-const newickStr = '((genome_A:0.1,genome_B:0.15):0.05,genome_C:0.2);';
+// Phylogenetic tree with 8 genomes - realistic bacterial phylogeny
+// - E. coli K-12 and O157 cluster together
+// - Salmonella LT2 and Typhi cluster together  
+// - Klebsiella MGH and HS11 cluster together
+// - Pseudomonas PA01 and PA14 form an outgroup
+
+const newickStr = '(((ECO_K12:0.02,ECO_O157:0.025):0.03,(SEN_LT2:0.028,SEN_Typ:0.032):0.025):0.05,((KPN_MGH:0.04,KPN_HS11:0.038):0.045,(PAE_PA01:0.06,PAE_PA14:0.055):0.05):0.04);';
+```
+
+### Tree Structure Explained
+
+```
+                    ┌── ECO_K12 (E. coli K-12)
+              ┌─────┤
+              │     └── ECO_O157 (E. coli O157:H7)
+        ┌─────┤
+        │     │     ┌── SEN_LT2 (Salmonella LT2)
+        │     └─────┤
+  ┌─────┤           └── SEN_Typ (Salmonella Typhi)
+  │     │
+──┤     │           ┌── KPN_MGH (Klebsiella MGH)
+  │     │     ┌─────┤
+  │     └─────┤     └── KPN_HS11 (Klebsiella HS11)
+  │           │
+  │           │     ┌── PAE_PA01 (Pseudomonas PA01)
+  │           └─────┤
+  │                 └── PAE_PA14 (Pseudomonas PA14)
 ```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   newickStr={newickStr}
   gffFeatures={gffFeatures}

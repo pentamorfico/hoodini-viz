@@ -1,22 +1,58 @@
 # 2. With Labels
 
-Genes with protein metadata for richer tooltips and labels.
+Genes with protein metadata for richer tooltips and labels. The `proteinMetadata` 
+object provides additional information like product names and cluster assignments 
+for coloring.
 
 <VizGenesWithLabelsDemo />
 
-## Data Format
+## Data
+
+### Protein Metadata
 
 ```js
 const proteinMetadata = {
-  gene_A1: { product: 'Hypothetical protein', cluster: '1' },
-  gene_A2: { product: 'ABC transporter', cluster: '2' },
-  // ... more metadata
+  // ECO_K12 genes
+  ECO_K12_001: { product: 'Replication initiation protein RepA', cluster: 'repA' },
+  ECO_K12_002: { product: 'Conjugal transfer surface exclusion protein TraT', cluster: 'traT' },
+  ECO_K12_003: { product: 'Type I restriction enzyme HsdR', cluster: 'hsdR' },
+  ECO_K12_004: { product: 'Type I restriction enzyme HsdM (methyltransferase)', cluster: 'hsdM' },
+  ECO_K12_005: { product: 'Type I restriction enzyme HsdS (specificity subunit)', cluster: 'hsdS' },
+  ECO_K12_006: { product: 'Hypothetical protein', cluster: 'hyp' },
+  ECO_K12_007: { product: 'Exodeoxyribonuclease V subunit beta', cluster: 'recB' },
+  ECO_K12_008: { product: 'Exodeoxyribonuclease V subunit gamma', cluster: 'recC' },
+  ECO_K12_009: { product: 'Exodeoxyribonuclease V subunit alpha', cluster: 'recD' },
+  ECO_K12_010: { product: 'Single-stranded DNA-binding protein', cluster: 'ssb' },
+  ECO_K12_011: { product: 'Replicative DNA helicase DnaB', cluster: 'dnaB' },
+  ECO_K12_012: { product: 'DNA primase DnaG', cluster: 'dnaG' },
+  ECO_K12_013: { product: 'Phage integrase family protein', cluster: 'integrase' },
+  ECO_K12_014: { product: 'Hypothetical protein YjgB', cluster: 'hyp' },
+
+  // ECO_O157 genes (same clusters, different gene IDs)
+  ECO_O157_001: { product: 'Replication initiation protein RepA', cluster: 'repA' },
+  ECO_O157_002: { product: 'Conjugal transfer surface exclusion protein TraT', cluster: 'traT' },
+  ECO_O157_003: { product: 'Type I restriction enzyme HsdR', cluster: 'hsdR' },
+  // ... more genes
+
+  // KPN_MGH - includes CRISPR-Cas genes
+  KPN_MGH_006: { product: 'CRISPR-associated endonuclease Cas1', cluster: 'cas1' },
+  KPN_MGH_007: { product: 'CRISPR-associated protein Cas2', cluster: 'cas2' },
+  KPN_MGH_008: { product: 'CRISPR-associated helicase/nuclease Cas3', cluster: 'cas3' },
+  // ... more genes
+
+  // PAE_PA01 - Pseudomonas (same gene functions, different arrangement)
+  PAE_PA01_001: { product: 'Phage integrase family protein', cluster: 'integrase' },
+  PAE_PA01_007: { product: 'Exodeoxyribonuclease V subunit beta', cluster: 'recB' },
+  PAE_PA01_012: { product: 'Replication initiation protein RepA', cluster: 'repA' },
+  // ... more genes
 };
 ```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   gffFeatures={gffFeatures}
   hoods={hoods}

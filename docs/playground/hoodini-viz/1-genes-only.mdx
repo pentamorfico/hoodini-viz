@@ -1,27 +1,88 @@
 # 1. Genes Only
 
 The simplest possible visualization - just genes without tree, links, or domains.
+This example shows a realistic bacterial genomic neighborhood with 8 genomes from 
+Enterobacteriaceae and Pseudomonadaceae families.
 
 <VizGenesOnlyDemo />
 
-## Data Format
+## Data
+
+### GFF Features (Genes)
 
 ```js
 const gffFeatures = [
-  { 
-    seqid: 'genome_A', 
-    start: 1000, 
-    end: 2500, 
-    strand: '+', 
-    type: 'CDS',
-    attributes: { ID: 'gene_A1', product: 'Hypothetical protein' } 
-  },
+  // ECO_K12 - E. coli K-12 (14 genes)
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 500, end: 1800, strand: '+', 
+    attributes: { ID: 'ECO_K12_001', Name: 'repA', product: 'Replication initiation protein RepA', locus_tag: 'ECO_K12_001' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 1900, end: 2600, strand: '+', 
+    attributes: { ID: 'ECO_K12_002', Name: 'traT', product: 'Conjugal transfer surface exclusion protein TraT', locus_tag: 'ECO_K12_002' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 2700, end: 5800, strand: '+', 
+    attributes: { ID: 'ECO_K12_003', Name: 'hsdR', product: 'Type I restriction enzyme HsdR', locus_tag: 'ECO_K12_003' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 5900, end: 7500, strand: '+', 
+    attributes: { ID: 'ECO_K12_004', Name: 'hsdM', product: 'Type I restriction enzyme HsdM (methyltransferase)', locus_tag: 'ECO_K12_004' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 7600, end: 9000, strand: '+', 
+    attributes: { ID: 'ECO_K12_005', Name: 'hsdS', product: 'Type I restriction enzyme HsdS (specificity subunit)', locus_tag: 'ECO_K12_005' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 9200, end: 10500, strand: '-', 
+    attributes: { ID: 'ECO_K12_006', Name: 'hyp1', product: 'Hypothetical protein', locus_tag: 'ECO_K12_006' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 10700, end: 14200, strand: '+', 
+    attributes: { ID: 'ECO_K12_007', Name: 'recB', product: 'Exodeoxyribonuclease V subunit beta', locus_tag: 'ECO_K12_007' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 14300, end: 17800, strand: '+', 
+    attributes: { ID: 'ECO_K12_008', Name: 'recC', product: 'Exodeoxyribonuclease V subunit gamma', locus_tag: 'ECO_K12_008' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 17900, end: 21400, strand: '+', 
+    attributes: { ID: 'ECO_K12_009', Name: 'recD', product: 'Exodeoxyribonuclease V subunit alpha', locus_tag: 'ECO_K12_009' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 21600, end: 22200, strand: '+', 
+    attributes: { ID: 'ECO_K12_010', Name: 'ssb', product: 'Single-stranded DNA-binding protein', locus_tag: 'ECO_K12_010' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 22400, end: 23800, strand: '+', 
+    attributes: { ID: 'ECO_K12_011', Name: 'dnaB', product: 'Replicative DNA helicase DnaB', locus_tag: 'ECO_K12_011' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 24000, end: 25800, strand: '+', 
+    attributes: { ID: 'ECO_K12_012', Name: 'dnaG', product: 'DNA primase DnaG', locus_tag: 'ECO_K12_012' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 26000, end: 27200, strand: '-', 
+    attributes: { ID: 'ECO_K12_013', Name: 'int', product: 'Phage integrase family protein', locus_tag: 'ECO_K12_013' } },
+  { seqid: 'ECO_K12', source: 'Prokka', type: 'CDS', start: 27400, end: 28100, strand: '-', 
+    attributes: { ID: 'ECO_K12_014', Name: 'hyp2', product: 'Hypothetical protein YjgB', locus_tag: 'ECO_K12_014' } },
+
+  // ECO_O157 - E. coli O157:H7 (13 genes - pathogenic strain)
+  { seqid: 'ECO_O157', source: 'Prokka', type: 'CDS', start: 600, end: 1900, strand: '+', 
+    attributes: { ID: 'ECO_O157_001', Name: 'repA', product: 'Replication initiation protein RepA', locus_tag: 'ECO_O157_001' } },
+  { seqid: 'ECO_O157', source: 'Prokka', type: 'CDS', start: 2000, end: 2700, strand: '+', 
+    attributes: { ID: 'ECO_O157_002', Name: 'traT', product: 'Conjugal transfer surface exclusion protein TraT', locus_tag: 'ECO_O157_002' } },
+  { seqid: 'ECO_O157', source: 'Prokka', type: 'CDS', start: 2850, end: 5950, strand: '+', 
+    attributes: { ID: 'ECO_O157_003', Name: 'hsdR', product: 'Type I restriction enzyme HsdR', locus_tag: 'ECO_O157_003' } },
+  // ... more genes for ECO_O157
+
+  // SEN_LT2 - Salmonella enterica LT2 (14 genes)
+  { seqid: 'SEN_LT2', source: 'Prokka', type: 'CDS', start: 400, end: 1700, strand: '+', 
+    attributes: { ID: 'SEN_LT2_001', Name: 'repA', product: 'Replication initiation protein RepA', locus_tag: 'SEN_LT2_001' } },
+  // ... more genes
+
+  // KPN_MGH - Klebsiella pneumoniae MGH (15 genes - with CRISPR)
+  { seqid: 'KPN_MGH', source: 'Prokka', type: 'CDS', start: 9000, end: 10000, strand: '-', 
+    attributes: { ID: 'KPN_MGH_006', Name: 'cas1', product: 'CRISPR-associated endonuclease Cas1', locus_tag: 'KPN_MGH_006' } },
+  { seqid: 'KPN_MGH', source: 'Prokka', type: 'CDS', start: 10100, end: 10500, strand: '-', 
+    attributes: { ID: 'KPN_MGH_007', Name: 'cas2', product: 'CRISPR-associated protein Cas2', locus_tag: 'KPN_MGH_007' } },
+  // ... more genes
+
+  // PAE_PA01 - Pseudomonas aeruginosa PA01 (13 genes - different gene order)
+  // Note: Pseudomonas has inverted gene order compared to Enterobacteriaceae
+  { seqid: 'PAE_PA01', source: 'Prokka', type: 'CDS', start: 200, end: 1500, strand: '-', 
+    attributes: { ID: 'PAE_PA01_001', Name: 'int', product: 'Phage integrase family protein', locus_tag: 'PAE_PA01_001' } },
   // ... more genes
 ];
+```
 
+### Hoods (Genomic Neighborhoods)
+
+```js
 const hoods = [
-  { hood_id: '1', seqid: 'genome_A', start: 0, end: 10000, align_gene: 'gene_A3' },
-  // ... more hoods
+  { hood_id: 'hood_1', seqid: 'ECO_K12', start: 0, end: 30000, align_gene: 'ECO_K12_007' },
+  { hood_id: 'hood_2', seqid: 'ECO_O157', start: 0, end: 28000, align_gene: 'ECO_O157_006' },
+  { hood_id: 'hood_3', seqid: 'SEN_LT2', start: 0, end: 29000, align_gene: 'SEN_LT2_007' },
+  { hood_id: 'hood_4', seqid: 'SEN_Typ', start: 0, end: 27000, align_gene: 'SEN_Typ_005' },
+  { hood_id: 'hood_5', seqid: 'KPN_MGH', start: 0, end: 31000, align_gene: 'KPN_MGH_009' },
+  { hood_id: 'hood_6', seqid: 'KPN_HS11', start: 0, end: 28500, align_gene: 'KPN_HS11_008' },
+  { hood_id: 'hood_7', seqid: 'PAE_PA01', start: 0, end: 28000, align_gene: 'PAE_PA01_007' },
+  { hood_id: 'hood_8', seqid: 'PAE_PA14', start: 0, end: 29000, align_gene: 'PAE_PA14_007' },
 ];
 ```
 

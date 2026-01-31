@@ -1,22 +1,65 @@
 # 4. Protein Links
 
-Showing synteny relationships between homologous genes across genomes.
+Showing synteny relationships between homologous genes across genomes. Protein links 
+connect genes with similar sequences, with line opacity reflecting sequence similarity.
 
 <VizWithProteinLinksDemo />
 
-## Data Format
+## Data
+
+### Protein Links
 
 ```js
 const proteinLinks = [
-  { gAId: 'gene_A1', gBId: 'gene_B1', similarity: 95.5 },
-  { gAId: 'gene_A1', gBId: 'gene_C1', similarity: 85.2 },
-  // ... more links
+  // repA cluster - replication proteins (highly conserved within genera)
+  { gAId: 'ECO_K12_001', gBId: 'ECO_O157_001', similarity: 98.5 },
+  { gAId: 'ECO_K12_001', gBId: 'SEN_LT2_001', similarity: 92.3 },
+  { gAId: 'ECO_K12_001', gBId: 'SEN_Typ_001', similarity: 91.8 },
+  { gAId: 'ECO_K12_001', gBId: 'KPN_MGH_001', similarity: 85.2 },
+  { gAId: 'ECO_K12_001', gBId: 'KPN_HS11_001', similarity: 84.9 },
+  { gAId: 'ECO_K12_001', gBId: 'PAE_PA01_012', similarity: 72.4 },  // Note: different gene position in Pseudomonas
+  { gAId: 'ECO_K12_001', gBId: 'PAE_PA14_013', similarity: 71.8 },
+  { gAId: 'SEN_LT2_001', gBId: 'SEN_Typ_001', similarity: 97.2 },
+  { gAId: 'KPN_MGH_001', gBId: 'KPN_HS11_001', similarity: 96.8 },
+  { gAId: 'PAE_PA01_012', gBId: 'PAE_PA14_013', similarity: 98.1 },
+
+  // hsdR cluster - Type I restriction enzymes
+  { gAId: 'ECO_K12_003', gBId: 'ECO_O157_003', similarity: 97.8 },
+  { gAId: 'ECO_K12_003', gBId: 'SEN_LT2_003', similarity: 88.5 },
+  { gAId: 'ECO_K12_003', gBId: 'SEN_Typ_002', similarity: 87.9 },
+  { gAId: 'ECO_K12_003', gBId: 'KPN_MGH_003', similarity: 82.1 },
+  { gAId: 'ECO_K12_003', gBId: 'PAE_PA01_010', similarity: 68.3 },
+
+  // recB cluster - highly conserved DNA repair genes
+  { gAId: 'ECO_K12_007', gBId: 'ECO_O157_006', similarity: 99.1 },
+  { gAId: 'ECO_K12_007', gBId: 'SEN_LT2_007', similarity: 95.6 },
+  { gAId: 'ECO_K12_007', gBId: 'SEN_Typ_005', similarity: 95.2 },
+  { gAId: 'ECO_K12_007', gBId: 'KPN_MGH_009', similarity: 90.3 },
+  { gAId: 'ECO_K12_007', gBId: 'PAE_PA01_007', similarity: 78.5 },
+  { gAId: 'PAE_PA01_007', gBId: 'PAE_PA14_007', similarity: 99.2 },
+
+  // recC and recD clusters
+  { gAId: 'ECO_K12_008', gBId: 'ECO_O157_007', similarity: 98.7 },
+  { gAId: 'ECO_K12_008', gBId: 'SEN_LT2_008', similarity: 94.2 },
+  { gAId: 'ECO_K12_009', gBId: 'ECO_O157_008', similarity: 97.9 },
+
+  // ssb cluster - highly conserved
+  { gAId: 'ECO_K12_010', gBId: 'ECO_O157_009', similarity: 99.5 },
+  { gAId: 'ECO_K12_010', gBId: 'SEN_LT2_010', similarity: 96.8 },
+  { gAId: 'ECO_K12_010', gBId: 'KPN_MGH_012', similarity: 94.2 },
+  { gAId: 'ECO_K12_010', gBId: 'PAE_PA01_004', similarity: 88.5 },
+
+  // cas1/cas2 cluster - only in Klebsiella
+  { gAId: 'KPN_MGH_006', gBId: 'KPN_HS11_006', similarity: 95.4 },
+  { gAId: 'KPN_MGH_007', gBId: 'KPN_HS11_007', similarity: 96.1 },
 ];
 ```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   newickStr={newickStr}
   gffFeatures={gffFeatures}
@@ -25,7 +68,7 @@ const proteinLinks = [
   nucleotideLinks={[]}
   domainsByGene={{}}
   proteinMetadata={proteinMetadata}
-  genePalette={{ type: 'qualitative', name: 'Set2', numColors: 8, enabled: true }}
+  genePalette={{ type: 'qualitative', name: 'Set2', numColors: 12, enabled: true }}
   geneColorBy="cluster"
   proteinLinkConfig={{ 
     colorBy: 'source_gene', 

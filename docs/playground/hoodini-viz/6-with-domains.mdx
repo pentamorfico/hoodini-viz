@@ -1,28 +1,114 @@
 # 6. With Domains
 
-Protein domain annotations showing functional architecture.
+Protein domain annotations showing functional architecture. Domains are displayed 
+inside genes, colored by Pfam family. This view is useful for identifying 
+conserved functional modules across homologous genes.
 
 <VizWithDomainsDemo />
 
-## Data Format
+## Data
+
+### Domains by Gene
 
 ```js
-// Domains grouped by gene ID
 const domainsByGene = {
-  gene_A2: [
-    { domainId: 'PF00005', start: 10, end: 200, source: 'pfam' },
-    { domainId: 'PF00664', start: 250, end: 400, source: 'pfam' },
+  // hsdR - Type I restriction enzyme (multi-domain architecture)
+  ECO_K12_003: [
+    { domainId: 'PF04851', start: 50, end: 280, source: 'pfam', evalue: 1e-85, 
+      name: 'ResIII', description: 'Type I restriction enzyme R protein N terminus' },
+    { domainId: 'PF00580', start: 320, end: 520, source: 'pfam', evalue: 1e-72, 
+      name: 'UvrD_helicase', description: 'UvrD/REP helicase N-terminal domain' },
+    { domainId: 'PF13361', start: 580, end: 820, source: 'pfam', evalue: 1e-65, 
+      name: 'UvrD_helicase_C', description: 'Helicase C-terminal domain' },
   ],
-  gene_A3: [
-    { domainId: 'PF00271', start: 5, end: 180, source: 'pfam' },
+  ECO_O157_003: [
+    { domainId: 'PF04851', start: 52, end: 282, source: 'pfam', evalue: 1e-83, 
+      name: 'ResIII', description: 'Type I restriction enzyme R protein N terminus' },
+    { domainId: 'PF00580', start: 322, end: 522, source: 'pfam', evalue: 1e-70, 
+      name: 'UvrD_helicase', description: 'UvrD/REP helicase N-terminal domain' },
+    { domainId: 'PF13361', start: 582, end: 822, source: 'pfam', evalue: 1e-63, 
+      name: 'UvrD_helicase_C', description: 'Helicase C-terminal domain' },
   ],
-  // ... more genes with domains
+  SEN_LT2_003: [
+    { domainId: 'PF04851', start: 48, end: 278, source: 'pfam', evalue: 1e-80, 
+      name: 'ResIII', description: 'Type I restriction enzyme R protein N terminus' },
+    { domainId: 'PF00580', start: 318, end: 518, source: 'pfam', evalue: 1e-68, 
+      name: 'UvrD_helicase', description: 'UvrD/REP helicase N-terminal domain' },
+  ],
+
+  // hsdM - Methyltransferase (two domains)
+  ECO_K12_004: [
+    { domainId: 'PF02384', start: 30, end: 180, source: 'pfam', evalue: 1e-55, 
+      name: 'N6_Mtase', description: 'N-6 DNA Methylase' },
+    { domainId: 'PF12161', start: 220, end: 380, source: 'pfam', evalue: 1e-42, 
+      name: 'HsdM_N', description: 'HsdM N-terminal domain' },
+  ],
+
+  // recB - Exodeoxyribonuclease V (four domains - large multi-domain protein)
+  ECO_K12_007: [
+    { domainId: 'PF04313', start: 20, end: 250, source: 'pfam', evalue: 1e-90, 
+      name: 'RecB_nuclease', description: 'RecB family nuclease' },
+    { domainId: 'PF00580', start: 300, end: 550, source: 'pfam', evalue: 1e-78, 
+      name: 'UvrD_helicase', description: 'UvrD/REP helicase N-terminal domain' },
+    { domainId: 'PF13361', start: 600, end: 850, source: 'pfam', evalue: 1e-72, 
+      name: 'UvrD_helicase_C', description: 'Helicase C-terminal domain' },
+    { domainId: 'PF04255', start: 900, end: 1050, source: 'pfam', evalue: 1e-45, 
+      name: 'RecB_C', description: 'RecB family C-terminal domain' },
+  ],
+  ECO_O157_006: [
+    { domainId: 'PF04313', start: 22, end: 252, source: 'pfam', evalue: 1e-88, 
+      name: 'RecB_nuclease', description: 'RecB family nuclease' },
+    { domainId: 'PF00580', start: 302, end: 552, source: 'pfam', evalue: 1e-76, 
+      name: 'UvrD_helicase', description: 'UvrD/REP helicase N-terminal domain' },
+    { domainId: 'PF13361', start: 602, end: 852, source: 'pfam', evalue: 1e-70, 
+      name: 'UvrD_helicase_C', description: 'Helicase C-terminal domain' },
+    { domainId: 'PF04255', start: 902, end: 1052, source: 'pfam', evalue: 1e-43, 
+      name: 'RecB_C', description: 'RecB family C-terminal domain' },
+  ],
+
+  // cas1 - CRISPR associated (Klebsiella only)
+  KPN_MGH_006: [
+    { domainId: 'PF01867', start: 15, end: 280, source: 'pfam', evalue: 1e-95, 
+      name: 'Cas1_AcylT', description: 'CRISPR associated protein Cas1' },
+  ],
+  KPN_HS11_006: [
+    { domainId: 'PF01867', start: 18, end: 283, source: 'pfam', evalue: 1e-93, 
+      name: 'Cas1_AcylT', description: 'CRISPR associated protein Cas1' },
+  ],
+
+  // cas3 - CRISPR helicase/nuclease (three domains)
+  KPN_MGH_008: [
+    { domainId: 'PF01930', start: 10, end: 180, source: 'pfam', evalue: 1e-70, 
+      name: 'Cas3_HD', description: 'Cas3 HD nuclease domain' },
+    { domainId: 'PF00271', start: 220, end: 480, source: 'pfam', evalue: 1e-85, 
+      name: 'Helicase_C', description: 'Helicase C-terminal domain' },
+    { domainId: 'PF13245', start: 520, end: 720, source: 'pfam', evalue: 1e-55, 
+      name: 'AAA_19', description: 'AAA ATPase domain' },
+  ],
+
+  // dnaB - Replicative helicase (two domains)
+  ECO_K12_011: [
+    { domainId: 'PF00772', start: 20, end: 150, source: 'pfam', evalue: 1e-65, 
+      name: 'DnaB_N', description: 'DnaB helicase N-terminal domain' },
+    { domainId: 'PF03796', start: 180, end: 380, source: 'pfam', evalue: 1e-88, 
+      name: 'DnaB_C', description: 'DnaB helicase C-terminal domain' },
+  ],
+
+  // integrase (two domains)
+  ECO_K12_013: [
+    { domainId: 'PF00589', start: 10, end: 180, source: 'pfam', evalue: 1e-75, 
+      name: 'Phage_integrase', description: 'Phage integrase family' },
+    { domainId: 'PF13102', start: 220, end: 350, source: 'pfam', evalue: 1e-45, 
+      name: 'Phage_int_SAM_3', description: 'Phage integrase SAM-like domain' },
+  ],
 };
 ```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   newickStr={newickStr}
   gffFeatures={gffFeatures}
@@ -32,7 +118,7 @@ const domainsByGene = {
   domainsByGene={domainsByGene}
   proteinMetadata={proteinMetadata}
   geneHeight={70}
-  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 10, enabled: true }}
+  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 12, enabled: true }}
   domainColorBy="domainName"
   showScrollbar={true}
   showRuler={true}

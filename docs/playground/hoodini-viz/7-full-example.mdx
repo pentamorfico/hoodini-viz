@@ -1,12 +1,100 @@
 # 7. Full Example
 
-All features combined: tree, genes, links, and domains.
+All features combined: phylogenetic tree, genes with cluster colors, protein links, 
+nucleotide links, domain annotations, and metadata. This represents the complete 
+HoodiniViz visualization with all layers enabled.
 
 <VizFullDemo />
+
+## Data Summary
+
+This example uses all available data types:
+
+| Data Type | Description | Count |
+|-----------|-------------|-------|
+| **Genomes** | Bacterial strains (E. coli, Salmonella, Klebsiella, Pseudomonas) | 8 |
+| **Genes** | CDS features from GFF | ~107 |
+| **Hoods** | Genomic neighborhoods aligned on recB | 8 |
+| **Protein Links** | Homology relationships between genes | ~60 |
+| **Nucleotide Links** | DNA synteny blocks | ~11 |
+| **Domains** | Pfam domain annotations | ~30 |
+
+### Tree Metadata
+
+```js
+const treeMetadata = {
+  ECO_K12: { 
+    species: 'Escherichia coli K-12', 
+    strain: 'MG1655', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  ECO_O157: { 
+    species: 'Escherichia coli O157:H7', 
+    strain: 'EDL933', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  SEN_LT2: { 
+    species: 'Salmonella enterica', 
+    strain: 'LT2', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  SEN_Typ: { 
+    species: 'Salmonella enterica', 
+    strain: 'Typhi CT18', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  KPN_MGH: { 
+    species: 'Klebsiella pneumoniae', 
+    strain: 'MGH 78578', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  KPN_HS11: { 
+    species: 'Klebsiella pneumoniae', 
+    strain: 'HS11286', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Enterobacterales', 
+    family: 'Enterobacteriaceae' 
+  },
+  PAE_PA01: { 
+    species: 'Pseudomonas aeruginosa', 
+    strain: 'PAO1', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Pseudomonadales', 
+    family: 'Pseudomonadaceae' 
+  },
+  PAE_PA14: { 
+    species: 'Pseudomonas aeruginosa', 
+    strain: 'PA14', 
+    phylum: 'Proteobacteria', 
+    class: 'Gammaproteobacteria', 
+    order: 'Pseudomonadales', 
+    family: 'Pseudomonadaceae' 
+  },
+};
+```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   newickStr={newickStr}
   gffFeatures={gffFeatures}
@@ -17,9 +105,9 @@ All features combined: tree, genes, links, and domains.
   proteinMetadata={proteinMetadata}
   treeMetadata={treeMetadata}
   geneHeight={70}
-  genePalette={{ type: 'qualitative', name: 'Bold', numColors: 10, enabled: true }}
+  genePalette={{ type: 'qualitative', name: 'Bold', numColors: 15, enabled: true }}
   geneColorBy="cluster"
-  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 10, enabled: true }}
+  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 12, enabled: true }}
   domainColorBy="domainName"
   proteinLinkConfig={{ 
     colorBy: 'source_gene', 
@@ -31,3 +119,13 @@ All features combined: tree, genes, links, and domains.
   showRuler={true}
 />
 ```
+
+## Key Features Shown
+
+- **Phylogenetic Tree**: Shows evolutionary relationships, colored by taxonomy
+- **Gene Arrows**: Direction indicates strand (+/-), color by ortholog cluster
+- **Protein Links**: Vertical bands connecting homologous genes
+- **Domain Annotations**: Colored boxes inside genes showing Pfam domains
+- **Synteny**: Conservation of gene order across related species
+- **CRISPR-Cas**: Klebsiella strains show cas1/cas2/cas3 genes (defense island)
+- **Inversions**: Pseudomonas shows inverted gene order relative to Enterobacteriaceae

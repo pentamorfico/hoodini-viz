@@ -1,25 +1,58 @@
 # 5. Nucleotide Links
 
-DNA-level synteny showing aligned genomic regions.
+DNA-level synteny showing aligned genomic regions. Nucleotide links represent 
+conserved DNA blocks between genomes, useful for visualizing large-scale 
+rearrangements and syntenic regions.
 
 <VizWithNucleotideLinksDemo />
 
-## Data Format
+## Data
+
+### Nucleotide Links
 
 ```js
 const nucleotideLinks = [
-  { 
-    seqidA: 'genome_A', startA: 1000, endA: 4200, 
-    seqidB: 'genome_B', startB: 500, endB: 3700, 
-    similarity: 92.5 
-  },
-  // ... more links
+  // E. coli K-12 vs O157 - very high synteny (same species)
+  { seqidA: 'ECO_K12', startA: 500, endA: 9500, 
+    seqidB: 'ECO_O157', startB: 600, endB: 9600, similarity: 96.5 },
+  { seqidA: 'ECO_K12', startA: 10700, endA: 26000, 
+    seqidB: 'ECO_O157', startB: 9300, endB: 25000, similarity: 95.8 },
+  
+  // E. coli vs Salmonella - high synteny (same family)
+  { seqidA: 'ECO_K12', startA: 2700, endA: 9000, 
+    seqidB: 'SEN_LT2', startB: 2700, endB: 8950, similarity: 88.2 },
+  { seqidA: 'ECO_K12', startA: 10700, endA: 22200, 
+    seqidB: 'SEN_LT2', startB: 10300, endB: 21800, similarity: 87.5 },
+  
+  // Salmonella LT2 vs Typhi - very high synteny (same species)
+  { seqidA: 'SEN_LT2', startA: 400, endA: 8950, 
+    seqidB: 'SEN_Typ', startB: 550, endB: 8250, similarity: 94.8 },
+  { seqidA: 'SEN_LT2', startA: 10300, endA: 25400, 
+    seqidB: 'SEN_Typ', startB: 8400, endB: 23500, similarity: 93.5 },
+  
+  // Klebsiella MGH vs HS11 - high synteny (same species)
+  { seqidA: 'KPN_MGH', startA: 300, endA: 13200, 
+    seqidB: 'KPN_HS11', startB: 450, endB: 10650, similarity: 94.2 },
+  { seqidA: 'KPN_MGH', startA: 13400, endA: 29900, 
+    seqidB: 'KPN_HS11', startB: 10750, endB: 27250, similarity: 93.8 },
+  
+  // Pseudomonas PA01 vs PA14 - very high synteny (same species)
+  { seqidA: 'PAE_PA01', startA: 200, endA: 16800, 
+    seqidB: 'PAE_PA14', startB: 250, endB: 16850, similarity: 97.1 },
+  { seqidA: 'PAE_PA01', startA: 17000, endA: 26400, 
+    seqidB: 'PAE_PA14', startB: 18100, endB: 27500, similarity: 96.5 },
+  
+  // E. coli vs Klebsiella - moderate synteny (different genera)
+  { seqidA: 'ECO_K12', startA: 10700, endA: 22200, 
+    seqidB: 'KPN_MGH', startB: 13400, endB: 24900, similarity: 78.3 },
 ];
 ```
 
 ## Code
 
 ```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
 <HoodiniViz
   newickStr={newickStr}
   gffFeatures={gffFeatures}
