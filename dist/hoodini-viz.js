@@ -1,18 +1,21 @@
-import { D as s, d as o, F as t, G as i, e as l, H as n, H as d, f as D, P, h as r, R as h, j as H, k as R, l as F, n as G } from "./index-CgEGAnfh.js";
+import { D as s, d as o, F as t, G as i, e as l, H as r, H as d, f as n, P as D, h as P, R as h, j as c, k as H, l as R, n as F, o as G, p as T, q as b } from "./index-DoUR8EOn.js";
 export {
   s as DEFAULT_CONFIG,
   o as Domain,
   t as FORMAT_PRESETS,
   i as Gene,
   l as GenomeView,
-  n as HoodiniDashboard,
+  r as HoodiniDashboard,
   d as HoodiniDashboardDefault,
-  D as HoodiniViz,
-  P as PhyloNode,
-  r as PhyloTree,
+  n as HoodiniViz,
+  D as PhyloNode,
+  P as PhyloTree,
   h as React,
-  H as ReactDOM,
-  R as getPaletteColors,
-  F as getQualitativePalettes,
-  G as getSequentialPalettes
+  c as ReactDOM,
+  H as create,
+  R as createDashboard,
+  F as createViz,
+  G as getPaletteColors,
+  T as getQualitativePalettes,
+  b as getSequentialPalettes
 };

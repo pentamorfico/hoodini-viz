@@ -5,47 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hoodini-Viz CDN Example</title>
   
-  <!-- Google Fonts (required for proper styling) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Hoodini styles -->
+  <!-- Load CSS from unpkg CDN -->
   <link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
-  
-  <!-- Google Fonts (optional) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body, #root {
-      width: 100%;
-      height: 100%;
-      font-family: 'Space Grotesk', system-ui, sans-serif;
-    }
-  </style>
 </head>
 <body>
   <div id="root"></div>
-
-  <!-- Hoodini-Viz UMD (includes React) -->
+  <!-- Load JS from unpkg CDN -->
   <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
-
   <script>
-    // HoodiniViz includes React and ReactDOM
-    const { HoodiniDashboard, React, ReactDOM } = HoodiniViz;
+    const GITHUB_RAW = 'https://raw.githubusercontent.com/pentamorfico/hoodini-viz/main/src/data';
+    
+    // Full dashboard with data loading, sidebar, and all controls
+    HoodiniViz.createDashboard({
+      container: 'root',
+      dataPaths: {
+        newick: `${GITHUB_RAW}/small/tree.nwk`,
+        gffParquet: `${GITHUB_RAW}/small/parquet/gff.parquet`,
+        hoodsParquet: `${GITHUB_RAW}/small/parquet/hoods.parquet`,
+        proteinLinksParquet: `${GITHUB_RAW}/small/parquet/protein_links.parquet`,
+        nucleotideLinksParquet: `${GITHUB_RAW}/small/parquet/nucleotide_links.parquet`,
+        domainsParquet: `${GITHUB_RAW}/small/parquet/domains.parquet`,
+        proteinMetadataParquet: `${GITHUB_RAW}/small/parquet/protein_metadata.parquet`,
+        domainsMetadataParquet: `${GITHUB_RAW}/small/parquet/domains_metadata.parquet`,
+        treeMetadataParquet: `${GITHUB_RAW}/small/parquet/tree_metadata.parquet`,
+        ncRNAMetadataParquet: `${GITHUB_RAW}/small/parquet/ncrna_metadata.parquet`,
+      }
+    });
 
-    const dataPaths = {
-      tree: 'https://raw.githubusercontent.com/pentamorfico/hoodini-viz/main/src/data/tree.nwk',
-      // Add your data paths:
-      // hoods: 'path/to/hoods.parquet',
-      // domains: 'path/to/domains.parquet',
-    };
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(HoodiniDashboard, { dataPaths }));
+    // Alternative: For advanced users who want just the visualization
+    // HoodiniViz.createViz({
+    //   container: 'root',
+    //   newickStr: '((A:0.1,B:0.2):0.3,C:0.4);',
+    //   gffFeatures: [...],
+    //   hoods: [...],
+    // });
   </script>
 </body>
 </html>

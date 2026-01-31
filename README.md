@@ -43,7 +43,8 @@ A **virtualized data table** lets you browse and filter millions of genes, domai
 
 <br/>
 
-> [!TIP]
+> 💡 **Tip**
+>
 > **Looking to visualize your own genomes?** Use [**Hoodini**](https://github.com/pentamorfico/hoodini) — the comparative genomics toolkit that fetches assemblies from NCBI, extracts gene neighborhoods, runs protein/nucleotide comparisons, annotates defense systems, builds trees, and generates ready-to-use visualizations. This library is the visualization engine that powers Hoodini's output.
 
 ---
@@ -66,20 +67,22 @@ npm install hoodini-viz
 **CDN**
 
 ```html
-<script src="https://unpkg.com/hoodini-viz"></script>
 <link href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css" rel="stylesheet">
+<script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
 ```
 
-> [!IMPORTANT]
-> The CSS uses [CSS Cascade Layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers). Avoid adding global reset styles like `* { padding: 0 }` without wrapping them in a layer, as unlayered styles override layered ones.
 
 </td>
+
 </tr>
 </table>
+
 
 ---
 
 ## 🚀 Usage
+
+### NPM / React
 
 <details open>
 <summary><strong>Full Dashboard</strong> — includes sidebar, data loading, controls</summary>
@@ -90,24 +93,33 @@ npm install hoodini-viz
 import { HoodiniDashboard } from 'hoodini-viz';
 import 'hoodini-viz/style.css';
 
-function App() {
-  return (
-    <HoodiniDashboard
-      dataPaths={{
-        gffParquet: '/data/genes.parquet',
-        hoodsParquet: '/data/hoods.parquet',
-        newick: '/data/tree.nwk',
-        proteinLinksParquet: '/data/links.parquet',
-      }}
-    />
-  );
-}
+// With Parquet (recommended - 3-10x faster)
+<HoodiniDashboard
+  dataPaths={{
+    newick: '/data/tree.nwk',
+    gffParquet: '/data/genes.parquet',
+    hoodsParquet: '/data/hoods.parquet',
+    proteinLinksParquet: '/data/links.parquet',
+  }}
+/>
+```
+
+```tsx
+// With TSV
+<HoodiniDashboard
+  dataPaths={{
+    newick: '/data/tree.nwk',
+    gff: '/data/genes.tsv',
+    hoods: '/data/hoods.tsv',
+    proteinLinks: '/data/links.tsv',
+  }}
+/>
 ```
 
 </details>
 
 <details>
-<summary><strong>Core Component</strong> — bring your own UI and data loading</summary>
+<summary><strong>Core Visualization</strong> — bring your own UI and data loading</summary>
 
 <br/>
 
@@ -128,12 +140,98 @@ import { HoodiniViz } from 'hoodini-viz';
 
 </details>
 
+### CDN / Standalone
+
+<details open>
+<summary><strong>Full Dashboard (recommended)</strong> — zero dependencies, just HTML</summary>
+
+<br/>
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+  <script>
+    // With Parquet (recommended - 3-10x faster)
+    HoodiniViz.createDashboard({
+      container: 'root',
+      dataPaths: {
+        newick: 'https://example.com/tree.nwk',
+        gffParquet: 'https://example.com/genes.parquet',
+        hoodsParquet: 'https://example.com/hoods.parquet',
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+```html
+<script>
+  // With TSV
+  HoodiniViz.createDashboard({
+    container: 'root',
+    dataPaths: {
+      newick: 'https://example.com/tree.nwk',
+      gff: 'https://example.com/genes.tsv',
+      hoods: 'https://example.com/hoods.tsv',
+    }
+  });
+</script>
+```
+
+</details>
+
+<details>
+<summary><strong>Core Visualization</strong> — for advanced users who want full control</summary>
+
+<br/>
+
+```html
+<script>
+  // No sidebar, no data loading - you provide pre-processed data
+  HoodiniViz.createViz({
+    container: 'root',
+    newickStr: '((A:0.1,B:0.2):0.3,C:0.4);',
+    gffFeatures: [...],
+    hoods: [...],
+    proteinLinks: [...],
+  });
+</script>
+```
+
+</details>
+
+<details>
+<summary><strong>Manual React usage</strong> — when you need the React primitives</summary>
+
+<br/>
+
+```html
+<script>
+  const { HoodiniDashboard, React, ReactDOM } = HoodiniViz;
+  
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(HoodiniDashboard, { 
+    dataPaths: { newick: '...', gffParquet: '...' }
+  }));
+</script>
+```
+
+</details>
+
 ---
 
 ## 📁 Data Formats
 
-> [!NOTE]
-> Parquet files load **3-10x faster** than TSV. Convert with `python scripts/convert_to_parquet.py`
+> ℹ️ **Note**
+>
+> Parquet files load **3-10x faster** than TSV.
 
 | File | Format | Description |
 |:-----|:------:|:------------|

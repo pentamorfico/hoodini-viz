@@ -23,6 +23,116 @@ export type {
   RGBAColor,
 } from './HoodiniDashboard';
 
+import { HoodiniDashboard } from './HoodiniDashboard';
+import type { HoodiniDashboardProps } from './HoodiniDashboard';
+import HoodiniViz from './components/HoodiniViz';
+import type { HoodiniVizProps } from './components/HoodiniViz';
+
+/**
+ * Factory function for standalone/CDN usage - Full Dashboard.
+ * Creates a HoodiniDashboard instance without requiring React knowledge.
+ * Includes data loading, sidebar UI, and all controls.
+ * 
+ * @example
+ * ```html
+ * <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+ * <script>
+ *   Hoodini.createDashboard({
+ *     container: 'root',
+ *     dataPaths: {
+ *       newick: 'path/to/tree.nwk',
+ *       gffParquet: 'path/to/gff.parquet',
+ *     }
+ *   });
+ * </script>
+ * ```
+ */
+export interface CreateDashboardOptions extends Omit<HoodiniDashboardProps, 'ref'> {
+  /** Container element ID or HTMLElement */
+  container: string | HTMLElement;
+}
+
+/**
+ * Factory function for standalone/CDN usage - Visualization only.
+ * Creates a HoodiniViz instance for users who want full control.
+ * No sidebar, no data loading - you provide pre-processed data.
+ * 
+ * @example
+ * ```html
+ * <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+ * <script>
+ *   Hoodini.createViz({
+ *     container: 'root',
+ *     newickStr: '((A:0.1,B:0.2):0.3,C:0.4);',
+ *     gffFeatures: [...],
+ *     hoods: [...],
+ *   });
+ * </script>
+ * ```
+ */
+export interface CreateVizOptions extends Omit<HoodiniVizProps, 'ref'> {
+  /** Container element ID or HTMLElement */
+  container: string | HTMLElement;
+}
+
+export interface HoodiniInstance {
+  /** Unmount the component and clean up */
+  destroy: () => void;
+  /** The React root instance (for advanced usage) */
+  root: ReactDOM.Root;
+}
+
+/**
+ * Create a full HoodiniDashboard with data loading, sidebar, and all controls.
+ * Best for most users who want a complete visualization experience.
+ */
+export function createDashboard(options: CreateDashboardOptions): HoodiniInstance {
+  const { container, ...props } = options;
+  
+  const element = typeof container === 'string' 
+    ? document.getElementById(container) 
+    : container;
+  
+  if (!element) {
+    throw new Error(`Hoodini: Container "${container}" not found`);
+  }
+  
+  const root = ReactDOM.createRoot(element);
+  root.render(React.createElement(HoodiniDashboard, props));
+  
+  return {
+    destroy: () => root.unmount(),
+    root
+  };
+}
+
+/**
+ * Create a HoodiniViz visualization only (no sidebar, no data loading).
+ * For advanced users who want full control over data and UI.
+ */
+export function createViz(options: CreateVizOptions): HoodiniInstance {
+  const { container, ...props } = options;
+  
+  const element = typeof container === 'string' 
+    ? document.getElementById(container) 
+    : container;
+  
+  if (!element) {
+    throw new Error(`Hoodini: Container "${container}" not found`);
+  }
+  
+  const root = ReactDOM.createRoot(element);
+  root.render(React.createElement(HoodiniViz, props));
+  
+  return {
+    destroy: () => root.unmount(),
+    root
+  };
+}
+
+// Legacy alias for backwards compatibility
+export const create = createDashboard;
+
 // Core visualization component (props-driven, no data loading)
 export { default as HoodiniViz } from './components/HoodiniViz';
 export type {
