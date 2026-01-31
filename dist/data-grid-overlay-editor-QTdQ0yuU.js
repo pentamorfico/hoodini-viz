@@ -1,5 +1,7 @@
-import { s as J, r, i as I, a as Q, b as U, c as Z, T as ee, C as te, m as re } from "./index-DoUR8EOn.js";
-const ne = () => (t) => t.targetX, ie = () => (t) => t.targetY, se = () => (t) => t.targetWidth, ae = () => (t) => t.targetHeight, oe = () => (t) => t.targetY + 10, le = () => (t) => Math.max(0, (t.targetHeight - 28) / 2), de = /* @__PURE__ */ J("div")({
+import * as r from "react";
+import { createPortal as J } from "react-dom";
+import { s as Q, i as I, a as U, b as Z, T as ee, C as te, m as re } from "./index-MmB2RSTX.js";
+const ne = () => (t) => t.targetX, ie = () => (t) => t.targetY, se = () => (t) => t.targetWidth, ae = () => (t) => t.targetHeight, oe = () => (t) => t.targetY + 10, le = () => (t) => Math.max(0, (t.targetHeight - 28) / 2), de = /* @__PURE__ */ Q("div")({
   name: "DataGridOverlayEditorStyle",
   class: "gdg-d19meir1",
   propsAsIs: !1,
@@ -30,8 +32,8 @@ function ce() {
       return;
     let a;
     const o = () => {
-      const { right: x } = t.getBoundingClientRect();
-      h((g) => Math.min(g + window.innerWidth - x - 10, 0)), a = requestAnimationFrame(o);
+      const { right: O } = t.getBoundingClientRect();
+      h((m) => Math.min(m + window.innerWidth - O - 10, 0)), a = requestAnimationFrame(o);
     };
     return a = requestAnimationFrame(o), () => {
       a !== void 0 && cancelAnimationFrame(a);
@@ -44,17 +46,17 @@ function ce() {
   };
 }
 const ge = (t) => {
-  const { target: s, content: i, onFinishEditing: h, forceEditMode: f, initialValue: b, imageEditorOverride: C, markdownDivCreateNode: a, highlight: o, className: x, theme: g, id: W, cell: m, bloom: w, portalElementRef: F, validateCell: p, getCellRenderer: P, provideEditor: T, isOutsideClick: X, customEventTarget: A, activation: O } = t, [l, K] = r.useState(f ? i : void 0), S = r.useRef(l ?? i);
+  const { target: s, content: i, onFinishEditing: h, forceEditMode: f, initialValue: b, imageEditorOverride: C, markdownDivCreateNode: a, highlight: o, className: O, theme: m, id: W, cell: g, bloom: w, portalElementRef: F, validateCell: p, getCellRenderer: P, provideEditor: T, isOutsideClick: X, customEventTarget: A, activation: x } = t, [l, K] = r.useState(f ? i : void 0), S = r.useRef(l ?? i);
   S.current = l ?? i;
-  const [y, k] = r.useState(() => p === void 0 ? !0 : !(I(i) && p?.(m, i, S.current) === !1)), u = r.useCallback((e, n) => {
+  const [y, R] = r.useState(() => p === void 0 ? !0 : !(I(i) && p?.(g, i, S.current) === !1)), u = r.useCallback((e, n) => {
     h(y ? e : void 0, n);
   }, [y, h]), Y = r.useCallback((e) => {
     if (p !== void 0 && e !== void 0 && I(e)) {
-      const n = p(m, e, S.current);
-      n === !1 ? k(!1) : (typeof n == "object" && (e = n), k(!0));
+      const n = p(g, e, S.current);
+      n === !1 ? R(!1) : (typeof n == "object" && (e = n), R(!0));
     }
     K(e);
-  }, [m, p]), E = r.useRef(!1), c = r.useRef(void 0), j = r.useCallback(() => {
+  }, [g, p]), E = r.useRef(!1), c = r.useRef(void 0), j = r.useCallback(() => {
     u(l, [0, 0]), E.current = !0;
   }, [l, u]), L = r.useCallback((e, n) => {
     u(e, n ?? c.current ?? [0, 0]), E.current = !0;
@@ -65,19 +67,19 @@ const ge = (t) => {
     !e.shiftKey ? (e.stopPropagation(), e.preventDefault(), c.current = [0, 1], n = !0) : e.key === "Tab" && (e.stopPropagation(), e.preventDefault(), c.current = [e.shiftKey ? -1 : 1, 0], n = !0), window.setTimeout(() => {
       !E.current && c.current !== void 0 && (u(n ? l : void 0, c.current), E.current = !0);
     }, 0);
-  }, [u, l]), R = l ?? i, [d, B] = r.useMemo(() => {
-    if (Q(i))
+  }, [u, l]), k = l ?? i, [d, B] = r.useMemo(() => {
+    if (U(i))
       return [];
-    const e = { ...i, location: m, activation: O }, n = T?.(e);
+    const e = { ...i, location: g, activation: x }, n = T?.(e);
     return n !== void 0 ? [n, !1] : [P(i)?.provideEditor?.(e), !1];
-  }, [m, i, P, T, O]), { ref: $, style: z } = ce();
+  }, [g, i, P, T, x]), { ref: $, style: z } = ce();
   let M = !0, _, N = !0, v;
   if (d !== void 0) {
     M = d.disablePadding !== !0, N = d.disableStyling !== !0;
-    const e = U(d);
+    const e = Z(d);
     e && (v = d.styleOverride);
     const n = e ? d.editor : d;
-    _ = r.createElement(n, { portalElementRef: F, isHighlighted: o, activation: O, onChange: Y, value: R, initialValue: b, onFinishedEditing: L, validatedSelection: I(R) ? R.selectionRange : void 0, forceEditMode: f, target: s, imageEditorOverride: C, markdownDivCreateNode: a, isValid: y, theme: g });
+    _ = r.createElement(n, { portalElementRef: F, isHighlighted: o, activation: x, onChange: Y, value: k, initialValue: b, onFinishedEditing: L, validatedSelection: I(k) ? k.selectionRange : void 0, forceEditMode: f, target: s, imageEditorOverride: C, markdownDivCreateNode: a, isValid: y, theme: m });
   }
   v = { ...v, ...z };
   const V = F?.current ?? document.getElementById("portal");
@@ -86,12 +88,12 @@ const ge = (t) => {
   let D = N ? "gdg-style" : "gdg-unstyle";
   y || (D += " gdg-invalid"), M && (D += " gdg-pad");
   const G = w?.[0] ?? 1, H = w?.[1] ?? 1;
-  return Z.createPortal(r.createElement(
+  return J(r.createElement(
     ee.Provider,
-    { value: g },
+    { value: m },
     r.createElement(
       te,
-      { style: re(g), className: x, onClickOutside: j, isOutsideClick: X, customEventTarget: A },
+      { style: re(m), className: O, onClickOutside: j, isOutsideClick: X, customEventTarget: A },
       r.createElement(
         de,
         { ref: $, id: W, className: D, style: v, as: B === !0 ? "label" : void 0, targetX: s.x - G, targetY: s.y - H, targetWidth: s.width + G * 2, targetHeight: s.height + H * 2 },

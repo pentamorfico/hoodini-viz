@@ -5,6 +5,9 @@ import { defineConfig } from "vite"
 import fs from 'node:fs'
 import base64Plugin from './vite-plugin-base64'
 
+// Check if we're building UMD (for CDN with bundled React)
+const isUMD = process.env.BUILD_UMD === 'true'
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -30,19 +33,22 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'HoodiniViz',
-      formats: ['es', 'umd'],
+      formats: isUMD ? ['umd'] : ['es'],
       fileName: (format) => `hoodini-viz.${format === 'es' ? 'js' : 'umd.js'}`
     },
     rollupOptions: {
-      // Don't externalize anything - bundle React for standalone UMD use
-      // Users importing via npm/ESM can tree-shake as needed
+      // ESM: externalize React (uses host project's React)
+      // UMD: bundle everything (standalone for CDN)
+      external: isUMD ? [] : ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
           react: 'React',
-          'react-dom': 'ReactDOM'
+          'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'ReactJSXRuntime'
         }
       }
     },
     outDir: 'dist',
+    emptyOutDir: !isUMD, // Only clean on first build (ESM)
   }
 })
