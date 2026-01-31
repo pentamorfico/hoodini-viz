@@ -70,6 +70,9 @@ npm install hoodini-viz
 <link href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css" rel="stylesheet">
 ```
 
+> [!IMPORTANT]
+> The CSS uses [CSS Cascade Layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers). Avoid adding global reset styles like `* { padding: 0 }` without wrapping them in a layer, as unlayered styles override layered ones.
+
 </td>
 </tr>
 </table>

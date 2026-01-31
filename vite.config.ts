@@ -12,6 +12,9 @@ export default defineConfig({
     tailwindcss(),
     base64Plugin(), // Enable ?base64 imports
   ],
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
   worker: {
     // Ensure workers build as ES modules (required for code-splitting)
     format: 'es'
@@ -31,7 +34,8 @@ export default defineConfig({
       fileName: (format) => `hoodini-viz.${format === 'es' ? 'js' : 'umd.js'}`
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      // Don't externalize anything - bundle React for standalone UMD use
+      // Users importing via npm/ESM can tree-shake as needed
       output: {
         globals: {
           react: 'React',

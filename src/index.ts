@@ -1,6 +1,14 @@
 // Main entry point for hoodini-viz library
 // Export both the full dashboard and the core visualization component
 
+// Import styles (will be extracted to hoodini-viz.css)
+import './index.css';
+
+// Re-export React and ReactDOM for standalone UMD usage
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+export { React, ReactDOM };
+
 // NEW: Unified dashboard component (recommended)
 export { HoodiniDashboard, default as HoodiniDashboardDefault } from './HoodiniDashboard';
 export type {
