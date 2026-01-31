@@ -423,3 +423,41 @@ body {
 .dark .protein-viewer canvas {
   background: oklch(var(--muted));
 }
+
+/* ==========================================================================
+   EMBEDDED MODE STYLES
+   Use embedded prop on HoodiniDashboard to constrain to container
+   ========================================================================== */
+
+.hoodini-embedded {
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.hoodini-embedded.group\/sidebar-wrapper,
+.hoodini-embedded [data-slot="sidebar-wrapper"] {
+  min-height: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Override the min-h-svh class in embedded mode */
+.hoodini-embedded.has-data-\[variant\=inset\]\:bg-sidebar {
+  min-height: 100% !important;
+}
+
+/* Ensure SidebarInset stays contained */
+.hoodini-embedded main[data-slot="content"],
+.hoodini-embedded [data-sidebar="inset"] {
+  min-height: 100% !important;
+  max-height: 100% !important;
+  overflow: auto !important;
+}
+
+/* Main visualization area */
+.hoodini-embedded .flex-1 {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
