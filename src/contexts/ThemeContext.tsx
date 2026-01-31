@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { DEFAULT_CONFIG } from '../config/visualizationConfig.js';
 
 // Helper to resolve 'light' | 'dark' | 'system'
@@ -15,45 +15,128 @@ function resolveMode(mode) {
   return mode === 'dark' ? 'dark' : 'light';
 }
 
-// Apply theme class immediately on module load (to prevent flash)
-if (typeof window !== 'undefined') {
+// Helper to detect current theme from document
+function detectDocumentTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light';
   try {
-    const STORAGE_KEY = 'hoodini_theme';
-    const persisted = window.localStorage.getItem(STORAGE_KEY);
-    const defaultMode = DEFAULT_CONFIG.theme?.mode ?? 'light';
-    const initialMode = persisted || defaultMode || 'light';
-    const resolved = resolveMode(initialMode);
     const root = document.documentElement;
-    if (resolved === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
+    // Check for common dark mode indicators
+    if (root.classList.contains('dark')) return 'dark';
+    if (root.getAttribute('data-theme') === 'dark') return 'dark';
+    if (root.style.colorScheme === 'dark') return 'dark';
+    // Check Nextra's theme attribute
+    if (root.getAttribute('class')?.includes('dark')) return 'dark';
+    // Fallback to system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
     }
   } catch (e) { }
+  return 'light';
 }
+
+// External store for document theme - enables reactive updates when host theme changes
+let documentThemeListeners: Array<() => void> = [];
+let cachedDocumentTheme = typeof window !== 'undefined' ? detectDocumentTheme() : 'light';
+
+function subscribeToDocumentTheme(callback: () => void) {
+  documentThemeListeners.push(callback);
+  
+  // Set up MutationObserver on first subscriber
+  if (documentThemeListeners.length === 1 && typeof window !== 'undefined') {
+    const observer = new MutationObserver(() => {
+      const newTheme = detectDocumentTheme();
+      if (newTheme !== cachedDocumentTheme) {
+        cachedDocumentTheme = newTheme;
+        documentThemeListeners.forEach(l => l());
+      }
+    });
+    
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme', 'style']
+    });
+    
+    // Also listen for system preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => {
+      const newTheme = detectDocumentTheme();
+      if (newTheme !== cachedDocumentTheme) {
+        cachedDocumentTheme = newTheme;
+        documentThemeListeners.forEach(l => l());
+      }
+    };
+    mediaQuery.addEventListener('change', handleMediaChange);
+    
+    // Store cleanup function
+    (subscribeToDocumentTheme as any)._cleanup = () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener('change', handleMediaChange);
+    };
+  }
+  
+  return () => {
+    documentThemeListeners = documentThemeListeners.filter(l => l !== callback);
+    if (documentThemeListeners.length === 0 && (subscribeToDocumentTheme as any)._cleanup) {
+      (subscribeToDocumentTheme as any)._cleanup();
+    }
+  };
+}
+
+function getDocumentThemeSnapshot() {
+  return cachedDocumentTheme;
+}
+
+function getDocumentThemeServerSnapshot() {
+  return 'light';
+}
+
+// REMOVED: Auto-applying theme class on module load
+// This was interfering with host page themes (like Nextra)
+// The ThemeProvider will handle this when used standalone
 
 const STORAGE_KEY = 'hoodini_theme';
 const ThemeContext = createContext(null);
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
+  
+  // Use useSyncExternalStore to reactively track document theme changes
+  // This will cause re-renders when the host page theme changes
+  const documentTheme = useSyncExternalStore(
+    subscribeToDocumentTheme,
+    getDocumentThemeSnapshot,
+    getDocumentThemeServerSnapshot
+  );
+  
   if (!context) {
-    // Fallback values when used outside ThemeProvider (silent mode)
+    // Fallback values when used outside ThemeProvider (embedded mode)
+    // Use the reactive documentTheme instead of static detection
     return {
-      theme: 'light',
+      theme: documentTheme,
       setTheme: () => {},
-      resolvedTheme: 'light',
-      getThemeColors: () => ({
-        background: '#ffffff',
-        foreground: '#000000',
-        muted: '#f4f4f5',
-        mutedForeground: '#71717a',
-        border: '#e4e4e7',
-        primary: '#18181b',
-        primaryForeground: '#fafafa',
-      }),
+      resolvedTheme: documentTheme,
+      getThemeColors: (mode = documentTheme) => {
+        const resolved = mode === 'dark' ? 'dark' : 'light';
+        return DEFAULT_CONFIG.theme?.[resolved] ?? (resolved === 'dark' ? {
+          background: '#18181b',
+          foreground: '#fafafa',
+          muted: '#27272a',
+          mutedForeground: '#a1a1aa',
+          border: '#3f3f46',
+          primary: '#fafafa',
+          primaryForeground: '#18181b',
+          geneFill: [100, 100, 100, 255],
+        } : {
+          background: '#ffffff',
+          foreground: '#000000',
+          muted: '#f4f4f5',
+          mutedForeground: '#71717a',
+          border: '#e4e4e7',
+          primary: '#18181b',
+          primaryForeground: '#fafafa',
+          geneFill: [150, 150, 150, 255],
+        });
+      },
     };
   }
   return context;
