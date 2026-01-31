@@ -9263,7 +9263,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       id="phylo-tree-viewer-container"
       ref={containerRef}
       style={{
-        width: '100vw',
+        width: '100%',
         height: '100%',
     position: 'relative',
     overflow: 'hidden',
@@ -9372,7 +9372,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         layers={combinedLayers}
         pickingRadius={100}
         style={{ 
-          width: '100vw',
+          width: '100%',
           height: showRuler ? `${deckHeight}px` : `${deckHeight}px`,
           position: 'absolute',
           left: '0',

@@ -10671,17 +10671,28 @@ const zw = "hoodini_theme", p9 = d9(null), zc = () => {
     a(m);
     const y = document.documentElement;
     m === "dark" ? (y.classList.add("dark"), y.classList.remove("light")) : (y.classList.remove("dark"), y.classList.add("light"));
-    let C, b;
+    let C = null;
+    try {
+      C = new MutationObserver((w) => {
+        for (const E of w)
+          if (E.type === "attributes" && E.attributeName === "class") {
+            const x = y.classList.contains("dark"), D = o;
+            x && D !== "dark" ? (a("dark"), s("dark")) : !x && D !== "light" && (a("light"), s("light"));
+          }
+      }), C.observe(y, { attributes: !0, attributeFilter: ["class"] });
+    } catch {
+    }
+    let b, _;
     if (i === "system" && typeof window < "u" && window.matchMedia)
       try {
-        C = window.matchMedia("(prefers-color-scheme: dark)"), b = (_) => {
-          const w = _.matches ? "dark" : "light";
-          w === "dark" ? (y.classList.add("dark"), y.classList.remove("light")) : (y.classList.remove("dark"), y.classList.add("light")), a(w);
-        }, C.addEventListener ? C.addEventListener("change", b) : C.addListener && C.addListener(b);
+        b = window.matchMedia("(prefers-color-scheme: dark)"), _ = (w) => {
+          const E = w.matches ? "dark" : "light";
+          E === "dark" ? (y.classList.add("dark"), y.classList.remove("light")) : (y.classList.remove("dark"), y.classList.add("light")), a(E);
+        }, b.addEventListener ? b.addEventListener("change", _) : b.addListener && b.addListener(_);
       } catch {
       }
     return () => {
-      C && b && (C.removeEventListener ? C.removeEventListener("change", b) : C.removeListener && C.removeListener(b));
+      C && C.disconnect(), b && _ && (b.removeEventListener ? b.removeEventListener("change", _) : b.removeListener && b.removeListener(_));
     };
   }, [i]), /* @__PURE__ */ B(p9.Provider, { value: {
     theme: i,
@@ -16490,11 +16501,10 @@ function d$({ className: t, ...e }) {
     {
       "data-slot": "sidebar-inset",
       className: si(
-        "bg-background relative flex w-full flex-1 flex-col",
+        "bg-background relative flex w-full flex-1 flex-col min-h-0 overflow-hidden",
         "md:peer-data-[variant=inset]:my-2 md:peer-data-[variant=inset]:mr-2 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm",
         t
       ),
-      style: { maxHeight: "100vh", overflow: "hidden", isolation: "isolate" },
       ...e
     }
   );
@@ -22139,7 +22149,7 @@ const NW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol--3ohBuYp.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-C30ZsCRh.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -62269,7 +62279,7 @@ const as = !1, xM = it.forwardRef(({
       id: "phylo-tree-viewer-container",
       ref: $i,
       style: {
-        width: "100vw",
+        width: "100%",
         height: "100%",
         position: "relative",
         overflow: "hidden",
@@ -62329,7 +62339,7 @@ const as = !1, xM = it.forwardRef(({
             layers: Ml,
             pickingRadius: 100,
             style: {
-              width: "100vw",
+              width: "100%",
               height: b ? `${Si}px` : `${Si}px`,
               position: "absolute",
               left: "0",
@@ -71848,7 +71858,7 @@ function zde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Ude = A.lazy(async () => await import("./data-grid-overlay-editor-Dh2mDScX.js"));
+const Ude = A.lazy(async () => await import("./data-grid-overlay-editor-BXNMfm9z.js"));
 let $de = 0;
 function Hde(t) {
   return Ple(kB(kB(t).filter((e) => e.span !== void 0).map((e) => Yu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -73988,7 +73998,7 @@ function pfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const mfe = A.lazy(async () => await import("./number-overlay-editor-BOabzjpX.js")), yfe = {
+const mfe = A.lazy(async () => await import("./number-overlay-editor-6q3QaWsc.js")), yfe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,

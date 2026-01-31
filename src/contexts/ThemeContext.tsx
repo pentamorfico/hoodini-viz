@@ -115,6 +115,29 @@ export const ThemeProvider = ({ children }) => {
       root.classList.add('light');
     }
 
+    // Observe external theme changes (e.g., from parent page like Nextra)
+    // This allows hoodini-viz to stay in sync when embedded
+    let observer: MutationObserver | null = null;
+    try {
+      observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const hasDark = root.classList.contains('dark');
+            const currentResolved = resolvedThemeState;
+            // Only sync if the external change differs from our state
+            if (hasDark && currentResolved !== 'dark') {
+              setResolvedThemeState('dark');
+              setTheme('dark');
+            } else if (!hasDark && currentResolved !== 'light') {
+              setResolvedThemeState('light');
+              setTheme('light');
+            }
+          }
+        }
+      });
+      observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    } catch (e) {}
+
     let mql;
     let handler;
     if (theme === 'system' && typeof window !== 'undefined' && window.matchMedia) {
@@ -137,6 +160,9 @@ export const ThemeProvider = ({ children }) => {
     }
 
     return () => {
+      if (observer) {
+        observer.disconnect();
+      }
       if (mql && handler) {
         if (mql.removeEventListener) mql.removeEventListener('change', handler);
         else if (mql.removeListener) mql.removeListener(handler);
