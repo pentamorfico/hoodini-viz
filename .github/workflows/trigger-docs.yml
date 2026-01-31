@@ -1,0 +1,21 @@
+name: Trigger Docs Sync
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger hoodini-docs repository
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DOCS_SYNC_TOKEN }}
+          repository: pentamorfico/hoodini-docs
+          event-type: sync-docs
+          client-payload: '{"source": "hoodini-viz", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'

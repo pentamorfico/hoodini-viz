@@ -17,7 +17,7 @@ export const DEFAULT_CONFIG = {
     },
     edgeColor: [40, 40, 4, 255],  // Color for tree edges (gray)
     edgeWidth: 0.5,            // Edge width for phylogenetic tree edges
-    gap: 100,               // Gap between phylogenetic tree and genome tracks
+    gap: 50,               // Gap between phylogenetic tree and genome tracks
     labelPadding: {
       charWidth: 50        // Approximate pixels per character for label width calculations
     },
@@ -31,7 +31,9 @@ export const DEFAULT_CONFIG = {
     height: 60,             // Height of gene features on tracks (used in GenomeView)
     defaultHeight: 60,      // Default gene height (used in Gene constructor) - should match height
     fillColor: [230, 230, 230, 255],  // Default gray color for genes
-    tipWidthFactor: 0.1,   // Factor for gene arrow tip width (3% of gene length)
+    tipWidthFactor: 0.05,   // Factor for gene arrow tip width (5% of gene length) when tipWidthMode='factor'
+    tipWidthMode: 'fixed' as 'factor' | 'fixed', // 'factor': tipWidth = length * tipWidthFactor, 'fixed': tipWidth = min(tipWidthFixed, length)
+    tipWidthFixed: 20,      // Fixed tip width in nucleotides when tipWidthMode='fixed' (clamped to gene length)
     strokeWidthFactor: 0.9, // Factor for darkening stroke color
     edgeWidth: 1,           // Edge width for gene polygons
     arrowheadHeight: 0,     // Height of the arrowhead (0 = no arrowhead, > 0 = true arrow)
@@ -52,6 +54,7 @@ export const DEFAULT_CONFIG = {
       treeEdges: [0, 0, 0, 255],         // Black tree edges
       phyloLabelFill: [0, 0, 0, 255],    // Default phylo label color (black in light)
       hoods: [100, 100, 100, 255],   // Dark gray hoods
+      geneFill: [230, 230, 230, 255],    // Default gene fill color (light gray)
       rulerBackground: '#ffffff',
       rulerText: '#222222',
       rulerTicks: '#666666',
@@ -70,8 +73,9 @@ export const DEFAULT_CONFIG = {
       background: '#000000',
       text: '#ffffff',
       treeEdges: [255, 255, 255, 255],   // White tree edges
-  phyloLabelFill: [255, 255, 255, 255], // Default phylo label color (white in dark)
+      phyloLabelFill: [255, 255, 255, 255], // Default phylo label color (white in dark)
       hoods: [200, 200, 200, 255],   // Light gray hoods
+      geneFill: [100, 100, 100, 255],    // Default gene fill color (lighter gray for dark theme)
       rulerBackground: '#000000',
       rulerText: '#ffffff',
       rulerTicks: '#cccccc',
@@ -98,7 +102,7 @@ export const DEFAULT_CONFIG = {
 
   // Hood Parameters
   hood: {
-    width: 2.0,               // Width of hood lines
+    width: 0.25,              // Width of hood lines (very thin baselines)
     color: [100, 100, 100, 255] // Default color for hoods
   },
 
@@ -242,8 +246,8 @@ export const DEFAULT_CONFIG = {
     // Default palette settings
     genePalette: {
       type: 'qualitative',    // 'qualitative', 'sequential', 'diverging'
-      name: 'Bold',           // Dicopal palette name
-      numColors: 8,           // Number of colors to use
+      name: 'RPRlab',         // RPRlab custom palette (default)
+      numColors: 15,          // Number of colors to use
       reverse: false,         // Whether to reverse the palette
   enabled: true,          // Whether to use palette coloring
   desaturateByPrevalence: true
@@ -255,27 +259,27 @@ export const DEFAULT_CONFIG = {
   reverse: true,
   enabled: true,
   // Alpha range for sequential numeric palettes. Values can be in 0-1 (fraction)
-  // or 0-255. The viewer will accept either form. Default uses 0.1 -> 0.5 opacity.
-  alphaRange: [0.1, 0.5]
+  // or 0-255. The viewer will accept either form. Default uses 0.1 -> 0.3 opacity.
+  alphaRange: [0.1, 0.3]
     },
     phyloPalette: {
       type: 'qualitative',
-      name: 'Vivid',
-      numColors: 9,
+      name: 'RPRlab',
+      numColors: 15,
       reverse: false,
       enabled: true           // For coloring phylo labels by species/metadata
     },
     ncRNAPalette: {
       type: 'qualitative',
-      name: 'Prism',
-      numColors: 8,
+      name: 'RPRlab',
+      numColors: 15,
       reverse: false,
       enabled: true           // For coloring ncRNAs by type
     },
     regionPalette: {
       type: 'qualitative',
-      name: 'Margot2',
-      numColors: 8,
+      name: 'RPRlab',
+      numColors: 15,
       reverse: false,
       enabled: true           // Enable palette coloring for regions by default
     }
@@ -340,3 +344,27 @@ export const {
   animation: ANIMATION_CONFIG,
   export: EXPORT_CONFIG
 } = DEFAULT_CONFIG;
+
+/**
+ * Calculate tip width based on mode: 'factor' (proportional to gene length) or 'fixed' (constant value clamped to gene length)
+ * @param geneLength - The length of the gene in nucleotides
+ * @param config - The gene config or full config object
+ * @returns The calculated tip width
+ */
+export function calculateTipWidth(geneLength: number, config: typeof DEFAULT_CONFIG | typeof DEFAULT_CONFIG.gene): number {
+  // Handle both full config and gene config
+  const geneConfig = 'gene' in config ? config.gene : config;
+  const mode = geneConfig.tipWidthMode || 'factor';
+  
+  if (mode === 'fixed') {
+    // Use ?? instead of || to properly handle tipWidthFixed = 0
+    const fixedWidth = geneConfig.tipWidthFixed ?? 200;
+    // Clamp to 50% of gene length - prevents small genes from looking weird
+    const maxTipWidth = geneLength * 0.5;
+    return Math.min(fixedWidth, maxTipWidth);
+  } else {
+    // Factor mode (default)
+    const factor = geneConfig.tipWidthFactor || 0.05;
+    return geneLength * factor;
+  }
+}

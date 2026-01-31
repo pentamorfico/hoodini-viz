@@ -66,6 +66,9 @@ import {
   parseNonCodingMetadataOptimized
 } from './utils/loadersGLUtils';
 
+// Debug logging flag - set to false for production
+const DEBUG_LOGS = false;
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -235,6 +238,7 @@ export interface InitialState {
   showRegionsLayer?: boolean;
   showGeneTextLayer?: boolean;
   showTreeTextLayer?: boolean;
+  showBaselineLayer?: boolean;
 }
 
 /** Methods exposed via ref */
@@ -453,6 +457,9 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   geneLabelBy: 'cluster',
   geneHeight: DEFAULT_CONFIG.gene.height,
   arrowheadHeight: DEFAULT_CONFIG.gene.arrowheadHeight,
+  tipWidthMode: DEFAULT_CONFIG.gene.tipWidthMode as 'factor' | 'fixed',
+  tipWidthFactor: DEFAULT_CONFIG.gene.tipWidthFactor,
+  tipWidthFixed: DEFAULT_CONFIG.gene.tipWidthFixed,
   geneLabelPosition: 'bottom',
   geneLabelSize: DEFAULT_CONFIG.text.geneLabelSize,
   
@@ -461,11 +468,11 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   domainSource: 'all',
   
   // Palettes
-  genePalette: { type: 'qualitative', name: 'Bold', numColors: 8, reverse: false, enabled: true },
-  domainPalette: { type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.2, 0.5] },
-  phyloPalette: { type: 'qualitative', name: 'Vivid', numColors: 8, reverse: false, enabled: true },
-  ncRNAPalette: { type: 'qualitative', name: 'Prism', numColors: 8, reverse: false, enabled: true },
-  regionPalette: { type: 'qualitative', name: 'Margot2', numColors: 8, reverse: false, enabled: true },
+  genePalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
+  domainPalette: { type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.1, 0.3] },
+  phyloPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
+  ncRNAPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
+  regionPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
   
   // Links
   proteinLinkConfig: {
@@ -508,6 +515,7 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   showRegionsLayer: true,
   showGeneTextLayer: true,
   showTreeTextLayer: true,
+  showBaselineLayer: true,
 };
 
 // ============================================================================
@@ -1513,8 +1521,16 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
           selectedGene={selectedObject}
           handleArrowheadHeightChange={createSetter('arrowheadHeight')}
           handleGeneHeightChange={createSetter('geneHeight')}
+          tipWidthMode={state.tipWidthMode}
+          setTipWidthMode={createSetter('tipWidthMode')}
+          tipWidthFactor={state.tipWidthFactor}
+          setTipWidthFactor={createSetter('tipWidthFactor')}
+          tipWidthFixed={state.tipWidthFixed}
+          setTipWidthFixed={createSetter('tipWidthFixed')}
           showTreeLayer={state.showTreeLayer}
           setShowTreeLayer={createSetter('showTreeLayer')}
+          showBaselineLayer={state.showBaselineLayer}
+          setShowBaselineLayer={createSetter('showBaselineLayer')}
           showGeneLayer={state.showGeneLayer}
           setShowGeneLayer={createSetter('showGeneLayer')}
           showDomainLayer={state.showDomainLayer}
@@ -1571,16 +1587,20 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
             position: 'absolute',
             top: '10px',
             left: '10px',
-            zIndex: 1000,
+            zIndex: 100000,
             display: 'flex',
             gap: '4px',
             padding: '4px',
             borderRadius: '8px',
-          }}>
+            pointerEvents: 'auto',
+            isolation: 'isolate',
+            backgroundColor: 'var(--background, white)',
+          }}
+          className="touch-manipulation shadow-sm"
+          >
             {showSidebar && (
               <SidebarTrigger
-                className="size-7 flex items-center justify-center border"
-                style={{ position: 'static' }}
+                className="size-7 sm:size-7 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center border touch-manipulation"
               />
             )}
             <SVGExportButton phyloTreeViewerRef={vizRef} />
@@ -1589,7 +1609,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               variant="ghost"
               onClick={() => updateState('showDataTable', !state.showDataTable)}
               aria-label={state.showDataTable ? 'Hide table view' : 'Show table view'}
-              className="size-7 border bg-transparent"
+              className="size-7 sm:size-7 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 border bg-transparent touch-manipulation"
             >
               <TableIcon className="h-4 w-4" />
             </Button>
@@ -1631,6 +1651,9 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               geneLabelBy={state.geneLabelBy}
               geneHeight={state.geneHeight}
               arrowheadHeight={state.arrowheadHeight}
+              tipWidthMode={state.tipWidthMode}
+              tipWidthFactor={state.tipWidthFactor}
+              tipWidthFixed={state.tipWidthFixed}
               geneLabelPosition={state.geneLabelPosition}
               // Domains
               domainColorBy={state.domainColorBy}
@@ -1662,6 +1685,7 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
               genomeXScale={state.genomeXScale}
               // Layer visibility
               showTreeLayer={state.showTreeLayer}
+              showBaselineLayer={state.showBaselineLayer}
               showGeneLayer={state.showGeneLayer}
               showDomainLayer={state.showDomainLayer}
               showProteinLinkLayer={state.showProteinLinkLayer}

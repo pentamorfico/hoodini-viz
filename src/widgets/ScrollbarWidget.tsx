@@ -24,14 +24,6 @@ export default function ScrollbarWidget({
     }
   }, [visibleFractionProp]);
   
-  // Debug logging
-  console.log('[ScrollbarWidget] Props:', { 
-    minY, maxY, scrollNorm, visibleFraction: liveVisibleFraction, containerHeight,
-    viewStateTarget: viewState?.target,
-    hasViewStateRef: !!viewStateRef,
-    isValidRange: isFinite(minY) && isFinite(maxY) && maxY > minY
-  });
-  
   // Use liveVisibleFraction for all calculations
   const visibleFraction = liveVisibleFraction;
   
@@ -119,11 +111,22 @@ export default function ScrollbarWidget({
       e.stopPropagation();
       e.stopImmediatePropagation();
       
-      // Scale scroll speed based on deltaY magnitude for better control
-      // deltaY is typically ~100 for regular scroll, but can vary by device/browser
-      const baseDelta = Math.abs(e.deltaY) > 50 ? e.deltaY / 100 : e.deltaY / 50;
-      const scrollSpeed = 3; // Higher value = faster scrolling per wheel tick
-      const delta = baseDelta * scrollSpeed;
+      // Get current zoom level to scale scroll sensitivity
+      // deck.gl zoom: scale = 2^zoom, so zoom=0 -> 1x, zoom=1 -> 2x, zoom=-1 -> 0.5x
+      const currentViewState = viewStateRef?.current;
+      const currentZoom = currentViewState?.zoom ?? -3;
+      
+      // Zoom-dependent sensitivity: when zoomed in, scroll slower for finer control
+      // When zoomed out, scroll faster to cover more ground
+      // Use sqrt for gentler zoom scaling (was 2^(-zoom) which was too aggressive)
+      const zoomScale = Math.sqrt(Math.pow(2, Math.max(-4, Math.min(2, -currentZoom))));
+      
+      // Base scroll: normalize deltaY (typically ~100 per notch)
+      const normalizedDelta = e.deltaY / 100;
+      
+      // Final delta: base sensitivity * zoom scale * normalized input
+      const baseSensitivity = 0.15; // Very smooth scrolling
+      const delta = normalizedDelta * baseSensitivity * zoomScale;
       
       let newNorm = scrollNormRef.current + delta;
       newNorm = Math.max(0, Math.min(100, newNorm));

@@ -67,6 +67,7 @@ function SidebarProvider({
   onOpenChange?: (open: boolean) => void
 }) {
   const isMobile = useIsMobile()
+  // Start with sidebar closed on mobile (better UX for small screens)
   const [openMobile, setOpenMobile] = React.useState(false)
 
   // This is the internal state of the sidebar.
@@ -111,7 +112,8 @@ function SidebarProvider({
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
-  const state = open ? "expanded" : "collapsed"
+  // On mobile, use openMobile state; on desktop, use open state
+  const state = isMobile ? (openMobile ? "expanded" : "collapsed") : (open ? "expanded" : "collapsed")
 
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
@@ -193,7 +195,7 @@ function Sidebar({
         )}
         style={
           state === "collapsed" && collapsible === "offcanvas" 
-            ? { width: '0', boxSizing: 'border-box' }
+            ? { width: '0', boxSizing: 'border-box', overflow: 'hidden' }
             : { width: 'var(--sidebar-width)', boxSizing: 'border-box' }
         }
       />
@@ -206,13 +208,13 @@ function Sidebar({
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
-            ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            ? "p-2 group-data-[collapsible=offcanvas]:p-0 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
+            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l group-data-[collapsible=offcanvas]:border-none",
           className
         )}
         style={
           state === "collapsed" && collapsible === "offcanvas"
-            ? { width: '0', boxSizing: 'border-box' }
+            ? { width: '0', boxSizing: 'border-box', overflow: 'hidden', visibility: 'hidden' }
             : isInset 
               ? { width: 'var(--sidebar-width)', boxSizing: 'border-box' } 
               : { width: 'var(--sidebar-width)' }
@@ -233,6 +235,7 @@ function Sidebar({
 function SidebarTrigger({
   className,
   onClick,
+  style,
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { toggleSidebar } = useSidebar()
@@ -244,14 +247,13 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("size-7 flex items-center justify-center border", className)}
+      className={cn("size-7 flex items-center justify-center border touch-manipulation", className)}
       style={{
-        position: 'absolute',
-        top: '22px',
-        right: '-50px',
-        zIndex: 99999,
+        zIndex: 100000,
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         transition: 'transform 0.2s',
+        pointerEvents: 'auto',
+        ...style,
       }}
       onClick={(event) => {
         if (onClick) onClick(event)
@@ -313,7 +315,8 @@ function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
         className
       )}
       // Set max height and hide overflow to clip content that extends beyond bounds
-      style={{ maxHeight: '100vh', overflow: 'hidden' }}
+      // Note: overflow-clip-margin or padding-top might be needed for mobile toolbars
+      style={{ maxHeight: '100vh', overflow: 'hidden', isolation: 'isolate' }}
   {...props}
     />
   )

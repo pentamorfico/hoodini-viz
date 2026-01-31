@@ -12,7 +12,7 @@ import {OrthographicView} from '@deck.gl/core';
 import ScrollbarWidget from '../widgets/ScrollbarWidget';
 import RulerWidget from '../widgets/RulerWidget';
 import TreeScaleWidget from '../widgets/TreeScaleWidget';
-import { DEFAULT_CONFIG, VisualizationConfig } from '../config/visualizationConfig';
+import { DEFAULT_CONFIG, VisualizationConfig, calculateTipWidth } from '../config/visualizationConfig';
 import { useTheme } from '../contexts/ThemeContext';
 import { getPaletteColors } from '../utils/colorPalettes';
 import { memoGetPalette as sharedMemoGetPalette } from '../utils/paletteCache';
@@ -353,6 +353,27 @@ export interface HoodiniVizProps {
    */
   arrowheadHeight?: number;
   
+  /**
+   * Mode for calculating gene tip width.
+   * 'factor': tipWidth = geneLength * tipWidthFactor
+   * 'fixed': tipWidth = min(tipWidthFixed, geneLength)
+   * @default 'factor'
+   */
+  tipWidthMode?: 'factor' | 'fixed';
+  
+  /**
+   * Factor for tip width when tipWidthMode='factor' (proportion of gene length).
+   * @default 0.05
+   */
+  tipWidthFactor?: number;
+  
+  /**
+   * Fixed tip width in nucleotides when tipWidthMode='fixed'.
+   * Will be clamped to gene length for short genes.
+   * @default 200
+   */
+  tipWidthFixed?: number;
+  
   /** 
    * X-axis scale factor for the phylogenetic tree (percentage).
    * 100 = actual size, 50 = compressed, 200 = stretched.
@@ -460,6 +481,9 @@ export interface HoodiniVizProps {
   
   /** Show/hide tree text labels. @default true */
   showTreeTextLayer?: boolean;
+  
+  /** Show/hide baseline (hood) layer. @default true */
+  showBaselineLayer?: boolean;
 
   // ============================================================================
   // INTERACTION PROPS
@@ -591,7 +615,7 @@ export interface HoodiniVizProps {
 }
 
 // Toggle verbose debug/perf logging in Storybook
-const DEBUG_LOGS = true;
+const DEBUG_LOGS = false;
 
 const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   newickStr,
@@ -629,6 +653,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   // Committed values (only update when slider is released)
   arrowheadHeight,
   geneHeight,
+  tipWidthMode,
+  tipWidthFactor,
+  tipWidthFixed,
   genePalette,
   domainPalette,
   phyloPalette,
@@ -653,6 +680,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   showRegionsLayer = true,
   showGeneTextLayer = true,
   showTreeTextLayer = true,
+  showBaselineLayer = true,
   geneLabelPosition = 'bottom',
   flashHood = null,
   // Custom color maps - override automatic palette assignment
@@ -719,7 +747,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
   // Normalize hiddenGeneIds to Set<string>
   const hiddenGeneSet = React.useMemo(() => {
-    console.log('[HoodiniViz] hiddenGeneIds changed:', hiddenGeneIds?.size ?? 0, 'items:', hiddenGeneIds ? Array.from(hiddenGeneIds) : []);
     if (!hiddenGeneIds) return new Set<string>();
     if (hiddenGeneIds instanceof Set) return hiddenGeneIds;
     if (Array.isArray(hiddenGeneIds)) return new Set(hiddenGeneIds.map(String));
@@ -959,14 +986,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     setHighlightedHoodData(matchedHoods.length > 0 ? matchedHoods : null);
   }, [flashHood]);
 
-  // If the gene label vertical position changes, force an alignmentVersion bump
-  // so DeckGL layers that depend on alignmentVersion or geneLabelPosition will
-  // re-evaluate their accessors immediately (avoids needing manual "Force refresh").
-  useEffect(() => {
-    try {
-      setAlignmentVersion(v => (v || 0) + 1);
-    } catch (e) {}
-  }, [geneLabelPosition]);
+  // NOTE: Removed useEffect that bumped alignmentVersion on geneLabelPosition change.
+  // geneLabelPosition is already included in layer dependencies, so this was causing
+  // unnecessary double-renders.
 
   // Use a ref for genomeView so it persists across renders
   const genomeViewRef = useRef(null);
@@ -1360,17 +1382,18 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       genomeView.setProteinClustersWithPalette(strictClusterMap, effectiveGenePalette);
     }
 
-    // Apply ncRNA palette colors if enabled  
+    // Apply or clear ncRNA palette colors
+    // Always call to allow clearing colors when palette is disabled
     const effectiveNcRNAPalette = ncRNAPalette || config?.colorPalettes?.ncRNAPalette;
-    if (effectiveNcRNAPalette?.enabled) {
-      genomeView.setNcRNAColorsWithPalette(effectiveNcRNAPalette);
-    }
+    genomeView.setNcRNAColorsWithPalette(effectiveNcRNAPalette);
 
-    // Apply region palette colors if enabled
+    // Apply or clear region palette colors
+    // Always call to allow clearing colors when palette is disabled
     const effectiveRegionPalette = regionPalette || config?.colorPalettes?.regionPalette;
-    if (effectiveRegionPalette?.enabled) {
-      genomeView.setRegionColorsWithPalette(effectiveRegionPalette);
-    }
+    genomeView.setRegionColorsWithPalette(effectiveRegionPalette);
+    
+    // Force re-render to reflect changes immediately
+    setAlignmentVersion(prev => prev + 1);
   }, [genomeView, genePalette, ncRNAPalette, regionPalette, strictClusterMap, config?.colorPalettes]);
 
   // Effect that responds to forceUpdateCounter changes from parent
@@ -1457,11 +1480,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     return `${genomeXScaleProp}-${defaultAlign}-${alignCluster || ''}-${useDefaultGeneAlignment}-${ySpacingProp}-${alignmentCounterRef.current}`;
   }, [genomeView, genomeXScaleProp, defaultAlign, alignCluster, useDefaultGeneAlignment, ySpacingProp]);
 
-  // Keep alignmentVersion in sync for backwards compatibility (other parts of code may depend on it)
-  // But now it updates synchronously via signature change, not async via effect
-  React.useEffect(() => {
-    setAlignmentVersion(alignmentCounterRef.current);
-  }, [alignmentSignature]);
+  // NOTE: Removed useEffect that updated alignmentVersion from alignmentSignature
+  // This was causing a double-render on initial load. Code now uses alignmentSignature
+  // directly in dependencies instead of alignmentVersion state.
 
   // Compute treeLabelPadding based on the longest leaf label length - use useMemo for synchronous calculation
   // Now accounts for multiple columns and phylolabel size to avoid overlap with hoods
@@ -1522,6 +1543,44 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     return baseTextPadding + sizeBasedPadding;
   }, [tree, treeMetadata, treeLabelBy, config, phyloLabelSizeProp]);
 
+  // Pre-compute label lengths for each leaf (used for dynamic padding calculation)
+  const labelLengthByLeaf = React.useMemo(() => {
+    if (!tree) return new Map<string, number>();
+    
+    const getMetaForLeaf = (leafName: string) => {
+      if (!treeMetadata) return {};
+      if (treeMetadata[leafName]) return treeMetadata[leafName];
+      const vals = Object.values(treeMetadata);
+      for (let i = 0; i < vals.length; ++i) {
+        const e = vals[i];
+        if (!e) continue;
+        if (e.leaf_id == leafName || e.leaf_name == leafName || e.id == leafName || e.name == leafName) return e;
+      }
+      return {};
+    };
+    
+    const treeLabelByColumns = treeLabelBy 
+      ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').map(s => s.trim()).filter(Boolean))
+      : null;
+    
+    const lengthMap = new Map<string, number>();
+    tree.leafNodes.forEach(l => {
+      const meta = getMetaForLeaf(l.name) || {};
+      let label;
+      if (treeLabelByColumns && treeLabelByColumns.length > 0) {
+        const values = treeLabelByColumns
+          .map(col => col === 'name' ? l.name : meta[col])
+          .filter(v => v !== null && v !== undefined && v !== '');
+        label = values.length > 0 ? values.join(' | ') : l.name;
+      } else {
+        label = meta[treeLabelBy];
+        if (label === undefined || label === null) label = l.name;
+      }
+      lengthMap.set(String(l.name), String(label).length);
+    });
+    return lengthMap;
+  }, [tree, treeMetadata, treeLabelBy]);
+
   // Utility to compute bounding box from all polygons/paths
   function computeBounds(genomeView, tree, phyloLabelPosition = 'after-tree', treeXScaleOverride = null, includeTree = true, visibleHoods: Set<string> | null = null) {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -1534,16 +1593,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const filterByVisibleHoods = visibleHoods && visibleHoods.size > 0;
     
     if (DEBUG_LOGS) console.log('[computeBounds] filterByVisibleHoods:', filterByVisibleHoods, 'visibleHoods size:', visibleHoods?.size || 0);
+    if (DEBUG_LOGS && filterByVisibleHoods) {
+      console.log('[computeBounds] visibleHoods contents:', Array.from(visibleHoods).slice(0, 10));
+      const sampleGenes = Object.values(genomeView.genesById).slice(0, 5);
+      console.log('[computeBounds] sample gene hood_ids:', sampleGenes.map(g => ({ id: g.id, hood_id: g.hood_id, type: typeof g.hood_id })));
+    }
     
     if (filterByVisibleHoods) {
       // Calculate X bounds only from visible hoods
+      let matchedGenes = 0;
       Object.values(genomeView.genesById).forEach(g => {
         // Skip genes not in visible hoods
         if (!visibleHoods.has(String(g.hood_id))) return;
+        matchedGenes++;
         if (g.polygon) g.polygon.forEach(([x, y]) => {
           minX = Math.min(minX, x); maxX = Math.max(maxX, x);
         });
       });
+      if (DEBUG_LOGS) console.log('[computeBounds] matchedGenes in visibleHoods:', matchedGenes);
       Object.values(genomeView.ncRNAsById).forEach(nc => {
         if (!visibleHoods.has(String(nc.hood_id))) return;
         if (nc.polygon) nc.polygon.forEach(([x, y]) => {
@@ -1617,25 +1684,69 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Note: nucleotides baselines are excluded from minX/minHoodX to avoid skew from flips/offsets.
     
     // Tree paths: get maxX with scaling - ALWAYS calculate treeMaxX for treeOffset
+    // When filtering by visible hoods (node selected), only consider edges that connect to visible leaves
     let treeMaxX = -Infinity;
     const treeXScale = treeXScaleOverride !== null ? treeXScaleOverride / 100 : 
                       (config.tree && typeof config.tree.xScalePercent === 'number') ? config.tree.xScalePercent / 100 : 1;
-    if (tree) tree.buildEdges().forEach(e => {
-      e.path.forEach(([x, y]) => {
-        treeMaxX = Math.max(treeMaxX, x * treeXScale);
+    if (tree) {
+      // Build a set of nodes that should be included in tree bounds calculation
+      // When filtering by visible hoods, only include edges within the visible subtree
+      let relevantNodeIds: Set<string> | null = null;
+      
+      if (filterByVisibleHoods && visibleHoods && visibleHoods.size > 0) {
+        // Get all ancestors of visible leaves to include full subtree paths
+        relevantNodeIds = new Set<string>();
+        
+        // Find leaf nodes that match visible hoods
+        for (const node of tree.allNodes) {
+          // Check branchset (not children) - PhyloNode uses branchset
+          const isLeaf = !node.branchset || node.branchset.length === 0;
+          if (isLeaf) {
+            // This is a leaf
+            if (visibleHoods.has(String(node.name)) || visibleHoods.has(String(node.id))) {
+              // Walk up to root, adding all ancestors
+              let current = node;
+              while (current) {
+                relevantNodeIds.add(String(current.id || current.name));
+                current = current.parent;
+              }
+            }
+          }
+        }
+        if (DEBUG_LOGS) console.log('[computeBounds] relevantNodeIds size:', relevantNodeIds.size, 'sample:', Array.from(relevantNodeIds).slice(0, 5));
+      }
+      
+      tree.buildEdges().forEach(e => {
+        // If filtering, only include edges where both endpoints are in the relevant subtree
+        if (relevantNodeIds) {
+          const sourceId = String(e.source?.id || e.source?.name);
+          const targetId = String(e.target?.id || e.target?.name);
+          if (!relevantNodeIds.has(sourceId) && !relevantNodeIds.has(targetId)) {
+            return; // Skip this edge - not part of visible subtree
+          }
+        }
+        
+        e.path.forEach(([x, y]) => {
+          treeMaxX = Math.max(treeMaxX, x * treeXScale);
+        });
       });
-    });
+      if (DEBUG_LOGS && filterByVisibleHoods) console.log('[computeBounds] treeMaxX after filtering:', treeMaxX);
+    }
     // Use hoods if available as the authoritative leftmost genome coordinate
     // Add validation: if all values are NaN, use minX as fallback
-    // Prefer the already filtered/scaled GenomeView globalMin when available
+    // When filtering by visible hoods, use the filtered minX instead of globalMin
     // This avoids letting a single baseline with large negative offset dominate bounds
-    const leftmostGenomeRaw = isFinite(genomeView.globalMin)
-      ? genomeView.globalMin
-      : isFinite(minHoodX)
-        ? minHoodX
-        : isFinite(minX)
-          ? minX
-          : -Infinity; // Use -Infinity to trigger fallback
+    const leftmostGenomeRaw = filterByVisibleHoods
+      ? (isFinite(minX) ? minX : (isFinite(minHoodX) ? minHoodX : -Infinity))
+      : (isFinite(genomeView.globalMin)
+          ? genomeView.globalMin
+          : isFinite(minHoodX)
+            ? minHoodX
+            : isFinite(minX)
+              ? minX
+              : -Infinity); // Use -Infinity to trigger fallback
+    
+    if (DEBUG_LOGS && filterByVisibleHoods) console.log('[computeBounds] FILTERED: minX=', minX, 'minHoodX=', minHoodX, 'leftmostGenomeRaw=', leftmostGenomeRaw, 'treeMaxX=', treeMaxX);
     
     // Set geneOffset so that the leftmost genome coordinate (prefer hoods) is at configurable position
     const geneOffset = isFinite(leftmostGenomeRaw) ? (config.layout.geneOffset - leftmostGenomeRaw) : 0;
@@ -1646,11 +1757,38 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     // Only apply treeLabelPadding when phylo labels are positioned after tree
     const effectivePhyloLabelPosition = phyloLabelPosition || config.tree?.phyloLabelPosition || 'after-tree';
-    const labelPadding = effectivePhyloLabelPosition === 'after-tree' ? treeLabelPadding : 0;
+    
+    // Calculate label padding dynamically based on visible leaves only
+    let effectiveLabelPadding = 0;
+    if (effectivePhyloLabelPosition === 'after-tree' && tree) {
+      // Get visible leaves - either from visibleHoods filter or all leaves
+      const visibleLeaves = filterByVisibleHoods && visibleHoods
+        ? tree.leafNodes.filter(l => visibleHoods.has(String(l.name)) || visibleHoods.has(String(l.id)))
+        : tree.leafNodes;
+      
+      if (visibleLeaves.length > 0) {
+        const charWidth = config.tree.labelPadding.charWidth;
+        // Use phyloLabelSizeProp (actual current size) not just config default
+        const phyloLabelSize = typeof phyloLabelSizeProp === 'number' 
+          ? phyloLabelSizeProp 
+          : (config?.text?.phyloLabelSize || 14);
+        const sizeScaleFactor = config?.text?.scaleFactors?.phylo || 1;
+        const scaledLabelSize = phyloLabelSize * sizeScaleFactor;
+        const sizeBasedPadding = scaledLabelSize * 5.0;
+        
+        // Use pre-computed label lengths from labelLengthByLeaf map (considers metadata labels)
+        // Fall back to l.name length if not in map
+        const maxLen = visibleLeaves.reduce((max, l) => {
+          const labelLen = labelLengthByLeaf.get(String(l.name)) ?? String(l.name).length;
+          return Math.max(max, labelLen);
+        }, 0);
+        effectiveLabelPadding = maxLen * charWidth + sizeBasedPadding;
+      }
+    }
     
     // treeOffset is ALWAYS calculated when there's a tree (needed for ruler)
     const treeOffset = isFinite(treeMaxX) && isFinite(leftmostGenomeX)
-      ? (leftmostGenomeX - treeMaxX - treeGap - labelPadding)
+      ? (leftmostGenomeX - treeMaxX - treeGap - effectiveLabelPadding)
       : 0;
     
     // Include tree in X bounds calculation - only if includeTree is true
@@ -1778,6 +1916,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     geneHeight,
     arrowheadHeight,
     visibleLeavesSetForBounds,
+    phyloLabelSizeProp,
+    labelLengthByLeaf,
   ]);
   
   // boundsWithTree = genes + tree (for auto-fit and centering)
@@ -1797,6 +1937,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     geneHeight,
     arrowheadHeight,
     visibleLeavesSetForBounds,
+    phyloLabelSizeProp,
+    labelLengthByLeaf,
   ]);
   
   // Update static bounds when we have valid data OR when scale/spacing parameters change
@@ -1897,6 +2039,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     };
 
     const resolveGeneColor = (g) => {
+      // When palette is disabled, always use theme default color
+      if (!effectiveGenePalette?.enabled) {
+        return ensureRgba(themeColors.geneFill);
+      }
+      
       const primaryField = geneColorBy || colorBy || 'cluster';
       let key = g?.metadata?.[primaryField];
       if (key === null || key === undefined || key === '') {
@@ -1905,8 +2052,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }
       }
       let col = null;
-    if (geneColorMap && !isEmptyValue(key)) {
-  col = getColorFromMap(geneColorMap, normalizeKey(key), effectiveGenePalette?.type) || null;
+      if (geneColorMap && !isEmptyValue(key)) {
+        col = getColorFromMap(geneColorMap, normalizeKey(key), effectiveGenePalette?.type) || null;
       }
       return ensureRgba(col || g.fillColor || themeColors.geneFill);
     };
@@ -2496,7 +2643,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       .map(k => normalizeKey(k))
       .filter(key => !isEmptyValue(key));
     
-    const uniqueKeys = [...new Set(validKeys)].sort(); // Sort for stable ordering
+    // Sort keys: numerically if all are numeric, otherwise alphabetically
+    const uniqueKeys = [...new Set(validKeys)].sort((a, b) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return String(a).localeCompare(String(b));
+    });
     if (uniqueKeys.length === 0) return null;
     
     // Check if we can reuse the cached stable map
@@ -2515,7 +2670,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       effectiveGenePalette.numColors && effectiveGenePalette.type === 'sequential'
         ? effectiveGenePalette.numColors
         : Math.max(uniqueKeys.length, effectiveGenePalette.numColors || uniqueKeys.length),
-      effectiveGenePalette.reverse || false
+      effectiveGenePalette.reverse || false,
+      effectiveGenePalette.type || 'qualitative'
     );
     
     const colorMap = new Map();
@@ -2578,7 +2734,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       paletteColors = memoGetPalette(
         effectivePhyloPalette.name,
         Math.max(sortedColorValues.length, effectivePhyloPalette.numColors || sortedColorValues.length),
-        effectivePhyloPalette.reverse || false
+        effectivePhyloPalette.reverse || false,
+        effectivePhyloPalette.type || 'qualitative'
       );
     } catch (e) {
       paletteColors = [];
@@ -2628,7 +2785,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (useStableColors && !stableGeneColorMap) return null;
     
     const primaryField = geneColorBy || colorBy || 'cluster';
-    const genes = Object.values(genomeView.genesById);
+    
+    // In dynamic mode, only consider genes that are in visible leaves
+    // In stable mode, consider all genes
+    let genes = Object.values(genomeView.genesById);
+    if (!useStableColors && visibleLeavesForPrevalence && visibleLeavesForPrevalence.size > 0) {
+      genes = genes.filter(g => {
+        const hoodId = g.hood_id || genomeView.getHoodIdFromSeqid(g.seqid);
+        return hoodId && visibleLeavesForPrevalence.has(hoodId);
+      });
+    }
 
     const extractKey = (g) => {
       let key = g?.metadata?.[primaryField];
@@ -2645,7 +2811,15 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       .map(k => normalizeKey(k))
       .filter(key => !isEmptyValue(key));
     
-    const uniqueKeys = [...new Set(validKeys)].sort(); // Sort for stable ordering
+    // Sort keys: numerically if all are numeric, otherwise alphabetically
+    const uniqueKeys = [...new Set(validKeys)].sort((a, b) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      return String(a).localeCompare(String(b));
+    });
     if (uniqueKeys.length === 0) return null;
     
     // Determine numeric mode for key lookups
@@ -2654,6 +2828,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     const colorMap = new Map();
     const defaultGeneColor = DEFAULT_CONFIG.gene.fillColor;
+    // When transparentByPrevalence is enabled, default color should be fully transparent
+    const transparentDefault = effectiveGenePalette.transparentByPrevalence 
+      ? [defaultGeneColor[0], defaultGeneColor[1], defaultGeneColor[2], 0]
+      : defaultGeneColor;
     const thresholdDecimal = (effectiveGenePalette.prevalenceFilter || 0) / 100;
     
     if (useStableColors) {
@@ -2665,12 +2843,17 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         // Get the stable color for this key
         const stableColor = getColorFromMap(stableGeneColorMap, key, effectiveGenePalette?.type);
         
-        // Use stable color if passes prevalence, otherwise default gray
-        let finalColor = passesPrevalence ? stableColor : defaultGeneColor;
+        // Use stable color if passes prevalence, otherwise transparent/default
+        let finalColor = passesPrevalence ? stableColor : transparentDefault;
         
         // Apply desaturation by prevalence if enabled
         if (passesPrevalence && effectiveGenePalette.desaturateByPrevalence && genePrevalenceMap && genomeView._desaturateColorByPrevalence) {
           finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
+        }
+        
+        // Apply transparency by prevalence if enabled
+        if (passesPrevalence && effectiveGenePalette.transparentByPrevalence && genePrevalenceMap && genomeView._transparentByPrevalence) {
+          finalColor = genomeView._transparentByPrevalence(finalColor, prevalence);
         }
         
         // Store in both string and numeric forms
@@ -2693,7 +2876,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         effectiveGenePalette.numColors && effectiveGenePalette.type === 'sequential'
           ? effectiveGenePalette.numColors
           : Math.max(keysForPalette.length, effectiveGenePalette.numColors || keysForPalette.length),
-        effectiveGenePalette.reverse || false
+        effectiveGenePalette.reverse || false,
+        effectiveGenePalette.type || 'qualitative'
       );
       
       // Assign colors to keys that pass prevalence
@@ -2712,6 +2896,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
           }
           
+          if (effectiveGenePalette.transparentByPrevalence && genePrevalenceMap && genomeView._transparentByPrevalence) {
+            const prevalence = genePrevalenceMap.get(String(key)) || 0;
+            finalColor = genomeView._transparentByPrevalence(finalColor, prevalence);
+          }
+          
           colorMap.set(val, finalColor);
           try { colorMap.set(String(key), finalColor); } catch (e) {}
         });
@@ -2724,21 +2913,26 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             finalColor = genomeView._desaturateColorByPrevalence(finalColor, prevalence);
           }
           
+          if (effectiveGenePalette.transparentByPrevalence && genePrevalenceMap && genomeView._transparentByPrevalence) {
+            const prevalence = genePrevalenceMap.get(String(key)) || 0;
+            finalColor = genomeView._transparentByPrevalence(finalColor, prevalence);
+          }
+          
           colorMap.set(String(key), finalColor);
           const num = toNumeric(key);
           if (!isNaN(num)) colorMap.set(num, finalColor);
         });
       }
       
-      // Assign default color to keys that don't pass prevalence
+      // Assign default/transparent color to keys that don't pass prevalence
       uniqueKeys.forEach(key => {
         const prevalence = genePrevalenceMap?.get(String(key)) || 0;
         if (prevalence < thresholdDecimal) {
           const mapKey = (effectiveGenePalette.type === 'sequential' && isNumericGene) ? toNumeric(key) : String(key);
-          colorMap.set(mapKey, defaultGeneColor);
-          try { colorMap.set(String(key), defaultGeneColor); } catch (e) {}
+          colorMap.set(mapKey, transparentDefault);
+          try { colorMap.set(String(key), transparentDefault); } catch (e) {}
           const num = toNumeric(key);
-          if (!isNaN(num)) colorMap.set(num, defaultGeneColor);
+          if (!isNaN(num)) colorMap.set(num, transparentDefault);
         }
       });
     }
@@ -2748,6 +2942,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     genomeView,
     stableGeneColorMap, // Use stable colors as base
     genePrevalenceMap, 
+    visibleLeavesForPrevalence, // For dynamic mode: only visible genes
     // depend on primitive palette properties so toggling/enabling recomputes reliably
     effectiveGenePalette?.enabled,
     effectiveGenePalette?.type,
@@ -2755,6 +2950,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     effectiveGenePalette?.numColors, // For dynamic mode palette generation
     effectiveGenePalette?.reverse, // For dynamic mode palette generation
     effectiveGenePalette?.desaturateByPrevalence,
+    effectiveGenePalette?.transparentByPrevalence, // Transparency by prevalence
     effectiveGenePalette?.prevalenceFilter,
     effectiveGenePalette?.stableColors, // Track stable colors setting
     useStableColors, // Flag for stable vs dynamic mode
@@ -3223,7 +3419,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             paletteColors = memoGetPalette(
               effectivePhyloPalette.name,
               Math.max(sortedValues.length, effectivePhyloPalette.numColors || sortedValues.length),
-              effectivePhyloPalette.reverse || false
+              effectivePhyloPalette.reverse || false,
+              effectivePhyloPalette.type || 'qualitative'
             );
           } catch (e) {
             // palette error, fall through to hash colors
@@ -3531,7 +3728,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       effectiveDomainPalette.numColors && effectiveDomainPalette.type === 'sequential'
         ? effectiveDomainPalette.numColors
         : Math.max(uniqueKeys.length, effectiveDomainPalette.numColors || uniqueKeys.length),
-      paletteReverse
+      paletteReverse,
+      effectiveDomainPalette.type || 'qualitative'
     );
 
     const colorMap = new Map();
@@ -4044,8 +4242,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
   const proteinLinkData = React.useMemo(() => {
     if (!genomeView || !genomeView.proteinLinks || !Array.isArray(genomeView.proteinLinks)) return [];
     // Apply colors before building data array
+    // Pass themeColors.geneFill as default gene color for when gene coloring is disabled
     if (proteinLinkConfig) {
-      genomeView.applyProteinLinkColors(proteinLinkConfig);
+      genomeView.applyProteinLinkColors(proteinLinkConfig, themeColors.geneFill);
     }
     
     // Get visible hoods when a node is selected
@@ -4061,6 +4260,22 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
     }
     
+    // Helper to get gene key for visibility check (same logic as isGeneVisibleInLayer)
+    const getGeneKey = (gene: any) => {
+      if (!gene) return null;
+      const attrs = gene.attributes;
+      let attrId = null;
+      if (attrs) {
+        if (typeof attrs === 'string') {
+          const match = attrs.match(/ID=([^;]+)/);
+          attrId = match ? match[1] : null;
+        } else if (typeof attrs === 'object') {
+          attrId = attrs.ID || attrs.gene_id || attrs.protein_id || null;
+        }
+      }
+      return gene.originalGeneId || gene.gene_id || attrId || gene.uniqueId;
+    };
+    
     // Filter and map protein links
     return genomeView.proteinLinks
       .filter(pl => {
@@ -4072,20 +4287,78 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         // Filter by hidden hoods (using global helper)
         if (isHoodHidden(hoodA) || isHoodHidden(hoodB)) return false;
         
+        // Filter by hidden genes (explicit hiddenGeneSet from props)
+        if (hiddenGeneSet.size > 0) {
+          const keyA = getGeneKey(gA);
+          const keyB = getGeneKey(gB);
+          if ((keyA && hiddenGeneSet.has(String(keyA))) || (keyB && hiddenGeneSet.has(String(keyB)))) {
+            return false;
+          }
+        }
+        
+        // Note: Prevalence-based transparency is applied in .map() below, not filtered here
+        // This allows links to fade with genes rather than disappearing abruptly
+        
         // If no node is selected, show all remaining links
         if (!visibleHoods) return true;
         // Only show links where both genes' hoods are visible
         return hoodA && hoodB && visibleHoods.has(hoodA) && visibleHoods.has(hoodB);
       })
-      .map((pl, i) => ({
-        id: `${pl.gAId}|${pl.gBId}|${i}`,
-        gAId: pl.gAId,
-        gBId: pl.gBId,
-        metadata: pl.metadata || pl,
-        fillColor: pl.fillColor || [150,150,150,255],
-        _k: `${alignmentVersion}_${i}`
-      }));
-  }, [genomeView, genomeView?.proteinLinks, paletteVersion, alignmentVersion, proteinLinkConfigKey, geneColorMap, selectedNode, isHoodHidden]);
+      .map((pl, i) => {
+        let fillColor = pl.fillColor || [150,150,150,255];
+        
+        // When transparentByPrevalence is enabled, apply gene prevalence to link alpha (multiplicative)
+        if (effectiveGenePalette?.transparentByPrevalence && geneColorMap) {
+          const gA = genomeView.genesById[pl.gAId];
+          const gB = genomeView.genesById[pl.gBId];
+          const primaryField = geneColorBy || colorBy || 'cluster';
+          
+          // Get prevalence alpha for gene A
+          let geneAKey = gA?.metadata?.[primaryField];
+          if (geneAKey === null || geneAKey === undefined || geneAKey === '') {
+            if (primaryField === 'cluster') {
+              geneAKey = gA?.metadata?.clusterId ?? gA?.metadata?.cluster_id ?? gA?.cluster;
+            }
+          }
+          const geneAColor = geneAKey != null && geneAKey !== '' 
+            ? getColorFromMap(geneColorMap, geneAKey, effectiveGenePalette?.type)
+            : null;
+          
+          // Get prevalence alpha for gene B
+          let geneBKey = gB?.metadata?.[primaryField];
+          if (geneBKey === null || geneBKey === undefined || geneBKey === '') {
+            if (primaryField === 'cluster') {
+              geneBKey = gB?.metadata?.clusterId ?? gB?.metadata?.cluster_id ?? gB?.cluster;
+            }
+          }
+          const geneBColor = geneBKey != null && geneBKey !== '' 
+            ? getColorFromMap(geneColorMap, geneBKey, effectiveGenePalette?.type)
+            : null;
+          
+          // Use the minimum prevalence alpha (most transparent) of both genes
+          const alphaA = geneAColor && Array.isArray(geneAColor) && geneAColor.length >= 4 ? geneAColor[3] / 255 : 0;
+          const alphaB = geneBColor && Array.isArray(geneBColor) && geneBColor.length >= 4 ? geneBColor[3] / 255 : 0;
+          const prevalenceAlpha = Math.min(alphaA, alphaB);
+          
+          // Multiply link's own alpha with prevalence alpha
+          const linkAlpha = Array.isArray(fillColor) && fillColor.length >= 4 ? fillColor[3] / 255 : 1;
+          const combinedAlpha = Math.round(linkAlpha * prevalenceAlpha * 255);
+          
+          fillColor = Array.isArray(fillColor) 
+            ? [fillColor[0], fillColor[1], fillColor[2], combinedAlpha]
+            : fillColor;
+        }
+        
+        return {
+          id: `${pl.gAId}|${pl.gBId}|${i}`,
+          gAId: pl.gAId,
+          gBId: pl.gBId,
+          metadata: pl.metadata || pl,
+          fillColor,
+          _k: `${alignmentVersion}_${i}`
+        };
+      });
+  }, [genomeView, genomeView?.proteinLinks, genomeView?._paletteVersion, paletteVersion, alignmentVersion, proteinLinkConfigKey, geneColorMap, selectedNode, isHoodHidden, hiddenGeneSet, effectiveGenePalette?.enabled, effectiveGenePalette?.transparentByPrevalence, effectiveGenePalette?.prevalenceFilter, geneColorBy, colorBy, themeColors.geneFill]);
 
   // Debug: log selectedNode changes
   React.useEffect(() => {
@@ -4241,7 +4514,10 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         ...baseConfig.gene,
         height: finalGeneHeight,
         arrowheadHeight: finalArrowheadHeight,
-        edgeWidth: finalStrokeLineWidth
+        edgeWidth: finalStrokeLineWidth,
+        tipWidthMode: tipWidthMode ?? baseConfig.gene?.tipWidthMode ?? DEFAULT_CONFIG.gene.tipWidthMode,
+        tipWidthFactor: tipWidthFactor ?? baseConfig.gene?.tipWidthFactor ?? DEFAULT_CONFIG.gene.tipWidthFactor,
+        tipWidthFixed: tipWidthFixed ?? baseConfig.gene?.tipWidthFixed ?? DEFAULT_CONFIG.gene.tipWidthFixed
       },
       genome: {
         ...baseConfig.genome,
@@ -4261,7 +4537,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         lineWidth: finalStrokeLineWidth
       }
     };
-  }, [styleConfig, config, effectiveTreeXScale, geneHeight, arrowheadHeight, ySpacingProp, genomeXScaleProp, strokeLineWidthProp, phyloLabelSizeProp, geneLabelSizeProp, rulerLabelSizeProp]);
+  }, [styleConfig, config, effectiveTreeXScale, geneHeight, arrowheadHeight, tipWidthMode, tipWidthFactor, tipWidthFixed, ySpacingProp, genomeXScaleProp, strokeLineWidthProp, phyloLabelSizeProp, geneLabelSizeProp, rulerLabelSizeProp]);
 
   // ========== GLOW SYNC EFFECTS ==========
   // These effects sync highlighted element positions/colors when geometry or theme changes
@@ -4374,7 +4650,20 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     
     const halfH = currentGeneHeight / 2;
     const arrowH = currentArrowheadHeight / 2;
-    const tipWidth = (effectiveConfig.gene?.tipWidthFactor || 0.15) * Math.abs(end - start);
+    const geneLength = Math.abs(end - start);
+    const tipWidth = calculateTipWidth(geneLength, effectiveConfig);
+    
+    // When tipWidth is 0 or very small, draw a simple rectangle (no arrow tip)
+    if (tipWidth < 1) {
+      const sortedStart = Math.min(start, end);
+      const sortedEnd = Math.max(start, end);
+      return [
+        [sortedStart, trackY - halfH],
+        [sortedEnd, trackY - halfH],
+        [sortedEnd, trackY + halfH],
+        [sortedStart, trackY + halfH],
+      ];
+    }
     
     if (strand === '+' || strand === 1) {
       const arrowStart = Math.max(start, end - tipWidth);
@@ -4399,7 +4688,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         [end, trackY + halfH],
       ];
     }
-  }, [effectiveConfig.gene?.height, effectiveConfig.gene?.geneHeight, effectiveConfig.gene?.arrowheadHeight, effectiveConfig.genome?.xScalePercent, effectiveConfig.gene?.tipWidthFactor]);
+  }, [effectiveConfig.gene?.height, effectiveConfig.gene?.geneHeight, effectiveConfig.gene?.arrowheadHeight, effectiveConfig.genome?.xScalePercent, effectiveConfig.gene?.tipWidthFactor, effectiveConfig.gene?.tipWidthMode, effectiveConfig.gene?.tipWidthFixed]);
 
   // Initial polygon calculation when highlightedGeneData is set without polygon
   // This runs immediately when a gene is clicked to ensure glow appears
@@ -4665,7 +4954,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // NOTE: Include genome.xScalePercent so gene positions update when genomeXScale slider changes
     // Include ySpacing so changing vertical spacing forces a full track recompute
     // NOTE: Include hiddenHoodSet.size and hiddenGeneSet.size to force rebuild when visibility toggles change
-    const geomSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${effectiveConfig.gene.arrowheadHeight}:${effectiveConfig.domain.heightFactor || 0.6}:${effectiveConfig.genome.xScalePercent}:${effectiveConfig.tree.ySpacing}:${alignmentVersion}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${selectedNode?.id ?? 'null'}:${visibleLeavesSet.size}:${hiddenHoodSet.size}:${hiddenGeneSet.size}`;
+    // NOTE: Include tipWidthMode, tipWidthFactor, tipWidthFixed so gene polygons update when tip shape changes
+    const geomSignature = `${Object.keys(genomeView.genesById).length}:${effectiveConfig.gene.height}:${effectiveConfig.gene.arrowheadHeight}:${effectiveConfig.domain.heightFactor || 0.6}:${effectiveConfig.genome.xScalePercent}:${effectiveConfig.tree.ySpacing}:${alignmentVersion}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${selectedNode?.id ?? 'null'}:${visibleLeavesSet.size}:${hiddenHoodSet.size}:${hiddenGeneSet.size}:${effectiveConfig.gene.tipWidthMode}:${effectiveConfig.gene.tipWidthFactor}:${effectiveConfig.gene.tipWidthFixed}`;
     const signatureMatches = lastGeometrySignatureRef.current === geomSignature;
     const scaleMatches = lastEffectiveTreeXScaleRef.current === effectiveTreeXScale;
     const isFirstRender = lastGeometrySignatureRef.current === null;
@@ -4782,15 +5072,16 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
       // Update region polygons synchronously
       const regionsStart = performance.now();
-      genomeView.getAllRegions().forEach(region => {
+      const allRegions = genomeView.getAllRegions();
+      if (DEBUG_LOGS) console.log(`  📐 getAllRegions returned: ${allRegions.length} regions`);
+      
+      // 🚀 OPTIMIZATION: updatePolygon doesn't actually use genesInRegion parameter
+      // It only needs trackY and config to calculate the rectangle
+      allRegions.forEach(region => {
         region.config = effectiveConfig;
-        // Get genes in this region for polygon calculation
-        const genesInRegion = Object.values(genomeView.genesById).filter(gene => 
-          region.containsGene && region.containsGene(gene)
-        );
         const trackY = genomeView.getTrackYByHoodId(region.hood_id);
         if (trackY !== null && trackY !== undefined) {
-          region.updatePolygon(genesInRegion, trackY);
+          region.updatePolygon([], trackY);  // Empty array - genes not needed
         }
       });
       if (DEBUG_LOGS) console.log(`  📐 regions updatePolygon: ${(performance.now() - regionsStart).toFixed(1)}ms`);
@@ -4819,7 +5110,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // NOTE: Use selectedNode?.id (not name) because internal nodes have empty names!
     // NOTE: Include hiddenHoodSet.size and visibleLeavesSet.size to detect visibility changes
     // NOTE: Include ySpacing and genomeXScale so caches invalidate when these sliders change
-    const structuralSignature = `${Object.keys(genomeView.genesById).length}:${alignmentVersion}:${effectiveTreeXScale}:${selectedNode?.id ?? 'null'}:${ultrametric}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${hiddenHoodSet.size}:${visibleLeavesSet.size}:${effectiveConfig.tree.ySpacing}:${effectiveConfig.genome.xScalePercent}`;
+    // NOTE: Include phyloLabelPosition and phyloLabelSizeProp to invalidate when tree label position/size changes
+    const structuralSignature = `${Object.keys(genomeView.genesById).length}:${alignmentVersion}:${effectiveTreeXScale}:${selectedNode?.id ?? 'null'}:${ultrametric}:${defaultAlign}:${alignCluster || ''}:${useDefaultGeneAlignment}:${hiddenHoodSet.size}:${visibleLeavesSet.size}:${effectiveConfig.tree.ySpacing}:${effectiveConfig.genome.xScalePercent}:${phyloLabelPosition}:${phyloLabelSizeProp}`;
     const canUseCachedHoods = cachedHoodsRef.current?.signature === structuralSignature;
     const canUseCachedTreeNodesStructure = cachedTreeNodesRef.current?.structuralSignature === structuralSignature;
     
@@ -4830,7 +5122,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     const localBounds = computeBounds(genomeView, tree, phyloLabelPosition, effectiveTreeXScale, true, visibleLeavesSetForBounds);
     const treeOffset = localBounds.treeOffset || 0;
     cachedBoundsRef.current = localBounds;
-    if (DEBUG_LOGS) console.log(`📊 bounds computed in ${(performance.now() - boundsStart).toFixed(1)}ms`);
+    if (DEBUG_LOGS) console.log(`📊 bounds computed in ${(performance.now() - boundsStart).toFixed(1)}ms, treeOffset=${treeOffset}, phyloLabelPosition=${phyloLabelPosition}`);
     
     // Use pre-filtered and pre-computed data but create fresh copies so
     // DeckGL receives new object identities when underlying geometry changes.
@@ -4950,6 +5242,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (allDomains.length === 0) {
       if (DEBUG_LOGS) console.log(`📊 domains built in ${(performance.now() - domainsStart).toFixed(1)}ms (0 domains - skipped)`);
     } else {
+    if (DEBUG_LOGS) console.log(`📊 domains starting filtering... (${allDomains.length} total)`);
     // Domain rendering: filter by selected node (clade) first, then by source, then by hidden hoods/genes
     let renderedDomains = allDomains;
     if (selectedNode) {
@@ -4975,6 +5268,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       renderedDomains = renderedDomains.filter(d => !isDomainGeneHidden(d));
     }
 
+    if (DEBUG_LOGS) console.log(`📊 domains filtered to ${renderedDomains.length}, now mapping...`);
+    const domainMapStart = performance.now();
     domains = renderedDomains.map(d => {
       // If the domain palette is disabled, ignore any stored domain.fillColor
       // so rendering falls back to theme defaults. When enabled, prefer the
@@ -4996,10 +5291,45 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }
       }
 
+      // When transparentByPrevalence is enabled for genes, domains should inherit
+      // the transparency of their parent gene (multiplicative: domain alpha * gene prevalence alpha)
+      if (effectiveGenePalette?.transparentByPrevalence && d.geneId && geneColorMap) {
+        const gene = genomeView.genesById[d.geneId];
+        if (gene) {
+          const primaryField = geneColorBy || colorBy || 'cluster';
+          let geneKey = gene?.metadata?.[primaryField];
+          if (geneKey === null || geneKey === undefined || geneKey === '') {
+            if (primaryField === 'cluster') {
+              geneKey = gene?.metadata?.clusterId ?? gene?.metadata?.cluster_id ?? gene?.cluster;
+            }
+          }
+          // Get the gene's color which includes prevalence-based transparency
+          const geneColor = geneKey !== null && geneKey !== undefined && geneKey !== '' 
+            ? getColorFromMap(geneColorMap, geneKey, effectiveGenePalette?.type)
+            : null;
+          
+          // Multiply the domain's alpha with the gene's prevalence alpha
+          if (geneColor && Array.isArray(geneColor) && geneColor.length >= 4) {
+            const geneAlpha = geneColor[3] / 255; // Normalize to 0-1
+            const domainAlpha = Array.isArray(fillColor) && fillColor.length >= 4 ? fillColor[3] / 255 : 1;
+            const combinedAlpha = Math.round(domainAlpha * geneAlpha * 255);
+            fillColor = Array.isArray(fillColor) 
+              ? [fillColor[0], fillColor[1], fillColor[2], combinedAlpha]
+              : fillColor;
+          } else if (!geneColor) {
+            // Gene has no value, make domain fully transparent
+            fillColor = Array.isArray(fillColor)
+              ? [fillColor[0], fillColor[1], fillColor[2], 0]
+              : fillColor;
+          }
+        }
+      }
+
       // Create new polygon reference so DeckGL detects the geometry change
       // when gene height or arrowheadHeight changes
       return { ...d, fillColor, polygon: d.polygon ? [...d.polygon] : null };
     });
+    if (DEBUG_LOGS) console.log(`📊 domains map took: ${(performance.now() - domainMapStart).toFixed(1)}ms`);
     if (DEBUG_LOGS) console.log(`📊 domains built in ${(performance.now() - domainsStart).toFixed(1)}ms (${domains.length} domains)`);
     } // End of domains processing block
 
@@ -5437,6 +5767,20 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         }
         return Array.isArray(themeColors.geneFill) ? themeColors.geneFill : [150,150,150,255];
       };
+      
+      // When palette is disabled, always use theme default color for stroke
+      if (!effectiveGenePalette?.enabled) {
+        const fill = ensureRgba(themeColors.geneFill || effectiveConfig.gene.fillColor);
+        const isLightTheme = themeColors.background === '#ffffff';
+        const factor = isLightTheme ? 0.7 : 1.3;
+        return [
+          Math.max(0, Math.min(255, Math.floor(fill[0] * factor))),
+          Math.max(0, Math.min(255, Math.floor(fill[1] * factor))),
+          Math.max(0, Math.min(255, Math.floor(fill[2] * factor))),
+          fill[3] ?? 255
+        ];
+      }
+      
       // Resolve live from palette if available. When a palette for a non-cluster
       // metadata field is active, prefer the mapped palette color over any
       // stored per-gene fillColor (which may come from previous cluster palettes).
@@ -5457,9 +5801,25 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       let fill;
       if (geneColorMap && primaryField !== 'cluster') {
         // Palette for a non-cluster field is active: ignore stored gene.fillColor
-        fill = ensureRgba(col || effectiveConfig.gene.fillColor);
+        if (col) {
+          fill = ensureRgba(col);
+        } else if (effectiveGenePalette.transparentByPrevalence) {
+          // No value and transparentByPrevalence is on: make stroke transparent too
+          const defaultCol = ensureRgba(effectiveConfig.gene.fillColor);
+          fill = [defaultCol[0], defaultCol[1], defaultCol[2], 0];
+        } else {
+          fill = ensureRgba(effectiveConfig.gene.fillColor);
+        }
       } else {
-        fill = ensureRgba(col || gene.fillColor || effectiveConfig.gene.fillColor);
+        if (col) {
+          fill = ensureRgba(col);
+        } else if (effectiveGenePalette.transparentByPrevalence) {
+          // No value and transparentByPrevalence is on: make stroke transparent too
+          const defaultCol = ensureRgba(gene.fillColor || effectiveConfig.gene.fillColor);
+          fill = [defaultCol[0], defaultCol[1], defaultCol[2], 0];
+        } else {
+          fill = ensureRgba(gene.fillColor || effectiveConfig.gene.fillColor);
+        }
       }
       const isLightTheme = themeColors.background === '#ffffff';
       const factor = isLightTheme ? 0.7 : 1.3;
@@ -5786,7 +6146,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
       const geneHeight = effectiveConfig.gene.height || effectiveConfig.gene.defaultHeight;
       const arrowheadHeight = effectiveConfig.gene.arrowheadHeight || 0;
-      const TIP_WIDTH_FACTOR = effectiveConfig.gene.tipWidthFactor || 0.1;
 
       let start = d.start;
       let end = d.end;
@@ -5797,9 +6156,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
 
       const length = Math.abs(end - start);
-      const tipWidth = length * TIP_WIDTH_FACTOR;
+      const tipWidth = calculateTipWidth(length, effectiveConfig);
       const halfH = geneHeight / 2;
       const isForward = (d.strand === '+');
+      
+      // When tipWidth is 0 or very small, draw a simple rectangle (no arrow tip)
+      if (tipWidth < 1) {
+        return [
+          [start, trackY - halfH],
+          [end, trackY - halfH],
+          [end, trackY + halfH],
+          [start, trackY + halfH]
+        ];
+      }
       
       // When arrowheadHeight is 0 or very small, use 5-vertex arrow polygon
       // where the tip has the same height as the gene body
@@ -5894,7 +6263,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
 
       const geneHeight = effectiveConfig.gene.height || effectiveConfig.gene.defaultHeight;
       const arrowheadHeight = effectiveConfig.gene.arrowheadHeight || 0;
-      const TIP_WIDTH_FACTOR = effectiveConfig.gene.tipWidthFactor || 0.1;
 
       let start = d.start;
       let end = d.end;
@@ -5905,7 +6273,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
 
       const length = Math.abs(end - start);
-      const tipWidth = length * TIP_WIDTH_FACTOR;
+      const tipWidth = calculateTipWidth(length, effectiveConfig);
       const halfH = geneHeight / 2;
       const isForward = (d.strand === '+');
       const arrowheadHalfHeight = (halfH + arrowheadHeight / 2);
@@ -6088,7 +6456,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       new LineLayer({
         id: 'hoods',
         data: nucleotideHoods,
-        visible: true, // Always render baselines; visibility is controlled via table hide set
+        visible: showBaselineLayer, // Control baseline visibility via prop
         getSourcePosition: d => [d.start, d.trackY],
         getTargetPosition: d => [d.end, d.trackY],
         getColor: hoodColor,
@@ -6184,6 +6552,13 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             const alphaRange = maxAlpha - minAlpha;
             const calculatedAlpha = minAlpha + (normalizedSimilarity * alphaRange);
             alpha = Math.round(calculatedAlpha * 255);
+          }
+          
+          // Apply prevalence-based alpha from proteinLinkData (already calculated in the useMemo)
+          // This makes links transparent when their connected genes are transparent
+          if (d.fillColor && Array.isArray(d.fillColor) && d.fillColor.length >= 4) {
+            const prevalenceAlpha = d.fillColor[3] / 255; // 0-1 range
+            alpha = Math.round(alpha * prevalenceAlpha);
           }
           
           return [...baseColor, alpha];
@@ -6503,9 +6878,24 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           // If a palette for a non-cluster field is active, do NOT fall back to
           // stored per-gene fillColor (which may originate from a previous
           // cluster palette). Instead use the mapped color or the theme default.
-          if (!col) col = themeColors.geneFill || effectiveConfig.gene.fillColor;
+          // When transparentByPrevalence is enabled, genes without value should be transparent
+          if (!col) {
+            if (effectiveGenePalette.transparentByPrevalence) {
+              const defaultCol = themeColors.geneFill || effectiveConfig.gene.fillColor;
+              col = [defaultCol[0], defaultCol[1], defaultCol[2], 0];
+            } else {
+              col = themeColors.geneFill || effectiveConfig.gene.fillColor;
+            }
+          }
         } else {
-          if (!col) col = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
+          if (!col) {
+            if (effectiveGenePalette.transparentByPrevalence) {
+              const defaultCol = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
+              col = [defaultCol[0], defaultCol[1], defaultCol[2], 0];
+            } else {
+              col = d.fillColor || themeColors.geneFill || effectiveConfig.gene.fillColor;
+            }
+          }
         }
 
           const base = ensureRgba(col);
@@ -6536,9 +6926,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
             ySpacingProp,
             genomeXScaleProp
           ],
-          getFillColor: [genesData, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, alignmentVersion, effectiveGenePalette?.enabled],
+          getFillColor: [genesData, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, alignmentVersion, effectiveGenePalette?.enabled, effectiveGenePalette?.transparentByPrevalence],
           // Include resolvedTheme because getGeneEdgeColor uses themeColors.background to decide darken/lighten factor
-          getLineColor: [genesData, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, effectiveConfig.gene.edgeWidth, alignmentVersion, resolvedTheme],
+          getLineColor: [genesData, geneColorBy, colorBy, paletteVersion, themeColors.geneFill, effectiveConfig.gene.edgeWidth, alignmentVersion, resolvedTheme, effectiveGenePalette?.transparentByPrevalence],
           getLineWidth: effectiveConfig.gene.edgeWidth,
           stroked: effectiveConfig.gene.edgeWidth
         }
@@ -6552,7 +6942,14 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         getPolygon: d => d.polygon,
         getFillColor: d => d.fillColor || themeColors.geneFill || config.colors.gray,
         stroked: true,
-        getLineColor: () => config.colors.black,
+        getLineColor: d => {
+          // When domain has transparency (from gene's transparentByPrevalence), stroke should match
+          const fillColor = d.fillColor || config.colors.black;
+          if (Array.isArray(fillColor) && fillColor.length >= 4 && fillColor[3] < 255) {
+            return [0, 0, 0, fillColor[3]]; // Black stroke with same alpha as fill
+          }
+          return config.colors.black;
+        },
         getLineWidth: () => effectiveConfig.domain.edgeWidth || 2,
         lineWidthUnits: 'pixels',
         filled: true,
@@ -6561,7 +6958,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         updateTriggers: {
           // Include gene.height and gene.arrowheadHeight so domain polygons update when gene size changes
           getPolygon: [domains, alignmentVersion, effectiveConfig.domain.height, effectiveConfig.gene.height, effectiveConfig.gene.arrowheadHeight, effectiveConfig.domain.heightFactor, domainSource, selectedNode, ySpacingProp, genomeXScaleProp],
-          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill, domainSource, selectedNode],
+          getFillColor: [domains.length, domainColorBy, paletteVersion, themeColors.domainFill, domainSource, selectedNode, effectiveGenePalette?.transparentByPrevalence, geneColorMap],
+          getLineColor: [domains.length, effectiveGenePalette?.transparentByPrevalence],
           getLineWidth: effectiveConfig.domain.edgeWidth
         }
       }),
@@ -6968,6 +7366,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     hiddenHoodSet,
     hiddenGeneSet,
     isHoodHidden,
+    showBaselineLayer,
     showTreeLayer,
     showGeneLayer,
     showDomainLayer,
@@ -7041,7 +7440,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         
         const halfH = currentGeneHeight / 2;
         const arrowH = currentArrowheadHeight / 2;
-        const tipWidth = (effectiveConfig.gene?.tipWidthFactor || 0.15) * Math.abs(end - start);
+        const geneLength = Math.abs(end - start);
+        const tipWidth = calculateTipWidth(geneLength, effectiveConfig);
+        
+        // Rectangle case when tipWidth is 0
+        if (tipWidth < 1) {
+          const [minX, maxX] = start < end ? [start, end] : [end, start];
+          return [
+            [minX, trackY - halfH - arrowH],
+            [maxX, trackY - halfH - arrowH],
+            [maxX, trackY + halfH + arrowH],
+            [minX, trackY + halfH + arrowH],
+          ];
+        }
         
         if (strand === '+' || strand === 1) {
           const arrowStart = Math.max(start, end - tipWidth);
@@ -7594,7 +8005,6 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     // Get current gene geometry parameters
     const currentGeneHeight = effectiveConfig.gene?.height || geneHeight || DEFAULT_CONFIG.gene.height;
     const currentArrowheadHeight = effectiveConfig.gene?.arrowheadHeight ?? arrowheadHeight ?? DEFAULT_CONFIG.gene.arrowheadHeight;
-    const TIP_WIDTH_FACTOR = effectiveConfig.gene?.tipWidthFactor || DEFAULT_CONFIG.gene.tipWidthFactor;
 
     // Helper to compute polygon from gene data with current geometry settings
     const computeGenePolygon = (d) => {
@@ -7610,9 +8020,19 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       }
 
       const length = Math.abs(end - start);
-      const tipWidth = length * TIP_WIDTH_FACTOR;
+      const tipWidth = calculateTipWidth(length, effectiveConfig);
       const halfH = currentGeneHeight / 2;
       const isForward = (d.strand === '+');
+
+      // When tipWidth is 0 or very small, draw a simple rectangle (no arrow tip)
+      if (tipWidth < 1) {
+        return [
+          [start, trackY - halfH],
+          [end, trackY - halfH],
+          [end, trackY + halfH],
+          [start, trackY + halfH]
+        ];
+      }
 
       // 5-vertex arrow when arrowheadHeight is 0
       if (currentArrowheadHeight < 0.1) {
@@ -8383,7 +8803,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         alignmentReferencePoint: getAlignmentReferencePoint(genomeViewRef.current),
         bounds,
         genomeView: genomeViewRef.current,
-        precomputedTicks: rulerWidgetRef.current ? rulerWidgetRef.current.getTicks() : undefined
+        precomputedTicks: rulerWidgetRef.current ? rulerWidgetRef.current.getTicks() : undefined,
+        // Pass tree visibility flags for SVG export
+        // Tree ruler should only show if: tree data exists AND (showTreeLayer OR showTreeTextLayer)
+        showTreeLayer: showTreeLayer && hasNewick,
+        showTreeTextLayer: showTreeTextLayer && hasNewick
       } : undefined;
       
       // Filter layers based on current visibility settings
@@ -8880,8 +9304,21 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
               return;
             }
             
-            const paddingY = config?.scrollbar?.panPaddingY ?? 50;
-            const paddingX = config?.scrollbar?.panPaddingX ?? 500;
+            // Base padding values
+            const basePaddingY = config?.scrollbar?.panPaddingY ?? 50;
+            const basePaddingX = config?.scrollbar?.panPaddingX ?? 500;
+            
+            // Dynamic padding: increase when zoomed in to allow seeing labels and edges
+            // At zoom=0 (scale=1), use base padding
+            // At higher zoom (e.g., zoom=2, scale=4), increase padding proportionally
+            const zoomScale = Math.pow(2, vs.zoom || 0);
+            const zoomMultiplier = Math.max(1, zoomScale * 0.5); // Increases with zoom
+            
+            // Also add extra X padding for phylo labels when they're visible
+            const labelPadding = phyloLabelPosition !== 'none' ? (treeLabelPadding || 200) : 0;
+            
+            const paddingY = basePaddingY * zoomMultiplier;
+            const paddingX = (basePaddingX + labelPadding) * zoomMultiplier;
             
             // Calculate dynamic zoom limits based on data bounds and container size
             // minZoom: allow seeing all data + padding with some margin

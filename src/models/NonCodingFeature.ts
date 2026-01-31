@@ -1,13 +1,14 @@
 // NonCodingFeature.js
 import GFFFeature from './GFFFeature';
+import { calculateTipWidth, DEFAULT_CONFIG } from '../config/visualizationConfig';
 
 class NonCodingFeature extends GFFFeature {
   constructor(seqid, start, end, strand, type, attributes, config) {
     super(seqid, start, end, strand, type, attributes);
-    this.config = config;
+    this.config = config || DEFAULT_CONFIG;
     this.polygon = null;
     this.trackY = null;
-    this.featureHeight = config?.gene?.height || 60;
+    this.featureHeight = this.config?.gene?.height || 60;
     this.metadata = { seqid, start, end, strand, type, attributes };
   }
 
@@ -33,12 +34,31 @@ class NonCodingFeature extends GFFFeature {
     }
     
     const length = Math.abs(end - start);
-    // Use config tipWidthFactor if available, else default to 0.2
-    const tipWidth = length * (this.config?.gene?.tipWidthFactor ?? 0.2);
+    // Use calculateTipWidth for consistent tip width calculation
+    const tipWidth = calculateTipWidth(length, this.config);
     const halfH = featureHeight / 4;
     const isForward = (this.strand === '+');
     const arrowheadHeight = this.config?.gene?.arrowheadHeight || 0;
     const arrowheadHalfHeight = (halfH + arrowheadHeight / 2);
+
+    // When tipWidth is 0 or very small, draw a simple rectangle (no arrow tip)
+    if (tipWidth < 1) {
+      if (isForward) {
+        return [
+          [start, trackY],
+          [start, trackY + halfH],
+          [end, trackY + halfH],
+          [end, trackY],
+        ];
+      } else {
+        return [
+          [end, trackY],
+          [end, trackY - halfH],
+          [start, trackY - halfH],
+          [start, trackY],
+        ];
+      }
+    }
 
     if (isForward) {
       // Flip: Lower half arrow (right, but use lower half instead of upper)

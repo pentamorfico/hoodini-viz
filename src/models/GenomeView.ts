@@ -369,27 +369,6 @@ class GenomeView {
       const anchor = hoodLength / 2;
       const flipped = !!this.trackFlipped[hood_id];
 
-      // DEBUG: Log data for hoods with start=0 (the problematic ones)
-      const isStart0Hood = hoodRange && hoodRange.origStart === 0;
-      if (isStart0Hood) {
-        // Also log first gene's transformation
-        const hoodGenes = genesByHood[hood_id] || [];
-        const firstGene = hoodGenes[0];
-        if (firstGene) {
-          const geneOrigStart = firstGene.origStart || 0;
-          const rawX = geneOrigStart + offset;
-          const scaledX = anchor + (rawX - anchor) * xScale;
-          console.log(`[computeTrackPositions] hood_id=${hood_id} seqid=${seqid}`, {
-            hoodLength, anchor, offset, flipped, xScale,
-            firstGene: firstGene.originalGeneId,
-            geneOrigStart,
-            rawX,
-            scaledX,
-            expectedAlignX: 0
-          });
-        }
-      }
-
       let rightmostX = -Infinity;
 
       // genes
@@ -578,11 +557,6 @@ class GenomeView {
     if (isFinite(minX) && isFinite(maxX)) {
       this.globalMin = minX;
       this.globalMax = maxX;
-      // Debug: log bounds extremes
-      if (minGene || maxGene) {
-        console.log('[updateGlobalBounds] minX:', minX, 'minGene:', minGene?.originalGeneId, 'hood:', minGene?.hood_id);
-        console.log('[updateGlobalBounds] maxX:', maxX, 'maxGene:', maxGene?.originalGeneId, 'hood:', maxGene?.hood_id);
-      }
     }
   }
 
@@ -665,9 +639,6 @@ class GenomeView {
     }
     
     // Log attachment stats
-    if (attemptedCount > 0) {
-      console.log(`[addDomainMetadata] Attached ${attachedCount}/${attemptedCount} domain metadata entries`);
-    }
   }
 
   addProteinLinks(links, color = [50, 100, 220], adjacencyN = Infinity) {
@@ -745,7 +716,7 @@ class GenomeView {
 
   // ---------- coloring ----------
 
-  applyProteinLinkColors(colorConfig) {
+  applyProteinLinkColors(colorConfig, defaultGeneColor = null) {
     if (!this.proteinLinks?.length) return;
 
     let paletteColors = null;
@@ -765,8 +736,13 @@ class GenomeView {
       const geneA = this.genesById[link.gAId];
       const geneB = this.genesById[link.gBId];
 
-      const sourceGeneColor = (colorConfig?.colorBy === 'source_gene') ? geneA?.fillColor : null;
-      const targetGeneColor = (colorConfig?.colorBy === 'target_gene') ? geneB?.fillColor : null;
+      // Use gene's fillColor if available, otherwise fall back to defaultGeneColor
+      const sourceGeneColor = (colorConfig?.colorBy === 'source_gene') 
+        ? (geneA?.fillColor || defaultGeneColor) 
+        : null;
+      const targetGeneColor = (colorConfig?.colorBy === 'target_gene') 
+        ? (geneB?.fillColor || defaultGeneColor) 
+        : null;
 
       let paletteColor = null;
       if (colorConfig?.colorBy === 'identity_gradient' && paletteColors) {
@@ -775,7 +751,7 @@ class GenomeView {
         paletteColor = paletteColors[idx];
       }
 
-      link.updateColor(colorConfig, sourceGeneColor, targetGeneColor, paletteColor);
+      link.updateColor(colorConfig, sourceGeneColor, targetGeneColor, paletteColor, defaultGeneColor);
     }
   }
 
@@ -1112,7 +1088,19 @@ class GenomeView {
 
     // Assign colors
     this.clusterColors = {};
-  const clusterIds = Array.from(new Set(Object.values(this.proteinClusters))).sort();
+  // Sort cluster IDs: numerically if all are numeric, otherwise alphabetically
+  const clusterIds = Array.from(new Set(Object.values(this.proteinClusters)))
+    .filter(id => id != null)
+    .sort((a, b) => {
+      const numA = Number(a);
+      const numB = Number(b);
+      // If both are valid numbers, sort numerically
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return numA - numB;
+      }
+      // Otherwise sort as strings
+      return String(a).localeCompare(String(b));
+    });
 
     let clusterColors = [];
     if (paletteConfig.name) {
@@ -1260,6 +1248,21 @@ class GenomeView {
     ];
   }
 
+  // Apply alpha transparency to a color based on prevalence
+  // prevalence: 0-1 (0 = not present, 1 = present in all baselines)
+  // Lower prevalence = more transparent, higher prevalence = more opaque
+  _transparentByPrevalence(color, prevalence, minAlpha = 0.1) {
+    if (!color || !Array.isArray(color)) return color;
+    
+    const [r, g, b] = color;
+    
+    // Scale alpha from minAlpha (at prevalence 0) to 255 (at prevalence 1)
+    // Using minAlpha to ensure even rare items are slightly visible
+    const alpha = Math.round(minAlpha * 255 + prevalence * (255 - minAlpha * 255));
+    
+    return [r, g, b, alpha];
+  }
+
   // Cached cluster summary: { items: [{id, size, label}], ids: [id,...] }
   _computeClusterSummary() {
     const clustersMap = this.proteinClusters || {};
@@ -1281,30 +1284,25 @@ class GenomeView {
   }
 
   setNcRNAColorsWithPalette(paletteConfig = null) {
-    if (!paletteConfig || !paletteConfig.enabled) {
-      return;
-    }
-
     const ncRNAs = Object.values(this.ncRNAsById);
-    console.log('[setNcRNAColorsWithPalette] Total ncRNAs:', ncRNAs.length);
-    if (ncRNAs.length > 0) {
-      console.log('[setNcRNAColorsWithPalette] First ncRNA metadata:', ncRNAs[0]?.metadata);
+    
+    // If palette is disabled or null, clear colors to default
+    if (!paletteConfig || !paletteConfig.enabled) {
+      for (const ncRNA of ncRNAs) {
+        ncRNA.fillColor = this.config?.gene?.fillColor || [200, 200, 200, 255];
+      }
+      return;
     }
     
     const ncRNAsWithValidTypes = ncRNAs.filter(nc => {
       const key = nc.metadata && nc.metadata.type;
       const isEmpty = isEmptyValue(key);
-      if (isEmpty) {
-        console.log('[setNcRNAColorsWithPalette] ncRNA filtered out, type=', key, 'metadata=', nc.metadata);
-      }
       return !isEmpty;
     });
     
-    console.log('[setNcRNAColorsWithPalette] ncRNAs with valid types:', ncRNAsWithValidTypes.length);
     if (ncRNAsWithValidTypes.length === 0) return;
 
   const ncRNATypeKeys = Array.from(new Set(ncRNAsWithValidTypes.map(nc => normalizeKey(nc.metadata.type))));
-    console.log('[setNcRNAColorsWithPalette] Unique type keys:', ncRNATypeKeys);
     let ncRNAColors = [];
     
     if (paletteConfig.name) {
@@ -1343,12 +1341,17 @@ class GenomeView {
   }
 
   setRegionColorsWithPalette(paletteConfig = null) {
-    if (!paletteConfig || !paletteConfig.enabled) {
-      return;
-    }
-
     const regions = Object.values(this.regionsById);
     if (regions.length === 0) return;
+    
+    // If palette is disabled or null, clear colors to default (transparent fill, gray stroke)
+    if (!paletteConfig || !paletteConfig.enabled) {
+      for (const region of regions) {
+        region.fillColor = [0, 0, 0, 0]; // Transparent
+        region.strokeColor = [100, 100, 100, 255]; // Gray stroke
+      }
+      return;
+    }
 
     const validKeys = regions
       .map(r => r.getColorKey())
@@ -1474,17 +1477,13 @@ class GenomeView {
     const target = (clusterId === undefined || clusterId === null) ? null : String(clusterId).trim();
     const xScalePercent = (this.config.genome && typeof this.config.genome.xScalePercent === 'number') ? this.config.genome.xScalePercent : 100;
     const xScale = xScalePercent / 100;
-    
-    console.log('[alignCluster] START clusterId:', clusterId, 'xScalePercent:', xScalePercent, 'xScale:', xScale);
 
     const allClusterGenes = Object.entries(this.genesById)
       .filter(([uid, gene]) => this.proteinClusters && this.proteinClusters[uid] === target)
       .map(([_, gene]) => gene);
     if (allClusterGenes.length === 0) {
-      console.log('[alignCluster] No genes found for cluster', target);
       return;
     }
-    console.log('[alignCluster] Found', allClusterGenes.length, 'genes for cluster', target);
 
     const genesByTrack = {};
     for (const gene of allClusterGenes) (genesByTrack[gene.hood_id] ||= []).push(gene);
@@ -1550,17 +1549,8 @@ class GenomeView {
       this.trackOffset[hood_id] = requiredOffset;
     }
 
-    // Log offsets for hoods 1, 2, 7 before recomputing
-    console.log('[alignCluster] Final offsets:', {
-      hood1: this.trackOffset['1'],
-      hood2: this.trackOffset['2'],
-      hood7: this.trackOffset['7']
-    });
-
     // Recompute positions for all tracks after applying offsets
-    console.log('[alignCluster] Calling computeTrackPositions...');
     this.computeTrackPositions();
-    console.log('[alignCluster] END');
   }
 
   alignAllToStart() {
@@ -1639,37 +1629,6 @@ class GenomeView {
       }
     }
     this.computeTrackPositions();
-
-    // Debug: ALWAYS log per-hood alignment results and baseline extremes for end alignment
-    // to diagnose why bounds extend past 0
-    try {
-      console.group('[GenomeView] alignAllToEnd');
-      console.log(`xScale=${xScalePercent}%`);
-      const baselineStarts = [];
-      const baselineEnds = [];
-      for (const hood_id of this.leaves) {
-        const seqid = this.hoodToSeqidMap[hood_id];
-        const nuc = seqid ? this.nucleotidesBySeqid[seqid] : null;
-        const flipped = !!this.trackFlipped[hood_id];
-        const offset = this.trackOffset[hood_id] || 0;
-        const hoodRange = this.hoodRanges[hood_id];
-        const len = hoodRange?.length || (nuc?.hood ? (nuc.hood.origEnd - nuc.hood.origStart) : 0) || 0;
-        const bStart = nuc?.hood?.start;
-        const bEnd = nuc?.hood?.end;
-        if (typeof bStart === 'number' && isFinite(bStart)) baselineStarts.push([hood_id, bStart]);
-        if (typeof bEnd === 'number' && isFinite(bEnd)) baselineEnds.push([hood_id, bEnd]);
-        console.log(`hood=${hood_id} flipped=${flipped} len=${len} offset=${offset.toFixed(2)} baseline=(${bStart?.toFixed(2) ?? 'n/a'}, ${bEnd?.toFixed(2) ?? 'n/a'})`);
-      }
-      baselineStarts.sort((a, b) => a[1] - b[1]);
-      baselineEnds.sort((a, b) => a[1] - b[1]);
-      const minStart = baselineStarts[0]?.[1];
-      const minStartHood = baselineStarts[0]?.[0];
-      const maxEnd = baselineEnds[baselineEnds.length - 1]?.[1];
-      const maxEndHood = baselineEnds[baselineEnds.length - 1]?.[0];
-      console.log(`SUMMARY: minStart=${minStart?.toFixed(2)} (hood=${minStartHood}) maxEnd=${maxEnd?.toFixed(2)} (hood=${maxEndHood})`);
-      console.log(`global bounds: minX=${this.globalMin?.toFixed(2)} maxX=${this.globalMax?.toFixed(2)}`);
-      console.groupEnd();
-    } catch (e) { console.error('[alignAllToEnd] debug error:', e); }
   }
 
   alignAllToCenter() {

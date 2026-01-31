@@ -7,13 +7,12 @@ import {
   getSequentialPalettes, 
   getDivergingPalettes,
   getPaletteColors,
-  getPaletteColorCounts,
-  RECOMMENDED_PALETTES
+  getPaletteColorCounts
 } from '../utils/colorPalettes';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
 // Global cache for palette previews - computed once per type at module level
@@ -179,43 +178,7 @@ const ColorPaletteWidget = ({
               <SelectValue placeholder="Select a palette..." />
             </SelectTrigger>
             <SelectContent>
-              {RECOMMENDED_PALETTES[safePaletteConfig.type] &&
-                RECOMMENDED_PALETTES[safePaletteConfig.type]
-                  .filter(rec => uniquePaletteNames.includes(rec.name))
-                  .map((rec) => {
-                    const previewColors = palettePreviewCache[rec.name] || [];
-                    return (
-                      <SelectItem key={`rec-${rec.name}`} value={rec.name}>
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-3 w-8 border border-border rounded overflow-hidden">
-                            {previewColors.map((color, idx) => (
-                              <div
-                                key={idx}
-                                className="flex-1"
-                                style={{
-                                  backgroundColor: `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3] / 255})`,
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <span>{rec.name} (recommended)</span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })
-              }
-
-              {RECOMMENDED_PALETTES[safePaletteConfig.type] &&
-                RECOMMENDED_PALETTES[safePaletteConfig.type].some(rec => uniquePaletteNames.includes(rec.name)) && (
-                <SelectSeparator />
-              )}
-
-              {uniquePaletteNames
-                .filter(name =>
-                  !RECOMMENDED_PALETTES[safePaletteConfig.type] ||
-                  !RECOMMENDED_PALETTES[safePaletteConfig.type].some(rec => rec.name === name)
-                )
-                .map(name => {
+              {uniquePaletteNames.map(name => {
                   const previewColors = palettePreviewCache[name] || [];
                   return (
                     <SelectItem key={name} value={name}>

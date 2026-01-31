@@ -16,7 +16,7 @@ class ProteinLink extends Link {
   }
 
   // Method to update color based on coloring configuration
-  updateColor(colorConfig, sourceGeneColor = null, targetGeneColor = null, paletteColor = null) {
+  updateColor(colorConfig, sourceGeneColor = null, targetGeneColor = null, paletteColor = null, defaultGeneColor = null) {
     if (!colorConfig) {
       // Default behavior - use similarity-based alpha
       const alpha = Math.round(255 * (this.similarity / 100));
@@ -27,18 +27,17 @@ class ProteinLink extends Link {
     let baseColor = this.baseColor;
     let alpha = 255;
 
+    // Fallback color: use defaultGeneColor if provided, otherwise baseColor
+    const fallbackColor = defaultGeneColor ? defaultGeneColor.slice(0, 3) : this.baseColor;
+
     switch (colorConfig.colorBy) {
       case 'source_gene':
-        // Use source gene color
-        if (sourceGeneColor) {
-          baseColor = sourceGeneColor.slice(0, 3);
-        }
+        // Use source gene color, fall back to default gene color
+        baseColor = sourceGeneColor ? sourceGeneColor.slice(0, 3) : fallbackColor;
         break;
       case 'target_gene':
-        // Use target gene color
-        if (targetGeneColor) {
-          baseColor = targetGeneColor.slice(0, 3);
-        }
+        // Use target gene color, fall back to default gene color
+        baseColor = targetGeneColor ? targetGeneColor.slice(0, 3) : fallbackColor;
         break;
       case 'identity_solid':
         baseColor = colorConfig.solidColor ? colorConfig.solidColor.slice(0, 3) : this.baseColor;

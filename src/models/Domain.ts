@@ -1,5 +1,65 @@
-import polygonClipping from 'polygon-clipping';
-import { DEFAULT_CONFIG } from '../config/visualizationConfig';
+import { DEFAULT_CONFIG, calculateTipWidth } from '../config/visualizationConfig';
+
+// Fast Sutherland-Hodgman polygon clipping algorithm
+// Much faster than polygon-clipping library for simple convex polygons
+function clipPolygon(subjectPolygon: number[][], clipPolygon: number[][]): number[][] | null {
+  if (!subjectPolygon || subjectPolygon.length < 3) return null;
+  if (!clipPolygon || clipPolygon.length < 3) return subjectPolygon;
+
+  let outputList = subjectPolygon.slice();
+
+  for (let i = 0; i < clipPolygon.length; i++) {
+    if (outputList.length === 0) return null;
+    
+    const inputList = outputList;
+    outputList = [];
+    
+    const edgeStart = clipPolygon[i];
+    const edgeEnd = clipPolygon[(i + 1) % clipPolygon.length];
+    
+    for (let j = 0; j < inputList.length; j++) {
+      const current = inputList[j];
+      const previous = inputList[(j + inputList.length - 1) % inputList.length];
+      
+      const currentInside = isInside(current, edgeStart, edgeEnd);
+      const previousInside = isInside(previous, edgeStart, edgeEnd);
+      
+      if (currentInside) {
+        if (!previousInside) {
+          const intersection = lineIntersection(previous, current, edgeStart, edgeEnd);
+          if (intersection) outputList.push(intersection);
+        }
+        outputList.push(current);
+      } else if (previousInside) {
+        const intersection = lineIntersection(previous, current, edgeStart, edgeEnd);
+        if (intersection) outputList.push(intersection);
+      }
+    }
+  }
+  
+  return outputList.length >= 3 ? outputList : null;
+}
+
+function isInside(point: number[], edgeStart: number[], edgeEnd: number[]): boolean {
+  return (edgeEnd[0] - edgeStart[0]) * (point[1] - edgeStart[1]) - 
+         (edgeEnd[1] - edgeStart[1]) * (point[0] - edgeStart[0]) >= 0;
+}
+
+function lineIntersection(p1: number[], p2: number[], p3: number[], p4: number[]): number[] | null {
+  const d1x = p2[0] - p1[0];
+  const d1y = p2[1] - p1[1];
+  const d2x = p4[0] - p3[0];
+  const d2y = p4[1] - p3[1];
+  
+  const cross = d1x * d2y - d1y * d2x;
+  if (Math.abs(cross) < 1e-10) return null;
+  
+  const dx = p3[0] - p1[0];
+  const dy = p3[1] - p1[1];
+  const t = (dx * d2y - dy * d2x) / cross;
+  
+  return [p1[0] + t * d1x, p1[1] + t * d1y];
+}
 
 // Domain.js
 class Domain {
@@ -43,39 +103,67 @@ class Domain {
 
   updatePolygon() {
     if (!this.parentGene || !this.parentGene.polygon) return;
-  const g = this.parentGene;
-  // Use original domain coordinates (origStart/origEnd) and let the
-  // creation routine decide whether to flip based on original vs visual
-  // gene strand. This avoids duplicated flipping/scale logic elsewhere.
-  let domainPoly = this.createDomainPolygon(g, this.origStart, this.origEnd);
+    const g = this.parentGene;
+    // Use original domain coordinates (origStart/origEnd) and let the
+    // creation routine decide whether to flip based on original vs visual
+    // gene strand. This avoids duplicated flipping/scale logic elsewhere.
+    const domainPoly = this.createDomainPolygon(g, this.origStart, this.origEnd);
+    
     if (domainPoly && g.polygon) {
-      // Clip domain polygon to gene polygon
-      const genePoly = [g.polygon];
-      const domainPolyArr = [domainPoly];
-      const clipped = polygonClipping.intersection(genePoly, domainPolyArr);
-      if (clipped && clipped.length > 0) {
-        // polygon-clipping may return nested arrays for multipolygons or rings.
-        // Try to pick the first coordinate ring we can render (array of [x,y]).
-        let chosen = null;
-        for (const part of clipped) {
-          if (!Array.isArray(part) || part.length === 0) continue;
-          // part may be a ring ([[x,y],...]) or an array of rings ([[[x,y],...], ...])
-          if (Array.isArray(part[0]) && Array.isArray(part[0][0]) && typeof part[0][0][0] === 'number') {
-            // part[0] is a ring
-            chosen = part[0];
-            break;
-          }
-          if (Array.isArray(part[0]) && typeof part[0][0] === 'number') {
-            chosen = part;
-            break;
-          }
-        }
-        this.polygon = chosen || null;
-      } else {
-        this.polygon = null;
-      }
+      // Build a CONVEX 5-vertex arrow polygon for clipping.
+      // The 7-vertex gene polygon (with arrowhead) is CONCAVE and 
+      // Sutherland-Hodgman doesn't work correctly with concave clip polygons.
+      // Using a 5-vertex arrow covers the full gene area and is convex.
+      const convexClipPoly = this.getConvexGenePolygon(g);
+      this.polygon = clipPolygon(domainPoly, convexClipPoly);
     } else {
       this.polygon = domainPoly;
+    }
+  }
+
+  // Build a convex 5-vertex arrow polygon for clipping
+  // This covers the full gene area (body + tip) and works with Sutherland-Hodgman
+  getConvexGenePolygon(g) {
+    const geneHeight = g.geneHeight || g.config?.gene?.height || 60;
+    const arrowheadHeight = g.config?.gene?.arrowheadHeight || 0;
+    const halfH = geneHeight / 2;
+    // The tip extends beyond the body by arrowheadHeight/2
+    const tipHalfH = halfH + arrowheadHeight / 2;
+    const trackY = g.trackY;
+    
+    let start = Math.min(g.start, g.end);
+    let end = Math.max(g.start, g.end);
+    const length = end - start;
+    const tipWidth = calculateTipWidth(length, g.config?.gene);
+    const isForward = g.strand === '+';
+    
+    // When tipWidth is 0 or very small, return a simple rectangle for clipping
+    if (tipWidth < 1) {
+      return [
+        [start, trackY - halfH],
+        [end, trackY - halfH],
+        [end, trackY + halfH],
+        [start, trackY + halfH]
+      ];
+    }
+    
+    // 5-vertex convex arrow polygon with proper tip height
+    if (isForward) {
+      return [
+        [start, trackY - halfH],
+        [end - tipWidth, trackY - tipHalfH],
+        [end, trackY],  // tip
+        [end - tipWidth, trackY + tipHalfH],
+        [start, trackY + halfH]
+      ];
+    } else {
+      return [
+        [end, trackY - halfH],
+        [start + tipWidth, trackY - tipHalfH],
+        [start, trackY],  // tip
+        [start + tipWidth, trackY + tipHalfH],
+        [end, trackY + halfH]
+      ];
     }
   }
 
@@ -110,13 +198,13 @@ class Domain {
   const endPos = this.interpolateOnLine(g.centerLine, domainRelEnd);
   const perp = this.perpVector(g.centerLine[0], g.centerLine[1]);
   const normPerp = this.normalize(perp);
-  // Compute half-height accounting for arrowhead height so domains are sized
-  // relative to the visual gene polygon (which includes arrowhead extension).
+  // Compute half-height based on the gene BODY height (not arrowhead height).
+  // Domains should fit within the gene body, not extend to the arrowhead tip.
+  // Using arrowheadHeight here would cause domains to be clipped out when
+  // the arrowheadHeight is large and the domain is not at the tip.
   const geneHalfH = (typeof g.geneHeight === 'number' ? g.geneHeight : (g.config && g.config.gene && g.config.gene.height ? g.config.gene.height : 10)) / 2;
-  const arrowheadHeight = (g.config && g.config.gene && typeof g.config.gene.arrowheadHeight === 'number') ? g.config.gene.arrowheadHeight : 0;
-  const arrowheadHalfHeight = geneHalfH + (arrowheadHeight / 2);
   const domainFactor = (g.config && g.config.domain && typeof g.config.domain.heightFactor === 'number') ? g.config.domain.heightFactor : (this.config && this.config.domain && this.config.domain.heightFactor) || 0.6;
-  const halfH = arrowheadHalfHeight * domainFactor;
+  const halfH = geneHalfH * domainFactor;
   const p1 = [startPos[0] - normPerp[0] * halfH, startPos[1] - normPerp[1] * halfH];
   const p2 = [endPos[0] - normPerp[0] * halfH, endPos[1] - normPerp[1] * halfH];
   const p3 = [endPos[0] + normPerp[0] * halfH, endPos[1] + normPerp[1] * halfH];

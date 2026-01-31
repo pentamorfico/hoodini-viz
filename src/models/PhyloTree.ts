@@ -41,6 +41,11 @@ class PhyloTree {
     
     this.collectAll();
     
+    // Ladderize the tree for cleaner visualization (larger clades first/top)
+    if (this.hasTree) {
+      this.ladderize(false);
+    }
+    
     // Apply ultrametric conversion if requested (only for actual trees)
     if (ultrametric && this.hasTree) {
       this.makeUltrametric();
@@ -109,6 +114,69 @@ class PhyloTree {
       }
     }
     return tree;
+  }
+
+  /**
+   * Ladderize the tree by sorting branches at each node by the number of descendant leaves.
+   * This produces a cleaner visual representation matching Taxonium's algorithm exactly.
+   * Uses iterative traversal to avoid stack overflow on large trees.
+   * @param {boolean} ascending - If true, smaller clades go first (top); if false, larger clades go first
+   */
+  ladderize(ascending = true) {
+    // First pass: assign num_tips and original index using iterative post-order traversal
+    const postOrder: PhyloNode[] = [];
+    const stack: PhyloNode[] = [this.root];
+    let nodeIndex = 0;
+    
+    while (stack.length > 0) {
+      const node = stack.pop()!;
+      postOrder.push(node);
+      // Assign original index for stable sort (preserve order when num_tips are equal)
+      node._sortIndex = nodeIndex++;
+      if (node.branchset) {
+        for (const child of node.branchset) {
+          stack.push(child);
+        }
+      }
+    }
+    
+    // Process in reverse order (post-order: children before parents)
+    for (let i = postOrder.length - 1; i >= 0; i--) {
+      const node = postOrder[i];
+      if (!node.branchset || node.branchset.length === 0) {
+        node.num_tips = 1;
+      } else {
+        node.num_tips = 0;
+        for (const child of node.branchset) {
+          node.num_tips += child.num_tips || 1;
+        }
+      }
+    }
+    
+    // Second pass: sort children using iterative pre-order traversal (exactly like Taxonium)
+    const sortStack: PhyloNode[] = [this.root];
+    while (sortStack.length > 0) {
+      const node = sortStack.pop()!;
+      if (node.branchset && node.branchset.length > 0) {
+        // Sort this node's children by num_tips, with original index as tiebreaker for stability
+        node.branchset.sort((a, b) => {
+          const aTips = a.num_tips || 1;
+          const bTips = b.num_tips || 1;
+          if (aTips !== bTips) {
+            return ascending ? aTips - bTips : bTips - aTips;
+          }
+          // Tiebreaker: preserve original order from Newick file
+          return (a._sortIndex || 0) - (b._sortIndex || 0);
+        });
+        // Push children to stack for processing
+        for (const child of node.branchset) {
+          sortStack.push(child);
+        }
+      }
+    }
+    
+    // Rebuild internal structures after reordering
+    this.collectAll();
   }
 
   collectAll() {

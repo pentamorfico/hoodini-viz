@@ -21,7 +21,7 @@ export function SVGExportButton({ phyloTreeViewerRef }: SVGExportButtonProps) {
     <Button
       variant="ghost"
       size="icon"
-      className="size-7 flex items-center justify-center border"
+      className="size-7 sm:size-7 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center border touch-manipulation"
       onClick={handleExport}
       title="Export current view to SVG"
     >

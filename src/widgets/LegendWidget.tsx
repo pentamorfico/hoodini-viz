@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { getPaletteColors } from '../utils/colorPalettes.js';
+import { calculateTipWidth } from '../config/visualizationConfig';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';

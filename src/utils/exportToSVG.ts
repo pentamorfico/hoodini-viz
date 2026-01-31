@@ -76,9 +76,10 @@ function exportToSVGScaledToFormat(layers, dataBounds, config, rulerOptions, the
     }
   }
   
-  // Find tree minimum X
+  // Find tree minimum X - only include tree bounds if tree is visible
   let contentMinX = dataBounds.minX;
-  if (rulerOptions?.genomeView?.tree && rulerOptions?.bounds) {
+  const showTreeInExport = rulerOptions?.showTreeLayer === true || rulerOptions?.showTreeTextLayer === true;
+  if (showTreeInExport && rulerOptions?.genomeView?.tree && rulerOptions?.bounds) {
     const genomeView = rulerOptions.genomeView;
     const bounds = rulerOptions.bounds;
     const treeOffset = bounds.treeOffset || 0;
@@ -147,11 +148,16 @@ function exportToSVGScaledToFormat(layers, dataBounds, config, rulerOptions, the
   };
   
   // Log all layers for debugging
-  console.log('📦 Layers received:', layers.map(l => ({ id: l.id, dataLength: l.props?.data?.length })));
+  console.log('📦 Layers received:', layers.map(l => ({ id: l.id, dataLength: l.props?.data?.length, visible: l.props?.visible })));
   // Render each layer
   for (const layer of layers) {
     if (!layer?.props?.data) {
       console.log(`⚠️ Layer ${layer?.id} skipped: no data`);
+      continue;
+    }
+    // Skip layers that are not visible
+    if (layer.props.visible === false) {
+      console.log(`⚠️ Layer ${layer?.id} skipped: not visible`);
       continue;
     }
     const { props, id } = layer;
@@ -242,8 +248,9 @@ function renderPolygonLayerScaled(props, worldToSVG, layerId, config, finalScale
   const filled = props.filled !== false;
   const stroked = props.stroked !== false;
   
-  // Minimum stroke width to ensure visibility
-  const minStrokeWidth = 0.5;
+  // For "scale to format" exports, use fixed stroke widths that look good at the target size
+  // Don't scale strokes by finalScale - they should remain visually consistent
+  const targetStrokeWidth = config?.gene?.edgeWidth || 1;
   
   for (const d of props.data) {
     const polygon = typeof getPolygon === 'function' ? getPolygon(d) : d.polygon || d;
@@ -251,9 +258,8 @@ function renderPolygonLayerScaled(props, worldToSVG, layerId, config, finalScale
     
     const fillColor = typeof getFillColor === 'function' ? getFillColor(d) : getFillColor;
     const lineColor = typeof getLineColor === 'function' ? getLineColor(d) : getLineColor;
-    let lineWidth = typeof getLineWidth === 'function' ? getLineWidth(d) : getLineWidth;
-    // Scale stroke width but ensure minimum visibility
-    lineWidth = Math.max(lineWidth * finalScale, minStrokeWidth);
+    // Use fixed stroke width - don't scale it
+    const lineWidth = targetStrokeWidth;
     
     const points = polygon.map(p => {
       const [x, y] = worldToSVG(p[0], p[1]);
@@ -433,7 +439,7 @@ function renderLineLayerScaled(props, worldToSVG, layerId, config, finalScale = 
       }
     }
     
-    // Handle width robustly and scale it
+    // Handle width robustly - use fixed width for consistent stroke appearance
     let width = 1; // default
     if (d.width) {
       width = d.width;
@@ -452,8 +458,8 @@ function renderLineLayerScaled(props, worldToSVG, layerId, config, finalScale = 
         width = props.getWidth;
       }
     }
-    // Scale width but ensure minimum visibility
-    width = Math.max(width * finalScale, minLineWidth);
+    // Don't scale stroke width - keep it fixed for visual consistency
+    width = Math.max(width, minLineWidth);
     
     const [x1, y1] = worldToSVG(source[0], source[1]);
     const [x2, y2] = worldToSVG(target[0], target[1]);
@@ -489,7 +495,8 @@ function renderScatterplotLayerScaled(props, worldToSVG, layerId, nodeScale, fin
     
     const fillColor = typeof getFillColor === 'function' ? getFillColor(d) : getFillColor;
     const lineColor = typeof getLineColor === 'function' ? getLineColor(d) : getLineColor;
-    const lineWidth = Math.max((typeof getLineWidth === 'function' ? getLineWidth(d) : getLineWidth) * finalScale, 0.5);
+    // Don't scale stroke width - keep it fixed for visual consistency
+    const lineWidth = Math.max(typeof getLineWidth === 'function' ? getLineWidth(d) : getLineWidth, 0.5);
     
     const [cx, cy] = worldToSVG(pos[0], pos[1]);
     
@@ -630,9 +637,10 @@ function renderRulerScaled(rulerOptions, worldToSVG, worldMinX, worldMaxX, ruler
   // Horizontal baseline (thin line spanning tree to genes)
   svg += `<line x1="${svgTreeMinX}" y1="${baselineY}" x2="${svgGenesMaxX}" y2="${baselineY}" stroke="${geneTickColor}" stroke-width="0.5"/>`;
   
-  // Tree ruler ticks
+  // Tree ruler ticks - only render if tree is visible (at least one of showTreeLayer or showTreeTextLayer is true)
+  const showTreeRuler = rulerOptions.showTreeLayer === true || rulerOptions.showTreeTextLayer === true;
   svg += `<g id="ruler-tree">`;
-  if (genomeView.tree) {
+  if (genomeView.tree && showTreeRuler) {
     // Get tree depth range for scale ticks
     const treeDepths = genomeView.tree.allNodes?.map((n: any) => n.y) || [];
     if (treeDepths.length > 0) {
@@ -994,8 +1002,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         }
       }
       
-      // Try to find the actual tree bounds from genomeView
-      if (rulerOptions?.genomeView?.tree && rulerOptions?.bounds) {
+      // Try to find the actual tree bounds from genomeView - only if tree is visible
+      const showTreeInBounds = rulerOptions?.showTreeLayer === true || rulerOptions?.showTreeTextLayer === true;
+      if (showTreeInBounds && rulerOptions?.genomeView?.tree && rulerOptions?.bounds) {
         const genomeView = rulerOptions.genomeView;
         const bounds = rulerOptions.bounds;
         
@@ -1312,6 +1321,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
   
   for(const layer of layers) {
     const props = layer.props;
+    // Skip layers that are not visible
+    if (props.visible === false) continue;
     // Polygon layers (genes, protein-polygons, nucleotide-polygons, domains, regions, ncRNA)
     // Note: domains layer has dynamic id like 'domains-{height}-{arrowhead}'
     const isDomains = layer.id === 'domains' || layer.id.startsWith('domains-');
@@ -1480,8 +1491,8 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
         // For connecting lines, use the configured width
         let width = 1; // default
         if (layer.id === 'hoods') {
-          // Baselines should be thin lines (1-2px) to match the view
-          width = config?.stroke?.hoodWidth || config?.hood?.width || 2;
+          // Baselines should be very thin lines to match the view
+          width = config?.stroke?.hoodWidth || config?.hood?.width || 0.25;
         } else if (feature.width) {
           width = feature.width;
         } else if (props.getWidth) {
@@ -1741,7 +1752,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
       console.log('🎯 SVG Export: filtered ticks:', validPreTicks.length, { contentScale, useFormatDimensions });
       
       // Separate tree and gene ticks into different groups
-      const treeTicks = validPreTicks.filter(t => t.type === 'tree' && t.isScale);
+      // Only include tree ticks if tree layers are visible (at least one of showTreeLayer or showTreeTextLayer is true)
+      const showTreeRuler = rulerOptions.showTreeLayer === true || rulerOptions.showTreeTextLayer === true;
+      const treeTicks = showTreeRuler ? validPreTicks.filter(t => t.type === 'tree' && t.isScale) : [];
       const geneTicksAll = validPreTicks.filter(t => t.type === 'gene');
       
       // Tree ruler group
@@ -1875,7 +1888,9 @@ export function exportToSVG(layers, viewState, containerSize, config, rulerOptio
     }
     
     // --- Calculate TREE TICKS ---
-    if (treeBoundary !== null && treeBoundaryScreen > 30 && genomeView && genomeView.tree && bounds) {
+    // Only include tree ticks if tree layers are visible (at least one of showTreeLayer or showTreeTextLayer is true)
+    const showTreeRulerFallback = rulerOptions.showTreeLayer === true || rulerOptions.showTreeTextLayer === true;
+    if (showTreeRulerFallback && treeBoundary !== null && treeBoundaryScreen > 30 && genomeView && genomeView.tree && bounds) {
       const treeOffset = bounds.treeOffset || 0;
       const treeXScale = (configToUse.tree && typeof configToUse.tree.xScalePercent === 'number') 
         ? configToUse.tree.xScalePercent / 100 : 1;

@@ -180,6 +180,12 @@ export function AppSidebar({
   handleTrackFlip: handleTrackFlipProp,
   handleArrowheadHeightChange: handleArrowheadHeightChangeProp,
   handleGeneHeightChange: handleGeneHeightChangeProp,
+  tipWidthMode: tipWidthModeProp,
+  setTipWidthMode: setTipWidthModeProp,
+  tipWidthFactor: tipWidthFactorProp,
+  setTipWidthFactor: setTipWidthFactorProp,
+  tipWidthFixed: tipWidthFixedProp,
+  setTipWidthFixed: setTipWidthFixedProp,
   showTreeLayer: showTreeLayerProp,
   setShowTreeLayer: setShowTreeLayerProp,
   showGeneLayer: showGeneLayerProp,
@@ -198,6 +204,8 @@ export function AppSidebar({
   setShowGeneTextLayer: setShowGeneTextLayerProp,
   showTreeTextLayer: showTreeTextLayerProp,
   setShowTreeTextLayer: setShowTreeTextLayerProp,
+  showBaselineLayer: showBaselineLayerProp,
+  setShowBaselineLayer: setShowBaselineLayerProp,
   hasGeneData,
   hasDomainData,
   hasProteinLinkData,
@@ -275,6 +283,14 @@ export function AppSidebar({
   // The committed value (what PhyloTreeViewer uses) is managed by parent via handleArrowheadHeightChangeProp/handleGeneHeightChangeProp
   const [arrowheadHeightDisplay, setArrowheadHeightDisplay] = useState(DEFAULT_CONFIG.gene.arrowheadHeight);
   const [geneHeightDisplay, setGeneHeightDisplay] = useState(DEFAULT_CONFIG.gene.height);
+  
+  // Tip width controls
+  const [localTipWidthMode, setLocalTipWidthMode] = useState<'factor' | 'fixed'>(DEFAULT_CONFIG.gene.tipWidthMode as 'factor' | 'fixed');
+  const tipWidthMode = tipWidthModeProp ?? localTipWidthMode;
+  const setTipWidthMode = setTipWidthModeProp ?? setLocalTipWidthMode;
+  
+  const [tipWidthFactorDisplay, setTipWidthFactorDisplay] = useState(tipWidthFactorProp ?? DEFAULT_CONFIG.gene.tipWidthFactor);
+  const [tipWidthFixedDisplay, setTipWidthFixedDisplay] = useState(tipWidthFixedProp ?? DEFAULT_CONFIG.gene.tipWidthFixed);
 
   const [localGeneLabelPosition, setLocalGeneLabelPosition] = useState('bottom');
   const geneLabelPosition = typeof geneLabelPositionProp !== 'undefined' ? geneLabelPositionProp : localGeneLabelPosition;
@@ -402,6 +418,7 @@ export function AppSidebar({
   const [localShowRegionsLayer, setLocalShowRegionsLayer] = useState(true);
   const [localShowGeneTextLayer, setLocalShowGeneTextLayer] = useState(true);
   const [localShowTreeTextLayer, setLocalShowTreeTextLayer] = useState(true);
+  const [localShowBaselineLayer, setLocalShowBaselineLayer] = useState(true);
   
   const showTreeLayer = showTreeLayerProp !== undefined ? showTreeLayerProp : localShowTreeLayer;
   const setShowTreeLayer = setShowTreeLayerProp || setLocalShowTreeLayer;
@@ -421,6 +438,8 @@ export function AppSidebar({
   const setShowGeneTextLayer = setShowGeneTextLayerProp || setLocalShowGeneTextLayer;
   const showTreeTextLayer = showTreeTextLayerProp !== undefined ? showTreeTextLayerProp : localShowTreeTextLayer;
   const setShowTreeTextLayer = setShowTreeTextLayerProp || setLocalShowTreeTextLayer;
+  const showBaselineLayer = showBaselineLayerProp !== undefined ? showBaselineLayerProp : localShowBaselineLayer;
+  const setShowBaselineLayer = setShowBaselineLayerProp || setLocalShowBaselineLayer;
   
   // Protein folding states
   const [foldingSequence, setFoldingSequence] = useState(null);
@@ -1211,6 +1230,15 @@ export function AppSidebar({
                 <Badge variant="muted" className="text-xs">Layer Visibility</Badge>
               </div>
               <div className="space-y-2 mt-2">
+                {/* Baseline layer - always available */}
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="baseline-layer" className="text-xs">Baselines</Label>
+                  <Switch
+                    id="baseline-layer"
+                    checked={showBaselineLayer}
+                    onCheckedChange={setShowBaselineLayer}
+                  />
+                </div>
                 {/* Tree layer is always shown as it's core data */}
                 <div className="flex items-center justify-between">
                   <Label htmlFor="tree-layer" className="text-xs">Tree Layer</Label>
@@ -1357,6 +1385,62 @@ export function AppSidebar({
                     className="w-full"
                   />
                 </div>
+                
+                {/* Tip Width Controls */}
+                <div className="mt-2">
+                  <Label htmlFor="tip-width-mode" className="text-xs mb-1 block">Arrow Tip Width Mode:</Label>
+                  <Select value={tipWidthMode} onValueChange={(value: 'factor' | 'fixed') => setTipWidthMode(value)}>
+                    <SelectTrigger id="tip-width-mode" className="w-full text-xs" style={{ height: '20px', minHeight: '20px' }}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="factor">Proportional</SelectItem>
+                      <SelectItem value="fixed">Fixed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {tipWidthMode === 'factor' ? (
+                  <div className="mt-1">
+                    <Label htmlFor="tip-width-factor" className="text-xs mb-1 block">
+                      Tip Factor: {(tipWidthFactorDisplay * 100).toFixed(0)}%
+                    </Label>
+                    <Slider
+                      id="tip-width-factor"
+                      min={1}
+                      max={50}
+                      value={[tipWidthFactorDisplay * 100]}
+                      onValueChange={(value) => setTipWidthFactorDisplay(value[0] / 100)}
+                      onValueCommit={(value) => {
+                        if (typeof setTipWidthFactorProp === 'function') {
+                          setTipWidthFactorProp(value[0] / 100);
+                        }
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-1">
+                    <Label htmlFor="tip-width-fixed" className="text-xs mb-1 flex items-center justify-between">
+                      <span>Fixed Tip Width: {tipWidthFixedDisplay} nt</span>
+                      <span className="text-[10px] text-muted-foreground">max 50% of gene</span>
+                    </Label>
+                    <Slider
+                      id="tip-width-fixed"
+                      min={0}
+                      max={1000}
+                      step={10}
+                      value={[tipWidthFixedDisplay]}
+                      onValueChange={(value) => setTipWidthFixedDisplay(value[0])}
+                      onValueCommit={(value) => {
+                        if (typeof setTipWidthFixedProp === 'function') {
+                          setTipWidthFixedProp(value[0]);
+                        }
+                      }}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+                
                 <div className="mt-1">
                   <Label htmlFor="gene-label-position" className="text-xs mb-1 block">Gene Label Position:</Label>
                   <Select value={geneLabelPosition} onValueChange={setGeneLabelPosition}>

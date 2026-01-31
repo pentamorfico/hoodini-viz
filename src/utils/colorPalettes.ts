@@ -20,14 +20,64 @@ function rgbaToHex(rgba) {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
+// Custom palettes defined in the application
+export const CUSTOM_PALETTES: Record<string, string[]> = {
+  // RPRlab palette - reordered to maximize visual difference between consecutive colors
+  RPRlab: [
+    "#F17C75", // 1 - coral/rojo
+    "#55B5A6", // 2 - verde azulado
+    "#7AB8E6", // 3 - azul medio
+    "#EBC85E", // 4 - amarillo dorado
+    "#9F8EC2", // 5 - púrpura
+    "#B4CFA5", // 6 - verde salvia
+    "#F6B272", // 7 - naranja
+    "#A8D5EF", // 8 - azul cielo
+    "#D2BDE0", // 9 - lavanda
+    "#E3ECA4", // 10 - verde lima
+    "#EA9AB0", // 11 - rosa suave
+    "#9CDED6", // 12 - turquesa
+    "#DDB894", // 13 - beige/arena
+    "#FADAE0", // 14 - rosa pálido
+    "#C09590"  // 15 - rosa marrón
+  ]
+};
+
+// Check if a palette name is a custom palette
+export function isCustomPalette(paletteName: string): boolean {
+  return paletteName in CUSTOM_PALETTES;
+}
+
+// Get custom palettes formatted like dicopal palettes
+function getCustomPalettesFormatted(type = 'qualitative') {
+  return Object.entries(CUSTOM_PALETTES).map(([name, colors]) => ({
+    name,
+    number: colors.length,
+    type,
+    provider: 'custom',
+    colors
+  }));
+}
+
 // Get a list of suitable palettes for phylogenetic visualization
-export function getQualitativePalettes(minColors = 3, maxColors = 12) {
-  return getPalettes({
+export function getQualitativePalettes(minColors = 3, maxColors = 20) {
+  const dicopalPalettes = getPalettes({
     type: 'qualitative',
   }).filter(palette => 
     palette.number >= minColors && palette.number <= maxColors
-  ).sort((a, b) => {
-    // Sort by provider, then by name, then by number of colors
+  );
+  
+  // Add custom palettes at the beginning
+  const customPalettes = getCustomPalettesFormatted('qualitative').filter(p => 
+    p.number >= minColors && p.number <= maxColors
+  );
+  
+  const allPalettes = [...customPalettes, ...dicopalPalettes];
+  
+  return allPalettes.sort((a, b) => {
+    // Custom palettes first
+    if (a.provider === 'custom' && b.provider !== 'custom') return -1;
+    if (a.provider !== 'custom' && b.provider === 'custom') return 1;
+    // Then sort by provider, then by name, then by number of colors
     if (a.provider !== b.provider) {
       return a.provider.localeCompare(b.provider);
     }
@@ -72,44 +122,143 @@ export function getDivergingPalettes(minColors = 3, maxColors = 12) {
   });
 }
 
+// Get colors from a custom palette
+export function getCustomPaletteColors(paletteName: string, numColors: number, reverse = false): number[][] {
+  const palette = CUSTOM_PALETTES[paletteName];
+  if (!palette) {
+    console.warn(`Custom palette ${paletteName} not found`);
+    // Generate fallback colors using hue rotation
+    const colors: number[][] = [];
+    for (let i = 0; i < numColors; i++) {
+      const hue = (i * 360) / numColors;
+      const [r, g, b] = hslToRgb(hue / 360, 0.7, 0.5);
+      colors.push([r, g, b, 255]);
+    }
+    return colors;
+  }
+
+  let colors = [...palette];
+  if (reverse) {
+    colors = colors.reverse();
+  }
+
+  // If we need fewer colors, slice
+  if (numColors <= colors.length) {
+    return colors.slice(0, numColors).map(hex => hexToRgba(hex));
+  }
+
+  // If we need more colors, cycle through the palette
+  const result: number[][] = [];
+  for (let i = 0; i < numColors; i++) {
+    result.push(hexToRgba(colors[i % colors.length]));
+  }
+  return result;
+}
+
 // Get colors from a palette and convert to RGBA format
-export function getPaletteColors(paletteName, numColors, reverse = false) {
+// For qualitative palettes, cycles colors when more are needed
+// For sequential/diverging palettes, interpolates colors
+export function getPaletteColors(paletteName, numColors, reverse = false, paletteType = 'qualitative') {
   try {
-    // First check if the palette exists and get its maximum supported colors
+    // First check if it's a custom palette
+    if (isCustomPalette(paletteName)) {
+      return getCustomPaletteColors(paletteName, numColors, reverse);
+    }
+    
+    // Then check if the palette exists in dicopal and get its maximum supported colors
     const palettes = getPalettes({ name: paletteName });
     if (!palettes || palettes.length === 0) {
-      console.warn(`Palette ${paletteName} not found, using sequential fallback`);
-      return getSequentialColors(paletteName, numColors, reverse);
+      console.warn(`Palette ${paletteName} not found, using fallback`);
+      return paletteType === 'qualitative' 
+        ? getCycledColors(paletteName, numColors, reverse)
+        : getSequentialColors(paletteName, numColors, reverse);
     }
 
     // Find the maximum number of colors this palette supports
     const maxSupportedColors = Math.max(...palettes.map(p => p.number));
     
-    // If requesting more colors than the palette supports, use sequential interpolation
+    // If requesting more colors than the palette supports
     if (numColors > maxSupportedColors) {
-      console.info(`Palette ${paletteName} supports max ${maxSupportedColors} colors, but ${numColors} requested. Using interpolated sequential colors.`);
-      return getSequentialColors(paletteName, numColors, reverse);
+      // For qualitative palettes, cycle through available colors
+      // For sequential/diverging palettes, interpolate
+      if (paletteType === 'qualitative') {
+        console.info(`Palette ${paletteName} supports max ${maxSupportedColors} colors, but ${numColors} requested. Cycling colors.`);
+        return getCycledColors(paletteName, numColors, reverse);
+      } else {
+        console.info(`Palette ${paletteName} supports max ${maxSupportedColors} colors, but ${numColors} requested. Using interpolated colors.`);
+        return getSequentialColors(paletteName, numColors, reverse);
+      }
     }
 
     // Try to get colors normally for supported numbers
     const hexColors = getColors(paletteName, numColors, reverse);
     if (!hexColors || !Array.isArray(hexColors) || hexColors.length === 0) {
       console.warn(`Failed to get palette ${paletteName} with ${numColors} colors: palette not found or invalid`);
-      return getSequentialColors(paletteName, numColors, reverse);
+      return paletteType === 'qualitative'
+        ? getCycledColors(paletteName, numColors, reverse)
+        : getSequentialColors(paletteName, numColors, reverse);
     }
     
     // Additional safety check for individual hex values
     const validHexColors = hexColors.filter(hex => hex != null && typeof hex === 'string');
     if (validHexColors.length === 0) {
       console.warn(`All colors in palette ${paletteName} are invalid`);
-      return getSequentialColors(paletteName, numColors, reverse);
+      return paletteType === 'qualitative'
+        ? getCycledColors(paletteName, numColors, reverse)
+        : getSequentialColors(paletteName, numColors, reverse);
     }
     
     return validHexColors.map(hex => hexToRgba(hex));
   } catch (error) {
     console.warn(`Failed to get palette ${paletteName} with ${numColors} colors:`, error);
-    // Fallback to sequential interpolation
-    return getSequentialColors(paletteName, numColors, reverse);
+    return paletteType === 'qualitative'
+      ? getCycledColors(paletteName, numColors, reverse)
+      : getSequentialColors(paletteName, numColors, reverse);
+  }
+}
+
+// Get colors by cycling through the palette (for qualitative palettes)
+export function getCycledColors(paletteName, numColors, reverse = false) {
+  try {
+    // First try to get the maximum number of colors this palette supports
+    const palettes = getPalettes({ name: paletteName });
+    if (!palettes || palettes.length === 0) {
+      return generateFallbackColors(numColors);
+    }
+
+    // Find the palette with the highest number of colors
+    const maxColorsPalette = palettes.reduce((max, current) => 
+      current.number > max.number ? current : max
+    );
+    
+    // Get the base colors from the palette
+    let baseColors = getColors(paletteName, maxColorsPalette.number, false);
+    if (!baseColors || baseColors.length === 0) {
+      return generateFallbackColors(numColors);
+    }
+
+    if (reverse) {
+      baseColors = [...baseColors].reverse();
+    }
+
+    // Convert hex colors to RGB
+    const baseRgbColors = baseColors.map(hex => hexToRgba(hex));
+
+    // If we need fewer or equal colors than available, just slice
+    if (numColors <= baseRgbColors.length) {
+      return baseRgbColors.slice(0, numColors);
+    }
+
+    // If we need more colors, CYCLE through the base colors (don't interpolate)
+    const cycledColors = [];
+    for (let i = 0; i < numColors; i++) {
+      cycledColors.push([...baseRgbColors[i % baseRgbColors.length]]);
+    }
+    
+    return cycledColors;
+  } catch (error) {
+    console.warn(`Failed to get cycled colors for palette ${paletteName}:`, error);
+    return generateFallbackColors(numColors);
   }
 }
 
@@ -233,37 +382,29 @@ export function getUniquePaletteNames(type = null) {
     palettes = getPalettes();
   }
   
-  const uniqueNames = [...new Set(palettes.map(p => p.name))];
-  return uniqueNames.sort();
+  // Include custom palette names
+  const customNames = Object.keys(CUSTOM_PALETTES);
+  const dicopalNames = palettes.map(p => p.name);
+  const uniqueNames = [...new Set([...customNames, ...dicopalNames])];
+  
+  // Sort with custom palettes first
+  return uniqueNames.sort((a, b) => {
+    const aIsCustom = a in CUSTOM_PALETTES;
+    const bIsCustom = b in CUSTOM_PALETTES;
+    if (aIsCustom && !bIsCustom) return -1;
+    if (!aIsCustom && bIsCustom) return 1;
+    return a.localeCompare(b);
+  });
 }
 
 // Get available colors counts for a specific palette name
 export function getPaletteColorCounts(paletteName) {
+  // Handle custom palettes
+  if (paletteName in CUSTOM_PALETTES) {
+    return [CUSTOM_PALETTES[paletteName].length];
+  }
   const palettes = getPalettes({ name: paletteName });
   return [...new Set(palettes.map(p => p.number))].sort((a, b) => a - b);
 }
 
-// Predefined palette recommendations for phylogenetic visualization
-export const RECOMMENDED_PALETTES = {
-  qualitative: [
-    { name: 'Set1', provider: 'colorbrewer', description: 'Classic qualitative palette, great for species/clusters' },
-    { name: 'Set2', provider: 'colorbrewer', description: 'Softer qualitative palette' },
-    { name: 'Set3', provider: 'colorbrewer', description: 'Pastel qualitative palette' },
-    { name: 'Pastel', provider: 'cartocolors', description: 'Modern pastel colors' },
-    { name: 'Vivid', provider: 'cartocolors', description: 'Bright, vivid colors' },
-    { name: 'Safe', provider: 'cartocolors', description: 'Colorblind-safe palette' }
-  ],
-  sequential: [
-    { name: 'Blues', provider: 'colorbrewer', description: 'Blue sequential palette' },
-    { name: 'Viridis', provider: 'matplotlib', description: 'Perceptually uniform' },
-    { name: 'Plasma', provider: 'matplotlib', description: 'Purple to yellow' },
-    { name: 'OrRd', provider: 'colorbrewer', description: 'Orange to red' }
-  ],
-  diverging: [
-    { name: 'RdYlBu', provider: 'colorbrewer', description: 'Red-Yellow-Blue diverging' },
-    { name: 'RdBu', provider: 'colorbrewer', description: 'Red-Blue diverging' },
-    { name: 'PiYG', provider: 'colorbrewer', description: 'Pink-Yellow-Green diverging' }
-  ]
-};
 
-export { hexToRgba, rgbaToHex };

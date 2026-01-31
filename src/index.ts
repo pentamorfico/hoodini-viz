@@ -17,7 +17,19 @@ export type {
 
 // Core visualization component (props-driven, no data loading)
 export { default as HoodiniViz } from './components/HoodiniViz';
-export type { HoodiniVizProps } from './components/HoodiniViz';
+export type {
+  HoodiniVizProps,
+  ColorMap,
+  GFFFeatureData,
+  HoodData,
+  ProteinLinkData,
+  NucleotideLinkData,
+  StyleConfig,
+  RGBAColor as VizRGBAColor,
+  PaletteConfig as VizPaletteConfig,
+  ProteinLinkConfig as VizProteinLinkConfig,
+  NucleotideLinkConfig as VizNucleotideLinkConfig,
+} from './components/HoodiniViz';
 
 // Export types and models for external use
 export { default as PhyloTree } from './models/PhyloTree';
@@ -31,4 +43,8 @@ export { DEFAULT_CONFIG } from './config/visualizationConfig';
 export { getPaletteColors, getQualitativePalettes, getSequentialPalettes } from './utils/colorPalettes';
 
 // Export types for configuration
-export type { PaletteConfig } from './config/visualizationConfig';
+export type { VisualizationConfig } from './config/visualizationConfig';
+
+// Export guide overlay types
+export type { FormatPreset } from './components/GuideOverlay';
+export { FORMAT_PRESETS } from './components/GuideOverlay';

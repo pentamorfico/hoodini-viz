@@ -57,22 +57,6 @@ const computeGlobalPaletteCache = () => {
   return cache;
 };
 
-// Recommended palettes by type
-const RECOMMENDED_PALETTES = {
-  qualitative: [
-    { name: 'Set1', description: 'Bright, distinct colors for categories' },
-    { name: 'Dark2', description: 'Darker variant for better readability' }
-  ],
-  sequential: [
-    { name: 'viridis', description: 'Perceptually uniform, colorblind-friendly' },
-    { name: 'plasma', description: 'High contrast, good for highlighting' }
-  ],
-  diverging: [
-    { name: 'RdBu', description: 'Red-Blue diverging for comparisons' },
-    { name: 'RdYlBu', description: 'Red-Yellow-Blue for complex data' }
-  ]
-};
-
 // Layer definitions with their data dependencies
 const LAYER_DEFINITIONS = {
   genes: { title: 'Gene Colors', dataKey: 'parsedGFF' },
@@ -261,41 +245,14 @@ const UnifiedPaletteWidget = ({
                   <SelectValue placeholder="Select a palette..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Recommended palettes first */}
-                  {RECOMMENDED_PALETTES[currentPalette?.type] && 
-                    RECOMMENDED_PALETTES[currentPalette.type]
-                      .filter(rec => uniquePaletteNames.includes(rec.name))
-                      .map((rec) => (
-                        <SelectItem key={`rec-${rec.name}`} value={rec.name}>
-                          <div className="flex items-center gap-2">
-                            {renderPalettePreview(currentPalette.type, rec.name)}
-                            <span>{rec.name} (recommended)</span>
-                          </div>
-                        </SelectItem>
-                      ))
-                  }
-                  
-                  {/* Separator if there are recommended palettes */}
-                  {RECOMMENDED_PALETTES[currentPalette?.type] && 
-                    RECOMMENDED_PALETTES[currentPalette.type].some(rec => uniquePaletteNames.includes(rec.name)) && (
-                    <SelectSeparator />
-                  )}
-                  
-                  {/* All other palettes */}
-                  {uniquePaletteNames
-                    .filter(name => 
-                      !RECOMMENDED_PALETTES[currentPalette?.type] || 
-                      !RECOMMENDED_PALETTES[currentPalette.type].some(rec => rec.name === name)
-                    )
-                    .map(name => (
-                      <SelectItem key={name} value={name}>
-                        <div className="flex items-center gap-2">
-                          {renderPalettePreview(currentPalette.type, name)}
-                          <span>{name}</span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  }
+                  {uniquePaletteNames.map(name => (
+                    <SelectItem key={name} value={name}>
+                      <div className="flex items-center gap-2">
+                        {renderPalettePreview(currentPalette.type, name)}
+                        <span>{name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -327,7 +284,19 @@ const UnifiedPaletteWidget = ({
                 <Switch
                   id="desaturate-prevalence"
                   checked={!!currentPalette?.desaturateByPrevalence}
-                  onCheckedChange={(checked) => handleConfigChange({ desaturateByPrevalence: checked })}
+                  onCheckedChange={(checked) => handleConfigChange({ desaturateByPrevalence: checked, transparentByPrevalence: checked ? false : currentPalette?.transparentByPrevalence })}
+                />
+              </div>
+            )}
+
+            {/* Transparent by Prevalence Toggle - only for genes layer */}
+            {selectedLayer === 'genes' && (
+              <div className="flex items-center justify-between">
+                <Label htmlFor="transparent-prevalence" className="text-xs">Transparent by prevalence</Label>
+                <Switch
+                  id="transparent-prevalence"
+                  checked={!!currentPalette?.transparentByPrevalence}
+                  onCheckedChange={(checked) => handleConfigChange({ transparentByPrevalence: checked, desaturateByPrevalence: checked ? false : currentPalette?.desaturateByPrevalence })}
                 />
               </div>
             )}
@@ -380,7 +349,7 @@ const UnifiedPaletteWidget = ({
                 <Label className="text-xs">
                   Domain opacity: {currentPalette?.alphaRange && Array.isArray(currentPalette.alphaRange)
                     ? `${Number(currentPalette.alphaRange[0]).toFixed(2)} → ${Number(currentPalette.alphaRange[1]).toFixed(2)}`
-                    : '0.10 → 0.50'}
+                    : '0.10 → 0.30'}
                 </Label>
                 <Slider
                   min={0}
@@ -388,7 +357,7 @@ const UnifiedPaletteWidget = ({
                   step={0.01}
                   value={currentPalette?.alphaRange && Array.isArray(currentPalette.alphaRange)
                     ? [Number(currentPalette.alphaRange[0]), Number(currentPalette.alphaRange[1])]
-                    : [0.1, 0.5]}
+                    : [0.1, 0.3]}
                   onValueChange={(value) => {
                     // value expected to be an array [min, max]
                     if (Array.isArray(value) && value.length >= 2) {

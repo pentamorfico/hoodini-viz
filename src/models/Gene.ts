@@ -1,6 +1,6 @@
 // Gene.js
 import GFFFeature from './GFFFeature';
-import { DEFAULT_CONFIG } from '../config/visualizationConfig';
+import { DEFAULT_CONFIG, calculateTipWidth } from '../config/visualizationConfig';
 
 class Gene extends GFFFeature {
   constructor(seqid, start, end, strand, attributes, config = DEFAULT_CONFIG) {
@@ -24,7 +24,7 @@ class Gene extends GFFFeature {
   }
 
   updatePolygon() {
-    this.polygon = this._buildPolygon(this.trackY, this.geneHeight, this.config.gene.tipWidthFactor);
+    this.polygon = this._buildPolygon(this.trackY, this.geneHeight);
     this.centerLine = this.computeCenterLine();
     for (let d of this.domains) {
       d.updatePolygon();
@@ -32,7 +32,7 @@ class Gene extends GFFFeature {
   }
 
   // Gene-specific polygon construction (was getBasePolygon)
-  _buildPolygon(trackY, geneHeight, TIP_WIDTH_FACTOR = this.config.gene.tipWidthFactor) {
+  _buildPolygon(trackY, geneHeight) {
     let start = this.start;
     let end = this.end;
     if (start > end) {
@@ -43,10 +43,20 @@ class Gene extends GFFFeature {
     // --- Removed xScalePercent logic; handled globally in GenomeView ---
     // ---
     const length = Math.abs(end - start);
-    const tipWidth = length * TIP_WIDTH_FACTOR;
+    const tipWidth = calculateTipWidth(length, this.config);
     const halfH = geneHeight / 2;
     const isForward = (this.strand === '+');
     const arrowheadHeight = this.config.gene.arrowheadHeight || 0;
+    
+    // When tipWidth is 0 or very small, draw a simple rectangle (no arrow tip)
+    if (tipWidth < 1) {
+      return [
+        [start, trackY - halfH],
+        [end, trackY - halfH],
+        [end, trackY + halfH],
+        [start, trackY + halfH]
+      ];
+    }
     
     // When arrowheadHeight is 0 or very small, use 5-vertex arrow polygon
     // where the tip has the same height as the gene body
