@@ -177,7 +177,7 @@ export const ThemeProvider = ({ children, respectHostTheme = true }) => {
 
   const setThemeAndPersist = (value) => {
     setTheme(value);
-    // When user explicitly sets theme, we take control
+    // When user explicitly sets theme, we take control from host
     setIsHostControlled(false);
     try {
       window.localStorage.setItem(STORAGE_KEY, value);
@@ -185,16 +185,15 @@ export const ThemeProvider = ({ children, respectHostTheme = true }) => {
     try {
       const resolved = resolveMode(value);
       setResolvedThemeState(resolved);
-      // Only modify document classes if NOT respecting host theme
-      if (!respectHostTheme) {
-        const root = document.documentElement;
-        if (resolved === 'dark') {
-          root.classList.add('dark');
-          root.classList.remove('light');
-        } else {
-          root.classList.remove('dark');
-          root.classList.add('light');
-        }
+      // Always modify document when user explicitly changes theme
+      // (user took control, so we apply their choice)
+      const root = document.documentElement;
+      if (resolved === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
       }
     } catch (e) {}
   };

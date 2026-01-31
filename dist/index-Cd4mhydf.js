@@ -10708,10 +10708,9 @@ const Vw = "hoodini_theme", b9 = p9(null), zc = () => {
     }
     try {
       const E = gy(b);
-      if (u(E), !e) {
-        const w = document.documentElement;
-        E === "dark" ? (w.classList.add("dark"), w.classList.remove("light")) : (w.classList.remove("dark"), w.classList.add("light"));
-      }
+      u(E);
+      const w = document.documentElement;
+      E === "dark" ? (w.classList.add("dark"), w.classList.remove("light")) : (w.classList.remove("dark"), w.classList.add("light"));
     } catch {
     }
   }, C = () => {
@@ -22201,7 +22200,7 @@ const VW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-OeJZm6Bj.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-DU3kPp0n.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -71910,7 +71909,7 @@ function jde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-CxXAwXm3.js"));
+const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-CoyWA9g0.js"));
 let Yde = 0;
 function Gde(t) {
   return $le(NB(NB(t).filter((e) => e.span !== void 0).map((e) => Gu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -74050,7 +74049,7 @@ function vfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const Efe = A.lazy(async () => await import("./number-overlay-editor-CB25ihfI.js")), _fe = {
+const Efe = A.lazy(async () => await import("./number-overlay-editor-B7oYi0-5.js")), _fe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,
