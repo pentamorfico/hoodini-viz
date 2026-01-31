@@ -2197,7 +2197,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           .map(col => {
             // Handle special 'gene_id' case
             if (col === 'gene_id') return gene.id || gene.geneId || gene.metadata?.gene_id;
-            return gene.metadata?.[col];
+            // Try metadata directly first, then check nested attributes
+            return gene.metadata?.[col] ?? gene.metadata?.attributes?.[col];
           })
           .filter(v => v !== null && v !== undefined && v !== '');
         labelValue = values.length > 0 ? values.join(' | ') : null;
