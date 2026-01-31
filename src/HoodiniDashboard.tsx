@@ -426,6 +426,14 @@ export interface HoodiniDashboardProps {
   disableThemeProvider?: boolean;
   
   /**
+   * Respect the host page's theme (e.g., Nextra) instead of controlling document classes.
+   * When true, HoodiniDashboard will detect and sync with the host's theme.
+   * When false, HoodiniDashboard will control the document theme classes.
+   * @default true
+   */
+  respectHostTheme?: boolean;
+  
+  /**
    * Children to render inside the dashboard (overlays, etc).
    */
   children?: React.ReactNode;
@@ -1760,14 +1768,14 @@ HoodiniDashboardInner.displayName = 'HoodiniDashboardInner';
  * - Imperative API via ref
  */
 export const HoodiniDashboard = React.forwardRef<HoodiniDashboardRef, HoodiniDashboardProps>((props, ref) => {
-  const { disableThemeProvider = false, theme = 'system' } = props;
+  const { disableThemeProvider = false, respectHostTheme = true, theme = 'system' } = props;
   
   if (disableThemeProvider) {
     return <HoodiniDashboardInner ref={ref} {...props} />;
   }
   
   return (
-    <ThemeProvider>
+    <ThemeProvider respectHostTheme={respectHostTheme}>
       <HoodiniDashboardInner ref={ref} {...props} />
     </ThemeProvider>
   );

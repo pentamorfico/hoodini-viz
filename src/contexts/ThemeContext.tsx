@@ -142,13 +142,27 @@ export const useTheme = () => {
   return context;
 };
 
-export const ThemeProvider = ({ children }) => {
+export const ThemeProvider = ({ children, respectHostTheme = true }) => {
   const defaultMode = DEFAULT_CONFIG.theme?.mode ?? 'light';
-  const persisted = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
-  const initial = persisted || defaultMode || 'light';
+  
+  // If respectHostTheme is true, detect host theme first instead of using stored preference
+  const getInitialTheme = () => {
+    if (respectHostTheme && typeof window !== 'undefined') {
+      const hostTheme = detectDocumentTheme();
+      // If host has a dark theme, use it
+      if (hostTheme === 'dark') return 'dark';
+    }
+    // Otherwise use stored preference or default
+    const persisted = typeof window !== 'undefined' ? window.localStorage.getItem(STORAGE_KEY) : null;
+    return persisted || defaultMode || 'light';
+  };
+  
+  const initial = getInitialTheme();
 
   const [theme, setTheme] = useState(initial);
   const [resolvedThemeState, setResolvedThemeState] = useState(() => resolveMode(initial));
+  // Track if we're being controlled by host
+  const [isHostControlled, setIsHostControlled] = useState(respectHostTheme);
 
   const getThemeColors = (mode = theme) => {
     let resolved = mode;
@@ -163,19 +177,24 @@ export const ThemeProvider = ({ children }) => {
 
   const setThemeAndPersist = (value) => {
     setTheme(value);
+    // When user explicitly sets theme, we take control
+    setIsHostControlled(false);
     try {
       window.localStorage.setItem(STORAGE_KEY, value);
     } catch (e) {}
     try {
       const resolved = resolveMode(value);
       setResolvedThemeState(resolved);
-      const root = document.documentElement;
-      if (resolved === 'dark') {
-        root.classList.add('dark');
-        root.classList.remove('light');
-      } else {
-        root.classList.remove('dark');
-        root.classList.add('light');
+      // Only modify document classes if NOT respecting host theme
+      if (!respectHostTheme) {
+        const root = document.documentElement;
+        if (resolved === 'dark') {
+          root.classList.add('dark');
+          root.classList.remove('light');
+        } else {
+          root.classList.remove('dark');
+          root.classList.add('light');
+        }
       }
     } catch (e) {}
   };
@@ -190,36 +209,43 @@ export const ThemeProvider = ({ children }) => {
     setResolvedThemeState(resolved);
 
     const root = document.documentElement;
-    if (resolved === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
+    
+    // Only modify document classes if NOT respecting host theme
+    // When embedded (respectHostTheme=true), let the host control document classes
+    if (!respectHostTheme) {
+      if (resolved === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      }
     }
 
     // Observe external theme changes (e.g., from parent page like Nextra)
     // This allows hoodini-viz to stay in sync when embedded
     let observer: MutationObserver | null = null;
-    try {
-      observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            const hasDark = root.classList.contains('dark');
-            const currentResolved = resolvedThemeState;
-            // Only sync if the external change differs from our state
-            if (hasDark && currentResolved !== 'dark') {
-              setResolvedThemeState('dark');
-              setTheme('dark');
-            } else if (!hasDark && currentResolved !== 'light') {
-              setResolvedThemeState('light');
-              setTheme('light');
+    if (respectHostTheme) {
+      try {
+        observer = new MutationObserver((mutations) => {
+          for (const mutation of mutations) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              const hasDark = root.classList.contains('dark');
+              const currentResolved = resolvedThemeState;
+              // Sync internal state to match host
+              if (hasDark && currentResolved !== 'dark') {
+                setResolvedThemeState('dark');
+                setTheme('dark');
+              } else if (!hasDark && currentResolved !== 'light') {
+                setResolvedThemeState('light');
+                setTheme('light');
+              }
             }
           }
-        }
-      });
-      observer.observe(root, { attributes: true, attributeFilter: ['class'] });
-    } catch (e) {}
+        });
+        observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+      } catch (e) {}
+    }
 
     let mql;
     let handler;
