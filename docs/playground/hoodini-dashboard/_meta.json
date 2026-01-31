@@ -1,7 +1,4 @@
 {
-  "basic": "Basic Dashboard",
-  "custom-palettes": "Custom Palettes",
-  "no-sidebar": "Without Sidebar",
-  "links": "Protein & DNA Links",
-  "domains": "Domain Architecture"
+  "dashboard": "Dashboard",
+  "no-sidebar": "Without Sidebar"
 }
