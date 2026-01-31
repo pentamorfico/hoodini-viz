@@ -1,7 +1,3 @@
 {
-  "index": "Overview",
-  "dashboard-basic": "Dashboard (Basic)",
-  "dashboard-custom": "Custom Palettes",
-  "viz-standalone": "HoodiniViz Standalone",
-  "viz-minimal": "Minimal Tree"
+  "index": "Overview"
 }

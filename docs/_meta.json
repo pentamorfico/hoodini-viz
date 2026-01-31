@@ -1,19 +1,8 @@
 {
   "index": "Overview",
   "installation": "Installation",
-  "usage": "Usage Guide",
   "data-formats": "Data Formats",
-  "playground": {
-    "title": "🎮 Playground",
-    "type": "menu",
-    "items": {
-      "index": "Overview",
-      "dashboard-basic": "Dashboard (Basic)",
-      "dashboard-custom": "Custom Palettes",
-      "viz-standalone": "HoodiniViz Standalone",
-      "viz-minimal": "Minimal Tree"
-    }
-  },
+  "playground": "🎮 Playground",
   "api": {
     "title": "API Reference",
     "type": "page"
