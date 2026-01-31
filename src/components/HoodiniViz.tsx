@@ -1207,11 +1207,11 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         const gene = newGenomeView.genesById[uniqueGeneId];
         const originalGeneId = gene.originalGeneId;
         if (originalGeneId && proteinMetadata[originalGeneId]) {
-          gene.metadata = proteinMetadata[originalGeneId];
+          // Merge protein metadata with existing metadata (preserve GFF attributes)
+          gene.metadata = { ...gene.metadata, ...proteinMetadata[originalGeneId] };
           attachedCount++;
-        } else {
-          gene.metadata = {}; // Ensure consistent state
         }
+        // Don't clear metadata if no proteinMetadata match - keep original GFF attributes
       }
       
       // Set cluster metadata on genes (proteinClusters already set above before alignment)

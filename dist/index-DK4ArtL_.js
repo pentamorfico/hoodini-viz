@@ -22149,7 +22149,7 @@ const NW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-BWURIyI9.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-6LnWs8rI.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -57977,7 +57977,7 @@ const as = !1, xM = it.forwardRef(({
       performance.now();
       for (const te in Q.genesById) {
         const X = Q.genesById[te], G = X.originalGeneId;
-        G && E[G] ? X.metadata = E[G] : X.metadata = {};
+        G && E[G] && (X.metadata = { ...X.metadata, ...E[G] });
       }
       if (qn && Q.proteinClusters) {
         Q._clusterSummary = null;
@@ -71858,7 +71858,7 @@ function zde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Ude = A.lazy(async () => await import("./data-grid-overlay-editor-BGJ8nj3b.js"));
+const Ude = A.lazy(async () => await import("./data-grid-overlay-editor-CRLEhkp9.js"));
 let $de = 0;
 function Hde(t) {
   return Ple(kB(kB(t).filter((e) => e.span !== void 0).map((e) => Yu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -73998,7 +73998,7 @@ function pfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const mfe = A.lazy(async () => await import("./number-overlay-editor-8SOLFxTU.js")), yfe = {
+const mfe = A.lazy(async () => await import("./number-overlay-editor-JNkdSGLh.js")), yfe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,
