@@ -1,0 +1,39 @@
+# 4. Protein Links
+
+Showing synteny relationships between homologous genes across genomes.
+
+<VizWithProteinLinksDemo />
+
+## Data Format
+
+```js
+const proteinLinks = [
+  { gAId: 'gene_A1', gBId: 'gene_B1', similarity: 95.5 },
+  { gAId: 'gene_A1', gBId: 'gene_C1', similarity: 85.2 },
+  // ... more links
+];
+```
+
+## Code
+
+```jsx
+<HoodiniViz
+  newickStr={newickStr}
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={proteinLinks}
+  nucleotideLinks={[]}
+  domainsByGene={{}}
+  proteinMetadata={proteinMetadata}
+  genePalette={{ type: 'qualitative', name: 'Set2', numColors: 8, enabled: true }}
+  geneColorBy="cluster"
+  proteinLinkConfig={{ 
+    colorBy: 'source_gene', 
+    useAlpha: true, 
+    minAlpha: 0.1, 
+    maxAlpha: 0.5 
+  }}
+  showScrollbar={true}
+  showRuler={true}
+/>
+```

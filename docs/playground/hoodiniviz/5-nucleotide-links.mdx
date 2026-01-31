@@ -1,0 +1,39 @@
+# 5. Nucleotide Links
+
+DNA-level synteny showing aligned genomic regions.
+
+<VizWithNucleotideLinksDemo />
+
+## Data Format
+
+```js
+const nucleotideLinks = [
+  { 
+    seqidA: 'genome_A', startA: 1000, endA: 4200, 
+    seqidB: 'genome_B', startB: 500, endB: 3700, 
+    similarity: 92.5 
+  },
+  // ... more links
+];
+```
+
+## Code
+
+```jsx
+<HoodiniViz
+  newickStr={newickStr}
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={[]}
+  nucleotideLinks={nucleotideLinks}
+  domainsByGene={{}}
+  nucleotideLinkConfig={{ 
+    colorBy: 'identity', 
+    useAlpha: true, 
+    minAlpha: 0.2, 
+    maxAlpha: 0.7 
+  }}
+  showScrollbar={true}
+  showRuler={true}
+/>
+```

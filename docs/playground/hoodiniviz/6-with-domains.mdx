@@ -1,0 +1,40 @@
+# 6. With Domains
+
+Protein domain annotations showing functional architecture.
+
+<VizWithDomainsDemo />
+
+## Data Format
+
+```js
+// Domains grouped by gene ID
+const domainsByGene = {
+  gene_A2: [
+    { domainId: 'PF00005', start: 10, end: 200, source: 'pfam' },
+    { domainId: 'PF00664', start: 250, end: 400, source: 'pfam' },
+  ],
+  gene_A3: [
+    { domainId: 'PF00271', start: 5, end: 180, source: 'pfam' },
+  ],
+  // ... more genes with domains
+};
+```
+
+## Code
+
+```jsx
+<HoodiniViz
+  newickStr={newickStr}
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={[]}
+  nucleotideLinks={[]}
+  domainsByGene={domainsByGene}
+  proteinMetadata={proteinMetadata}
+  geneHeight={70}
+  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 10, enabled: true }}
+  domainColorBy="domainName"
+  showScrollbar={true}
+  showRuler={true}
+/>
+```

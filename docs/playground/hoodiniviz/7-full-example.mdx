@@ -1,0 +1,33 @@
+# 7. Full Example
+
+All features combined: tree, genes, links, and domains.
+
+<VizFullDemo />
+
+## Code
+
+```jsx
+<HoodiniViz
+  newickStr={newickStr}
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={proteinLinks}
+  nucleotideLinks={nucleotideLinks}
+  domainsByGene={domainsByGene}
+  proteinMetadata={proteinMetadata}
+  treeMetadata={treeMetadata}
+  geneHeight={70}
+  genePalette={{ type: 'qualitative', name: 'Bold', numColors: 10, enabled: true }}
+  geneColorBy="cluster"
+  domainPalette={{ type: 'qualitative', name: 'Prism', numColors: 10, enabled: true }}
+  domainColorBy="domainName"
+  proteinLinkConfig={{ 
+    colorBy: 'source_gene', 
+    useAlpha: true, 
+    minAlpha: 0.1, 
+    maxAlpha: 0.5 
+  }}
+  showScrollbar={true}
+  showRuler={true}
+/>
+```

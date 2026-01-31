@@ -1,0 +1,31 @@
+# 2. With Labels
+
+Genes with protein metadata for richer tooltips and labels.
+
+<VizGenesWithLabelsDemo />
+
+## Data Format
+
+```js
+const proteinMetadata = {
+  gene_A1: { product: 'Hypothetical protein', cluster: '1' },
+  gene_A2: { product: 'ABC transporter', cluster: '2' },
+  // ... more metadata
+};
+```
+
+## Code
+
+```jsx
+<HoodiniViz
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={[]}
+  nucleotideLinks={[]}
+  domainsByGene={{}}
+  proteinMetadata={proteinMetadata}
+  showScrollbar={true}
+  showRuler={true}
+  geneLabelSize={14}
+/>
+```

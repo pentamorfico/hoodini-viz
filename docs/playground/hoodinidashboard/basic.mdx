@@ -1,0 +1,25 @@
+# Basic Dashboard
+
+The default HoodiniDashboard with all features enabled.
+
+<DashboardBasicDemo />
+
+## Code
+
+```jsx
+import { HoodiniDashboard } from 'hoodini-viz';
+
+function App() {
+  return (
+    <HoodiniDashboard
+      dataPaths={{
+        newick: 'https://example.com/tree.nwk',
+        gffParquet: 'https://example.com/gff.parquet',
+        hoodsParquet: 'https://example.com/hoods.parquet',
+        proteinLinksParquet: 'https://example.com/protein_links.parquet',
+        domainsParquet: 'https://example.com/domains.parquet',
+      }}
+    />
+  );
+}
+```

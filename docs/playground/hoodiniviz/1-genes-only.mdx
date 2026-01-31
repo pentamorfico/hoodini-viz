@@ -1,0 +1,42 @@
+# 1. Genes Only
+
+The simplest possible visualization - just genes without tree, links, or domains.
+
+<VizGenesOnlyDemo />
+
+## Data Format
+
+```js
+const gffFeatures = [
+  { 
+    seqid: 'genome_A', 
+    start: 1000, 
+    end: 2500, 
+    strand: '+', 
+    type: 'CDS',
+    attributes: { ID: 'gene_A1', product: 'Hypothetical protein' } 
+  },
+  // ... more genes
+];
+
+const hoods = [
+  { hood_id: '1', seqid: 'genome_A', start: 0, end: 10000, align_gene: 'gene_A3' },
+  // ... more hoods
+];
+```
+
+## Code
+
+```jsx
+import { HoodiniViz } from 'hoodini-viz';
+
+<HoodiniViz
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={[]}
+  nucleotideLinks={[]}
+  domainsByGene={{}}
+  showScrollbar={true}
+  showRuler={true}
+/>
+```

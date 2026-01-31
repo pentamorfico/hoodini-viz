@@ -1,0 +1,19 @@
+# Domain Architecture
+
+Dashboard focusing on protein domain annotations with colorful domain palette.
+
+<DashboardDomainsDemo />
+
+## Code
+
+```jsx
+<HoodiniDashboard
+  dataPaths={dataPaths}
+  initialState={{
+    showDomainLayer: true,
+    domainPalette: { type: 'qualitative', name: 'Prism', numColors: 10, enabled: true },
+    domainColorBy: 'domainName',
+    geneHeight: 80,
+  }}
+/>
+```

@@ -1,0 +1,27 @@
+# 3. With Tree
+
+Adding a phylogenetic tree to organize the genomes.
+
+<VizWithTreeDemo />
+
+## Data Format
+
+```js
+// Newick format string
+const newickStr = '((genome_A:0.1,genome_B:0.15):0.05,genome_C:0.2);';
+```
+
+## Code
+
+```jsx
+<HoodiniViz
+  newickStr={newickStr}
+  gffFeatures={gffFeatures}
+  hoods={hoods}
+  proteinLinks={[]}
+  nucleotideLinks={[]}
+  domainsByGene={{}}
+  showScrollbar={true}
+  showRuler={true}
+/>
+```
