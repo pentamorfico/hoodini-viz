@@ -1,0 +1,131 @@
+---
+title: Hoodini-Viz
+description: WebGL visualization library for comparative genomics
+---
+
+import { Callout, Steps, Tabs } from 'nextra/components'
+
+# What is Hoodini-Viz?
+
+Hoodini-Viz is a high-performance React + WebGL visualization library for comparative genomics. It renders **phylogenetic trees alongside gene neighborhood tracks** using deck.gl, enabling smooth interaction with thousands of genes.
+
+## What can you visualize?
+
+- **Phylogenetic trees** — Interactive cladograms with collapsible nodes
+- **Gene neighborhoods** — Arrow-shaped genes with customizable coloring by cluster, function, or metadata
+- **Protein homology links** — Curved Bézier connections showing relationships between proteins
+- **Nucleotide synteny** — Polygonal overlays displaying conserved genomic regions
+- **Domain annotations** — Protein domains from Pfam, InterPro, or custom sources
+- **ncRNA structures** — Secondary structure viewer for non-coding RNAs
+
+## Quick Start
+
+### Option 1: CDN (Zero dependencies)
+
+The fastest way to get started — just HTML:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
+</head>
+<body>
+  <div id="root" style="width: 100vw; height: 100vh;"></div>
+  <script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+  <script>
+    HoodiniViz.createDashboard({
+      container: 'root',
+      dataPaths: {
+        newick: 'https://example.com/tree.nwk',
+        gffParquet: 'https://example.com/genes.parquet',
+        hoodsParquet: 'https://example.com/hoods.parquet',
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+<Callout type="info">
+  The UMD bundle (~3MB, ~900KB gzipped) includes React, deck.gl, and all dependencies. No build step required!
+</Callout>
+
+### Option 2: npm (React projects)
+
+```bash
+npm install hoodini-viz
+```
+
+```tsx
+import { HoodiniDashboard } from 'hoodini-viz';
+import 'hoodini-viz/style.css';
+
+function App() {
+  return (
+    <HoodiniDashboard
+      dataPaths={{
+        newick: '/data/tree.nwk',
+        gffParquet: '/data/genes.parquet',
+        hoodsParquet: '/data/hoods.parquet',
+      }}
+    />
+  );
+}
+```
+
+## Data Formats
+
+Hoodini-Viz supports both **Parquet** (recommended, 3-10x faster) and **TSV** formats.
+
+| File | Keys | Description |
+|------|------|-------------|
+| Tree | `newick` | Newick format phylogenetic tree |
+| Genes | `gffParquet` / `gff` | GFF3-style gene annotations |
+| Hoods | `hoodsParquet` / `hoods` | Genomic windows to display |
+| Links | `proteinLinksParquet` / `proteinLinks` | Protein homology relationships |
+| Domains | `domainsParquet` / `domains` | Protein domain annotations |
+
+<Callout type="tip">
+  If you are using [Hoodini](/docs/hoodini), all these files are generated automatically in the output folder!
+</Callout>
+
+## Components
+
+### Full Dashboard
+
+`HoodiniDashboard` provides the complete experience:
+- Sidebar with all visualization controls
+- Automatic data loading (Parquet/TSV)
+- Theme toggle (light/dark)
+- Data table browser
+- SVG export
+
+### Core Visualization
+
+`HoodiniViz` is the rendering component for advanced users who want full control:
+- Bring your own UI
+- Pre-load and transform data yourself
+- Embed in custom layouts
+
+```tsx
+import { HoodiniViz } from 'hoodini-viz';
+
+<HoodiniViz
+  newickStr={newick}
+  gffFeatures={genes}
+  hoods={hoods}
+  proteinLinks={links}
+  showTreeLayer={true}
+  showGeneLayer={true}
+  showProteinLinkLayer={true}
+/>
+```
+
+## Browser Support
+
+- Chrome/Edge 88+ (recommended)
+- Firefox 78+
+- Safari 14+
+
+Requires WebGL 2.0 support.

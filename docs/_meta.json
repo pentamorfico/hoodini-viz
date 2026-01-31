@@ -1,0 +1,10 @@
+{
+  "index": "Overview",
+  "installation": "Installation",
+  "usage": "Usage Guide",
+  "data-formats": "Data Formats",
+  "api": {
+    "title": "API Reference",
+    "type": "page"
+  }
+}

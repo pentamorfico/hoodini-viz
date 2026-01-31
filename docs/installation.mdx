@@ -1,0 +1,83 @@
+---
+title: Installation
+description: How to install hoodini-viz
+---
+
+import { Callout, Tabs } from 'nextra/components'
+
+# Installation
+
+## CDN (Recommended for quick start)
+
+No installation required! Just add these tags to your HTML:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/hoodini-viz/dist/hoodini-viz.css">
+<script src="https://unpkg.com/hoodini-viz/dist/hoodini-viz.umd.js"></script>
+```
+
+The UMD bundle includes:
+- React 18 & ReactDOM
+- deck.gl (WebGL rendering)
+- All UI components
+- Parquet parser
+
+<Callout type="warning">
+  **CSS Cascade Layers**: The CSS uses [cascade layers](https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/Cascade_layers). Avoid global reset styles like `* { padding: 0 }` without wrapping them in a layer, as unlayered styles override layered ones.
+</Callout>
+
+## npm / yarn / pnpm
+
+For React projects with a build system:
+
+<Tabs items={['npm', 'yarn', 'pnpm']}>
+  <Tabs.Tab>
+    ```bash
+    npm install hoodini-viz
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    yarn add hoodini-viz
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    pnpm add hoodini-viz
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Then import the CSS in your app:
+
+```tsx
+import 'hoodini-viz/style.css';
+```
+
+## Requirements
+
+### Browser
+
+| Browser | Minimum Version |
+|---------|-----------------|
+| Chrome | 88+ |
+| Edge | 88+ |
+| Firefox | 78+ |
+| Safari | 14+ |
+
+WebGL 2.0 is required.
+
+### React (npm only)
+
+- React 18.0+
+- ReactDOM 18.0+
+
+## Bundle Sizes
+
+| Bundle | Size | Gzipped |
+|--------|------|---------|
+| UMD | 3.1 MB | 913 KB |
+| CSS | 108 KB | 18 KB |
+| ES (tree-shakable) | varies | varies |
+
+The UMD bundle is large because it includes React, deck.gl, and all dependencies for standalone use. When using npm with tree-shaking, you'll only bundle what you use.

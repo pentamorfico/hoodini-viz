@@ -1,0 +1,170 @@
+---
+title: Data Formats
+description: Data file formats for hoodini-viz
+---
+
+import { Callout } from 'nextra/components'
+
+# Data Formats
+
+Hoodini-Viz supports two file formats:
+
+- **Parquet** (recommended) — Binary columnar format, 3-10x faster loading
+- **TSV** — Plain text, human-readable
+
+<Callout type="tip">
+  If you're using [Hoodini](/docs/hoodini), all data files are generated automatically in the correct format!
+</Callout>
+
+---
+
+## Tree (Newick)
+
+**File:** `tree.nwk`
+
+Standard Newick format phylogenetic tree. Leaf names must match `seqid` values in genes/hoods.
+
+```
+((genome1:0.1,genome2:0.2):0.05,(genome3:0.15,genome4:0.12):0.08);
+```
+
+---
+
+## Genes (GFF3-style)
+
+**Files:** `genes.parquet` or `genes.tsv`
+
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| `seqid` | string | ✓ | Genome/contig identifier (matches tree leaf) |
+| `start` | int | ✓ | Start position (1-based) |
+| `end` | int | ✓ | End position |
+| `strand` | string | ✓ | `+` or `-` |
+| `ID` | string | ✓ | Unique gene identifier |
+| `Name` | string | | Display name |
+| `product` | string | | Gene product description |
+| `cluster` | string/int | | Homology cluster ID (for coloring) |
+| `locus_tag` | string | | Locus tag |
+| `protein_id` | string | | Protein accession |
+
+Additional columns become available for coloring/filtering.
+
+**TSV Example:**
+```tsv
+seqid	start	end	strand	ID	Name	cluster	product
+genome1	1000	1500	+	gene_001	dnaA	1	chromosomal replication initiator
+genome1	1600	2400	+	gene_002	dnaN	2	DNA polymerase III subunit beta
+```
+
+---
+
+## Hoods (Genomic Windows)
+
+**Files:** `hoods.parquet` or `hoods.tsv`
+
+Defines which genomic regions to display for each genome.
+
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| `hood_id` | int | ✓ | Unique hood identifier |
+| `seqid` | string | ✓ | Genome/contig (matches tree leaf) |
+| `start` | int | ✓ | Window start position |
+| `end` | int | ✓ | Window end position |
+| `align_gene` | string | | Gene ID to use for alignment |
+| `label` | string | | Display label (defaults to seqid) |
+
+**TSV Example:**
+```tsv
+hood_id	seqid	start	end	align_gene
+1	genome1	0	15000	gene_005
+2	genome2	50000	65000	gene_105
+3	genome3	120000	135000	gene_205
+```
+
+---
+
+## Protein Links
+
+**Files:** `links.parquet` or `links.tsv`
+
+Homology relationships between proteins (shown as curved connections).
+
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| `gene1` | string | ✓ | Source gene ID |
+| `gene2` | string | ✓ | Target gene ID |
+| `identity` | float | | Sequence identity (0-1) |
+| `evalue` | float | | E-value |
+| `bitscore` | float | | Bit score |
+
+**TSV Example:**
+```tsv
+gene1	gene2	identity	evalue
+gene_001	gene_101	0.95	1e-150
+gene_002	gene_102	0.87	1e-120
+gene_003	gene_203	0.72	1e-80
+```
+
+---
+
+## Domains (Optional)
+
+**Files:** `domains.parquet` or `domains.tsv`
+
+Protein domain annotations (Pfam, InterPro, etc.).
+
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| `gene_id` | string | ✓ | Gene ID |
+| `domain_name` | string | ✓ | Domain name/accession |
+| `start` | int | ✓ | Domain start (amino acid position) |
+| `end` | int | ✓ | Domain end |
+| `source` | string | | Source database (pfam, interpro, etc.) |
+| `evalue` | float | | Domain E-value |
+| `description` | string | | Domain description |
+
+**TSV Example:**
+```tsv
+gene_id	domain_name	start	end	source	evalue	description
+gene_001	PF00001	10	150	pfam	1e-50	7 transmembrane receptor
+gene_001	PF00002	200	350	pfam	1e-40	G-protein coupled receptor
+gene_002	IPR000001	5	180	interpro	1e-60	Kinase domain
+```
+
+---
+
+## Nucleotide Links (Optional)
+
+**Files:** `nucleotide_links.parquet` or `nucleotide_links.tsv`
+
+Synteny blocks between genomic regions (shown as polygonal overlays).
+
+| Column | Type | Required | Description |
+|--------|------|----------|-------------|
+| `source_seqid` | string | ✓ | Source genome |
+| `source_start` | int | ✓ | Source start position |
+| `source_end` | int | ✓ | Source end position |
+| `target_seqid` | string | ✓ | Target genome |
+| `target_start` | int | ✓ | Target start position |
+| `target_end` | int | ✓ | Target end position |
+| `identity` | float | | Average identity |
+| `strand` | string | | `+` (same) or `-` (inverted) |
+
+---
+
+## Converting to Parquet
+
+Use the provided Python script:
+
+```bash
+python scripts/convert_to_parquet.py input.tsv output.parquet
+```
+
+Or with pandas:
+
+```python
+import pandas as pd
+
+df = pd.read_csv('genes.tsv', sep='\t')
+df.to_parquet('genes.parquet', index=False)
+```
