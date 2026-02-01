@@ -24,7 +24,7 @@ import {
 
 function App() {
   return (
-    <ThemeProvider>
+    <ThemeProvider respectHostTheme={false}>
       <HoodiniDashboard
         dataPaths={{
           gffParquet: gffParquetUrl,

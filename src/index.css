@@ -226,13 +226,13 @@ body {
   line-height: 1.4 !important;
   border-radius: var(--radius) !important;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
-  border: 1px solid oklch(var(--border)) !important;
+  border: 1px solid var(--border) !important;
   z-index: 1000 !important;
   text-align: left !important;
   
   /* Light theme - using more transparent accent background */
-  background-color: oklch(var(--accent) / 0.85) !important;
-  color: oklch(var(--accent-foreground)) !important;
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
   backdrop-filter: blur(8px) !important;
   
   /* Animation */
@@ -241,9 +241,9 @@ body {
 
 /* Dark theme tooltip */
 .dark .deck-tooltip {
-  background-color: oklch(var(--accent) / 0.85) !important;
-  color: oklch(var(--accent-foreground)) !important;
-  border-color: oklch(var(--border)) !important;
+  background-color: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  border-color: var(--border) !important;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2) !important;
   backdrop-filter: blur(8px) !important;
 }
@@ -261,9 +261,9 @@ body {
   font-size: 13px !important;
   letter-spacing: 0.02em !important;
   margin-bottom: 6px !important;
-  color: oklch(var(--foreground)) !important;
+  color: var(--foreground) !important;
   display: block !important;
-  border-bottom: 1px solid oklch(var(--border)) !important;
+  border-bottom: 1px solid var(--border) !important;
   padding-bottom: 4px !important;
 }
 
@@ -273,7 +273,7 @@ body {
 
 .deck-tooltip .tooltip-label {
   display: table-cell !important;
-  color: oklch(var(--muted-foreground)) !important;
+  color: var(--muted-foreground) !important;
   font-size: 9px !important;
   padding: 2px 16px 2px 0 !important;
   vertical-align: top !important;
@@ -284,7 +284,7 @@ body {
 .deck-tooltip .tooltip-value {
   display: table-cell !important;
   font-weight: 500 !important;
-  color: oklch(var(--foreground)) !important;
+  color: var(--foreground) !important;
   font-size: 9px !important;
   padding: 2px 0 !important;
   vertical-align: top !important;
@@ -299,25 +299,25 @@ body {
 }
 
 .deck-tooltip .tooltip-value.primary {
-  color: oklch(var(--primary)) !important;
+  color: var(--primary) !important;
   font-weight: 600 !important;
 }
 
 /* Tooltip for different data types */
 .deck-tooltip.gene-tooltip {
-  border-left: 3px solid oklch(var(--chart-1)) !important;
+  border-left: 3px solid var(--chart-1) !important;
 }
 
 .deck-tooltip.tree-tooltip {
-  border-left: 3px solid oklch(var(--chart-2)) !important;
+  border-left: 3px solid var(--chart-2) !important;
 }
 
 .deck-tooltip.domain-tooltip {
-  border-left: 3px solid oklch(var(--chart-3)) !important;
+  border-left: 3px solid var(--chart-3) !important;
 }
 
 .deck-tooltip.link-tooltip {
-  border-left: 3px solid oklch(var(--chart-4)) !important;
+  border-left: 3px solid var(--chart-4) !important;
 }
 
 /* Ensure table-based tooltip HTML wraps long tokens rather than overflowing. */
@@ -343,9 +343,9 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: oklch(var(--primary));
+  background: var(--primary);
   cursor: pointer;
-  border: 2px solid oklch(var(--background));
+  border: 2px solid var(--background);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
@@ -359,9 +359,9 @@ body {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: oklch(var(--primary));
+  background: var(--primary);
   cursor: pointer;
-  border: 2px solid oklch(var(--background));
+  border: 2px solid var(--background);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
 }
@@ -376,7 +376,7 @@ body {
 }
 
 .slider:focus::-webkit-slider-thumb {
-  outline: 2px solid oklch(var(--ring));
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
@@ -417,10 +417,10 @@ body {
 
 /* Dark mode support for 3DMol */
 .dark .protein-viewer {
-  background: oklch(var(--muted));
+  background: var(--muted);
 }
 
 .dark .protein-viewer canvas {
-  background: oklch(var(--muted));
+  background: var(--muted);
 }
 

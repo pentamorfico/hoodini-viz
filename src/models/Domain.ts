@@ -110,15 +110,31 @@ class Domain {
     const domainPoly = this.createDomainPolygon(g, this.origStart, this.origEnd);
     
     if (domainPoly && g.polygon) {
-      // Build a CONVEX 5-vertex arrow polygon for clipping.
-      // The 7-vertex gene polygon (with arrowhead) is CONCAVE and 
-      // Sutherland-Hodgman doesn't work correctly with concave clip polygons.
-      // Using a 5-vertex arrow covers the full gene area and is convex.
-      const convexClipPoly = this.getConvexGenePolygon(g);
-      this.polygon = clipPolygon(domainPoly, convexClipPoly);
+      // Use a simple bounding box rectangle for clipping instead of the arrow shape.
+      // This ensures domains near the arrow tip don't get clipped out when the
+      // domain height exceeds the narrowing arrow height at that position.
+      const clipRect = this.getGeneClipRect(g);
+      this.polygon = clipPolygon(domainPoly, clipRect);
     } else {
       this.polygon = domainPoly;
     }
+  }
+
+  // Get a simple rectangular clipping region that covers the entire gene
+  getGeneClipRect(g) {
+    const geneHeight = g.geneHeight || g.config?.gene?.height || 60;
+    const halfH = geneHeight / 2;
+    const trackY = g.trackY;
+    
+    const start = Math.min(g.start, g.end);
+    const end = Math.max(g.start, g.end);
+    
+    return [
+      [start, trackY - halfH],
+      [end, trackY - halfH],
+      [end, trackY + halfH],
+      [start, trackY + halfH]
+    ];
   }
 
   // Build a convex 5-vertex arrow polygon for clipping
@@ -179,20 +195,34 @@ class Domain {
   if (!g.centerLine || !Array.isArray(g.centerLine) || g.centerLine.length < 2) return null;
   if (!isFinite(geneLength) || geneLength <= 0) return null;
 
-  // Domain coordinates are in amino acids/nucleotides relative to gene start
-  // We need to convert them to proportions along the visual gene length.
-  // Assume domain coordinates are in amino acids, so we need the gene length in the same units
+  // Domain coordinates are in amino acids relative to the START of the protein (5' end of mRNA).
+  // For '+' strand genes: protein starts at gene start (lower genomic coordinate)
+  // For '-' strand genes: protein starts at gene end (higher genomic coordinate)
+  //
+  // The centerLine goes from centerLine[0] (t=0) to centerLine[1] (t=1).
+  // For '+' strand: t=0 is at the gene start (where protein starts) - no flip needed
+  // For '-' strand: t=0 is at the gene visual start (arrow body), but protein starts at arrow tip (t=1)
+  //                 So we need to flip domain coordinates: t' = 1 - t
+  
   const geneOrigLength = Math.abs(g.origEnd - g.origStart); // Original gene length in nucleotides
   const geneAALength = geneOrigLength / 3; // Convert to amino acids (approximate)
   
-  // Calculate domain positions as fractions of the gene length.
-  // CenterLine already accounts for visual strand orientation, so no manual flip needed.
+  // Calculate domain positions as fractions of the gene length
   let domainRelStart = domainStart / geneAALength;
   let domainRelEnd = domainEnd / geneAALength;
   
   // Clamp to [0,1] to ensure domains stay within gene bounds
   domainRelStart = Math.max(0, Math.min(1, domainRelStart));
   domainRelEnd = Math.max(0, Math.min(1, domainRelEnd));
+  
+  // For '-' strand genes, flip the domain positions
+  // because protein starts at the opposite end of the centerLine
+  if (g.strand === '-') {
+    const flippedStart = 1 - domainRelEnd;
+    const flippedEnd = 1 - domainRelStart;
+    domainRelStart = flippedStart;
+    domainRelEnd = flippedEnd;
+  }
 
   const startPos = this.interpolateOnLine(g.centerLine, domainRelStart);
   const endPos = this.interpolateOnLine(g.centerLine, domainRelEnd);
