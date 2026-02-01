@@ -1475,7 +1475,7 @@ export function AppSidebar({
                   <Label htmlFor="gene-label-by" className="text-xs mb-1 block">Gene Label By:</Label>
                   <MultiSelect
                     options={['gene_id', ...geneMetadataColumns].map(col => ({ label: col, value: col }))}
-                    value={geneLabelBy ? geneLabelBy.split(',').filter(Boolean) : []}
+                    value={geneLabelBy ? (Array.isArray(geneLabelBy) ? geneLabelBy : geneLabelBy.split(',').filter(Boolean)) : []}
                     onValueChange={(values) => setGeneLabelBy(values.length > 0 ? values.join(',') : '')}
                     placeholder="Select columns..."
                     maxCount={2}
@@ -1625,7 +1625,7 @@ export function AppSidebar({
                   <Label htmlFor="tree-label-by" className="text-xs mb-1 block">Tree Label By:</Label>
                   <MultiSelect
                     options={['name', ...treeMetadataColumns].map(col => ({ label: col, value: col }))}
-                    value={treeLabelBy ? treeLabelBy.split(',').filter(Boolean) : []}
+                    value={treeLabelBy ? (Array.isArray(treeLabelBy) ? treeLabelBy : treeLabelBy.split(',').filter(Boolean)) : []}
                     onValueChange={(values) => setTreeLabelBy(values.length > 0 ? values.join(',') : '')}
                     placeholder="Select columns..."
                     maxCount={2}
