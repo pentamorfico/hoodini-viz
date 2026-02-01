@@ -71,31 +71,23 @@ class Domain {
     this.start = start;
     this.end = end;
     this.source = source;
-    this.evalue = evalue;
-    this.coverage = coverage;
+    // Convert evalue to number (may come as string from Parquet)
+    this.evalue = typeof evalue === 'number' ? evalue : (evalue != null ? parseFloat(evalue) : 0);
+    // Convert coverage to number (may come as string from Parquet)
+    this.coverage = typeof coverage === 'number' ? coverage : (coverage != null ? parseFloat(coverage) : 0);
     this.parentGene = null;
     this.polygon = null;
     
-    // Format evalue for display - handle both number and string formats
-    let evalueDisplay = evalue;
-    if (evalue !== null && evalue !== undefined) {
-      // Convert to number if it's a string (e.g., "2.29e-36")
-      const evalueNum = typeof evalue === 'number' ? evalue : parseFloat(evalue);
-      if (!isNaN(evalueNum) && evalueNum > 0) {
-        evalueDisplay = evalueNum < 0.001 ? evalueNum.toExponential(2) : evalueNum.toFixed(6);
-      } else if (typeof evalue === 'string') {
-        // Keep original string if it's already formatted (like "2.29e-36")
-        evalueDisplay = evalue;
-      }
+    // Format evalue for display (already converted to number above)
+    let evalueDisplay: string | number = this.evalue;
+    if (!isNaN(this.evalue) && this.evalue > 0) {
+      evalueDisplay = this.evalue < 0.001 ? this.evalue.toExponential(2) : this.evalue.toFixed(6);
     }
     
-    // Format coverage as percentage - handle both number and string formats
-    let coverageDisplay = coverage;
-    if (coverage !== null && coverage !== undefined) {
-      const coverageNum = typeof coverage === 'number' ? coverage : parseFloat(coverage);
-      if (!isNaN(coverageNum)) {
-        coverageDisplay = `${(coverageNum * 100).toFixed(1)}%`;
-      }
+    // Format coverage as percentage (already converted to number above)
+    let coverageDisplay: string | number = this.coverage;
+    if (!isNaN(this.coverage)) {
+      coverageDisplay = `${(this.coverage * 100).toFixed(1)}%`;
     }
     
     this.metadata = { 
@@ -149,6 +141,7 @@ class Domain {
     const isForward = g.strand === '+';
     
     // When tipWidth is 0 or very small, return a simple rectangle for clipping
+    // Clockwise order for Sutherland-Hodgman algorithm
     if (tipWidth < 1) {
       return [
         [start, trackY - halfH],
@@ -158,11 +151,14 @@ class Domain {
       ];
     }
     
-    // 5-vertex convex arrow polygon
+    // 5-vertex convex arrow polygon in CLOCKWISE order
+    // This is required for the Sutherland-Hodgman clipping algorithm to work correctly.
     // Use gene body height (halfH) for all vertices to ensure domains
     // don't extend beyond the gene body. The arrowheadHeight only affects
     // the visual gene rendering, not the clipping area for domains.
     if (isForward) {
+      // Forward arrow: tip on right
+      // Clockwise: top-left → top-right-body → tip → bottom-right-body → bottom-left
       return [
         [start, trackY - halfH],
         [end - tipWidth, trackY - halfH],
@@ -171,12 +167,20 @@ class Domain {
         [start, trackY + halfH]
       ];
     } else {
+      // Reverse arrow: tip on left
+      // Clockwise: top-left → top-right → bottom-right → bottom-left-body → tip → top-left-body
+      // Wait, that's 6 points. Let me reconsider.
+      // For a 5-vertex arrow pointing left, clockwise order is:
+      // top-right-body → top-left-body → tip → bottom-left-body → bottom-right-body
+      // But we need to start from a consistent point. Let's reverse the anticlockwise order.
+      // Original (anticlockwise): [end,-H], [start+tw,-H], [start,0], [start+tw,+H], [end,+H]
+      // Reversed (clockwise):     [end,+H], [start+tw,+H], [start,0], [start+tw,-H], [end,-H]
       return [
-        [end, trackY - halfH],
-        [start + tipWidth, trackY - halfH],
-        [start, trackY],  // tip
+        [end, trackY + halfH],
         [start + tipWidth, trackY + halfH],
-        [end, trackY + halfH]
+        [start, trackY],  // tip
+        [start + tipWidth, trackY - halfH],
+        [end, trackY - halfH]
       ];
     }
   }
@@ -224,6 +228,7 @@ class Domain {
 
   const startPos = this.interpolateOnLine(g.centerLine, domainRelStart);
   const endPos = this.interpolateOnLine(g.centerLine, domainRelEnd);
+  
   const perp = this.perpVector(g.centerLine[0], g.centerLine[1]);
   const normPerp = this.normalize(perp);
   // Compute half-height based on the gene BODY height (not arrowhead height).

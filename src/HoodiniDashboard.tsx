@@ -477,7 +477,7 @@ const DEFAULT_INITIAL_STATE: InitialState = {
   
   // Palettes
   genePalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
-  domainPalette: { type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.1, 0.3] },
+  domainPalette: { type: 'sequential', name: 'Gray', numColors: 9, reverse: false, enabled: true, alphaRange: [0.2, 0.5] },
   phyloPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
   ncRNAPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
   regionPalette: { type: 'qualitative', name: 'RPRlab', numColors: 15, reverse: false, enabled: true },
@@ -865,7 +865,14 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
                 const geneId = d.gene_id || d.geneId;
                 if (geneId) {
                   if (!byGene[geneId]) byGene[geneId] = [];
-                  byGene[geneId].push(d);
+                  // Ensure numeric fields are numbers (Parquet may store as strings)
+                  byGene[geneId].push({
+                    ...d,
+                    start: typeof d.start === 'number' ? d.start : parseInt(d.start, 10) || 0,
+                    end: typeof d.end === 'number' ? d.end : parseInt(d.end, 10) || 0,
+                    evalue: typeof d.evalue === 'number' ? d.evalue : parseFloat(d.evalue) || 0,
+                    coverage: typeof d.coverage === 'number' ? d.coverage : parseFloat(d.coverage) || 0,
+                  });
                 }
               }
               results.domainsByGene = byGene;
