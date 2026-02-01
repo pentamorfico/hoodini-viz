@@ -6982,7 +6982,7 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
           // Use geneLabels.length to force data refresh when filtering by ySpacing changes label count
           getPosition: [geneLabels.length, alignmentVersion, (effectiveConfig && effectiveConfig.gene ? effectiveConfig.gene.height : null), geneHeight, geneLabelPosition, ySpacingProp, genomeXScaleProp, genesData],
           getText: [geneLabels.length, geneLabelBy, genomeXScaleProp, ySpacingProp],
-          getColor: [geneLabels.length, geneColorBy, (effectiveGenePalette && effectiveGenePalette.name) || null, paletteVersion],
+          getColor: [geneLabels.length, geneColorBy, (effectiveGenePalette && effectiveGenePalette.name) || null, paletteVersion, effectiveGenePalette?.transparentByPrevalence, effectiveGenePalette?.desaturateByPrevalence, effectiveGenePalette?.prevalenceFilter, geneColorMap],
           getSize: [effectiveConfig.text?.geneLabelSize, effectiveConfig.text?.scaleFactors?.gene, geneLabels.length, geneHeight, geneLabelPosition],
           getAlignmentBaseline: [geneLabels.length, geneLabelPosition, alignmentVersion]
         }
