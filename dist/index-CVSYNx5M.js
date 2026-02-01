@@ -7,7 +7,7 @@ var Zp = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : t
 function ic(t) {
   return t && t.__esModule && Object.prototype.hasOwnProperty.call(t, "default") ? t.default : t;
 }
-var dy = { exports: {} }, Th = {}, fy = { exports: {} }, hy = {};
+var dy = { exports: {} }, Rh = {}, fy = { exports: {} }, hy = {};
 var Mw;
 function aN() {
   return Mw || (Mw = 1, (function(t) {
@@ -234,7 +234,7 @@ function lN() {
 }
 var Iw;
 function cN() {
-  if (Iw) return Th;
+  if (Iw) return Rh;
   Iw = 1;
   var t = lN(), e = it, n = m9;
   function r(l) {
@@ -439,7 +439,7 @@ function cN() {
     c !== f && (oe(be, l), oe(fe, f));
   }
   function Ce(l) {
-    be.current === l && (ce(fe), ce(be)), Ae.current === l && (ce(Ae), xh._currentValue = I);
+    be.current === l && (ce(fe), ce(be)), Ae.current === l && (ce(Ae), Dh._currentValue = I);
   }
   var Xe, ot;
   function _t(l) {
@@ -454,10 +454,10 @@ function cN() {
     return `
 ` + Xe + l + ot;
   }
-  var ze = !1;
+  var Ue = !1;
   function Mt(l, c) {
-    if (!l || ze) return "";
-    ze = !0;
+    if (!l || Ue) return "";
+    Ue = !0;
     var f = Error.prepareStackTrace;
     Error.prepareStackTrace = void 0;
     try {
@@ -541,7 +541,7 @@ function cN() {
           }
       }
     } finally {
-      ze = !1, Error.prepareStackTrace = f;
+      Ue = !1, Error.prepareStackTrace = f;
     }
     return (f = l ? l.displayName || l.name : "") ? _t(f) : "";
   }
@@ -583,16 +583,16 @@ Error generating stack: ` + p.message + `
 ` + p.stack;
     }
   }
-  var Ct = Object.prototype.hasOwnProperty, wt = t.unstable_scheduleCallback, At = t.unstable_cancelCallback, Vt = t.unstable_shouldYield, Ut = t.unstable_requestPaint, Qt = t.unstable_now, qe = t.unstable_getCurrentPriorityLevel, xe = t.unstable_ImmediatePriority, Rt = t.unstable_UserBlockingPriority, Lt = t.unstable_NormalPriority, ft = t.unstable_LowPriority, xt = t.unstable_IdlePriority, Tt = t.log, zt = t.unstable_setDisableYieldValue, ht = null, _e = null;
+  var Ct = Object.prototype.hasOwnProperty, wt = t.unstable_scheduleCallback, At = t.unstable_cancelCallback, Vt = t.unstable_shouldYield, Ut = t.unstable_requestPaint, Qt = t.unstable_now, qe = t.unstable_getCurrentPriorityLevel, xe = t.unstable_ImmediatePriority, Rt = t.unstable_UserBlockingPriority, Lt = t.unstable_NormalPriority, ft = t.unstable_LowPriority, xt = t.unstable_IdlePriority, Tt = t.log, zt = t.unstable_setDisableYieldValue, gt = null, _e = null;
   function ve(l) {
     if (typeof Tt == "function" && zt(l), _e && typeof _e.setStrictMode == "function")
       try {
-        _e.setStrictMode(ht, l);
+        _e.setStrictMode(gt, l);
       } catch {
       }
   }
-  var rt = Math.clz32 ? Math.clz32 : $e, Ke = Math.log, vt = Math.LN2;
-  function $e(l) {
+  var tt = Math.clz32 ? Math.clz32 : ze, Ke = Math.log, vt = Math.LN2;
+  function ze(l) {
     return l >>>= 0, l === 0 ? 32 : 31 - (Ke(l) / vt | 0) | 0;
   }
   var ct = 256, It = 262144, Xt = 4194304;
@@ -719,7 +719,7 @@ Error generating stack: ` + p.message + `
     l.pendingLanes = f, l.suspendedLanes = 0, l.pingedLanes = 0, l.warmLanes = 0, l.expiredLanes &= f, l.entangledLanes &= f, l.errorRecoveryDisabledLanes &= f, l.shellSuspendCounter = 0;
     var se = l.entanglements, we = l.expirationTimes, et = l.hiddenUpdates;
     for (f = z & ~f; 0 < f; ) {
-      var Ft = 31 - rt(f), Dt = 1 << Ft;
+      var Ft = 31 - tt(f), Dt = 1 << Ft;
       se[Ft] = 0, we[Ft] = -1;
       var st = et[Ft];
       if (st !== null)
@@ -733,13 +733,13 @@ Error generating stack: ` + p.message + `
   }
   function li(l, c, f) {
     l.pendingLanes |= c, l.suspendedLanes &= ~c;
-    var p = 31 - rt(c);
+    var p = 31 - tt(c);
     l.entangledLanes |= c, l.entanglements[p] = l.entanglements[p] | 1073741824 | f & 261930;
   }
   function $r(l, c) {
     var f = l.entangledLanes |= c;
     for (l = l.entanglements; f; ) {
-      var p = 31 - rt(f), F = 1 << p;
+      var p = 31 - tt(f), F = 1 << p;
       F & c | l[p] & c && (l[p] |= c), f &= ~F;
     }
   }
@@ -1272,12 +1272,12 @@ Error generating stack: ` + p.message + `
   var qi = !(typeof window > "u" || typeof window.document > "u" || typeof window.document.createElement > "u"), us = !1;
   if (qi)
     try {
-      var tt = {};
-      Object.defineProperty(tt, "passive", {
+      var nt = {};
+      Object.defineProperty(nt, "passive", {
         get: function() {
           us = !0;
         }
-      }), window.addEventListener("test", tt, tt), window.removeEventListener("test", tt, tt);
+      }), window.addEventListener("test", nt, nt), window.removeEventListener("test", nt, nt);
     } catch {
       us = !1;
     }
@@ -1724,7 +1724,7 @@ Error generating stack: ` + p.message + `
         return te[l] = c[f];
     return l;
   }
-  var K = G("animationend"), ae = G("animationiteration"), he = G("animationstart"), me = G("transitionrun"), ye = G("transitionstart"), Me = G("transitioncancel"), Ue = G("transitionend"), Be = /* @__PURE__ */ new Map(), Ye = "abort auxClick beforeToggle cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(
+  var K = G("animationend"), ae = G("animationiteration"), he = G("animationstart"), me = G("transitionrun"), ye = G("transitionstart"), Me = G("transitioncancel"), $e = G("transitionend"), Be = /* @__PURE__ */ new Map(), Ye = "abort auxClick beforeToggle cancel canPlay canPlayThrough click close contextMenu copy cut drag dragEnd dragEnter dragExit dragLeave dragOver dragStart drop durationChange emptied encrypted ended error gotPointerCapture input invalid keyDown keyPress keyUp load loadedData loadedMetadata loadStart lostPointerCapture mouseDown mouseMove mouseOut mouseOver mouseUp paste pause play playing pointerCancel pointerDown pointerMove pointerOut pointerOver pointerUp progress rateChange reset resize seeked seeking stalled submit suspend timeUpdate touchCancel touchEnd touchStart volumeChange scroll toggle touchMove waiting wheel".split(
     " "
   );
   Ye.push("scrollEnd");
@@ -1777,11 +1777,11 @@ Error generating stack: ` + p.message + `
     p !== null && (p.lanes |= f);
     for (var F = !1, v = l.return; v !== null; )
       v.childLanes |= f, p = v.alternate, p !== null && (p.childLanes |= f), v.tag === 22 && (l = v.stateNode, l === null || l._visibility & 1 || (F = !0)), l = v, v = v.return;
-    return l.tag === 3 ? (v = l.stateNode, F && c !== null && (F = 31 - rt(f), l = v.hiddenUpdates, p = l[F], p === null ? l[F] = [c] : p.push(c), c.lane = f | 536870912), v) : null;
+    return l.tag === 3 ? (v = l.stateNode, F && c !== null && (F = 31 - tt(f), l = v.hiddenUpdates, p = l[F], p === null ? l[F] = [c] : p.push(c), c.lane = f | 536870912), v) : null;
   }
   function Yt(l) {
-    if (50 < bh)
-      throw bh = 0, I2 = null, Error(r(185));
+    if (50 < Fh)
+      throw Fh = 0, I2 = null, Error(r(185));
     for (var c = l.return; c !== null; )
       l = c, c = l.return;
     return l.tag === 3 ? l.stateNode : null;
@@ -1908,12 +1908,12 @@ Error generating stack: ` + p.message + `
     qs[Fs++] = Bo, qs[Fs++] = So, qs[Fs++] = Do, Do = l;
     var p = Bo;
     l = So;
-    var F = 32 - rt(p) - 1;
+    var F = 32 - tt(p) - 1;
     p &= ~(1 << F), f += 1;
-    var v = 32 - rt(c) + F;
+    var v = 32 - tt(c) + F;
     if (30 < v) {
       var z = F - F % 5;
-      v = (p & (1 << z) - 1).toString(32), p >>= z, F -= z, Bo = 1 << 32 - rt(c) + F | f << F | p, So = v + l;
+      v = (p & (1 << z) - 1).toString(32), p >>= z, F -= z, Bo = 1 << 32 - tt(c) + F | f << F | p, So = v + l;
     } else
       Bo = 1 << v | f << F | p, So = l;
   }
@@ -1953,8 +1953,8 @@ Error generating stack: ` + p.message + `
         break;
       case "video":
       case "audio":
-        for (f = 0; f < Ah.length; f++)
-          Fr(Ah[f], c);
+        for (f = 0; f < vh.length; f++)
+          Fr(vh[f], c);
         break;
       case "source":
         Fr("error", c);
@@ -1987,7 +1987,7 @@ Error generating stack: ` + p.message + `
     }
     f = p.children, typeof f != "string" && typeof f != "number" && typeof f != "bigint" || c.textContent === "" + f || p.suppressHydrationWarning === !0 || J4(c.textContent, f) ? (p.popover != null && (Fr("beforetoggle", c), Fr("toggle", c)), p.onScroll != null && Fr("scroll", c), p.onScrollEnd != null && Fr("scrollend", c), p.onClick != null && (c.onclick = Wi), c = !0) : c = !1, c || Fe(l, !0);
   }
-  function gt(l) {
+  function pt(l) {
     for (Ie = l.return; Ie; )
       switch (Ie.tag) {
         case 5:
@@ -2003,11 +2003,11 @@ Error generating stack: ` + p.message + `
           Ie = Ie.return;
       }
   }
-  function nt(l) {
+  function rt(l) {
     if (l !== Ie) return !1;
-    if (!V) return gt(l), V = !0, !1;
+    if (!V) return pt(l), V = !0, !1;
     var c = l.tag, f;
-    if ((f = c !== 3 && c !== 27) && ((f = c === 5) && (f = l.type, f = !(f !== "form" && f !== "button") || K2(l.type, l.memoizedProps)), f = !f), f && je && Fe(l), gt(l), c === 13) {
+    if ((f = c !== 3 && c !== 27) && ((f = c === 5) && (f = l.type, f = !(f !== "form" && f !== "button") || K2(l.type, l.memoizedProps)), f = !f), f && je && Fe(l), pt(l), c === 13) {
       if (l = l.memoizedState, l = l !== null ? l.dehydrated : null, !l) throw Error(r(317));
       je = lw(l);
     } else if (c === 31) {
@@ -2101,7 +2101,7 @@ Error generating stack: ` + p.message + `
         }
       } else if (F === Ae.current) {
         if (z = F.alternate, z === null) throw Error(r(387));
-        z.memoizedState.memoizedState !== F.memoizedState.memoizedState && (l !== null ? l.push(xh) : l = [xh]);
+        z.memoizedState.memoizedState !== F.memoizedState.memoizedState && (l !== null ? l.push(Dh) : l = [Dh]);
       }
       F = F.return;
     }
@@ -2173,7 +2173,7 @@ Error generating stack: ` + p.message + `
     });
   }
   var ul = null, Ru = 0, Wo = 0, Pl = null;
-  function ip(l, c) {
+  function sp(l, c) {
     if (ul === null) {
       var f = ul = [];
       Ru = 0, Wo = $2(), Pl = {
@@ -2194,7 +2194,7 @@ Error generating stack: ` + p.message + `
       for (var c = 0; c < l.length; c++) (0, l[c])();
     }
   }
-  function sp(l, c) {
+  function op(l, c) {
     var f = [], p = {
       status: "pending",
       value: null,
@@ -2214,9 +2214,9 @@ Error generating stack: ` + p.message + `
       }
     ), p;
   }
-  var rh = R.S;
+  var ih = R.S;
   R.S = function(l, c) {
-    E4 = Qt(), typeof c == "object" && c !== null && typeof c.then == "function" && ip(l, c), rh !== null && rh(l, c);
+    E4 = Qt(), typeof c == "object" && c !== null && typeof c.then == "function" && sp(l, c), ih !== null && ih(l, c);
   };
   var Ss = Z(null);
   function $c() {
@@ -2232,10 +2232,10 @@ Error generating stack: ` + p.message + `
   }
   var qo = Error(r(460)), gc = Error(r(474)), Mu = Error(r(542)), Rd = { then: function() {
   } };
-  function ih(l) {
+  function sh(l) {
     return l = l.status, l === "fulfilled" || l === "rejected";
   }
-  function sh(l, c, f) {
+  function oh(l, c, f) {
     switch (f = l[f], f === void 0 ? l.push(c) : f !== c && (c.then(Wi, Wi), c = f), c.status) {
       case "fulfilled":
         return c.value;
@@ -2279,7 +2279,7 @@ Error generating stack: ` + p.message + `
     }
   }
   var pc = null;
-  function op() {
+  function kd() {
     if (pc === null) throw Error(r(459));
     var l = pc;
     return pc = null, l;
@@ -2289,9 +2289,9 @@ Error generating stack: ` + p.message + `
       throw Error(r(483));
   }
   var Dn = null, Wc = 0;
-  function kd(l) {
+  function Md(l) {
     var c = Wc;
-    return Wc += 1, Dn === null && (Dn = []), sh(Dn, l, c);
+    return Wc += 1, Dn === null && (Dn = []), oh(Dn, l, c);
   }
   function Pu(l, c) {
     c = c.props.ref, l.ref = c !== void 0 ? c : null;
@@ -2304,7 +2304,7 @@ Error generating stack: ` + p.message + `
       )
     ));
   }
-  function Md(l) {
+  function Pd(l) {
     function c(Ve, Re) {
       if (l) {
         var Je = Ve.deletions;
@@ -2397,7 +2397,7 @@ Error generating stack: ` + p.message + `
             null
           ), Re.return = Ve, Re;
         if (typeof Re.then == "function")
-          return Dt(Ve, kd(Re), Je);
+          return Dt(Ve, Md(Re), Je);
         if (Re.$$typeof === x)
           return Dt(
             Ve,
@@ -2427,7 +2427,7 @@ Error generating stack: ` + p.message + `
           return st(
             Ve,
             Re,
-            kd(Je),
+            Md(Je),
             Et
           );
         if (Je.$$typeof === x)
@@ -2470,7 +2470,7 @@ Error generating stack: ` + p.message + `
             Ve,
             Re,
             Je,
-            kd(Et),
+            Md(Et),
             Mn
           );
         if (Et.$$typeof === x)
@@ -2646,7 +2646,7 @@ Error generating stack: ` + p.message + `
           return fi(
             Ve,
             Re,
-            kd(Je),
+            Md(Je),
             Et
           );
         if (Je.$$typeof === x)
@@ -2677,8 +2677,8 @@ Error generating stack: ` + p.message + `
       }
     };
   }
-  var dl = Md(!0), Iu = Md(!1), Il = !1;
-  function Pd(l) {
+  var dl = Pd(!0), Iu = Pd(!1), Il = !1;
+  function Id(l) {
     l.updateQueue = {
       baseState: l.memoizedState,
       firstBaseUpdate: null,
@@ -2687,7 +2687,7 @@ Error generating stack: ` + p.message + `
       callbacks: null
     };
   }
-  function oh(l, c) {
+  function ah(l, c) {
     l = l.updateQueue, c.updateQueue === l && (c.updateQueue = {
       baseState: l.baseState,
       firstBaseUpdate: l.firstBaseUpdate,
@@ -2699,7 +2699,7 @@ Error generating stack: ` + p.message + `
   function Nl(l) {
     return { lane: l, tag: 0, payload: null, callback: null, next: null };
   }
-  function pt(l, c, f) {
+  function ht(l, c, f) {
     var p = l.updateQueue;
     if (p === null) return null;
     if (p = p.shared, (jr & 2) !== 0) {
@@ -2825,15 +2825,15 @@ Error generating stack: ` + p.message + `
       for (l.callbacks = null, l = 0; l < f.length; l++)
         Aa(f[l], c);
   }
-  var hl = Z(null), Id = Z(0);
+  var hl = Z(null), Nd = Z(0);
   function lp(l, c) {
-    l = wc, oe(Id, l), oe(hl, c), wc = l | c.baseLanes;
+    l = wc, oe(Nd, l), oe(hl, c), wc = l | c.baseLanes;
   }
-  function Nd() {
-    oe(Id, wc), oe(hl, hl.current);
+  function Od() {
+    oe(Nd, wc), oe(hl, hl.current);
   }
   function j1() {
-    wc = Id.current, ce(hl), ce(Id);
+    wc = Nd.current, ce(hl), ce(Nd);
   }
   var va = Z(null), Ya = null;
   function qc(l) {
@@ -2874,7 +2874,7 @@ Error generating stack: ` + p.message + `
     }
     return null;
   }
-  var yc = 0, nr = null, ui = null, Ts = null, up = !1, Od = !1, Nu = !1, dp = 0, ah = 0, Ld = null, YP = 0;
+  var yc = 0, nr = null, ui = null, Ts = null, up = !1, Ld = !1, Nu = !1, dp = 0, lh = 0, zd = null, YP = 0;
   function ms() {
     throw Error(r(321));
   }
@@ -2885,7 +2885,7 @@ Error generating stack: ` + p.message + `
     return !0;
   }
   function G1(l, c, f, p, F, v) {
-    return yc = v, nr = c, c.memoizedState = null, c.updateQueue = null, c.lanes = 0, R.H = l === null || l.memoizedState === null ? P_ : u2, Nu = !1, v = f(p, F), Nu = !1, Od && (v = JE(
+    return yc = v, nr = c, c.memoizedState = null, c.updateQueue = null, c.lanes = 0, R.H = l === null || l.memoizedState === null ? P_ : u2, Nu = !1, v = f(p, F), Nu = !1, Ld && (v = JE(
       c,
       f,
       p,
@@ -2893,27 +2893,27 @@ Error generating stack: ` + p.message + `
     )), QE(l), v;
   }
   function QE(l) {
-    R.H = uh;
+    R.H = dh;
     var c = ui !== null && ui.next !== null;
-    if (yc = 0, Ts = ui = nr = null, up = !1, ah = 0, Ld = null, c) throw Error(r(300));
+    if (yc = 0, Ts = ui = nr = null, up = !1, lh = 0, zd = null, c) throw Error(r(300));
     l === null || Rs || (l = l.dependencies, l !== null && Ni(l) && (Rs = !0));
   }
   function JE(l, c, f, p) {
     nr = l;
     var F = 0;
     do {
-      if (Od && (Ld = null), ah = 0, Od = !1, 25 <= F) throw Error(r(301));
+      if (Ld && (zd = null), lh = 0, Ld = !1, 25 <= F) throw Error(r(301));
       if (F += 1, Ts = ui = null, l.updateQueue != null) {
         var v = l.updateQueue;
         v.lastEffect = null, v.events = null, v.stores = null, v.memoCache != null && (v.memoCache.index = 0);
       }
       R.H = I_, v = c(f, p);
-    } while (Od);
+    } while (Ld);
     return v;
   }
   function GP() {
     var l = R.H, c = l.useState()[0];
-    return c = typeof c.then == "function" ? lh(c) : c, l = l.useState()[0], (ui !== null ? ui.memoizedState : null) !== l && (nr.flags |= 1024), c;
+    return c = typeof c.then == "function" ? ch(c) : c, l = l.useState()[0], (ui !== null ? ui.memoizedState : null) !== l && (nr.flags |= 1024), c;
   }
   function K1() {
     var l = dp !== 0;
@@ -2930,7 +2930,7 @@ Error generating stack: ` + p.message + `
       }
       up = !1;
     }
-    yc = 0, Ts = ui = nr = null, Od = !1, ah = dp = 0, Ld = null;
+    yc = 0, Ts = ui = nr = null, Ld = !1, lh = dp = 0, zd = null;
   }
   function jo() {
     var l = {
@@ -2966,13 +2966,13 @@ Error generating stack: ` + p.message + `
   function fp() {
     return { lastEffect: null, events: null, stores: null, memoCache: null };
   }
-  function lh(l) {
-    var c = ah;
-    return ah += 1, Ld === null && (Ld = []), l = sh(Ld, l, c), c = nr, (Ts === null ? c.memoizedState : Ts.next) === null && (c = c.alternate, R.H = c === null || c.memoizedState === null ? P_ : u2), l;
+  function ch(l) {
+    var c = lh;
+    return lh += 1, zd === null && (zd = []), l = oh(zd, l, c), c = nr, (Ts === null ? c.memoizedState : Ts.next) === null && (c = c.alternate, R.H = c === null || c.memoizedState === null ? P_ : u2), l;
   }
   function hp(l) {
     if (l !== null && typeof l == "object") {
-      if (typeof l.then == "function") return lh(l);
+      if (typeof l.then == "function") return ch(l);
       if (l.$$typeof === x) return Mr(l);
     }
     throw Error(r(438, String(l)));
@@ -3090,7 +3090,7 @@ Error generating stack: ` + p.message + `
     if (z && (F.memoizedState = f, Rs = !0), F = F.queue, i2(r_.bind(null, p, F, l), [
       l
     ]), F.getSnapshot !== c || z || Ts !== null && Ts.memoizedState.tag & 1) {
-      if (p.flags |= 2048, zd(
+      if (p.flags |= 2048, Ud(
         9,
         { destroy: void 0 },
         n_.bind(
@@ -3304,14 +3304,14 @@ Error generating stack: ` + p.message + `
       d_
     )[0], l = gp(Cc)[0], typeof c == "object" && c !== null && typeof c.then == "function")
       try {
-        var p = lh(c);
+        var p = ch(c);
       } catch (z) {
         throw z === qo ? Mu : z;
       }
     else p = c;
     c = Es();
     var F = c.queue, v = F.dispatch;
-    return f !== c.memoizedState && (nr.flags |= 2048, zd(
+    return f !== c.memoizedState && (nr.flags |= 2048, Ud(
       9,
       { destroy: void 0 },
       ZP.bind(null, F, f),
@@ -3329,7 +3329,7 @@ Error generating stack: ` + p.message + `
     var p = f.queue.dispatch;
     return f.memoizedState = l, [c, p, !1];
   }
-  function zd(l, c, f, p) {
+  function Ud(l, c, f, p) {
     return l = { tag: l, create: f, deps: p, inst: c, next: null }, c = nr.updateQueue, c === null && (c = fp(), nr.updateQueue = c), f = c.lastEffect, f === null ? c.lastEffect = l.next = l : (p = f.next, f.next = l, l.next = p, c.lastEffect = l), l;
   }
   function m_() {
@@ -3337,7 +3337,7 @@ Error generating stack: ` + p.message + `
   }
   function pp(l, c, f, p) {
     var F = jo();
-    nr.flags |= l, F.memoizedState = zd(
+    nr.flags |= l, F.memoizedState = Ud(
       1 | c,
       { destroy: void 0 },
       f,
@@ -3348,7 +3348,7 @@ Error generating stack: ` + p.message + `
     var F = Es();
     p = p === void 0 ? null : p;
     var v = F.memoizedState.inst;
-    ui !== null && p !== null && Y1(p, ui.memoizedState.deps) ? F.memoizedState = zd(c, v, f, p) : (nr.flags |= l, F.memoizedState = zd(
+    ui !== null && p !== null && Y1(p, ui.memoizedState.deps) ? F.memoizedState = Ud(c, v, f, p) : (nr.flags |= l, F.memoizedState = Ud(
       1 | c,
       v,
       f,
@@ -3438,25 +3438,25 @@ Error generating stack: ` + p.message + `
     try {
       var we = F(), et = R.S;
       if (et !== null && et(se, we), we !== null && typeof we == "object" && typeof we.then == "function") {
-        var Ft = sp(
+        var Ft = op(
           we,
           p
         );
-        ch(
+        uh(
           l,
           c,
           Ft,
           xa(l)
         );
       } else
-        ch(
+        uh(
           l,
           c,
           p,
           xa(l)
         );
     } catch (Dt) {
-      ch(
+      uh(
         l,
         c,
         { then: function() {
@@ -3515,7 +3515,7 @@ Error generating stack: ` + p.message + `
   }
   function B_(l) {
     var c = D_(l);
-    c.next === null && (c = l.alternate.memoizedState), ch(
+    c.next === null && (c = l.alternate.memoizedState), uh(
       l,
       c.next.queue,
       {},
@@ -3523,7 +3523,7 @@ Error generating stack: ` + p.message + `
     );
   }
   function l2() {
-    return Mr(xh);
+    return Mr(Dh);
   }
   function S_() {
     return Es().memoizedState;
@@ -3538,7 +3538,7 @@ Error generating stack: ` + p.message + `
         case 3:
           var f = xa();
           l = Nl(f);
-          var p = pt(c, l, f);
+          var p = ht(c, l, f);
           p !== null && (la(p, c, f), yr(p, c, f)), c = { cache: cl() }, l.payload = c;
           return;
       }
@@ -3559,9 +3559,9 @@ Error generating stack: ` + p.message + `
   }
   function R_(l, c, f) {
     var p = xa();
-    ch(l, c, f, p);
+    uh(l, c, f, p);
   }
-  function ch(l, c, f, p) {
+  function uh(l, c, f, p) {
     var F = {
       lane: p,
       revertLane: 0,
@@ -3610,7 +3610,7 @@ Error generating stack: ` + p.message + `
     return l === nr || c !== null && c === nr;
   }
   function k_(l, c) {
-    Od = up = !0;
+    Ld = up = !0;
     var f = l.pending;
     f === null ? c.next = c : (c.next = f.next, f.next = c), l.pending = c;
   }
@@ -3620,7 +3620,7 @@ Error generating stack: ` + p.message + `
       p &= l.pendingLanes, f |= p, c.lanes = f, $r(l, f);
     }
   }
-  var uh = {
+  var dh = {
     readContext: Mr,
     use: hp,
     useCallback: ms,
@@ -3645,7 +3645,7 @@ Error generating stack: ` + p.message + `
     useMemoCache: ms,
     useCacheRefresh: ms
   };
-  uh.useEffectEvent = ms;
+  dh.useEffectEvent = ms;
   var P_ = {
     readContext: Mr,
     use: hp,
@@ -3749,7 +3749,7 @@ Error generating stack: ` + p.message + `
       var v = { value: f, getSnapshot: c };
       return F.queue = v, y_(r_.bind(null, p, v, l), [
         l
-      ]), p.flags |= 2048, zd(
+      ]), p.flags |= 2048, Ud(
         9,
         { destroy: void 0 },
         n_.bind(
@@ -3766,7 +3766,7 @@ Error generating stack: ` + p.message + `
       var l = jo(), c = Ai.identifierPrefix;
       if (V) {
         var f = So, p = Bo;
-        f = (p & ~(1 << 32 - rt(p) - 1)).toString(32) + f, c = "_" + c + "R_" + f, f = dp++, 0 < f && (c += "H" + f.toString(32)), c += "_";
+        f = (p & ~(1 << 32 - tt(p) - 1)).toString(32) + f, c = "_" + c + "R_" + f, f = dp++, 0 < f && (c += "H" + f.toString(32)), c += "_";
       } else
         f = YP++, c = "_" + c + "r_" + f.toString(32) + "_";
       return l.memoizedState = c;
@@ -3834,7 +3834,7 @@ Error generating stack: ` + p.message + `
     useTransition: function() {
       var l = gp(Cc)[0], c = Es().memoizedState;
       return [
-        typeof l == "boolean" ? l : lh(l),
+        typeof l == "boolean" ? l : ch(l),
         c
       ];
     },
@@ -3879,7 +3879,7 @@ Error generating stack: ` + p.message + `
     useTransition: function() {
       var l = t2(Cc)[0], c = Es().memoizedState;
       return [
-        typeof l == "boolean" ? l : lh(l),
+        typeof l == "boolean" ? l : ch(l),
         c
       ];
     },
@@ -3903,17 +3903,17 @@ Error generating stack: ` + p.message + `
     enqueueSetState: function(l, c, f) {
       l = l._reactInternals;
       var p = xa(), F = Nl(p);
-      F.payload = c, f != null && (F.callback = f), c = pt(l, F, p), c !== null && (la(c, l, p), yr(c, l, p));
+      F.payload = c, f != null && (F.callback = f), c = ht(l, F, p), c !== null && (la(c, l, p), yr(c, l, p));
     },
     enqueueReplaceState: function(l, c, f) {
       l = l._reactInternals;
       var p = xa(), F = Nl(p);
-      F.tag = 1, F.payload = c, f != null && (F.callback = f), c = pt(l, F, p), c !== null && (la(c, l, p), yr(c, l, p));
+      F.tag = 1, F.payload = c, f != null && (F.callback = f), c = ht(l, F, p), c !== null && (la(c, l, p), yr(c, l, p));
     },
     enqueueForceUpdate: function(l, c) {
       l = l._reactInternals;
       var f = xa(), p = Nl(f);
-      p.tag = 2, c != null && (p.callback = c), c = pt(l, p, f), c !== null && (la(c, l, f), yr(c, l, f));
+      p.tag = 2, c != null && (p.callback = c), c = ht(l, p, f), c !== null && (la(c, l, f), yr(c, l, f));
     }
   };
   function N_(l, c, f, p, F, v, z) {
@@ -4029,7 +4029,7 @@ Error generating stack: ` + p.message + `
         F
       ), Oi(l, F), ys !== 4 && (ys = 2)), !1;
     var v = Error(r(520), { cause: p });
-    if (v = ss(v, f), Ch === null ? Ch = [v] : Ch.push(v), ys !== 4 && (ys = 2), c === null) return !0;
+    if (v = ss(v, f), bh === null ? bh = [v] : bh.push(v), ys !== 4 && (ys = 2), c === null) return !0;
     p = ss(p, f), f = c;
     do {
       switch (f.tag) {
@@ -4142,7 +4142,7 @@ Error generating stack: ` + p.message + `
         c.memoizedState = { baseLanes: 0, cachePool: null }, l !== null && Hc(
           c,
           v !== null ? v.cachePool : null
-        ), v !== null ? lp(c, v) : Nd(), ZE(c);
+        ), v !== null ? lp(c, v) : Od(), ZE(c);
       else
         return p = c.lanes = 536870912, Y_(
           l,
@@ -4152,10 +4152,10 @@ Error generating stack: ` + p.message + `
           p
         );
     } else
-      v !== null ? (Hc(c, v.cachePool), lp(c, v), jc(), c.memoizedState = null) : (l !== null && Hc(c, null), Nd(), jc());
+      v !== null ? (Hc(c, v.cachePool), lp(c, v), jc(), c.memoizedState = null) : (l !== null && Hc(c, null), Od(), jc());
     return mo(l, c, F, f), c.child;
   }
-  function dh(l, c) {
+  function fh(l, c) {
     return l !== null && l.tag === 22 || c.stateNode !== null || (c.stateNode = {
       _visibility: 1,
       _pendingMarkers: null,
@@ -4168,7 +4168,7 @@ Error generating stack: ` + p.message + `
     return v = v === null ? null : { parent: qr._currentValue, pool: v }, c.memoizedState = {
       baseLanes: f,
       cachePool: v
-    }, l !== null && Hc(c, null), Nd(), ZE(c), l !== null && Ii(l, c, p, !0), c.childLanes = F, null;
+    }, l !== null && Hc(c, null), Od(), ZE(c), l !== null && Ii(l, c, p, !0), c.childLanes = F, null;
   }
   function bp(l, c) {
     return c = Ap(
@@ -4184,7 +4184,7 @@ Error generating stack: ` + p.message + `
     if (c.flags &= -129, l === null) {
       if (V) {
         if (p.mode === "hidden")
-          return l = bp(c, p), c.lanes = 536870912, dh(null, l);
+          return l = bp(c, p), c.lanes = 536870912, fh(null, l);
         if (X1(c), (l = je) ? (l = aw(
           l,
           ie
@@ -4259,7 +4259,7 @@ Error generating stack: ` + p.message + `
   function Z_(l, c, f, p, F) {
     if (os(c), c.stateNode === null) {
       var v = jt, z = f.contextType;
-      typeof z == "object" && z !== null && (v = Mr(z)), v = new f(p, v), c.memoizedState = v.state !== null && v.state !== void 0 ? v.state : null, v.updater = f2, c.stateNode = v, v._reactInternals = c, v = c.stateNode, v.props = p, v.state = c.memoizedState, v.refs = {}, Pd(c), z = f.contextType, v.context = typeof z == "object" && z !== null ? Mr(z) : jt, v.state = c.memoizedState, z = f.getDerivedStateFromProps, typeof z == "function" && (d2(
+      typeof z == "object" && z !== null && (v = Mr(z)), v = new f(p, v), c.memoizedState = v.state !== null && v.state !== void 0 ? v.state : null, v.updater = f2, c.stateNode = v, v._reactInternals = c, v = c.stateNode, v.props = p, v.state = c.memoizedState, v.refs = {}, Id(c), z = f.contextType, v.context = typeof z == "object" && z !== null ? Mr(z) : jt, v.state = c.memoizedState, z = f.getDerivedStateFromProps, typeof z == "function" && (d2(
         c,
         f,
         z,
@@ -4294,7 +4294,7 @@ Error generating stack: ` + p.message + `
         z
       )) ? (Ft || typeof v.UNSAFE_componentWillMount != "function" && typeof v.componentWillMount != "function" || (typeof v.componentWillMount == "function" && v.componentWillMount(), typeof v.UNSAFE_componentWillMount == "function" && v.UNSAFE_componentWillMount()), typeof v.componentDidMount == "function" && (c.flags |= 4194308)) : (typeof v.componentDidMount == "function" && (c.flags |= 4194308), c.memoizedProps = p, c.memoizedState = et), v.props = p, v.state = et, v.context = z, p = we) : (typeof v.componentDidMount == "function" && (c.flags |= 4194308), p = !1);
     } else {
-      v = c.stateNode, oh(l, c), z = c.memoizedProps, Ft = Ou(f, z), v.props = Ft, Dt = c.pendingProps, st = v.context, et = f.contextType, we = jt, typeof et == "object" && et !== null && (we = Mr(et)), se = f.getDerivedStateFromProps, (et = typeof se == "function" || typeof v.getSnapshotBeforeUpdate == "function") || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (z !== Dt || st !== we) && O_(
+      v = c.stateNode, ah(l, c), z = c.memoizedProps, Ft = Ou(f, z), v.props = Ft, Dt = c.pendingProps, st = v.context, et = f.contextType, we = jt, typeof et == "object" && et !== null && (we = Mr(et)), se = f.getDerivedStateFromProps, (et = typeof se == "function" || typeof v.getSnapshotBeforeUpdate == "function") || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (z !== Dt || st !== we) && O_(
         c,
         v,
         p,
@@ -4379,7 +4379,7 @@ Error generating stack: ` + p.message + `
         l,
         z,
         f
-      ), c.memoizedState = m2, dh(null, p)) : (qc(c), b2(c, se));
+      ), c.memoizedState = m2, fh(null, p)) : (qc(c), b2(c, se));
     }
     var we = l.memoizedState;
     if (we !== null && (se = we.dehydrated, se !== null)) {
@@ -4405,7 +4405,7 @@ Error generating stack: ` + p.message + `
           l,
           z,
           f
-        ), c.memoizedState = m2, c = dh(null, p));
+        ), c.memoizedState = m2, c = fh(null, p));
       else if (qc(c), ey(se)) {
         if (z = se.nextSibling && se.nextSibling.dataset, z) var et = z.dgst;
         z = et, p = Error(r(419)), p.stack = "", p.digest = z, en({ value: p, source: null, stack: null }), c = F2(
@@ -4441,14 +4441,14 @@ Error generating stack: ` + p.message + `
       F,
       f,
       null
-    ), se.flags |= 2), se.return = c, p.return = c, p.sibling = se, c.child = p, dh(null, p), p = c.child, se = l.child.memoizedState, se === null ? se = y2(f) : (F = se.cachePool, F !== null ? (we = qr._currentValue, F = F.parent !== we ? { parent: we, pool: we } : F) : F = ku(), se = {
+    ), se.flags |= 2), se.return = c, p.return = c, p.sibling = se, c.child = p, fh(null, p), p = c.child, se = l.child.memoizedState, se === null ? se = y2(f) : (F = se.cachePool, F !== null ? (we = qr._currentValue, F = F.parent !== we ? { parent: we, pool: we } : F) : F = ku(), se = {
       baseLanes: se.baseLanes | f,
       cachePool: F
     }), p.memoizedState = se, p.childLanes = C2(
       l,
       z,
       f
-    ), c.memoizedState = m2, dh(l.child, p)) : (qc(c), f = l.child, l = f.sibling, f = Yi(f, {
+    ), c.memoizedState = m2, fh(l.child, p)) : (qc(c), f = l.child, l = f.sibling, f = Yi(f, {
       mode: "visible",
       children: p.children
     }), f.return = c, f.sibling = null, l !== null && (z = c.deletions, z === null ? (c.deletions = [l], c.flags |= 16) : z.push(l)), c.child = f, c.memoizedState = null, f);
@@ -4726,7 +4726,7 @@ Error generating stack: ` + p.message + `
           ), l === null) throw Error(r(387));
           p = c.pendingProps;
           var v = c.memoizedState;
-          F = v.element, oh(l, c), Li(c, p, null, f);
+          F = v.element, ah(l, c), Li(c, p, null, f);
           var z = c.memoizedState;
           if (p = z.cache, fr(c, qr, p), p !== v.cache && Ir(
             c,
@@ -4817,7 +4817,7 @@ Error generating stack: ` + p.message + `
           null,
           null,
           f
-        ), xh._currentValue = F), Fp(l, c), mo(l, c, p, f), c.child;
+        ), Dh._currentValue = F), Fp(l, c), mo(l, c, p, f), c.child;
       case 6:
         return l === null && V && ((l = f = je) && (f = II(
           f,
@@ -4897,7 +4897,7 @@ Error generating stack: ` + p.message + `
           c.pendingProps
         );
       case 24:
-        return os(c), p = Mr(qr), l === null ? (F = $c(), F === null && (F = Ai, v = cl(), F.pooledCache = v, v.refCount++, v !== null && (F.pooledCacheLanes |= f), F = v), c.memoizedState = { parent: p, cache: F }, Pd(c), fr(c, qr, F)) : ((l.lanes & f) !== 0 && (oh(l, c), Li(c, null, null, f), ei()), F = l.memoizedState, v = c.memoizedState, F.parent !== p ? (F = { parent: p, cache: p }, c.memoizedState = F, c.lanes === 0 && (c.memoizedState = c.updateQueue.baseState = F), fr(c, qr, p)) : (p = v.cache, fr(c, qr, p), p !== F.cache && Ir(
+        return os(c), p = Mr(qr), l === null ? (F = $c(), F === null && (F = Ai, v = cl(), F.pooledCache = v, v.refCount++, v !== null && (F.pooledCacheLanes |= f), F = v), c.memoizedState = { parent: p, cache: F }, Id(c), fr(c, qr, F)) : ((l.lanes & f) !== 0 && (ah(l, c), Li(c, null, null, f), ei()), F = l.memoizedState, v = c.memoizedState, F.parent !== p ? (F = { parent: p, cache: p }, c.memoizedState = F, c.lanes === 0 && (c.memoizedState = c.updateQueue.baseState = F), fr(c, qr, p)) : (p = v.cache, fr(c, qr, p), p !== F.cache && Ir(
           c,
           [qr],
           f,
@@ -4934,9 +4934,9 @@ Error generating stack: ` + p.message + `
         throw pc = Rd, gc;
   }
   function vp(l, c) {
-    c !== null && (l.flags |= 4), l.flags & 16384 && (c = l.tag !== 22 ? on() : 536870912, l.lanes |= c, Vd |= c);
+    c !== null && (l.flags |= 4), l.flags & 16384 && (c = l.tag !== 22 ? on() : 536870912, l.lanes |= c, Wd |= c);
   }
-  function fh(l, c) {
+  function hh(l, c) {
     if (!V)
       switch (l.tailMode) {
         case "hidden":
@@ -4978,7 +4978,7 @@ Error generating stack: ` + p.message + `
       case 1:
         return zi(c), null;
       case 3:
-        return f = c.stateNode, p = null, l !== null && (p = l.memoizedState.cache), c.memoizedState.cache !== p && (c.flags |= 2048), hr(qr), lt(), f.pendingContext && (f.context = f.pendingContext, f.pendingContext = null), (l === null || l.child === null) && (nt(c) ? Fc(c) : l === null || l.memoizedState.isDehydrated && (c.flags & 256) === 0 || (c.flags |= 1024, Ot())), zi(c), null;
+        return f = c.stateNode, p = null, l !== null && (p = l.memoizedState.cache), c.memoizedState.cache !== p && (c.flags |= 2048), hr(qr), lt(), f.pendingContext && (f.context = f.pendingContext, f.pendingContext = null), (l === null || l.child === null) && (rt(c) ? Fc(c) : l === null || l.memoizedState.isDehydrated && (c.flags & 256) === 0 || (c.flags |= 1024, Ot())), zi(c), null;
       case 26:
         var F = c.type, v = c.memoizedState;
         return l === null ? (Fc(c), v !== null ? (zi(c), r4(c, v)) : (zi(c), E2(
@@ -5003,7 +5003,7 @@ Error generating stack: ` + p.message + `
               throw Error(r(166));
             return zi(c), null;
           }
-          l = fe.current, nt(c) ? De(c) : (l = uw(F, p, f), c.stateNode = l, Fc(c));
+          l = fe.current, rt(c) ? De(c) : (l = uw(F, p, f), c.stateNode = l, Fc(c));
         }
         return zi(c), null;
       case 5:
@@ -5015,7 +5015,7 @@ Error generating stack: ` + p.message + `
               throw Error(r(166));
             return zi(c), null;
           }
-          if (v = fe.current, nt(c))
+          if (v = fe.current, rt(c))
             De(c);
           else {
             var z = Op(
@@ -5108,7 +5108,7 @@ Error generating stack: ` + p.message + `
         else {
           if (typeof p != "string" && c.stateNode === null)
             throw Error(r(166));
-          if (l = ge.current, nt(c)) {
+          if (l = ge.current, rt(c)) {
             if (l = c.stateNode, f = c.memoizedProps, p = null, F = Ie, F !== null)
               switch (F.tag) {
                 case 27:
@@ -5124,7 +5124,7 @@ Error generating stack: ` + p.message + `
         return zi(c), null;
       case 31:
         if (f = c.memoizedState, l === null || l.memoizedState !== null) {
-          if (p = nt(c), f !== null) {
+          if (p = rt(c), f !== null) {
             if (l === null) {
               if (!p) throw Error(r(318));
               if (l = c.memoizedState, l = l !== null ? l.dehydrated : null, !l) throw Error(r(557));
@@ -5142,7 +5142,7 @@ Error generating stack: ` + p.message + `
         return zi(c), null;
       case 13:
         if (p = c.memoizedState, l === null || l.memoizedState !== null && l.memoizedState.dehydrated !== null) {
-          if (F = nt(c), p !== null && p.dehydrated !== null) {
+          if (F = rt(c), p !== null && p.dehydrated !== null) {
             if (l === null) {
               if (!F) throw Error(r(318));
               if (F = c.memoizedState, F = F !== null ? F.dehydrated : null, !F) throw Error(r(317));
@@ -5163,12 +5163,12 @@ Error generating stack: ` + p.message + `
       case 19:
         if (ce(vs), p = c.memoizedState, p === null) return zi(c), null;
         if (F = (c.flags & 128) !== 0, v = p.rendering, v === null)
-          if (F) fh(p, !1);
+          if (F) hh(p, !1);
           else {
             if (ys !== 0 || l !== null && (l.flags & 128) !== 0)
               for (l = c.child; l !== null; ) {
                 if (v = cp(l), v !== null) {
-                  for (c.flags |= 128, fh(p, !1), l = v.updateQueue, c.updateQueue = l, vp(c, l), c.subtreeFlags = 0, l = f, f = c.child; f !== null; )
+                  for (c.flags |= 128, hh(p, !1), l = v.updateQueue, c.updateQueue = l, vp(c, l), c.subtreeFlags = 0, l = f, f = c.child; f !== null; )
                     Jr(f, l), f = f.sibling;
                   return oe(
                     vs,
@@ -5177,15 +5177,15 @@ Error generating stack: ` + p.message + `
                 }
                 l = l.sibling;
               }
-            p.tail !== null && Qt() > Dp && (c.flags |= 128, F = !0, fh(p, !1), c.lanes = 4194304);
+            p.tail !== null && Qt() > Dp && (c.flags |= 128, F = !0, hh(p, !1), c.lanes = 4194304);
           }
         else {
           if (!F)
             if (l = cp(v), l !== null) {
-              if (c.flags |= 128, F = !0, l = l.updateQueue, c.updateQueue = l, vp(c, l), fh(p, !0), p.tail === null && p.tailMode === "hidden" && !v.alternate && !V)
+              if (c.flags |= 128, F = !0, l = l.updateQueue, c.updateQueue = l, vp(c, l), hh(p, !0), p.tail === null && p.tailMode === "hidden" && !v.alternate && !V)
                 return zi(c), null;
             } else
-              2 * Qt() - p.renderingStartTime > Dp && f !== 536870912 && (c.flags |= 128, F = !0, fh(p, !1), c.lanes = 4194304);
+              2 * Qt() - p.renderingStartTime > Dp && f !== 536870912 && (c.flags |= 128, F = !0, hh(p, !1), c.lanes = 4194304);
           p.isBackwards ? (v.sibling = c.child, c.child = v) : (l = p.last, l !== null ? l.sibling = v : c.child = v, p.last = v);
         }
         return p.tail !== null ? (l = p.tail, p.rendering = l, p.tail = l.sibling, p.renderingStartTime = Qt(), l.sibling = null, f = vs.current, oe(
@@ -5278,7 +5278,7 @@ Error generating stack: ` + p.message + `
         hr(qr);
     }
   }
-  function hh(l, c) {
+  function gh(l, c) {
     try {
       var f = c.updateQueue, p = f !== null ? f.lastEffect : null;
       if (p !== null) {
@@ -5349,7 +5349,7 @@ Error generating stack: ` + p.message + `
       ii(l, c, p);
     }
   }
-  function gh(l, c) {
+  function ph(l, c) {
     try {
       var f = l.ref;
       if (f !== null) {
@@ -5569,7 +5569,7 @@ Error generating stack: ` + p.message + `
       case 0:
       case 11:
       case 15:
-        Ec(l, f), p & 4 && hh(5, f);
+        Ec(l, f), p & 4 && gh(5, f);
         break;
       case 1:
         if (Ec(l, f), p & 4)
@@ -5599,7 +5599,7 @@ Error generating stack: ` + p.message + `
               );
             }
           }
-        p & 64 && s4(f), p & 512 && gh(f, f.return);
+        p & 64 && s4(f), p & 512 && ph(f, f.return);
         break;
       case 3:
         if (Ec(l, f), p & 64 && (l = f.updateQueue, l !== null)) {
@@ -5623,7 +5623,7 @@ Error generating stack: ` + p.message + `
         c === null && p & 4 && c4(f);
       case 26:
       case 5:
-        Ec(l, f), c === null && p & 4 && a4(f), p & 512 && gh(f, f.return);
+        Ec(l, f), c === null && p & 4 && a4(f), p & 512 && ph(f, f.return);
         break;
       case 12:
         Ec(l, f);
@@ -5666,7 +5666,7 @@ Error generating stack: ` + p.message + `
   function h4(l, c, f) {
     if (_e && typeof _e.onCommitFiberUnmount == "function")
       try {
-        _e.onCommitFiberUnmount(ht, f);
+        _e.onCommitFiberUnmount(gt, f);
       } catch {
       }
     switch (f.tag) {
@@ -5684,7 +5684,7 @@ Error generating stack: ` + p.message + `
           l,
           c,
           f
-        ), Eh(f.stateNode), Zi = p, ia = F;
+        ), _h(f.stateNode), Zi = p, ia = F;
         break;
       case 5:
         ks || Ol(f, c);
@@ -5719,7 +5719,7 @@ Error generating stack: ` + p.message + `
         Zi !== null && (ia ? (l = Zi, sw(
           l.nodeType === 9 ? l.body : l.nodeName === "HTML" ? l.ownerDocument.body : l,
           f.stateNode
-        ), Zd(l)) : sw(Zi, f.stateNode));
+        ), Qd(l)) : sw(Zi, f.stateNode));
         break;
       case 4:
         p = Zi, F = ia, Zi = f.stateNode.containerInfo, ia = !0, vc(
@@ -5775,7 +5775,7 @@ Error generating stack: ` + p.message + `
     if (c.memoizedState === null && (l = c.alternate, l !== null && (l = l.memoizedState, l !== null))) {
       l = l.dehydrated;
       try {
-        Zd(l);
+        Qd(l);
       } catch (f) {
         ii(c, c.return, f);
       }
@@ -5784,7 +5784,7 @@ Error generating stack: ` + p.message + `
   function p4(l, c) {
     if (c.memoizedState === null && (l = c.alternate, l !== null && (l = l.memoizedState, l !== null && (l = l.dehydrated, l !== null))))
       try {
-        Zd(l);
+        Qd(l);
       } catch (f) {
         ii(c, c.return, f);
       }
@@ -5850,7 +5850,7 @@ Error generating stack: ` + p.message + `
       case 11:
       case 14:
       case 15:
-        sa(c, l), oa(l), p & 4 && (Xc(3, l, l.return), hh(3, l), Xc(5, l, l.return));
+        sa(c, l), oa(l), p & 4 && (Xc(3, l, l.return), gh(3, l), Xc(5, l, l.return));
         break;
       case 1:
         sa(c, l), oa(l), p & 512 && (ks || f === null || Ol(f, f.return)), p & 64 && Ac && (l = l.updateQueue, l !== null && (p = l.callbacks, p !== null && (f = l.shared.hiddenCallbacks, l.shared.hiddenCallbacks = f === null ? p : f.concat(p))));
@@ -5971,7 +5971,7 @@ Error generating stack: ` + p.message + `
       case 3:
         if (Up = null, F = gl, gl = Lp(c.containerInfo), sa(c, l), gl = F, oa(l), p & 4 && f !== null && f.memoizedState.isDehydrated)
           try {
-            Zd(c.containerInfo);
+            Qd(c.containerInfo);
           } catch (bn) {
             ii(l, l.return, bn);
           }
@@ -6128,7 +6128,7 @@ Error generating stack: ` + p.message + `
           ), Lu(c);
           break;
         case 27:
-          Eh(c.stateNode);
+          _h(c.stateNode);
         case 26:
         case 5:
           Ol(c, c.return), Lu(c);
@@ -6156,7 +6156,7 @@ Error generating stack: ` + p.message + `
             F,
             v,
             f
-          ), hh(4, v);
+          ), gh(4, v);
           break;
         case 1:
           if (_c(
@@ -6180,7 +6180,7 @@ Error generating stack: ` + p.message + `
               ii(p, p.return, et);
             }
           }
-          f && z & 64 && s4(v), gh(v, v.return);
+          f && z & 64 && s4(v), ph(v, v.return);
           break;
         case 27:
           c4(v);
@@ -6190,7 +6190,7 @@ Error generating stack: ` + p.message + `
             F,
             v,
             f
-          ), f && p === null && z & 4 && a4(v), gh(v, v.return);
+          ), f && p === null && z & 4 && a4(v), ph(v, v.return);
           break;
         case 12:
           _c(
@@ -6218,7 +6218,7 @@ Error generating stack: ` + p.message + `
             F,
             v,
             f
-          ), gh(v, v.return);
+          ), ph(v, v.return);
           break;
         case 30:
           break;
@@ -6260,7 +6260,7 @@ Error generating stack: ` + p.message + `
           c,
           f,
           p
-        ), F & 2048 && hh(9, c);
+        ), F & 2048 && gh(9, c);
         break;
       case 1:
         pl(
@@ -6329,12 +6329,12 @@ Error generating stack: ` + p.message + `
           c,
           f,
           p
-        ) : ph(l, c) : v._visibility & 2 ? pl(
+        ) : mh(l, c) : v._visibility & 2 ? pl(
           l,
           c,
           f,
           p
-        ) : (v._visibility |= 2, Ud(
+        ) : (v._visibility |= 2, $d(
           l,
           c,
           f,
@@ -6359,35 +6359,35 @@ Error generating stack: ` + p.message + `
         );
     }
   }
-  function Ud(l, c, f, p, F) {
+  function $d(l, c, f, p, F) {
     for (F = F && ((c.subtreeFlags & 10256) !== 0 || !1), c = c.child; c !== null; ) {
       var v = l, z = c, se = f, we = p, et = z.flags;
       switch (z.tag) {
         case 0:
         case 11:
         case 15:
-          Ud(
+          $d(
             v,
             z,
             se,
             we,
             F
-          ), hh(8, z);
+          ), gh(8, z);
           break;
         case 23:
           break;
         case 22:
           var Ft = z.stateNode;
-          z.memoizedState !== null ? Ft._visibility & 2 ? Ud(
+          z.memoizedState !== null ? Ft._visibility & 2 ? $d(
             v,
             z,
             se,
             we,
             F
-          ) : ph(
+          ) : mh(
             v,
             z
-          ) : (Ft._visibility |= 2, Ud(
+          ) : (Ft._visibility |= 2, $d(
             v,
             z,
             se,
@@ -6399,7 +6399,7 @@ Error generating stack: ` + p.message + `
           );
           break;
         case 24:
-          Ud(
+          $d(
             v,
             z,
             se,
@@ -6408,7 +6408,7 @@ Error generating stack: ` + p.message + `
           ), F && et & 2048 && S2(z.alternate, z);
           break;
         default:
-          Ud(
+          $d(
             v,
             z,
             se,
@@ -6419,29 +6419,29 @@ Error generating stack: ` + p.message + `
       c = c.sibling;
     }
   }
-  function ph(l, c) {
+  function mh(l, c) {
     if (c.subtreeFlags & 10256)
       for (c = c.child; c !== null; ) {
         var f = l, p = c, F = p.flags;
         switch (p.tag) {
           case 22:
-            ph(f, p), F & 2048 && B2(
+            mh(f, p), F & 2048 && B2(
               p.alternate,
               p
             );
             break;
           case 24:
-            ph(f, p), F & 2048 && S2(p.alternate, p);
+            mh(f, p), F & 2048 && S2(p.alternate, p);
             break;
           default:
-            ph(f, p);
+            mh(f, p);
         }
         c = c.sibling;
       }
   }
-  var mh = 8192;
-  function $d(l, c, f) {
-    if (l.subtreeFlags & mh)
+  var yh = 8192;
+  function Hd(l, c, f) {
+    if (l.subtreeFlags & yh)
       for (l = l.child; l !== null; )
         b4(
           l,
@@ -6452,11 +6452,11 @@ Error generating stack: ` + p.message + `
   function b4(l, c, f) {
     switch (l.tag) {
       case 26:
-        $d(
+        Hd(
           l,
           c,
           f
-        ), l.flags & mh && l.memoizedState !== null && YI(
+        ), l.flags & yh && l.memoizedState !== null && YI(
           f,
           gl,
           l.memoizedState,
@@ -6464,7 +6464,7 @@ Error generating stack: ` + p.message + `
         );
         break;
       case 5:
-        $d(
+        Hd(
           l,
           c,
           f
@@ -6473,25 +6473,25 @@ Error generating stack: ` + p.message + `
       case 3:
       case 4:
         var p = gl;
-        gl = Lp(l.stateNode.containerInfo), $d(
+        gl = Lp(l.stateNode.containerInfo), Hd(
           l,
           c,
           f
         ), gl = p;
         break;
       case 22:
-        l.memoizedState === null && (p = l.alternate, p !== null && p.memoizedState !== null ? (p = mh, mh = 16777216, $d(
+        l.memoizedState === null && (p = l.alternate, p !== null && p.memoizedState !== null ? (p = yh, yh = 16777216, Hd(
           l,
           c,
           f
-        ), mh = p) : $d(
+        ), yh = p) : Hd(
           l,
           c,
           f
         ));
         break;
       default:
-        $d(
+        Hd(
           l,
           c,
           f
@@ -6507,7 +6507,7 @@ Error generating stack: ` + p.message + `
       while (l !== null);
     }
   }
-  function yh(l) {
+  function Ch(l) {
     var c = l.deletions;
     if ((l.flags & 16) !== 0) {
       if (c !== null)
@@ -6529,20 +6529,20 @@ Error generating stack: ` + p.message + `
       case 0:
       case 11:
       case 15:
-        yh(l), l.flags & 2048 && Xc(9, l, l.return);
+        Ch(l), l.flags & 2048 && Xc(9, l, l.return);
         break;
       case 3:
-        yh(l);
+        Ch(l);
         break;
       case 12:
-        yh(l);
+        Ch(l);
         break;
       case 22:
         var c = l.stateNode;
-        l.memoizedState !== null && c._visibility & 2 && (l.return === null || l.return.tag !== 13) ? (c._visibility &= -3, wp(l)) : yh(l);
+        l.memoizedState !== null && c._visibility & 2 && (l.return === null || l.return.tag !== 13) ? (c._visibility &= -3, wp(l)) : Ch(l);
         break;
       default:
-        yh(l);
+        Ch(l);
     }
   }
   function wp(l) {
@@ -6618,7 +6618,7 @@ Error generating stack: ` + p.message + `
     cacheSignal: function() {
       return Mr(qr).controller.signal;
     }
-  }, uI = typeof WeakMap == "function" ? WeakMap : Map, jr = 0, Ai = null, br = null, vr = 0, ri = 0, _a = null, Yc = !1, Hd = !1, T2 = !1, wc = 0, ys = 0, Gc = 0, zu = 0, R2 = 0, wa = 0, Vd = 0, Ch = null, aa = null, k2 = !1, xp = 0, E4 = 0, Dp = 1 / 0, Bp = null, Kc = null, js = 0, Zc = null, Wd = null, xc = 0, M2 = 0, P2 = null, _4 = null, bh = 0, I2 = null;
+  }, uI = typeof WeakMap == "function" ? WeakMap : Map, jr = 0, Ai = null, br = null, vr = 0, ri = 0, _a = null, Yc = !1, Vd = !1, T2 = !1, wc = 0, ys = 0, Gc = 0, zu = 0, R2 = 0, wa = 0, Wd = 0, bh = null, aa = null, k2 = !1, xp = 0, E4 = 0, Dp = 1 / 0, Bp = null, Kc = null, js = 0, Zc = null, qd = null, xc = 0, M2 = 0, P2 = null, _4 = null, Fh = 0, I2 = null;
   function xa() {
     return (jr & 2) !== 0 && vr !== 0 ? vr & -vr : R.T !== null ? $2() : Hn();
   }
@@ -6631,7 +6631,7 @@ Error generating stack: ` + p.message + `
     return l = va.current, l !== null && (l.flags |= 32), wa;
   }
   function la(l, c, f) {
-    (l === Ai && (ri === 2 || ri === 9) || l.cancelPendingCommit !== null) && (qd(l, 0), Qc(
+    (l === Ai && (ri === 2 || ri === 9) || l.cancelPendingCommit !== null) && (jd(l, 0), Qc(
       l,
       vr,
       wa,
@@ -6648,7 +6648,7 @@ Error generating stack: ` + p.message + `
     var p = !f && (c & 127) === 0 && (c & l.expiredLanes) === 0 || mn(l, c), F = p ? hI(l, c) : O2(l, c, !0), v = p;
     do {
       if (F === 0) {
-        Hd && !p && Qc(l, c, 0, !1);
+        Vd && !p && Qc(l, c, 0, !1);
         break;
       } else {
         if (f = l.current.alternate, v && !dI(f)) {
@@ -6664,9 +6664,9 @@ Error generating stack: ` + p.message + `
             c = z;
             e: {
               var se = l;
-              F = Ch;
+              F = bh;
               var we = se.current.memoizedState.isDehydrated;
-              if (we && (qd(se, z).flags |= 256), z = O2(
+              if (we && (jd(se, z).flags |= 256), z = O2(
                 se,
                 z,
                 !1
@@ -6686,7 +6686,7 @@ Error generating stack: ` + p.message + `
           }
         }
         if (F === 1) {
-          qd(l, 0), Qc(l, c, 0, !0);
+          jd(l, 0), Qc(l, c, 0, !0);
           break;
         }
         e: {
@@ -6731,7 +6731,7 @@ Error generating stack: ` + p.message + `
                 c,
                 wa,
                 zu,
-                Vd,
+                Wd,
                 Yc,
                 v,
                 "Throttled",
@@ -6751,7 +6751,7 @@ Error generating stack: ` + p.message + `
             c,
             wa,
             zu,
-            Vd,
+            Wd,
             Yc,
             v,
             null,
@@ -6848,13 +6848,13 @@ Error generating stack: ` + p.message + `
   function Qc(l, c, f, p) {
     c &= ~R2, c &= ~zu, l.suspendedLanes |= c, l.pingedLanes &= ~c, p && (l.warmLanes |= c), p = l.expirationTimes;
     for (var F = c; 0 < F; ) {
-      var v = 31 - rt(F), z = 1 << v;
+      var v = 31 - tt(F), z = 1 << v;
       p[v] = -1, F &= ~z;
     }
     f !== 0 && li(l, f, c);
   }
   function Sp() {
-    return (jr & 6) === 0 ? (Fh(0), !1) : !0;
+    return (jr & 6) === 0 ? (Ah(0), !1) : !0;
   }
   function N2() {
     if (br !== null) {
@@ -6867,19 +6867,19 @@ Error generating stack: ` + p.message + `
       br = null;
     }
   }
-  function qd(l, c) {
+  function jd(l, c) {
     var f = l.timeoutHandle;
-    f !== -1 && (l.timeoutHandle = -1, RI(f)), f = l.cancelPendingCommit, f !== null && (l.cancelPendingCommit = null, f()), xc = 0, N2(), Ai = l, br = f = Yi(l.current, null), vr = c, ri = 0, _a = null, Yc = !1, Hd = mn(l, c), T2 = !1, Vd = wa = R2 = zu = Gc = ys = 0, aa = Ch = null, k2 = !1, (c & 8) !== 0 && (c |= c & 32);
+    f !== -1 && (l.timeoutHandle = -1, RI(f)), f = l.cancelPendingCommit, f !== null && (l.cancelPendingCommit = null, f()), xc = 0, N2(), Ai = l, br = f = Yi(l.current, null), vr = c, ri = 0, _a = null, Yc = !1, Vd = mn(l, c), T2 = !1, Wd = wa = R2 = zu = Gc = ys = 0, aa = bh = null, k2 = !1, (c & 8) !== 0 && (c |= c & 32);
     var p = l.entangledLanes;
     if (p !== 0)
       for (l = l.entanglements, p &= c; 0 < p; ) {
-        var F = 31 - rt(p), v = 1 << F;
+        var F = 31 - tt(p), v = 1 << F;
         c |= l[F], p &= ~v;
       }
     return wc = c, Jt(), f;
   }
   function B4(l, c) {
-    nr = null, R.H = uh, c === qo || c === Mu ? (c = op(), ri = 3) : c === gc ? (c = op(), ri = 4) : ri = c === g2 ? 8 : c !== null && typeof c == "object" && typeof c.then == "function" ? 6 : 1, _a = c, br === null && (ys = 1, Cp(
+    nr = null, R.H = dh, c === qo || c === Mu ? (c = kd(), ri = 3) : c === gc ? (c = kd(), ri = 4) : ri = c === g2 ? 8 : c !== null && typeof c == "object" && typeof c.then == "function" ? 6 : 1, _a = c, br === null && (ys = 1, Cp(
       l,
       ss(c, l.current)
     ));
@@ -6890,14 +6890,14 @@ Error generating stack: ` + p.message + `
   }
   function T4() {
     var l = R.H;
-    return R.H = uh, l === null ? uh : l;
+    return R.H = dh, l === null ? dh : l;
   }
   function R4() {
     var l = R.A;
     return R.A = cI, l;
   }
   function Tp() {
-    ys = 4, Yc || (vr & 4194048) !== vr && va.current !== null || (Hd = !0), (Gc & 134217727) === 0 && (zu & 134217727) === 0 || Ai === null || Qc(
+    ys = 4, Yc || (vr & 4194048) !== vr && va.current !== null || (Vd = !0), (Gc & 134217727) === 0 && (zu & 134217727) === 0 || Ai === null || Qc(
       Ai,
       vr,
       wa,
@@ -6908,7 +6908,7 @@ Error generating stack: ` + p.message + `
     var p = jr;
     jr |= 2;
     var F = T4(), v = R4();
-    (Ai !== l || vr !== c) && (Bp = null, qd(l, c)), c = !1;
+    (Ai !== l || vr !== c) && (Bp = null, jd(l, c)), c = !1;
     var z = ys;
     e: do
       try {
@@ -6924,13 +6924,13 @@ Error generating stack: ` + p.message + `
             case 6:
               va.current === null && (c = !0);
               var et = ri;
-              if (ri = 0, _a = null, jd(l, se, we, et), f && Hd) {
+              if (ri = 0, _a = null, Xd(l, se, we, et), f && Vd) {
                 z = 0;
                 break e;
               }
               break;
             default:
-              et = ri, ri = 0, _a = null, jd(l, se, we, et);
+              et = ri, ri = 0, _a = null, Xd(l, se, we, et);
           }
         }
         fI(), z = ys;
@@ -6948,7 +6948,7 @@ Error generating stack: ` + p.message + `
     var f = jr;
     jr |= 2;
     var p = T4(), F = R4();
-    Ai !== l || vr !== c ? (Bp = null, Dp = Qt() + 500, qd(l, c)) : Hd = mn(
+    Ai !== l || vr !== c ? (Bp = null, Dp = Qt() + 500, jd(l, c)) : Vd = mn(
       l,
       c
     );
@@ -6959,11 +6959,11 @@ Error generating stack: ` + p.message + `
           var v = _a;
           t: switch (ri) {
             case 1:
-              ri = 0, _a = null, jd(l, c, v, 1);
+              ri = 0, _a = null, Xd(l, c, v, 1);
               break;
             case 2:
             case 9:
-              if (ih(v)) {
+              if (sh(v)) {
                 ri = 0, _a = null, M4(c);
                 break;
               }
@@ -6978,7 +6978,7 @@ Error generating stack: ` + p.message + `
               ri = 5;
               break e;
             case 7:
-              ih(v) ? (ri = 0, _a = null, M4(c)) : (ri = 0, _a = null, jd(l, c, v, 7));
+              sh(v) ? (ri = 0, _a = null, M4(c)) : (ri = 0, _a = null, Xd(l, c, v, 7));
               break;
             case 5:
               var z = null;
@@ -6999,10 +6999,10 @@ Error generating stack: ` + p.message + `
                     break t;
                   }
               }
-              ri = 0, _a = null, jd(l, c, v, 5);
+              ri = 0, _a = null, Xd(l, c, v, 5);
               break;
             case 6:
-              ri = 0, _a = null, jd(l, c, v, 6);
+              ri = 0, _a = null, Xd(l, c, v, 6);
               break;
             case 8:
               N2(), ys = 6;
@@ -7058,7 +7058,7 @@ Error generating stack: ` + p.message + `
     }
     l.memoizedProps = l.pendingProps, c === null ? Rp(l) : br = c;
   }
-  function jd(l, c, f, p) {
+  function Xd(l, c, f, p) {
     xr = Bn = null, Q1(c), Dn = null, Wc = 0;
     var F = c.return;
     try {
@@ -7083,7 +7083,7 @@ Error generating stack: ` + p.message + `
       ), br = null;
       return;
     }
-    c.flags & 32768 ? (V || p === 1 ? l = !0 : Hd || (vr & 536870912) !== 0 ? l = !1 : (Yc = l = !0, (p === 2 || p === 9 || p === 3 || p === 6) && (p = va.current, p !== null && p.tag === 13 && (p.flags |= 16384))), P4(c, l)) : Rp(c);
+    c.flags & 32768 ? (V || p === 1 ? l = !0 : Vd || (vr & 536870912) !== 0 ? l = !1 : (Yc = l = !0, (p === 2 || p === 9 || p === 3 || p === 6) && (p = va.current, p !== null && p.tag === 13 && (p.flags |= 16384))), P4(c, l)) : Rp(c);
   }
   function Rp(l) {
     var c = l;
@@ -7143,7 +7143,7 @@ Error generating stack: ` + p.message + `
         z,
         se,
         we
-      ), l === Ai && (br = Ai = null, vr = 0), Wd = c, Zc = l, xc = f, M2 = v, P2 = F, _4 = p, (c.subtreeFlags & 10256) !== 0 || (c.flags & 10256) !== 0 ? (l.callbackNode = null, l.callbackPriority = 0, CI(Lt, function() {
+      ), l === Ai && (br = Ai = null, vr = 0), qd = c, Zc = l, xc = f, M2 = v, P2 = F, _4 = p, (c.subtreeFlags & 10256) !== 0 || (c.flags & 10256) !== 0 ? (l.callbackNode = null, l.callbackPriority = 0, CI(Lt, function() {
         return U4(), null;
       })) : (l.callbackNode = null, l.callbackPriority = 0), p = (c.flags & 13878) !== 0, (c.subtreeFlags & 13878) !== 0 || p) {
         p = R.T, R.T = null, F = H.p, H.p = 2, z = jr, jr |= 4;
@@ -7159,7 +7159,7 @@ Error generating stack: ` + p.message + `
   function N4() {
     if (js === 1) {
       js = 0;
-      var l = Zc, c = Wd, f = (c.flags & 13878) !== 0;
+      var l = Zc, c = qd, f = (c.flags & 13878) !== 0;
       if ((c.subtreeFlags & 13878) !== 0 || f) {
         f = R.T, R.T = null;
         var p = H.p;
@@ -7221,7 +7221,7 @@ Error generating stack: ` + p.message + `
   function O4() {
     if (js === 2) {
       js = 0;
-      var l = Zc, c = Wd, f = (c.flags & 8772) !== 0;
+      var l = Zc, c = qd, f = (c.flags & 8772) !== 0;
       if ((c.subtreeFlags & 8772) !== 0 || f) {
         f = R.T, R.T = null;
         var p = H.p;
@@ -7240,13 +7240,13 @@ Error generating stack: ` + p.message + `
   function L4() {
     if (js === 4 || js === 3) {
       js = 0, Ut();
-      var l = Zc, c = Wd, f = xc, p = _4;
-      (c.subtreeFlags & 10256) !== 0 || (c.flags & 10256) !== 0 ? js = 5 : (js = 0, Wd = Zc = null, z4(l, l.pendingLanes));
+      var l = Zc, c = qd, f = xc, p = _4;
+      (c.subtreeFlags & 10256) !== 0 || (c.flags & 10256) !== 0 ? js = 5 : (js = 0, qd = Zc = null, z4(l, l.pendingLanes));
       var F = l.pendingLanes;
       if (F === 0 && (Kc = null), co(f), c = c.stateNode, _e && typeof _e.onCommitFiberRoot == "function")
         try {
           _e.onCommitFiberRoot(
-            ht,
+            gt,
             c,
             void 0,
             (c.current.flags & 128) === 128
@@ -7266,7 +7266,7 @@ Error generating stack: ` + p.message + `
           R.T = c, H.p = F;
         }
       }
-      (xc & 3) !== 0 && kp(), Ll(l), F = l.pendingLanes, (f & 261930) !== 0 && (F & 42) !== 0 ? l === I2 ? bh++ : (bh = 0, I2 = l) : bh = 0, Fh(0);
+      (xc & 3) !== 0 && kp(), Ll(l), F = l.pendingLanes, (f & 261930) !== 0 && (F & 42) !== 0 ? l === I2 ? Fh++ : (Fh = 0, I2 = l) : Fh = 0, Ah(0);
     }
   }
   function z4(l, c) {
@@ -7283,16 +7283,16 @@ Error generating stack: ` + p.message + `
     try {
       H.p = 32 > f ? 32 : f, R.T = null, f = P2, P2 = null;
       var v = Zc, z = xc;
-      if (js = 0, Wd = Zc = null, xc = 0, (jr & 6) !== 0) throw Error(r(331));
+      if (js = 0, qd = Zc = null, xc = 0, (jr & 6) !== 0) throw Error(r(331));
       var se = jr;
       if (jr |= 4, A4(v.current), C4(
         v,
         v.current,
         z,
         f
-      ), jr = se, Fh(0, !1), _e && typeof _e.onPostCommitFiberRoot == "function")
+      ), jr = se, Ah(0, !1), _e && typeof _e.onPostCommitFiberRoot == "function")
         try {
-          _e.onPostCommitFiberRoot(ht, v);
+          _e.onPostCommitFiberRoot(gt, v);
         } catch {
         }
       return !0;
@@ -7301,7 +7301,7 @@ Error generating stack: ` + p.message + `
     }
   }
   function $4(l, c, f) {
-    c = ss(f, c), c = h2(l.stateNode, c, 2), l = pt(l, c, 2), l !== null && (En(l, 2), Ll(l));
+    c = ss(f, c), c = h2(l.stateNode, c, 2), l = ht(l, c, 2), l !== null && (En(l, 2), Ll(l));
   }
   function ii(l, c, f) {
     if (l.tag === 3)
@@ -7318,7 +7318,7 @@ Error generating stack: ` + p.message + `
         } else if (c.tag === 1) {
           var p = c.stateNode;
           if (typeof c.type.getDerivedStateFromError == "function" || typeof p.componentDidCatch == "function" && (Kc === null || !Kc.has(p))) {
-            l = ss(f, l), f = H_(2), p = pt(c, f, 2), p !== null && (V_(
+            l = ss(f, l), f = H_(2), p = ht(c, f, 2), p !== null && (V_(
               f,
               p,
               c,
@@ -7342,7 +7342,7 @@ Error generating stack: ` + p.message + `
   }
   function pI(l, c, f) {
     var p = l.pingCache;
-    p !== null && p.delete(c), l.pingedLanes |= l.suspendedLanes & f, l.warmLanes &= ~f, Ai === l && (vr & f) === f && (ys === 4 || ys === 3 && (vr & 62914560) === vr && 300 > Qt() - xp ? (jr & 2) === 0 && qd(l, 0) : R2 |= f, Vd === vr && (Vd = 0)), Ll(l);
+    p !== null && p.delete(c), l.pingedLanes |= l.suspendedLanes & f, l.warmLanes &= ~f, Ai === l && (vr & f) === f && (ys === 4 || ys === 3 && (vr & 62914560) === vr && 300 > Qt() - xp ? (jr & 2) === 0 && jd(l, 0) : R2 |= f, Wd === vr && (Wd = 0)), Ll(l);
   }
   function H4(l, c) {
     c === 0 && (c = on()), l = _n(l, c), l !== null && (En(l, c), Ll(l));
@@ -7373,11 +7373,11 @@ Error generating stack: ` + p.message + `
   function CI(l, c) {
     return wt(l, c);
   }
-  var Mp = null, Xd = null, z2 = !1, Pp = !1, U2 = !1, Jc = 0;
+  var Mp = null, Yd = null, z2 = !1, Pp = !1, U2 = !1, Jc = 0;
   function Ll(l) {
-    l !== Xd && l.next === null && (Xd === null ? Mp = Xd = l : Xd = Xd.next = l), Pp = !0, z2 || (z2 = !0, FI());
+    l !== Yd && l.next === null && (Yd === null ? Mp = Yd = l : Yd = Yd.next = l), Pp = !0, z2 || (z2 = !0, FI());
   }
-  function Fh(l, c) {
+  function Ah(l, c) {
     if (!U2 && Pp) {
       U2 = !0;
       do
@@ -7387,7 +7387,7 @@ Error generating stack: ` + p.message + `
             if (F === 0) var v = 0;
             else {
               var z = p.suspendedLanes, se = p.pingedLanes;
-              v = (1 << 31 - rt(42 | l) + 1) - 1, v &= F & ~(z & ~se), v = v & 201326741 ? v & 201326741 | 1 : v ? v | 2 : 0;
+              v = (1 << 31 - tt(42 | l) + 1) - 1, v &= F & ~(z & ~se), v = v & 201326741 ? v & 201326741 | 1 : v ? v | 2 : 0;
             }
             v !== 0 && (f = !0, j4(p, v));
           } else
@@ -7411,13 +7411,13 @@ Error generating stack: ` + p.message + `
     Jc !== 0 && TI() && (l = Jc);
     for (var c = Qt(), f = null, p = Mp; p !== null; ) {
       var F = p.next, v = W4(p, c);
-      v === 0 ? (p.next = null, f === null ? Mp = F : f.next = F, F === null && (Xd = f)) : (f = p, (l !== 0 || (v & 3) !== 0) && (Pp = !0)), p = F;
+      v === 0 ? (p.next = null, f === null ? Mp = F : f.next = F, F === null && (Yd = f)) : (f = p, (l !== 0 || (v & 3) !== 0) && (Pp = !0)), p = F;
     }
-    js !== 0 && js !== 5 || Fh(l), Jc !== 0 && (Jc = 0);
+    js !== 0 && js !== 5 || Ah(l), Jc !== 0 && (Jc = 0);
   }
   function W4(l, c) {
     for (var f = l.suspendedLanes, p = l.pingedLanes, F = l.expirationTimes, v = l.pendingLanes & -62914561; 0 < v; ) {
-      var z = 31 - rt(v), se = 1 << z, we = F[z];
+      var z = 31 - tt(v), se = 1 << z, we = F[z];
       we === -1 ? ((se & f) === 0 || (se & p) !== 0) && (F[z] = mt(se, c)) : we <= c && (l.expiredLanes |= se), v &= ~se;
     }
     if (c = Ai, f = vr, f = Ln(
@@ -7545,7 +7545,7 @@ Error generating stack: ` + p.message + `
       "on" + EI
     );
   }
-  He(K, "onAnimationEnd"), He(ae, "onAnimationIteration"), He(he, "onAnimationStart"), He("dblclick", "onDoubleClick"), He("focusin", "onFocus"), He("focusout", "onBlur"), He(me, "onTransitionRun"), He(ye, "onTransitionStart"), He(Me, "onTransitionCancel"), He(Ue, "onTransitionEnd"), ts("onMouseEnter", ["mouseout", "mouseover"]), ts("onMouseLeave", ["mouseout", "mouseover"]), ts("onPointerEnter", ["pointerout", "pointerover"]), ts("onPointerLeave", ["pointerout", "pointerover"]), es(
+  He(K, "onAnimationEnd"), He(ae, "onAnimationIteration"), He(he, "onAnimationStart"), He("dblclick", "onDoubleClick"), He("focusin", "onFocus"), He("focusout", "onBlur"), He(me, "onTransitionRun"), He(ye, "onTransitionStart"), He(Me, "onTransitionCancel"), He($e, "onTransitionEnd"), ts("onMouseEnter", ["mouseout", "mouseover"]), ts("onMouseLeave", ["mouseout", "mouseover"]), ts("onPointerEnter", ["pointerout", "pointerover"]), ts("onPointerLeave", ["pointerout", "pointerover"]), es(
     "onChange",
     "change click focusin focusout input keydown keyup selectionchange".split(" ")
   ), es(
@@ -7568,10 +7568,10 @@ Error generating stack: ` + p.message + `
     "onCompositionUpdate",
     "compositionupdate focusout keydown keypress keyup mousedown".split(" ")
   );
-  var Ah = "abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting".split(
+  var vh = "abort canplay canplaythrough durationchange emptied encrypted ended error loadeddata loadedmetadata loadstart pause play playing progress ratechange resize seeked seeking stalled suspend timeupdate volumechange waiting".split(
     " "
   ), _I = new Set(
-    "beforetoggle cancel close invalid load scroll scrollend toggle".split(" ").concat(Ah)
+    "beforetoggle cancel close invalid load scroll scrollend toggle".split(" ").concat(vh)
   );
   function G4(l, c) {
     c = (c & 4) !== 0;
@@ -7739,7 +7739,7 @@ Error generating stack: ` + p.message + `
             case he:
               dt = pn;
               break;
-            case Ue:
+            case $e:
               dt = or;
               break;
             case "scroll":
@@ -7773,7 +7773,7 @@ Error generating stack: ` + p.message + `
           for (var Re = et, Je; Re !== null; ) {
             var Et = Re;
             if (Je = Et.stateNode, Et = Et.tag, Et !== 5 && Et !== 26 && Et !== 27 || Je === null || Ve === null || (Et = Dr(Re, Ve), Et != null && Un.push(
-              vh(Re, Et, Je)
+              Eh(Re, Et, Je)
             )), fi) break;
             Re = Re.return;
           }
@@ -7927,7 +7927,7 @@ Error generating stack: ` + p.message + `
       G4(Dt, c);
     });
   }
-  function vh(l, c, f) {
+  function Eh(l, c, f) {
     return {
       instance: l,
       listener: c,
@@ -7938,9 +7938,9 @@ Error generating stack: ` + p.message + `
     for (var f = c + "Capture", p = []; l !== null; ) {
       var F = l, v = F.stateNode;
       if (F = F.tag, F !== 5 && F !== 26 && F !== 27 || v === null || (F = Dr(l, f), F != null && p.unshift(
-        vh(l, F, v)
+        Eh(l, F, v)
       ), F = Dr(l, c), F != null && p.push(
-        vh(l, F, v)
+        Eh(l, F, v)
       )), l.tag === 3) return p;
       l = l.return;
     }
@@ -7958,9 +7958,9 @@ Error generating stack: ` + p.message + `
       var se = f, we = se.alternate, et = se.stateNode;
       if (se = se.tag, we !== null && we === p) break;
       se !== 5 && se !== 26 && se !== 27 || et === null || (we = et, F ? (et = Dr(f, v), et != null && z.unshift(
-        vh(f, et, we)
+        Eh(f, et, we)
       )) : F || (et = Dr(f, v), et != null && z.push(
-        vh(f, et, we)
+        Eh(f, et, we)
       ))), f = f.return;
     }
     z.length !== 0 && l.push({ event: c, listeners: z });
@@ -8406,8 +8406,8 @@ Error generating stack: ` + p.message + `
         break;
       case "video":
       case "audio":
-        for (p = 0; p < Ah.length; p++)
-          Fr(Ah[p], l);
+        for (p = 0; p < vh.length; p++)
+          Fr(vh[p], l);
         break;
       case "image":
         Fr("error", l), Fr("load", l);
@@ -8774,25 +8774,25 @@ Error generating stack: ` + p.message + `
       if (l.removeChild(f), F && F.nodeType === 8)
         if (f = F.data, f === "/$" || f === "/&") {
           if (p === 0) {
-            l.removeChild(F), Zd(c);
+            l.removeChild(F), Qd(c);
             return;
           }
           p--;
         } else if (f === "$" || f === "$?" || f === "$~" || f === "$!" || f === "&")
           p++;
         else if (f === "html")
-          Eh(l.ownerDocument.documentElement);
+          _h(l.ownerDocument.documentElement);
         else if (f === "head") {
-          f = l.ownerDocument.head, Eh(f);
+          f = l.ownerDocument.head, _h(f);
           for (var v = f.firstChild; v; ) {
             var z = v.nextSibling, se = v.nodeName;
             v[mi] || se === "SCRIPT" || se === "STYLE" || se === "LINK" && v.rel.toLowerCase() === "stylesheet" || f.removeChild(v), v = z;
           }
         } else
-          f === "body" && Eh(l.ownerDocument.body);
+          f === "body" && _h(l.ownerDocument.body);
       f = F;
     } while (f);
-    Zd(c);
+    Qd(c);
   }
   function ow(l, c) {
     var f = l;
@@ -8951,7 +8951,7 @@ Error generating stack: ` + p.message + `
         throw Error(r(451));
     }
   }
-  function Eh(l) {
+  function _h(l) {
     for (var c = l.attributes; c.length; )
       l.removeAttributeNode(c[0]);
     Ji(l);
@@ -8980,9 +8980,9 @@ Error generating stack: ` + p.message + `
     var c = Kr(l);
     c !== null && c.tag === 5 && c.type === "form" ? B_(c) : Dc.r(l);
   }
-  var Yd = typeof document > "u" ? null : document;
+  var Gd = typeof document > "u" ? null : document;
   function fw(l, c, f) {
-    var p = Yd;
+    var p = Gd;
     if (p && typeof c == "string" && c) {
       var F = dr(c);
       F = 'link[rel="' + l + '"][href="' + F + '"]', typeof f == "string" && (F += '[crossorigin="' + f + '"]'), dw.has(F) || (dw.add(F), l = { rel: l, crossOrigin: f, href: c }, p.querySelector(F) === null && (c = p.createElement("link"), yo(c, "link", l), ir(c), p.head.appendChild(c)));
@@ -8996,7 +8996,7 @@ Error generating stack: ` + p.message + `
   }
   function $I(l, c, f) {
     Dc.L(l, c, f);
-    var p = Yd;
+    var p = Gd;
     if (p && l && c) {
       var F = 'link[rel="preload"][as="' + dr(c) + '"]';
       c === "image" && f && f.imageSrcSet ? (F += '[imagesrcset="' + dr(
@@ -9007,10 +9007,10 @@ Error generating stack: ` + p.message + `
       var v = F;
       switch (c) {
         case "style":
-          v = Gd(l);
+          v = Kd(l);
           break;
         case "script":
-          v = Kd(l);
+          v = Zd(l);
       }
       Ka.has(v) || (l = g(
         {
@@ -9019,12 +9019,12 @@ Error generating stack: ` + p.message + `
           as: c
         },
         f
-      ), Ka.set(v, l), p.querySelector(F) !== null || c === "style" && p.querySelector(_h(v)) || c === "script" && p.querySelector(wh(v)) || (c = p.createElement("link"), yo(c, "link", l), ir(c), p.head.appendChild(c)));
+      ), Ka.set(v, l), p.querySelector(F) !== null || c === "style" && p.querySelector(wh(v)) || c === "script" && p.querySelector(xh(v)) || (c = p.createElement("link"), yo(c, "link", l), ir(c), p.head.appendChild(c)));
     }
   }
   function HI(l, c) {
     Dc.m(l, c);
-    var f = Yd;
+    var f = Gd;
     if (f && l) {
       var p = c && typeof c.as == "string" ? c.as : "script", F = 'link[rel="modulepreload"][as="' + dr(p) + '"][href="' + dr(l) + '"]', v = F;
       switch (p) {
@@ -9034,7 +9034,7 @@ Error generating stack: ` + p.message + `
         case "sharedworker":
         case "worker":
         case "script":
-          v = Kd(l);
+          v = Zd(l);
       }
       if (!Ka.has(v) && (l = g({ rel: "modulepreload", href: l }, c), Ka.set(v, l), f.querySelector(F) === null)) {
         switch (p) {
@@ -9044,7 +9044,7 @@ Error generating stack: ` + p.message + `
           case "sharedworker":
           case "worker":
           case "script":
-            if (f.querySelector(wh(v)))
+            if (f.querySelector(xh(v)))
               return;
         }
         p = f.createElement("link"), yo(p, "link", l), ir(p), f.head.appendChild(p);
@@ -9053,15 +9053,15 @@ Error generating stack: ` + p.message + `
   }
   function VI(l, c, f) {
     Dc.S(l, c, f);
-    var p = Yd;
+    var p = Gd;
     if (p && l) {
-      var F = Wn(p).hoistableStyles, v = Gd(l);
+      var F = Wn(p).hoistableStyles, v = Kd(l);
       c = c || "default";
       var z = F.get(v);
       if (!z) {
         var se = { loading: 0, preload: null };
         if (z = p.querySelector(
-          _h(v)
+          wh(v)
         ))
           se.loading = 5;
         else {
@@ -9089,10 +9089,10 @@ Error generating stack: ` + p.message + `
   }
   function WI(l, c) {
     Dc.X(l, c);
-    var f = Yd;
+    var f = Gd;
     if (f && l) {
-      var p = Wn(f).hoistableScripts, F = Kd(l), v = p.get(F);
-      v || (v = f.querySelector(wh(F)), v || (l = g({ src: l, async: !0 }, c), (c = Ka.get(F)) && ry(l, c), v = f.createElement("script"), ir(v), yo(v, "link", l), f.head.appendChild(v)), v = {
+      var p = Wn(f).hoistableScripts, F = Zd(l), v = p.get(F);
+      v || (v = f.querySelector(xh(F)), v || (l = g({ src: l, async: !0 }, c), (c = Ka.get(F)) && ry(l, c), v = f.createElement("script"), ir(v), yo(v, "link", l), f.head.appendChild(v)), v = {
         type: "script",
         instance: v,
         count: 1,
@@ -9102,10 +9102,10 @@ Error generating stack: ` + p.message + `
   }
   function qI(l, c) {
     Dc.M(l, c);
-    var f = Yd;
+    var f = Gd;
     if (f && l) {
-      var p = Wn(f).hoistableScripts, F = Kd(l), v = p.get(F);
-      v || (v = f.querySelector(wh(F)), v || (l = g({ src: l, async: !0, type: "module" }, c), (c = Ka.get(F)) && ry(l, c), v = f.createElement("script"), ir(v), yo(v, "link", l), f.head.appendChild(v)), v = {
+      var p = Wn(f).hoistableScripts, F = Zd(l), v = p.get(F);
+      v || (v = f.querySelector(xh(F)), v || (l = g({ src: l, async: !0, type: "module" }, c), (c = Ka.get(F)) && ry(l, c), v = f.createElement("script"), ir(v), yo(v, "link", l), f.head.appendChild(v)), v = {
         type: "script",
         instance: v,
         count: 1,
@@ -9121,7 +9121,7 @@ Error generating stack: ` + p.message + `
       case "title":
         return null;
       case "style":
-        return typeof f.precedence == "string" && typeof f.href == "string" ? (c = Gd(f.href), f = Wn(
+        return typeof f.precedence == "string" && typeof f.href == "string" ? (c = Kd(f.href), f = Wn(
           F
         ).hoistableStyles, p = f.get(c), p || (p = {
           type: "style",
@@ -9131,7 +9131,7 @@ Error generating stack: ` + p.message + `
         }, f.set(c, p)), p) : { type: "void", instance: null, count: 0, state: null };
       case "link":
         if (f.rel === "stylesheet" && typeof f.href == "string" && typeof f.precedence == "string") {
-          l = Gd(f.href);
+          l = Kd(f.href);
           var v = Wn(
             F
           ).hoistableStyles, z = v.get(l);
@@ -9141,7 +9141,7 @@ Error generating stack: ` + p.message + `
             count: 0,
             state: { loading: 0, preload: null }
           }, v.set(l, z), (v = F.querySelector(
-            _h(l)
+            wh(l)
           )) && !v._p && (z.instance = v, z.state.loading = 5), Ka.has(l) || (f = {
             rel: "preload",
             as: "style",
@@ -9164,7 +9164,7 @@ Error generating stack: ` + p.message + `
           throw Error(r(529, ""));
         return null;
       case "script":
-        return c = f.async, f = f.src, typeof f == "string" && c && typeof c != "function" && typeof c != "symbol" ? (c = Kd(f), f = Wn(
+        return c = f.async, f = f.src, typeof f == "string" && c && typeof c != "function" && typeof c != "symbol" ? (c = Zd(f), f = Wn(
           F
         ).hoistableScripts, p = f.get(c), p || (p = {
           type: "script",
@@ -9176,10 +9176,10 @@ Error generating stack: ` + p.message + `
         throw Error(r(444, l));
     }
   }
-  function Gd(l) {
+  function Kd(l) {
     return 'href="' + dr(l) + '"';
   }
-  function _h(l) {
+  function wh(l) {
     return 'link[rel="stylesheet"][' + l + "]";
   }
   function gw(l) {
@@ -9195,10 +9195,10 @@ Error generating stack: ` + p.message + `
       return p.loading |= 2;
     }), yo(c, "link", f), ir(c), l.head.appendChild(c));
   }
-  function Kd(l) {
+  function Zd(l) {
     return '[src="' + dr(l) + '"]';
   }
-  function wh(l) {
+  function xh(l) {
     return "script[async]" + l;
   }
   function pw(l, c, f) {
@@ -9220,9 +9220,9 @@ Error generating stack: ` + p.message + `
             "style"
           ), ir(p), yo(p, "style", F), zp(p, f.precedence, l), c.instance = p;
         case "stylesheet":
-          F = Gd(f.href);
+          F = Kd(f.href);
           var v = l.querySelector(
-            _h(F)
+            wh(F)
           );
           if (v)
             return c.state.loading |= 4, c.instance = v, ir(v), v;
@@ -9232,8 +9232,8 @@ Error generating stack: ` + p.message + `
             z.onload = se, z.onerror = we;
           }), yo(v, "link", p), c.state.loading |= 4, zp(v, f.precedence, l), c.instance = v;
         case "script":
-          return v = Kd(f.src), (F = l.querySelector(
-            wh(v)
+          return v = Zd(f.src), (F = l.querySelector(
+            xh(v)
           )) ? (c.instance = F, ir(F), F) : (p = f, (F = Ka.get(v)) && (p = g({}, f), ry(p, F)), l = l.ownerDocument || l, F = l.createElement("script"), ir(F), yo(F, "link", p), l.head.appendChild(F), c.instance = F);
         case "void":
           return null;
@@ -9311,8 +9311,8 @@ Error generating stack: ` + p.message + `
   function YI(l, c, f, p) {
     if (f.type === "stylesheet" && (typeof p.media != "string" || matchMedia(p.media).matches !== !1) && (f.state.loading & 4) === 0) {
       if (f.instance === null) {
-        var F = Gd(p.href), v = c.querySelector(
-          _h(F)
+        var F = Kd(p.href), v = c.querySelector(
+          wh(F)
         );
         if (v) {
           c = v._p, c !== null && typeof c == "object" && typeof c.then == "function" && (l.count++, l = $p.bind(l), c.then(l, l)), f.state.loading |= 4, f.instance = v, ir(v);
@@ -9381,7 +9381,7 @@ Error generating stack: ` + p.message + `
       F = c.instance, z = F.getAttribute("data-precedence"), v = f.get(z) || p, v === p && f.set(null, F), f.set(z, F), this.count++, p = $p.bind(this), F.addEventListener("load", p), F.addEventListener("error", p), v ? v.parentNode.insertBefore(F, v.nextSibling) : (l = l.nodeType === 9 ? l.head : l, l.insertBefore(F, l.firstChild)), c.state.loading |= 4;
     }
   }
-  var xh = {
+  var Dh = {
     $$typeof: x,
     Provider: null,
     Consumer: null,
@@ -9407,13 +9407,13 @@ Error generating stack: ` + p.message + `
       element: p,
       isDehydrated: f,
       cache: c
-    }, Pd(v), l;
+    }, Id(v), l;
   }
   function Fw(l) {
     return l ? (l = jt, l) : jt;
   }
   function Aw(l, c, f, p, F, v) {
-    F = Fw(F), p.context === null ? p.context = F : p.pendingContext = F, p = Nl(c), p.payload = { element: f }, v = v === void 0 ? null : v, v !== null && (p.callback = v), f = pt(l, p, c), f !== null && (la(f, l, c), yr(f, l, c));
+    F = Fw(F), p.context === null ? p.context = F : p.pendingContext = F, p = Nl(c), p.payload = { element: f }, v = v === void 0 ? null : v, v !== null && (p.callback = v), f = ht(l, p, c), f !== null && (la(f, l, c), yr(f, l, c));
   }
   function vw(l, c) {
     if (l = l.memoizedState, l !== null && l.dehydrated !== null) {
@@ -9489,10 +9489,10 @@ Error generating stack: ` + p.message + `
                   if (z !== 0) {
                     var se = v;
                     for (se.pendingLanes |= 2, se.entangledLanes |= 2; z; ) {
-                      var we = 1 << 31 - rt(z);
+                      var we = 1 << 31 - tt(z);
                       se.entanglements[1] |= we, z &= ~we;
                     }
-                    Ll(v), (jr & 6) === 0 && (Dp = Qt() + 500, Fh(0));
+                    Ll(v), (jr & 6) === 0 && (Dp = Qt() + 500, Ah(0));
                   }
                 }
                 break;
@@ -9638,7 +9638,7 @@ Error generating stack: ` + p.message + `
         return 32;
     }
   }
-  var cy = !1, tu = null, nu = null, ru = null, Dh = /* @__PURE__ */ new Map(), Bh = /* @__PURE__ */ new Map(), iu = [], eN = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset".split(
+  var cy = !1, tu = null, nu = null, ru = null, Bh = /* @__PURE__ */ new Map(), Sh = /* @__PURE__ */ new Map(), iu = [], eN = "mousedown mouseup touchcancel touchend touchstart auxclick dblclick pointercancel pointerdown pointerup dragend dragstart drop compositionend compositionstart keydown keypress keyup input textInput copy cut paste click change contextmenu reset".split(
     " "
   );
   function xw(l, c) {
@@ -9657,14 +9657,14 @@ Error generating stack: ` + p.message + `
         break;
       case "pointerover":
       case "pointerout":
-        Dh.delete(c.pointerId);
+        Bh.delete(c.pointerId);
         break;
       case "gotpointercapture":
       case "lostpointercapture":
-        Bh.delete(c.pointerId);
+        Sh.delete(c.pointerId);
     }
   }
-  function Sh(l, c, f, p, F, v) {
+  function Th(l, c, f, p, F, v) {
     return l === null || l.nativeEvent !== v ? (l = {
       blockedOn: c,
       domEventName: f,
@@ -9676,7 +9676,7 @@ Error generating stack: ` + p.message + `
   function tN(l, c, f, p, F) {
     switch (c) {
       case "focusin":
-        return tu = Sh(
+        return tu = Th(
           tu,
           l,
           c,
@@ -9685,7 +9685,7 @@ Error generating stack: ` + p.message + `
           F
         ), !0;
       case "dragenter":
-        return nu = Sh(
+        return nu = Th(
           nu,
           l,
           c,
@@ -9694,7 +9694,7 @@ Error generating stack: ` + p.message + `
           F
         ), !0;
       case "mouseover":
-        return ru = Sh(
+        return ru = Th(
           ru,
           l,
           c,
@@ -9704,10 +9704,10 @@ Error generating stack: ` + p.message + `
         ), !0;
       case "pointerover":
         var v = F.pointerId;
-        return Dh.set(
+        return Bh.set(
           v,
-          Sh(
-            Dh.get(v) || null,
+          Th(
+            Bh.get(v) || null,
             l,
             c,
             f,
@@ -9716,10 +9716,10 @@ Error generating stack: ` + p.message + `
           )
         ), !0;
       case "gotpointercapture":
-        return v = F.pointerId, Bh.set(
+        return v = F.pointerId, Sh.set(
           v,
-          Sh(
-            Bh.get(v) || null,
+          Th(
+            Sh.get(v) || null,
             l,
             c,
             f,
@@ -9778,7 +9778,7 @@ Error generating stack: ` + p.message + `
     jp(l) && f.delete(c);
   }
   function nN() {
-    cy = !1, tu !== null && jp(tu) && (tu = null), nu !== null && jp(nu) && (nu = null), ru !== null && jp(ru) && (ru = null), Dh.forEach(Bw), Bh.forEach(Bw);
+    cy = !1, tu !== null && jp(tu) && (tu = null), nu !== null && jp(nu) && (nu = null), ru !== null && jp(ru) && (ru = null), Bh.forEach(Bw), Sh.forEach(Bw);
   }
   function Xp(l, c) {
     l.blockedOn === c && (l.blockedOn = null, cy || (cy = !0, t.unstable_scheduleCallback(
@@ -9815,11 +9815,11 @@ Error generating stack: ` + p.message + `
       }
     ));
   }
-  function Zd(l) {
+  function Qd(l) {
     function c(we) {
       return Xp(we, l);
     }
-    tu !== null && Xp(tu, l), nu !== null && Xp(nu, l), ru !== null && Xp(ru, l), Dh.forEach(c), Bh.forEach(c);
+    tu !== null && Xp(tu, l), nu !== null && Xp(nu, l), ru !== null && Xp(ru, l), Bh.forEach(c), Sh.forEach(c);
     for (var f = 0; f < iu.length; f++) {
       var p = iu[f];
       p.blockedOn === l && (p.blockedOn = null);
@@ -9927,13 +9927,13 @@ Error generating stack: ` + p.message + `
     var Kp = __REACT_DEVTOOLS_GLOBAL_HOOK__;
     if (!Kp.isDisabled && Kp.supportsFiber)
       try {
-        ht = Kp.inject(
+        gt = Kp.inject(
           rN
         ), _e = Kp;
       } catch {
       }
   }
-  return Th.createRoot = function(l, c) {
+  return Rh.createRoot = function(l, c) {
     if (!i(l)) throw Error(r(299));
     var f = !1, p = "", F = L_, v = z_, z = U_;
     return c != null && (c.unstable_strictMode === !0 && (f = !0), c.identifierPrefix !== void 0 && (p = c.identifierPrefix), c.onUncaughtError !== void 0 && (F = c.onUncaughtError), c.onCaughtError !== void 0 && (v = c.onCaughtError), c.onRecoverableError !== void 0 && (z = c.onRecoverableError)), c = bw(
@@ -9950,7 +9950,7 @@ Error generating stack: ` + p.message + `
       z,
       Tw
     ), l[Vn] = c.current, q2(l), new uy(c);
-  }, Th.hydrateRoot = function(l, c, f) {
+  }, Rh.hydrateRoot = function(l, c, f) {
     if (!i(l)) throw Error(r(299));
     var p = !1, F = "", v = L_, z = z_, se = U_, we = null;
     return f != null && (f.unstable_strictMode === !0 && (p = !0), f.identifierPrefix !== void 0 && (F = f.identifierPrefix), f.onUncaughtError !== void 0 && (v = f.onUncaughtError), f.onCaughtError !== void 0 && (z = f.onCaughtError), f.onRecoverableError !== void 0 && (se = f.onRecoverableError), f.formState !== void 0 && (we = f.formState)), c = bw(
@@ -9966,8 +9966,8 @@ Error generating stack: ` + p.message + `
       z,
       se,
       Tw
-    ), c.context = Fw(null), f = c.current, p = xa(), p = pi(p), F = Nl(p), F.callback = null, pt(f, F, p), f = p, c.current.lanes = f, En(c, f), Ll(c), l[Vn] = c.current, q2(l), new Gp(c);
-  }, Th.version = "19.2.4", Th;
+    ), c.context = Fw(null), f = c.current, p = xa(), p = pi(p), F = Nl(p), F.callback = null, ht(f, F, p), f = p, c.current.lanes = f, En(c, f), Ll(c), l[Vn] = c.current, q2(l), new Gp(c);
+  }, Rh.version = "19.2.4", Rh;
 }
 var Nw;
 function uN() {
@@ -10072,7 +10072,7 @@ const CN = [
   ["circle", { cx: "12", cy: "13", r: "3", key: "1vg3eu" }]
 ], bN = Ui("camera", CN);
 const FN = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]], QA = Ui("check", FN);
-const AN = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]], Bg = Ui("chevron-down", AN);
+const AN = [["path", { d: "m6 9 6 6 6-6", key: "qrunsl" }]], Sg = Ui("chevron-down", AN);
 const vN = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]], BF = Ui("chevron-right", vN);
 const EN = [["path", { d: "m18 15-6-6-6 6", key: "153udz" }]], _N = Ui("chevron-up", EN);
 const wN = [
@@ -10623,7 +10623,7 @@ function gy(t) {
     }
   return t === "dark" ? "dark" : "light";
 }
-function fg() {
+function hg() {
   if (typeof window > "u") return "light";
   try {
     const t = document.documentElement;
@@ -10635,21 +10635,21 @@ function fg() {
   }
   return "light";
 }
-let Uu = [], uf = "light";
+let Uu = [], df = "light";
 function H0(t) {
   if (Uu.push(t), Uu.length === 1 && typeof window < "u") {
-    uf = fg();
+    df = hg();
     const e = new MutationObserver(() => {
-      const i = fg();
-      i !== uf && (uf = i, Uu.forEach((s) => s()));
+      const i = hg();
+      i !== df && (df = i, Uu.forEach((s) => s()));
     });
     e.observe(document.documentElement, {
       attributes: !0,
       attributeFilter: ["class", "data-theme", "style"]
     });
     const n = window.matchMedia("(prefers-color-scheme: dark)"), r = () => {
-      const i = fg();
-      i !== uf && (uf = i, Uu.forEach((s) => s()));
+      const i = hg();
+      i !== df && (df = i, Uu.forEach((s) => s()));
     };
     n.addEventListener("change", r), H0._cleanup = () => {
       e.disconnect(), n.removeEventListener("change", r);
@@ -10660,7 +10660,7 @@ function H0(t) {
   };
 }
 function iO() {
-  return uf;
+  return df;
 }
 function sO() {
   return "light";
@@ -10700,7 +10700,7 @@ const Vw = "hoodini_theme", b9 = p9(null), zc = () => {
     }
   };
 }, oO = ({ children: t, respectHostTheme: e = !0 }) => {
-  const n = Kt.theme?.mode ?? "light", i = typeof window > "u" ? n : e ? fg() : window.localStorage.getItem(Vw) || n || "light", [s, o] = bt(i), [a, u] = bt(() => gy(i)), d = (y = s) => {
+  const n = Kt.theme?.mode ?? "light", i = typeof window > "u" ? n : e ? hg() : window.localStorage.getItem(Vw) || n || "light", [s, o] = bt(i), [a, u] = bt(() => gy(i)), d = (y = s) => {
     let C = y;
     return y === "system" && typeof window < "u" && (C = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), Kt.theme?.[C] ?? {};
   }, h = d(a), g = (y) => {
@@ -10735,7 +10735,7 @@ const Vw = "hoodini_theme", b9 = p9(null), zc = () => {
   }, [s, e]), Gn(() => {
     if (!e || typeof window > "u") return;
     const y = document.documentElement, C = () => {
-      const E = fg();
+      const E = hg();
       u((w) => w !== E ? (o(E), E) : w);
     }, b = new MutationObserver(C);
     return b.observe(y, {
@@ -11168,15 +11168,15 @@ const pO = (t, e) => {
 }, NO = [], Xs = (t) => {
   const e = (n) => n[t] || NO;
   return e.isThemeGetter = !0, e;
-}, T9 = /^\[(?:(\w[\w-]*):)?(.+)\]$/i, R9 = /^\((?:(\w[\w-]*):)?(.+)\)$/i, OO = /^\d+\/\d+$/, LO = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, zO = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, UO = /^(rgba?|hsla?|hwb|(ok)?(lab|lch)|color-mix)\(.+\)$/, $O = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, HO = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, Qd = (t) => OO.test(t), gr = (t) => !!t && !Number.isNaN(Number(t)), ou = (t) => !!t && Number.isInteger(Number(t)), my = (t) => t.endsWith("%") && gr(t.slice(0, -1)), Bc = (t) => LO.test(t), VO = () => !0, WO = (t) => (
+}, T9 = /^\[(?:(\w[\w-]*):)?(.+)\]$/i, R9 = /^\((?:(\w[\w-]*):)?(.+)\)$/i, OO = /^\d+\/\d+$/, LO = /^(\d+(\.\d+)?)?(xs|sm|md|lg|xl)$/, zO = /\d+(%|px|r?em|[sdl]?v([hwib]|min|max)|pt|pc|in|cm|mm|cap|ch|ex|r?lh|cq(w|h|i|b|min|max))|\b(calc|min|max|clamp)\(.+\)|^0$/, UO = /^(rgba?|hsla?|hwb|(ok)?(lab|lch)|color-mix)\(.+\)$/, $O = /^(inset_)?-?((\d+)?\.?(\d+)[a-z]+|0)_-?((\d+)?\.?(\d+)[a-z]+|0)/, HO = /^(url|image|image-set|cross-fade|element|(repeating-)?(linear|radial|conic)-gradient)\(.+\)$/, Jd = (t) => OO.test(t), gr = (t) => !!t && !Number.isNaN(Number(t)), ou = (t) => !!t && Number.isInteger(Number(t)), my = (t) => t.endsWith("%") && gr(t.slice(0, -1)), Bc = (t) => LO.test(t), VO = () => !0, WO = (t) => (
   // `colorFunctionRegex` check is necessary because color functions can have percentages in them which which would be incorrectly classified as lengths.
   // For example, `hsl(0 0% 0%)` would be classified as a length without this check.
   // I could also use lookbehind assertion in `lengthUnitRegex` but that isn't supported widely enough.
   zO.test(t) && !UO.test(t)
-), k9 = () => !1, qO = (t) => $O.test(t), jO = (t) => HO.test(t), XO = (t) => !Fn(t) && !An(t), YO = (t) => jf(t, I9, k9), Fn = (t) => T9.test(t), $u = (t) => jf(t, N9, WO), yy = (t) => jf(t, JO, gr), Kw = (t) => jf(t, M9, k9), GO = (t) => jf(t, P9, jO), Qp = (t) => jf(t, O9, qO), An = (t) => R9.test(t), Rh = (t) => Xf(t, N9), KO = (t) => Xf(t, eL), Zw = (t) => Xf(t, M9), ZO = (t) => Xf(t, I9), QO = (t) => Xf(t, P9), Jp = (t) => Xf(t, O9, !0), jf = (t, e, n) => {
+), k9 = () => !1, qO = (t) => $O.test(t), jO = (t) => HO.test(t), XO = (t) => !Fn(t) && !An(t), YO = (t) => Xf(t, I9, k9), Fn = (t) => T9.test(t), $u = (t) => Xf(t, N9, WO), yy = (t) => Xf(t, JO, gr), Kw = (t) => Xf(t, M9, k9), GO = (t) => Xf(t, P9, jO), Qp = (t) => Xf(t, O9, qO), An = (t) => R9.test(t), kh = (t) => Yf(t, N9), KO = (t) => Yf(t, eL), Zw = (t) => Yf(t, M9), ZO = (t) => Yf(t, I9), QO = (t) => Yf(t, P9), Jp = (t) => Yf(t, O9, !0), Xf = (t, e, n) => {
   const r = T9.exec(t);
   return r ? r[1] ? e(r[1]) : n(r[2]) : !1;
-}, Xf = (t, e, n = !1) => {
+}, Yf = (t, e, n = !1) => {
   const r = R9.exec(t);
   return r ? r[1] ? e(r[1]) : n : !1;
 }, M9 = (t) => t === "position" || t === "percentage", P9 = (t) => t === "image" || t === "url", I9 = (t) => t === "length" || t === "size" || t === "bg-size", N9 = (t) => t === "length", JO = (t) => t === "number", eL = (t) => t === "family-name", O9 = (t) => t === "shadow", tL = () => {
@@ -11198,15 +11198,15 @@ const pO = (t, e) => {
     "bottom-left",
     // Deprecated since Tailwind CSS v4.1.0, see https://github.com/tailwindlabs/tailwindcss/pull/17378
     "left-bottom"
-  ], S = () => [...D(), An, Fn], k = () => ["auto", "hidden", "clip", "visible", "scroll"], $ = () => ["auto", "contain", "none"], L = () => [An, Fn, u], N = () => [Qd, "full", "auto", ...L()], P = () => [ou, "none", "subgrid", An, Fn], U = () => ["auto", {
+  ], S = () => [...D(), An, Fn], k = () => ["auto", "hidden", "clip", "visible", "scroll"], $ = () => ["auto", "contain", "none"], L = () => [An, Fn, u], N = () => [Jd, "full", "auto", ...L()], P = () => [ou, "none", "subgrid", An, Fn], U = () => ["auto", {
     span: ["full", ou, An, Fn]
-  }, ou, An, Fn], M = () => [ou, "auto", An, Fn], j = () => ["auto", "min", "max", "fr", An, Fn], W = () => ["start", "end", "center", "between", "around", "evenly", "stretch", "baseline", "center-safe", "end-safe"], Y = () => ["start", "end", "center", "stretch", "center-safe", "end-safe"], R = () => ["auto", ...L()], H = () => [Qd, "auto", "full", "dvw", "dvh", "lvw", "lvh", "svw", "svh", "min", "max", "fit", ...L()], I = () => [t, An, Fn], O = () => [...D(), Zw, Kw, {
+  }, ou, An, Fn], M = () => [ou, "auto", An, Fn], j = () => ["auto", "min", "max", "fr", An, Fn], W = () => ["start", "end", "center", "between", "around", "evenly", "stretch", "baseline", "center-safe", "end-safe"], Y = () => ["start", "end", "center", "stretch", "center-safe", "end-safe"], R = () => ["auto", ...L()], H = () => [Jd, "auto", "full", "dvw", "dvh", "lvw", "lvh", "svw", "svh", "min", "max", "fit", ...L()], I = () => [t, An, Fn], O = () => [...D(), Zw, Kw, {
     position: [An, Fn]
   }], q = () => ["no-repeat", {
     repeat: ["", "x", "y", "space", "round"]
   }], Z = () => ["auto", "cover", "contain", ZO, YO, {
     size: [An, Fn]
-  }], ce = () => [my, Rh, $u], oe = () => [
+  }], ce = () => [my, kh, $u], oe = () => [
     // Deprecated since Tailwind CSS v4.0.0
     "",
     "none",
@@ -11214,14 +11214,14 @@ const pO = (t, e) => {
     d,
     An,
     Fn
-  ], fe = () => ["", gr, Rh, $u], be = () => ["solid", "dashed", "dotted", "double"], ge = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], Ae = () => [gr, my, Zw, Kw], ke = () => [
+  ], fe = () => ["", gr, kh, $u], be = () => ["solid", "dashed", "dotted", "double"], ge = () => ["normal", "multiply", "screen", "overlay", "darken", "lighten", "color-dodge", "color-burn", "hard-light", "soft-light", "difference", "exclusion", "hue", "saturation", "color", "luminosity"], Ae = () => [gr, my, Zw, Kw], ke = () => [
     // Deprecated since Tailwind CSS v4.0.0
     "",
     "none",
     C,
     An,
     Fn
-  ], lt = () => ["none", gr, An, Fn], Ee = () => ["none", gr, An, Fn], Ce = () => [gr, An, Fn], Xe = () => [Qd, "full", ...L()];
+  ], lt = () => ["none", gr, An, Fn], Ee = () => ["none", gr, An, Fn], Ce = () => [gr, An, Fn], Xe = () => [Jd, "full", ...L()];
   return {
     cacheSize: 500,
     theme: {
@@ -11254,7 +11254,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/aspect-ratio
        */
       aspect: [{
-        aspect: ["auto", "square", Qd, Fn, An, E]
+        aspect: ["auto", "square", Jd, Fn, An, E]
       }],
       /**
        * Container
@@ -11477,7 +11477,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/flex-basis
        */
       basis: [{
-        basis: [Qd, "full", "auto", a, ...L()]
+        basis: [Jd, "full", "auto", a, ...L()]
       }],
       /**
        * Flex Direction
@@ -11498,7 +11498,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/flex
        */
       flex: [{
-        flex: [gr, Qd, "auto", "initial", "none", Fn]
+        flex: [gr, Jd, "auto", "initial", "none", Fn]
       }],
       /**
        * Flex Grow
@@ -11914,7 +11914,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/font-size
        */
       "font-size": [{
-        text: ["base", n, Rh, $u]
+        text: ["base", n, kh, $u]
       }],
       /**
        * Font Smoothing
@@ -12549,7 +12549,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/outline-width
        */
       "outline-w": [{
-        outline: ["", gr, Rh, $u]
+        outline: ["", gr, kh, $u]
       }],
       /**
        * Outline Color
@@ -13574,7 +13574,7 @@ const pO = (t, e) => {
        * @see https://tailwindcss.com/docs/stroke-width
        */
       "stroke-w": [{
-        stroke: [gr, Rh, $u, yy]
+        stroke: [gr, kh, $u, yy]
       }],
       /**
        * Stroke
@@ -14057,7 +14057,7 @@ function Nc(t, e) {
 function Oc(t) {
   return t.split("-")[0];
 }
-function Yf(t) {
+function Gf(t) {
   return t.split("-")[1];
 }
 function nv(t) {
@@ -14075,7 +14075,7 @@ function iv(t) {
 }
 function ML(t, e, n) {
   n === void 0 && (n = !1);
-  const r = Yf(t), i = iv(t), s = rv(i);
+  const r = Gf(t), i = iv(t), s = rv(i);
   let o = i === "x" ? r === (n ? "end" : "start") ? "right" : "left" : r === "start" ? "bottom" : "top";
   return e.reference[s] > e.floating[s] && (o = hm(o)), [o, hm(o)];
 }
@@ -14100,7 +14100,7 @@ function OL(t, e, n) {
   }
 }
 function LL(t, e, n, r) {
-  const i = Yf(t);
+  const i = Gf(t);
   let s = OL(Oc(t), n === "start", r);
   return i && (s = s.map((o) => o + "-" + i), e && (s = s.concat(s.map(MF)))), s;
 }
@@ -14180,7 +14180,7 @@ function rx(t, e, n) {
         y: r.y
       };
   }
-  switch (Yf(e)) {
+  switch (Gf(e)) {
     case "start":
       y[o] -= m * (n && d ? -1 : 1);
       break;
@@ -14323,7 +14323,7 @@ const $L = async (t, e, n) => {
     }, y = iv(i), C = rv(y), b = await o.getDimensions(d), E = y === "y", w = E ? "top" : "left", _ = E ? "bottom" : "right", x = E ? "clientHeight" : "clientWidth", D = s.reference[C] + s.reference[y] - m[y] - s.floating[C], S = m[y] - s.reference[y], k = await (o.getOffsetParent == null ? void 0 : o.getOffsetParent(d));
     let $ = k ? k[x] : 0;
     (!$ || !await (o.isElement == null ? void 0 : o.isElement(k))) && ($ = a.floating[x] || s.floating[C]);
-    const L = D / 2 - S / 2, N = $ / 2 - b[C] / 2 - 1, P = _u(g[w], N), U = _u(g[_], N), M = P, j = $ - b[C] - U, W = $ / 2 - b[C] / 2 + L, Y = kF(M, W, j), R = !u.arrow && Yf(i) != null && W !== Y && s.reference[C] / 2 - (W < M ? P : U) - b[C] / 2 < 0, H = R ? W < M ? W - M : W - j : 0;
+    const L = D / 2 - S / 2, N = $ / 2 - b[C] / 2 - 1, P = _u(g[w], N), U = _u(g[_], N), M = P, j = $ - b[C] - U, W = $ / 2 - b[C] / 2 + L, Y = kF(M, W, j), R = !u.arrow && Gf(i) != null && W !== Y && s.reference[C] / 2 - (W < M ? P : U) - b[C] / 2 < 0, H = R ? W < M ? W - M : W - j : 0;
     return {
       [y]: m[y] + H,
       data: {
@@ -14477,7 +14477,7 @@ async function qL(t, e) {
     placement: n,
     platform: r,
     elements: i
-  } = t, s = await (r.isRTL == null ? void 0 : r.isRTL(i.floating)), o = Oc(n), a = Yf(n), u = Yl(n) === "y", d = W9.has(o) ? -1 : 1, h = s && u ? -1 : 1, g = Nc(e, t);
+  } = t, s = await (r.isRTL == null ? void 0 : r.isRTL(i.floating)), o = Oc(n), a = Gf(n), u = Yl(n) === "y", d = W9.has(o) ? -1 : 1, h = s && u ? -1 : 1, g = Nc(e, t);
   let {
     mainAxis: m,
     crossAxis: y,
@@ -14635,7 +14635,7 @@ const jL = function(t) {
         apply: u = () => {
         },
         ...d
-      } = Nc(t, e), h = await o.detectOverflow(e, d), g = Oc(i), m = Yf(i), y = Yl(i) === "y", {
+      } = Nc(t, e), h = await o.detectOverflow(e, d), g = Oc(i), m = Gf(i), y = Yl(i) === "y", {
         width: C,
         height: b
       } = s.floating;
@@ -14664,7 +14664,7 @@ const jL = function(t) {
 function a1() {
   return typeof window < "u";
 }
-function Gf(t) {
+function Kf(t) {
   return q9(t) ? (t.nodeName || "").toLowerCase() : "#document";
 }
 function Na(t) {
@@ -14688,7 +14688,7 @@ function ox(t) {
   return !a1() || typeof ShadowRoot > "u" ? !1 : t instanceof ShadowRoot || t instanceof Na(t).ShadowRoot;
 }
 const KL = /* @__PURE__ */ new Set(["inline", "contents"]);
-function qg(t) {
+function jg(t) {
   const {
     overflow: e,
     overflowX: n,
@@ -14699,7 +14699,7 @@ function qg(t) {
 }
 const ZL = /* @__PURE__ */ new Set(["table", "td", "th"]);
 function QL(t) {
-  return ZL.has(Gf(t));
+  return ZL.has(Kf(t));
 }
 const JL = [":popover-open", ":modal"];
 function l1(t) {
@@ -14718,7 +14718,7 @@ function sv(t) {
 }
 function rz(t) {
   let e = wu(t);
-  for (; ec(e) && !kf(e); ) {
+  for (; ec(e) && !Mf(e); ) {
     if (sv(e))
       return e;
     if (l1(e))
@@ -14731,8 +14731,8 @@ function ov() {
   return typeof CSS > "u" || !CSS.supports ? !1 : CSS.supports("-webkit-backdrop-filter", "none");
 }
 const iz = /* @__PURE__ */ new Set(["html", "body", "#document"]);
-function kf(t) {
-  return iz.has(Gf(t));
+function Mf(t) {
+  return iz.has(Kf(t));
 }
 function Sl(t) {
   return Na(t).getComputedStyle(t);
@@ -14747,7 +14747,7 @@ function c1(t) {
   };
 }
 function wu(t) {
-  if (Gf(t) === "html")
+  if (Kf(t) === "html")
     return t;
   const e = (
     // Step into the shadow DOM of the parent of a slotted node.
@@ -14760,17 +14760,17 @@ function wu(t) {
 }
 function j9(t) {
   const e = wu(t);
-  return kf(e) ? t.ownerDocument ? t.ownerDocument.body : t.body : ec(e) && qg(e) ? e : j9(e);
+  return Mf(e) ? t.ownerDocument ? t.ownerDocument.body : t.body : ec(e) && jg(e) ? e : j9(e);
 }
-function Sg(t, e, n) {
+function Tg(t, e, n) {
   var r;
   e === void 0 && (e = []), n === void 0 && (n = !0);
   const i = j9(t), s = i === ((r = t.ownerDocument) == null ? void 0 : r.body), o = Na(i);
   if (s) {
     const a = PF(o);
-    return e.concat(o, o.visualViewport || [], qg(i) ? i : [], a && n ? Sg(a) : []);
+    return e.concat(o, o.visualViewport || [], jg(i) ? i : [], a && n ? Tg(a) : []);
   }
-  return e.concat(i, Sg(i, [], n));
+  return e.concat(i, Tg(i, [], n));
 }
 function PF(t) {
   return t.parent && Object.getPrototypeOf(t.parent) ? t.frameElement : null;
@@ -14788,7 +14788,7 @@ function X9(t) {
 function av(t) {
   return Bl(t) ? t : t.contextElement;
 }
-function _f(t) {
+function wf(t) {
   const e = av(t);
   if (!ec(e))
     return Kl(1);
@@ -14818,14 +14818,14 @@ function cd(t, e, n, r) {
   e === void 0 && (e = !1), n === void 0 && (n = !1);
   const i = t.getBoundingClientRect(), s = av(t);
   let o = Kl(1);
-  e && (r ? Bl(r) && (o = _f(r)) : o = _f(t));
+  e && (r ? Bl(r) && (o = wf(r)) : o = wf(t));
   const a = oz(s, n, r) ? Y9(s) : Kl(0);
   let u = (i.left + a.x) / o.x, d = (i.top + a.y) / o.y, h = i.width / o.x, g = i.height / o.y;
   if (s) {
     const m = Na(s), y = r && Bl(r) ? Na(r) : r;
     let C = m, b = PF(C);
     for (; b && r && y !== C; ) {
-      const E = _f(b), w = b.getBoundingClientRect(), _ = Sl(b), x = w.left + (b.clientLeft + parseFloat(_.paddingLeft)) * E.x, D = w.top + (b.clientTop + parseFloat(_.paddingTop)) * E.y;
+      const E = wf(b), w = b.getBoundingClientRect(), _ = Sl(b), x = w.left + (b.clientLeft + parseFloat(_.paddingLeft)) * E.x, D = w.top + (b.clientTop + parseFloat(_.paddingTop)) * E.y;
       u *= E.x, d *= E.y, h *= E.x, g *= E.y, u += x, d += D, C = Na(b), b = PF(C);
     }
   }
@@ -14862,9 +14862,9 @@ function az(t) {
     scrollTop: 0
   }, d = Kl(1);
   const h = Kl(0), g = ec(r);
-  if ((g || !g && !s) && ((Gf(r) !== "body" || qg(o)) && (u = c1(r)), ec(r))) {
+  if ((g || !g && !s) && ((Kf(r) !== "body" || jg(o)) && (u = c1(r)), ec(r))) {
     const y = cd(r);
-    d = _f(r), h.x = y.x + r.clientLeft, h.y = y.y + r.clientTop;
+    d = wf(r), h.x = y.x + r.clientLeft, h.y = y.y + r.clientTop;
   }
   const m = o && !g && !s ? G9(o, u) : Kl(0);
   return {
@@ -14911,7 +14911,7 @@ function uz(t, e) {
 }
 const dz = /* @__PURE__ */ new Set(["absolute", "fixed"]);
 function fz(t, e) {
-  const n = cd(t, !0, e === "fixed"), r = n.top + t.clientTop, i = n.left + t.clientLeft, s = ec(t) ? _f(t) : Kl(1), o = t.clientWidth * s.x, a = t.clientHeight * s.y, u = i * s.x, d = r * s.y;
+  const n = cd(t, !0, e === "fixed"), r = n.top + t.clientTop, i = n.left + t.clientLeft, s = ec(t) ? wf(t) : Kl(1), o = t.clientWidth * s.x, a = t.clientHeight * s.y, u = i * s.x, d = r * s.y;
   return {
     width: o,
     height: a,
@@ -14940,18 +14940,18 @@ function lx(t, e, n) {
 }
 function K9(t, e) {
   const n = wu(t);
-  return n === e || !Bl(n) || kf(n) ? !1 : Sl(n).position === "fixed" || K9(n, e);
+  return n === e || !Bl(n) || Mf(n) ? !1 : Sl(n).position === "fixed" || K9(n, e);
 }
 function hz(t, e) {
   const n = e.get(t);
   if (n)
     return n;
-  let r = Sg(t, [], !1).filter((a) => Bl(a) && Gf(a) !== "body"), i = null;
+  let r = Tg(t, [], !1).filter((a) => Bl(a) && Kf(a) !== "body"), i = null;
   const s = Sl(t).position === "fixed";
   let o = s ? wu(t) : t;
-  for (; Bl(o) && !kf(o); ) {
+  for (; Bl(o) && !Mf(o); ) {
     const a = Sl(o), u = sv(o);
-    !u && a.position === "fixed" && (i = null), (s ? !u && !i : !u && a.position === "static" && !!i && dz.has(i.position) || qg(o) && !u && K9(t, o)) ? r = r.filter((h) => h !== o) : i = a, o = wu(o);
+    !u && a.position === "fixed" && (i = null), (s ? !u && !i : !u && a.position === "static" && !!i && dz.has(i.position) || jg(o) && !u && K9(t, o)) ? r = r.filter((h) => h !== o) : i = a, o = wu(o);
   }
   return e.set(t, r), r;
 }
@@ -14994,7 +14994,7 @@ function mz(t, e, n) {
     u.x = u1(i);
   }
   if (r || !r && !s)
-    if ((Gf(e) !== "body" || qg(i)) && (a = c1(e)), r) {
+    if ((Kf(e) !== "body" || jg(i)) && (a = c1(e)), r) {
       const y = cd(e, !0, s, e);
       u.x = y.x + e.clientLeft, u.y = y.y + e.clientTop;
     } else i && d();
@@ -15024,7 +15024,7 @@ function Z9(t, e) {
     return n;
   if (!ec(t)) {
     let i = wu(t);
-    for (; i && !kf(i); ) {
+    for (; i && !Mf(i); ) {
       if (Bl(i) && !Cy(i))
         return i;
       i = wu(i);
@@ -15034,7 +15034,7 @@ function Z9(t, e) {
   let r = cx(t, e);
   for (; r && QL(r) && Cy(r); )
     r = cx(r, e);
-  return r && kf(r) && Cy(r) && !sv(r) ? n : r || rz(t) || n;
+  return r && Mf(r) && Cy(r) && !sv(r) ? n : r || rz(t) || n;
 }
 const yz = async function(t) {
   const e = this.getOffsetParent || Z9, n = this.getDimensions, r = await n(t.floating);
@@ -15059,7 +15059,7 @@ const bz = {
   getElementRects: yz,
   getClientRects: lz,
   getDimensions: pz,
-  getScale: _f,
+  getScale: wf,
   isElement: Bl,
   isRTL: Cz
 };
@@ -15120,7 +15120,7 @@ function Az(t, e, n, r) {
     elementResize: o = typeof ResizeObserver == "function",
     layoutShift: a = typeof IntersectionObserver == "function",
     animationFrame: u = !1
-  } = r, d = av(t), h = i || s ? [...d ? Sg(d) : [], ...Sg(e)] : [];
+  } = r, d = av(t), h = i || s ? [...d ? Tg(d) : [], ...Tg(e)] : [];
   h.forEach((w) => {
     i && w.addEventListener("scroll", n, {
       passive: !0
@@ -15981,7 +15981,7 @@ var TU = [
   });
   return r.displayName = `Primitive.${e}`, { ...t, [e]: r };
 }, {}), kU = A[" useInsertionEffect ".trim().toString()] || Fo;
-function Tg({
+function Rg({
   prop: t,
   defaultProp: e,
   onChange: n = () => {
@@ -16186,13 +16186,13 @@ var A7 = "Tooltip", [Fhe, h1] = f1(A7), IF = "TooltipTrigger", XU = A.forwardRef
 XU.displayName = IF;
 var YU = "TooltipPortal", [Ahe, GU] = f1(YU, {
   forceMount: void 0
-}), Mf = "TooltipContent", KU = A.forwardRef(
+}), Pf = "TooltipContent", KU = A.forwardRef(
   (t, e) => {
-    const n = GU(Mf, t.__scopeTooltip), { forceMount: r = n.forceMount, side: i = "top", ...s } = t, o = h1(Mf, t.__scopeTooltip);
+    const n = GU(Pf, t.__scopeTooltip), { forceMount: r = n.forceMount, side: i = "top", ...s } = t, o = h1(Pf, t.__scopeTooltip);
     return /* @__PURE__ */ B(dv, { present: r || o.open, children: o.disableHoverableContent ? /* @__PURE__ */ B(v7, { side: i, ...s, ref: e }) : /* @__PURE__ */ B(ZU, { side: i, ...s, ref: e }) });
   }
 ), ZU = A.forwardRef((t, e) => {
-  const n = h1(Mf, t.__scopeTooltip), r = b7(Mf, t.__scopeTooltip), i = A.useRef(null), s = ai(e, i), [o, a] = A.useState(null), { trigger: u, onClose: d } = n, h = i.current, { onPointerInTransitChange: g } = r, m = A.useCallback(() => {
+  const n = h1(Pf, t.__scopeTooltip), r = b7(Pf, t.__scopeTooltip), i = A.useRef(null), s = ai(e, i), [o, a] = A.useState(null), { trigger: u, onClose: d } = n, h = i.current, { onPointerInTransitChange: g } = r, m = A.useCallback(() => {
     a(null), g(!1);
   }, [g]), y = A.useCallback(
     (C, b) => {
@@ -16226,7 +16226,7 @@ var YU = "TooltipPortal", [Ahe, GU] = f1(YU, {
       onEscapeKeyDown: s,
       onPointerDownOutside: o,
       ...a
-    } = t, u = h1(Mf, n), d = fv(n), { onClose: h } = u;
+    } = t, u = h1(Pf, n), d = fv(n), { onClose: h } = u;
     return A.useEffect(() => (document.addEventListener(fx, h), () => document.removeEventListener(fx, h)), [h]), A.useEffect(() => {
       if (u.trigger) {
         const g = (m) => {
@@ -16268,7 +16268,7 @@ var YU = "TooltipPortal", [Ahe, GU] = f1(YU, {
     );
   }
 );
-KU.displayName = Mf;
+KU.displayName = Pf;
 var E7 = "TooltipArrow", t$ = A.forwardRef(
   (t, e) => {
     const { __scopeTooltip: n, ...r } = t, i = fv(n);
@@ -16692,7 +16692,7 @@ var D$ = [
       disabled: s,
       onOpenChange: o,
       ...a
-    } = t, [u, d] = Tg({
+    } = t, [u, d] = Rg({
       prop: r,
       defaultProp: i ?? !1,
       onChange: o,
@@ -16943,7 +16943,7 @@ var U$ = [
       onCheckedChange: d,
       form: h,
       ...g
-    } = t, [m, y] = A.useState(null), C = ai(e, (x) => y(x)), b = A.useRef(!1), E = m ? h || !!m.closest("form") : !0, [w, _] = Tg({
+    } = t, [m, y] = A.useState(null), C = ai(e, (x) => y(x)), b = A.useRef(!1), E = m ? h || !!m.closest("form") : !0, [w, _] = Rg({
       prop: i,
       defaultProp: s ?? !1,
       onChange: d,
@@ -17569,7 +17569,7 @@ var xH = [
     return null;
   var e = Array.isArray(t) ? t[0] : t;
   return e.ownerDocument.body;
-}, Jd = /* @__PURE__ */ new WeakMap(), n0 = /* @__PURE__ */ new WeakMap(), r0 = {}, Ey = 0, $7 = function(t) {
+}, ef = /* @__PURE__ */ new WeakMap(), n0 = /* @__PURE__ */ new WeakMap(), r0 = {}, Ey = 0, $7 = function(t) {
   return t && (t.host || $7(t.parentNode));
 }, BH = function(t, e) {
   return e.map(function(n) {
@@ -17593,8 +17593,8 @@ var xH = [
         h(m);
       else
         try {
-          var y = m.getAttribute(r), C = y !== null && y !== "false", b = (Jd.get(m) || 0) + 1, E = (s.get(m) || 0) + 1;
-          Jd.set(m, b), s.set(m, E), o.push(m), b === 1 && C && n0.set(m, !0), E === 1 && m.setAttribute(n, "true"), C || m.setAttribute(r, "true");
+          var y = m.getAttribute(r), C = y !== null && y !== "false", b = (ef.get(m) || 0) + 1, E = (s.get(m) || 0) + 1;
+          ef.set(m, b), s.set(m, E), o.push(m), b === 1 && C && n0.set(m, !0), E === 1 && m.setAttribute(n, "true"), C || m.setAttribute(r, "true");
         } catch (w) {
           console.error("aria-hidden: cannot operate on ", m, w);
         }
@@ -17602,9 +17602,9 @@ var xH = [
   };
   return h(e), a.clear(), Ey++, function() {
     o.forEach(function(g) {
-      var m = Jd.get(g) - 1, y = s.get(g) - 1;
-      Jd.set(g, m), s.set(g, y), m || (n0.has(g) || g.removeAttribute(r), n0.delete(g)), y || g.removeAttribute(n);
-    }), Ey--, Ey || (Jd = /* @__PURE__ */ new WeakMap(), Jd = /* @__PURE__ */ new WeakMap(), n0 = /* @__PURE__ */ new WeakMap(), r0 = {});
+      var m = ef.get(g) - 1, y = s.get(g) - 1;
+      ef.set(g, m), s.set(g, y), m || (n0.has(g) || g.removeAttribute(r), n0.delete(g)), y || g.removeAttribute(n);
+    }), Ey--, Ey || (ef = /* @__PURE__ */ new WeakMap(), ef = /* @__PURE__ */ new WeakMap(), n0 = /* @__PURE__ */ new WeakMap(), r0 = {});
   };
 }, TH = function(t, e, n) {
   n === void 0 && (n = "data-aria-hidden");
@@ -17842,14 +17842,14 @@ var qH = function() {
     right: e[2],
     gap: Math.max(0, r - n + e[2] - e[0])
   };
-}, KH = q7(), wf = "data-scroll-locked", ZH = function(t, e, n, r) {
+}, KH = q7(), xf = "data-scroll-locked", ZH = function(t, e, n, r) {
   var i = t.left, s = t.top, o = t.right, a = t.gap;
   return n === void 0 && (n = "margin"), `
   .`.concat(kH, ` {
    overflow: hidden `).concat(r, `;
    padding-right: `).concat(a, "px ").concat(r, `;
   }
-  body[`).concat(wf, `] {
+  body[`).concat(xf, `] {
     overflow: hidden `).concat(r, `;
     overscroll-behavior: contain;
     `).concat([
@@ -17882,18 +17882,18 @@ var qH = function() {
     margin-right: 0 `).concat(r, `;
   }
   
-  body[`).concat(wf, `] {
+  body[`).concat(xf, `] {
     `).concat(MH, ": ").concat(a, `px;
   }
 `);
 }, Fx = function() {
-  var t = parseInt(document.body.getAttribute(wf) || "0", 10);
+  var t = parseInt(document.body.getAttribute(xf) || "0", 10);
   return isFinite(t) ? t : 0;
 }, QH = function() {
   A.useEffect(function() {
-    return document.body.setAttribute(wf, (Fx() + 1).toString()), function() {
+    return document.body.setAttribute(xf, (Fx() + 1).toString()), function() {
       var t = Fx() - 1;
-      t <= 0 ? document.body.removeAttribute(wf) : document.body.setAttribute(wf, t.toString());
+      t <= 0 ? document.body.removeAttribute(xf) : document.body.setAttribute(xf, t.toString());
     };
   }, []);
 }, JH = function(t) {
@@ -17915,7 +17915,7 @@ if (typeof window < "u")
   } catch {
     UF = !1;
   }
-var ef = UF ? { passive: !1 } : !1, eV = function(t) {
+var tf = UF ? { passive: !1 } : !1, eV = function(t) {
   return t.tagName === "TEXTAREA";
 }, j7 = function(t, e) {
   if (!(t instanceof Element))
@@ -17991,7 +17991,7 @@ var ef = UF ? { passive: !1 } : !1, eV = function(t) {
   .block-interactivity-`.concat(t, ` {pointer-events: none;}
   .allow-interactivity-`).concat(t, ` {pointer-events: all;}
 `);
-}, cV = 0, tf = [];
+}, cV = 0, nf = [];
 function uV(t) {
   var e = A.useRef([]), n = A.useRef([0, 0]), r = A.useRef(), i = A.useState(cV++)[0], s = A.useState(q7)[0], o = A.useRef(t);
   A.useEffect(function() {
@@ -18029,7 +18029,7 @@ function uV(t) {
     return oV(M, E, b, M === "h" ? x : D);
   }, []), u = A.useCallback(function(b) {
     var E = b;
-    if (!(!tf.length || tf[tf.length - 1] !== s)) {
+    if (!(!nf.length || nf[nf.length - 1] !== s)) {
       var w = "deltaY" in E ? vx(E) : s0(E), _ = e.current.filter(function(S) {
         return S.name === E.type && (S.target === E.target || E.target === S.shadowParent) && aV(S.delta, w);
       })[0];
@@ -18059,14 +18059,14 @@ function uV(t) {
     d(b.type, s0(b), b.target, a(b, t.lockRef.current));
   }, []);
   A.useEffect(function() {
-    return tf.push(s), t.setCallbacks({
+    return nf.push(s), t.setCallbacks({
       onScrollCapture: g,
       onWheelCapture: g,
       onTouchMoveCapture: m
-    }), document.addEventListener("wheel", u, ef), document.addEventListener("touchmove", u, ef), document.addEventListener("touchstart", h, ef), function() {
-      tf = tf.filter(function(b) {
+    }), document.addEventListener("wheel", u, tf), document.addEventListener("touchmove", u, tf), document.addEventListener("touchstart", h, tf), function() {
+      nf = nf.filter(function(b) {
         return b !== s;
-      }), document.removeEventListener("wheel", u, ef), document.removeEventListener("touchmove", u, ef), document.removeEventListener("touchstart", h, ef);
+      }), document.removeEventListener("wheel", u, tf), document.removeEventListener("touchmove", u, tf), document.removeEventListener("touchstart", h, tf);
     };
   }, []);
   var y = t.removeScrollBar, C = t.inert;
@@ -18087,10 +18087,10 @@ var G7 = A.forwardRef(function(t, e) {
   return A.createElement(m1, ql({}, t, { ref: e, sideCar: fV }));
 });
 G7.classNames = m1.classNames;
-var hV = [" ", "Enter", "ArrowUp", "ArrowDown"], gV = [" ", "Enter"], ud = "Select", [y1, C1, pV] = N7(ud), [Kf] = nH(ud, [
+var hV = [" ", "Enter", "ArrowUp", "ArrowDown"], gV = [" ", "Enter"], ud = "Select", [y1, C1, pV] = N7(ud), [Zf] = nH(ud, [
   pV,
   d1
-]), b1 = d1(), [mV, Du] = Kf(ud), [yV, CV] = Kf(ud), K7 = (t) => {
+]), b1 = d1(), [mV, Du] = Zf(ud), [yV, CV] = Zf(ud), K7 = (t) => {
   const {
     __scopeSelect: e,
     children: n,
@@ -18106,12 +18106,12 @@ var hV = [" ", "Enter", "ArrowUp", "ArrowDown"], gV = [" ", "Enter"], ud = "Sele
     disabled: m,
     required: y,
     form: C
-  } = t, b = b1(e), [E, w] = A.useState(null), [_, x] = A.useState(null), [D, S] = A.useState(!1), k = O7(d), [$, L] = Tg({
+  } = t, b = b1(e), [E, w] = A.useState(null), [_, x] = A.useState(null), [D, S] = A.useState(!1), k = O7(d), [$, L] = Rg({
     prop: r,
     defaultProp: i ?? !1,
     onChange: s,
     caller: ud
-  }), [N, P] = Tg({
+  }), [N, P] = Rg({
     prop: o,
     defaultProp: a,
     onChange: u,
@@ -18263,7 +18263,7 @@ var dd = "SelectContent", rT = A.forwardRef(
   }
 );
 rT.displayName = dd;
-var bl = 10, [iT, Bu] = Kf(dd), AV = "SelectContentImpl", vV = /* @__PURE__ */ U7("SelectContent.RemoveScroll"), sT = A.forwardRef(
+var bl = 10, [iT, Bu] = Zf(dd), AV = "SelectContentImpl", vV = /* @__PURE__ */ U7("SelectContent.RemoveScroll"), sT = A.forwardRef(
   (t, e) => {
     const {
       __scopeSelect: n,
@@ -18437,20 +18437,20 @@ var EV = "SelectItemAlignedPosition", oT = A.forwardRef((t, e) => {
     if (s.trigger && s.valueNode && a && d && b && E && w) {
       const $ = s.trigger.getBoundingClientRect(), L = d.getBoundingClientRect(), N = s.valueNode.getBoundingClientRect(), P = w.getBoundingClientRect();
       if (s.dir !== "rtl") {
-        const Ce = P.left - L.left, Xe = N.left - Ce, ot = $.left - Xe, _t = $.width + ot, ze = Math.max(_t, L.width), Mt = window.innerWidth - bl, an = mm(Xe, [
+        const Ce = P.left - L.left, Xe = N.left - Ce, ot = $.left - Xe, _t = $.width + ot, Ue = Math.max(_t, L.width), Mt = window.innerWidth - bl, an = mm(Xe, [
           bl,
           // Prevents the content from going off the starting edge of the
           // viewport. It may still go off the ending edge, but this can be
           // controlled by the user since they may want to manage overflow in a
           // specific way.
           // https://github.com/radix-ui/primitives/issues/2049
-          Math.max(bl, Mt - ze)
+          Math.max(bl, Mt - Ue)
         ]);
         a.style.minWidth = _t + "px", a.style.left = an + "px";
       } else {
-        const Ce = L.right - P.right, Xe = window.innerWidth - N.right - Ce, ot = window.innerWidth - $.right - Xe, _t = $.width + ot, ze = Math.max(_t, L.width), Mt = window.innerWidth - bl, an = mm(Xe, [
+        const Ce = L.right - P.right, Xe = window.innerWidth - N.right - Ce, ot = window.innerWidth - $.right - Xe, _t = $.width + ot, Ue = Math.max(_t, L.width), Mt = window.innerWidth - bl, an = mm(Xe, [
           bl,
-          Math.max(bl, Mt - ze)
+          Math.max(bl, Mt - Ue)
         ]);
         a.style.minWidth = _t + "px", a.style.right = an + "px";
       }
@@ -18566,7 +18566,7 @@ var _V = "SelectPopperPosition", $F = A.forwardRef((t, e) => {
   );
 });
 $F.displayName = _V;
-var [wV, Cv] = Kf(dd, {}), HF = "SelectViewport", aT = A.forwardRef(
+var [wV, Cv] = Zf(dd, {}), HF = "SelectViewport", aT = A.forwardRef(
   (t, e) => {
     const { __scopeSelect: n, nonce: r, ...i } = t, s = Bu(HF, n), o = Cv(HF, n), a = ai(e, s.onViewportChange), u = A.useRef(0);
     return /* @__PURE__ */ le(ao, { children: [
@@ -18619,7 +18619,7 @@ var [wV, Cv] = Kf(dd, {}), HF = "SelectViewport", aT = A.forwardRef(
   }
 );
 aT.displayName = HF;
-var lT = "SelectGroup", [xV, DV] = Kf(lT), cT = A.forwardRef(
+var lT = "SelectGroup", [xV, DV] = Zf(lT), cT = A.forwardRef(
   (t, e) => {
     const { __scopeSelect: n, ...r } = t, i = o1();
     return /* @__PURE__ */ B(xV, { scope: n, id: i, children: /* @__PURE__ */ B(La.div, { role: "group", "aria-labelledby": i, ...r, ref: e }) });
@@ -18633,7 +18633,7 @@ var uT = "SelectLabel", BV = A.forwardRef(
   }
 );
 BV.displayName = uT;
-var ym = "SelectItem", [SV, dT] = Kf(ym), fT = A.forwardRef(
+var ym = "SelectItem", [SV, dT] = Zf(ym), fT = A.forwardRef(
   (t, e) => {
     const {
       __scopeSelect: n,
@@ -18711,9 +18711,9 @@ var ym = "SelectItem", [SV, dT] = Kf(ym), fT = A.forwardRef(
   }
 );
 fT.displayName = ym;
-var Jh = "SelectItemText", hT = A.forwardRef(
+var eg = "SelectItemText", hT = A.forwardRef(
   (t, e) => {
-    const { __scopeSelect: n, className: r, style: i, ...s } = t, o = Du(Jh, n), a = Bu(Jh, n), u = dT(Jh, n), d = CV(Jh, n), [h, g] = A.useState(null), m = ai(
+    const { __scopeSelect: n, className: r, style: i, ...s } = t, o = Du(eg, n), a = Bu(eg, n), u = dT(eg, n), d = CV(eg, n), [h, g] = A.useState(null), m = ai(
       e,
       (w) => g(w),
       u.onItemTextChange,
@@ -18728,7 +18728,7 @@ var Jh = "SelectItemText", hT = A.forwardRef(
     ] });
   }
 );
-hT.displayName = Jh;
+hT.displayName = eg;
 var gT = "SelectItemIndicator", pT = A.forwardRef(
   (t, e) => {
     const { __scopeSelect: n, ...r } = t;
@@ -18911,7 +18911,7 @@ function Os({
       ...r,
       children: [
         n,
-        /* @__PURE__ */ B(LV, { asChild: !0, children: /* @__PURE__ */ B(Bg, { className: "size-4 opacity-50" }) })
+        /* @__PURE__ */ B(LV, { asChild: !0, children: /* @__PURE__ */ B(Sg, { className: "size-4 opacity-50" }) })
       ]
     }
   );
@@ -19001,7 +19001,7 @@ function KV({
         t
       ),
       ...e,
-      children: /* @__PURE__ */ B(Bg, { className: "size-4" })
+      children: /* @__PURE__ */ B(Sg, { className: "size-4" })
     }
   );
 }
@@ -19130,7 +19130,7 @@ const jF = A.forwardRef(
                   children: /* @__PURE__ */ B(cm, { className: "h-3 w-3 text-muted-foreground" })
                 }
               ),
-              /* @__PURE__ */ B(Bg, { className: si("h-3 w-3 text-muted-foreground transition-transform", u && "rotate-180") })
+              /* @__PURE__ */ B(Sg, { className: si("h-3 w-3 text-muted-foreground transition-transform", u && "rotate-180") })
             ] })
           ]
         }
@@ -19304,7 +19304,7 @@ var oW = [
   "span",
   "svg",
   "ul"
-], jg = oW.reduce((t, e) => {
+], Xg = oW.reduce((t, e) => {
   const n = /* @__PURE__ */ eW(`Primitive.${e}`), r = A.forwardRef((i, s) => {
     const { asChild: o, ...a } = i, u = o ? n : e;
     return typeof window < "u" && (window[/* @__PURE__ */ Symbol.for("radix-ui")] = !0), /* @__PURE__ */ B(u, { ...a, ref: s });
@@ -19315,9 +19315,9 @@ var oW = [
   "from-right": ["Home", "PageDown", "ArrowDown", "ArrowRight"],
   "from-bottom": ["Home", "PageDown", "ArrowDown", "ArrowLeft"],
   "from-top": ["Home", "PageDown", "ArrowUp", "ArrowLeft"]
-}, Zf = "Slider", [XF, aW, lW] = N7(Zf), [xT] = QV(Zf, [
+}, Qf = "Slider", [XF, aW, lW] = N7(Qf), [xT] = QV(Qf, [
   lW
-]), [cW, F1] = xT(Zf), DT = A.forwardRef(
+]), [cW, F1] = xT(Qf), DT = A.forwardRef(
   (t, e) => {
     const {
       name: n,
@@ -19336,7 +19336,7 @@ var oW = [
       inverted: y = !1,
       form: C,
       ...b
-    } = t, E = A.useRef(/* @__PURE__ */ new Set()), w = A.useRef(0), x = o === "horizontal" ? uW : dW, [D = [], S] = Tg({
+    } = t, E = A.useRef(/* @__PURE__ */ new Set()), w = A.useRef(0), x = o === "horizontal" ? uW : dW, [D = [], S] = Rg({
       prop: h,
       defaultProp: d,
       onChange: (U) => {
@@ -19409,8 +19409,8 @@ var oW = [
     );
   }
 );
-DT.displayName = Zf;
-var [BT, ST] = xT(Zf, {
+DT.displayName = Qf;
+var [BT, ST] = xT(Qf, {
   startEdge: "left",
   endEdge: "right",
   size: "width",
@@ -19536,9 +19536,9 @@ var [BT, ST] = xT(Zf, {
       onEndKeyDown: a,
       onStepKeyDown: u,
       ...d
-    } = t, h = F1(Zf, n);
+    } = t, h = F1(Qf, n);
     return /* @__PURE__ */ B(
-      jg.span,
+      Xg.span,
       {
         ...d,
         ref: e,
@@ -19563,7 +19563,7 @@ var [BT, ST] = xT(Zf, {
   (t, e) => {
     const { __scopeSlider: n, ...r } = t, i = F1(RT, n);
     return /* @__PURE__ */ B(
-      jg.span,
+      Xg.span,
       {
         "data-disabled": i.disabled ? "" : void 0,
         "data-orientation": i.orientation,
@@ -19580,7 +19580,7 @@ var YF = "SliderRange", MT = A.forwardRef(
       (m) => NT(m, i.min, i.max)
     ), h = u > 1 ? Math.min(...d) : 0, g = 100 - Math.max(...d);
     return /* @__PURE__ */ B(
-      jg.span,
+      Xg.span,
       {
         "data-orientation": i.orientation,
         "data-disabled": i.disabled ? "" : void 0,
@@ -19622,7 +19622,7 @@ var GF = "SliderThumb", PT = A.forwardRef(
         },
         children: [
           /* @__PURE__ */ B(XF.ItemSlot, { scope: t.__scopeSlider, children: /* @__PURE__ */ B(
-            jg.span,
+            Xg.span,
             {
               role: "slider",
               "aria-label": t["aria-label"] || b,
@@ -19668,7 +19668,7 @@ var hW = "RadioBubbleInput", IT = A.forwardRef(
         h.call(a, e), a.dispatchEvent(g);
       }
     }, [o, e]), /* @__PURE__ */ B(
-      jg.input,
+      Xg.input,
       {
         style: { display: "none" },
         ...n,
@@ -19850,9 +19850,9 @@ function _x(t, e) {
   for (var r in e) n[r] = e[r];
   return n;
 }
-function hg() {
+function gg() {
 }
-var eg = 0.7, o0 = 1 / eg, xf = "\\s*([+-]?\\d+)\\s*", Rg = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*", Zl = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*", BW = /^#([0-9a-f]{3,8})$/, SW = new RegExp(`^rgb\\(${xf},${xf},${xf}\\)$`), TW = new RegExp(`^rgb\\(${Zl},${Zl},${Zl}\\)$`), RW = new RegExp(`^rgba\\(${xf},${xf},${xf},${Rg}\\)$`), kW = new RegExp(`^rgba\\(${Zl},${Zl},${Zl},${Rg}\\)$`), MW = new RegExp(`^hsl\\(${Rg},${Zl},${Zl}\\)$`), PW = new RegExp(`^hsla\\(${Rg},${Zl},${Zl},${Rg}\\)$`), wx = { aliceblue: 15792383, antiquewhite: 16444375, aqua: 65535, aquamarine: 8388564, azure: 15794175, beige: 16119260, bisque: 16770244, black: 0, blanchedalmond: 16772045, blue: 255, blueviolet: 9055202, brown: 10824234, burlywood: 14596231, cadetblue: 6266528, chartreuse: 8388352, chocolate: 13789470, coral: 16744272, cornflowerblue: 6591981, cornsilk: 16775388, crimson: 14423100, cyan: 65535, darkblue: 139, darkcyan: 35723, darkgoldenrod: 12092939, darkgray: 11119017, darkgreen: 25600, darkgrey: 11119017, darkkhaki: 12433259, darkmagenta: 9109643, darkolivegreen: 5597999, darkorange: 16747520, darkorchid: 10040012, darkred: 9109504, darksalmon: 15308410, darkseagreen: 9419919, darkslateblue: 4734347, darkslategray: 3100495, darkslategrey: 3100495, darkturquoise: 52945, darkviolet: 9699539, deeppink: 16716947, deepskyblue: 49151, dimgray: 6908265, dimgrey: 6908265, dodgerblue: 2003199, firebrick: 11674146, floralwhite: 16775920, forestgreen: 2263842, fuchsia: 16711935, gainsboro: 14474460, ghostwhite: 16316671, gold: 16766720, goldenrod: 14329120, gray: 8421504, green: 32768, greenyellow: 11403055, grey: 8421504, honeydew: 15794160, hotpink: 16738740, indianred: 13458524, indigo: 4915330, ivory: 16777200, khaki: 15787660, lavender: 15132410, lavenderblush: 16773365, lawngreen: 8190976, lemonchiffon: 16775885, lightblue: 11393254, lightcoral: 15761536, lightcyan: 14745599, lightgoldenrodyellow: 16448210, lightgray: 13882323, lightgreen: 9498256, lightgrey: 13882323, lightpink: 16758465, lightsalmon: 16752762, lightseagreen: 2142890, lightskyblue: 8900346, lightslategray: 7833753, lightslategrey: 7833753, lightsteelblue: 11584734, lightyellow: 16777184, lime: 65280, limegreen: 3329330, linen: 16445670, magenta: 16711935, maroon: 8388608, mediumaquamarine: 6737322, mediumblue: 205, mediumorchid: 12211667, mediumpurple: 9662683, mediumseagreen: 3978097, mediumslateblue: 8087790, mediumspringgreen: 64154, mediumturquoise: 4772300, mediumvioletred: 13047173, midnightblue: 1644912, mintcream: 16121850, mistyrose: 16770273, moccasin: 16770229, navajowhite: 16768685, navy: 128, oldlace: 16643558, olive: 8421376, olivedrab: 7048739, orange: 16753920, orangered: 16729344, orchid: 14315734, palegoldenrod: 15657130, palegreen: 10025880, paleturquoise: 11529966, palevioletred: 14381203, papayawhip: 16773077, peachpuff: 16767673, peru: 13468991, pink: 16761035, plum: 14524637, powderblue: 11591910, purple: 8388736, rebeccapurple: 6697881, red: 16711680, rosybrown: 12357519, royalblue: 4286945, saddlebrown: 9127187, salmon: 16416882, sandybrown: 16032864, seagreen: 3050327, seashell: 16774638, sienna: 10506797, silver: 12632256, skyblue: 8900331, slateblue: 6970061, slategray: 7372944, slategrey: 7372944, snow: 16775930, springgreen: 65407, steelblue: 4620980, tan: 13808780, teal: 32896, thistle: 14204888, tomato: 16737095, turquoise: 4251856, violet: 15631086, wheat: 16113331, white: 16777215, whitesmoke: 16119285, yellow: 16776960, yellowgreen: 10145074 };
+var tg = 0.7, o0 = 1 / tg, Df = "\\s*([+-]?\\d+)\\s*", kg = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*", Zl = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*", BW = /^#([0-9a-f]{3,8})$/, SW = new RegExp(`^rgb\\(${Df},${Df},${Df}\\)$`), TW = new RegExp(`^rgb\\(${Zl},${Zl},${Zl}\\)$`), RW = new RegExp(`^rgba\\(${Df},${Df},${Df},${kg}\\)$`), kW = new RegExp(`^rgba\\(${Zl},${Zl},${Zl},${kg}\\)$`), MW = new RegExp(`^hsl\\(${kg},${Zl},${Zl}\\)$`), PW = new RegExp(`^hsla\\(${kg},${Zl},${Zl},${kg}\\)$`), wx = { aliceblue: 15792383, antiquewhite: 16444375, aqua: 65535, aquamarine: 8388564, azure: 15794175, beige: 16119260, bisque: 16770244, black: 0, blanchedalmond: 16772045, blue: 255, blueviolet: 9055202, brown: 10824234, burlywood: 14596231, cadetblue: 6266528, chartreuse: 8388352, chocolate: 13789470, coral: 16744272, cornflowerblue: 6591981, cornsilk: 16775388, crimson: 14423100, cyan: 65535, darkblue: 139, darkcyan: 35723, darkgoldenrod: 12092939, darkgray: 11119017, darkgreen: 25600, darkgrey: 11119017, darkkhaki: 12433259, darkmagenta: 9109643, darkolivegreen: 5597999, darkorange: 16747520, darkorchid: 10040012, darkred: 9109504, darksalmon: 15308410, darkseagreen: 9419919, darkslateblue: 4734347, darkslategray: 3100495, darkslategrey: 3100495, darkturquoise: 52945, darkviolet: 9699539, deeppink: 16716947, deepskyblue: 49151, dimgray: 6908265, dimgrey: 6908265, dodgerblue: 2003199, firebrick: 11674146, floralwhite: 16775920, forestgreen: 2263842, fuchsia: 16711935, gainsboro: 14474460, ghostwhite: 16316671, gold: 16766720, goldenrod: 14329120, gray: 8421504, green: 32768, greenyellow: 11403055, grey: 8421504, honeydew: 15794160, hotpink: 16738740, indianred: 13458524, indigo: 4915330, ivory: 16777200, khaki: 15787660, lavender: 15132410, lavenderblush: 16773365, lawngreen: 8190976, lemonchiffon: 16775885, lightblue: 11393254, lightcoral: 15761536, lightcyan: 14745599, lightgoldenrodyellow: 16448210, lightgray: 13882323, lightgreen: 9498256, lightgrey: 13882323, lightpink: 16758465, lightsalmon: 16752762, lightseagreen: 2142890, lightskyblue: 8900346, lightslategray: 7833753, lightslategrey: 7833753, lightsteelblue: 11584734, lightyellow: 16777184, lime: 65280, limegreen: 3329330, linen: 16445670, magenta: 16711935, maroon: 8388608, mediumaquamarine: 6737322, mediumblue: 205, mediumorchid: 12211667, mediumpurple: 9662683, mediumseagreen: 3978097, mediumslateblue: 8087790, mediumspringgreen: 64154, mediumturquoise: 4772300, mediumvioletred: 13047173, midnightblue: 1644912, mintcream: 16121850, mistyrose: 16770273, moccasin: 16770229, navajowhite: 16768685, navy: 128, oldlace: 16643558, olive: 8421376, olivedrab: 7048739, orange: 16753920, orangered: 16729344, orchid: 14315734, palegoldenrod: 15657130, palegreen: 10025880, paleturquoise: 11529966, palevioletred: 14381203, papayawhip: 16773077, peachpuff: 16767673, peru: 13468991, pink: 16761035, plum: 14524637, powderblue: 11591910, purple: 8388736, rebeccapurple: 6697881, red: 16711680, rosybrown: 12357519, royalblue: 4286945, saddlebrown: 9127187, salmon: 16416882, sandybrown: 16032864, seagreen: 3050327, seashell: 16774638, sienna: 10506797, silver: 12632256, skyblue: 8900331, slateblue: 6970061, slategray: 7372944, slategrey: 7372944, snow: 16775930, springgreen: 65407, steelblue: 4620980, tan: 13808780, teal: 32896, thistle: 14204888, tomato: 16737095, turquoise: 4251856, violet: 15631086, wheat: 16113331, white: 16777215, whitesmoke: 16119285, yellow: 16776960, yellowgreen: 10145074 };
 function xx() {
   return this.rgb().formatHex();
 }
@@ -19870,7 +19870,7 @@ function a0(t, e, n, r) {
   return r <= 0 && (t = e = n = NaN), new ua(t, e, n, r);
 }
 function KF(t, e, n, r) {
-  return arguments.length === 1 ? ((i = t) instanceof hg || (i = Fv(i)), i ? new ua((i = i.rgb()).r, i.g, i.b, i.opacity) : new ua()) : new ua(t, e, n, r ?? 1);
+  return arguments.length === 1 ? ((i = t) instanceof gg || (i = Fv(i)), i ? new ua((i = i.rgb()).r, i.g, i.b, i.opacity) : new ua()) : new ua(t, e, n, r ?? 1);
   var i;
 }
 function ua(t, e, n, r) {
@@ -19897,7 +19897,7 @@ function Rx(t, e, n, r) {
 }
 function kx(t) {
   if (t instanceof _l) return new _l(t.h, t.s, t.l, t.opacity);
-  if (t instanceof hg || (t = Fv(t)), !t) return new _l();
+  if (t instanceof gg || (t = Fv(t)), !t) return new _l();
   if (t instanceof _l) return t;
   var e = (t = t.rgb()).r / 255, n = t.g / 255, r = t.b / 255, i = Math.min(e, n, r), s = Math.max(e, n, r), o = NaN, a = s - i, u = (s + i) / 2;
   return a ? (o = e === s ? (n - r) / a + 6 * (n < r) : n === s ? (r - e) / a + 2 : (e - n) / a + 4, a /= u < 0.5 ? s + i : 2 - s - i, o *= 60) : a = u > 0 && u < 1 ? 0 : o, new _l(o, a, u, t.opacity);
@@ -19914,7 +19914,7 @@ function l0(t) {
 function By(t, e, n) {
   return 255 * (t < 60 ? e + (n - e) * t / 60 : t < 180 ? n : t < 240 ? e + (n - e) * (240 - t) / 60 : e);
 }
-Dy(hg, Fv, { copy(t) {
+Dy(gg, Fv, { copy(t) {
   return Object.assign(new this.constructor(), this, t);
 }, displayable() {
   return this.rgb().displayable();
@@ -19922,10 +19922,10 @@ Dy(hg, Fv, { copy(t) {
   return this.rgb().formatHex8();
 }, formatHsl: function() {
   return kx(this).formatHsl();
-}, formatRgb: Dx, toString: Dx }), Dy(ua, KF, _x(hg, { brighter(t) {
+}, formatRgb: Dx, toString: Dx }), Dy(ua, KF, _x(gg, { brighter(t) {
   return t = t == null ? o0 : Math.pow(o0, t), new ua(this.r * t, this.g * t, this.b * t, this.opacity);
 }, darker(t) {
-  return t = t == null ? eg : Math.pow(eg, t), new ua(this.r * t, this.g * t, this.b * t, this.opacity);
+  return t = t == null ? tg : Math.pow(tg, t), new ua(this.r * t, this.g * t, this.b * t, this.opacity);
 }, rgb() {
   return this;
 }, clamp() {
@@ -19936,10 +19936,10 @@ Dy(hg, Fv, { copy(t) {
   return `#${Zu(this.r)}${Zu(this.g)}${Zu(this.b)}${Zu(255 * (isNaN(this.opacity) ? 1 : this.opacity))}`;
 }, formatRgb: Tx, toString: Tx })), Dy(_l, (function(t, e, n, r) {
   return arguments.length === 1 ? kx(t) : new _l(t, e, n, r ?? 1);
-}), _x(hg, { brighter(t) {
+}), _x(gg, { brighter(t) {
   return t = t == null ? o0 : Math.pow(o0, t), new _l(this.h, this.s, this.l * t, this.opacity);
 }, darker(t) {
-  return t = t == null ? eg : Math.pow(eg, t), new _l(this.h, this.s, this.l * t, this.opacity);
+  return t = t == null ? tg : Math.pow(tg, t), new _l(this.h, this.s, this.l * t, this.opacity);
 }, rgb() {
   var t = this.h % 360 + 360 * (this.h < 0), e = isNaN(t) || isNaN(this.s) ? 0 : this.s, n = this.l, r = n + (n < 0.5 ? n : 1 - n) * e, i = 2 * n - r;
   return new ua(By(t >= 240 ? t - 240 : t + 120, i, r), By(t, i, r), By(t < 120 ? t + 240 : t - 120, i, r), this.opacity);
@@ -20086,23 +20086,23 @@ function LW(t) {
   } };
 }
 Sy = LW({ thousands: ",", grouping: [3], currency: ["$", ""] }), Sy.format, Sy.formatPrefix;
-var Am, zx, nf = { cartocolors: { ArmyRose: { type: "diverging", values: { 2: "798234D46780", 3: "798234FDFBE4D46780", 4: "798234D0D3A2F0C6C3D46780", 5: "798234D0D3A2FDFBE4F0C6C3D46780", 6: "798234A3AD62D0D3A2F0C6C3DF91A3D46780", 7: "798234A3AD62D0D3A2FDFBE4F0C6C3DF91A3D46780" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Earth: { type: "diverging", values: { 2: "A169282887A1", 3: "A16928EDEAC22887A1", 4: "A16928D6BD8DB5C8B82887A1", 5: "A16928D6BD8DEDEAC2B5C8B82887A1", 6: "A16928BD925AD6BD8DB5C8B879A7AC2887A1", 7: "A16928BD925AD6BD8DEDEAC2B5C8B879A7AC2887A1" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Fall: { type: "diverging", values: { 2: "3D5941CA562C", 3: "3D5941F6EDBDCA562C", 4: "3D5941B5B991EDBB8ACA562C", 5: "3D5941B5B991F6EDBDEDBB8ACA562C", 6: "3D5941778868B5B991EDBB8ADE8A5ACA562C", 7: "3D5941778868B5B991F6EDBDEDBB8ADE8A5ACA562C" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Geyser: { type: "diverging", values: { 2: "008080CA562C", 3: "008080F6EDBDCA562C", 4: "008080B4C8A8EDBB8ACA562C", 5: "008080B4C8A8F6EDBDEDBB8ACA562C", 6: "00808070A494B4C8A8EDBB8ADE8A5ACA562C", 7: "00808070A494B4C8A8F6EDBDEDBB8ADE8A5ACA562C" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, TealRose: { type: "diverging", values: { 2: "009392D0587E", 3: "009392F1EAC8D0587E", 4: "009392B1C7B3E5B9ADD0587E", 5: "009392B1C7B3F1EAC8E5B9ADD0587E", 6: "00939272AAA1B1C7B3E5B9ADD98994D0587E", 7: "00939272AAA1B1C7B3F1EAC8E5B9ADD98994D0587E" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Temps: { type: "diverging", values: { 2: "009392CF597E", 3: "009392E9E29CCF597E", 4: "0093929CCB86EEB479CF597E", 5: "0093929CCB86E9E29CEEB479CF597E", 6: "00939239B1859CCB86EEB479E88471CF597E", 7: "00939239B1859CCB86E9E29CEEB479E88471CF597E" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Tropic: { type: "diverging", values: { 2: "009B9EC75DAB", 3: "009B9EF1F1F1C75DAB", 4: "009B9EA7D3D4E4C1D9C75DAB", 5: "009B9EA7D3D4F1F1F1E4C1D9C75DAB", 6: "009B9E42B7B9A7D3D4E4C1D9D691C1C75DAB", 7: "009B9E42B7B9A7D3D4F1F1F1E4C1D9D691C1C75DAB" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BluGrn: { type: "sequential", values: { 2: "C4E6C31D4F60", 3: "C4E6C34DA2841D4F60", 4: "C4E6C36DBC9036877A1D4F60", 5: "C4E6C36DBC904DA28436877A1D4F60", 6: "C4E6C396D2A46DBC9036877A266B6E1D4F60", 7: "C4E6C396D2A46DBC904DA28436877A266B6E1D4F60" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BluYl: { type: "sequential", values: { 2: "F7FEAE045275", 3: "F7FEAE46AEA0045275", 4: "F7FEAE7CCBA2089099045275", 5: "F7FEAE7CCBA246AEA0089099045275", 6: "F7FEAEB7E6A57CCBA208909900718B045275", 7: "F7FEAEB7E6A57CCBA246AEA008909900718B045275" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BrwnYl: { type: "sequential", values: { 2: "EDE5CF541F3F", 3: "EDE5CFC1766F541F3F", 4: "EDE5CFD39C83A65461541F3F", 5: "EDE5CFD39C83C1766FA65461541F3F", 6: "EDE5CFE0C2A2D39C83A65461813753541F3F", 7: "EDE5CFE0C2A2D39C83C1766FA65461813753541F3F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BurgYl: { type: "sequential", values: { 2: "FBE6C570284A", 3: "FBE6C5DC717670284A", 4: "FBE6C5EE8A82C8586C70284A", 5: "FBE6C5EE8A82DC7176C8586C70284A", 6: "FBE6C5F5BA98EE8A82C8586C9C3F5D70284A", 7: "FBE6C5F5BA98EE8A82DC7176C8586C9C3F5D70284A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Burg: { type: "sequential", values: { 2: "FFC6C4672044", 3: "FFC6C4CC607D672044", 4: "FFC6C4E38191AD466C672044", 5: "FFC6C4E38191CC607DAD466C672044", 6: "FFC6C4F4A3A8E38191AD466C8B3058672044", 7: "FFC6C4F4A3A8E38191CC607DAD466C8B3058672044" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, DarkMint: { type: "sequential", values: { 2: "D2FBD4123F5A", 3: "D2FBD4559C9E123F5A", 4: "D2FBD47BBCB03A7C89123F5A", 5: "D2FBD47BBCB0559C9E3A7C89123F5A", 6: "D2FBD4A5DBC27BBCB03A7C89235D72123F5A", 7: "D2FBD4A5DBC27BBCB0559C9E3A7C89235D72123F5A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Emrld: { type: "sequential", values: { 2: "D3F2A3074050", 3: "D3F2A34C9B82074050", 4: "D3F2A36CC08B217A79074050", 5: "D3F2A36CC08B4C9B82217A79074050", 6: "D3F2A397E1966CC08B217A79105965074050", 7: "D3F2A397E1966CC08B4C9B82217A79105965074050" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Magenta: { type: "sequential", values: { 2: "F3CBD36C2167", 3: "F3CBD3CA699D6C2167", 4: "F3CBD3DD88ACB14D8E6C2167", 5: "F3CBD3DD88ACCA699DB14D8E6C2167", 6: "F3CBD3EAA9BDDD88ACB14D8E91357D6C2167", 7: "F3CBD3EAA9BDDD88ACCA699DB14D8E91357D6C2167" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Mint: { type: "sequential", values: { 2: "E4F1E10D585F", 3: "E4F1E163A6A00D585F", 4: "E4F1E189C0B6448C8A0D585F", 5: "E4F1E189C0B663A6A0448C8A0D585F", 6: "E4F1E1B4D9CC89C0B6448C8A2872740D585F", 7: "E4F1E1B4D9CC89C0B663A6A0448C8A2872740D585F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, OrYel: { type: "sequential", values: { 2: "ECDA9AEE4D5A", 3: "ECDA9AF7945DEE4D5A", 4: "ECDA9AF3AD6AF97B57EE4D5A", 5: "ECDA9AF3AD6AF7945DF97B57EE4D5A", 6: "ECDA9AEFC47EF3AD6AF97B57F66356EE4D5A", 7: "ECDA9AEFC47EF3AD6AF7945DF97B57F66356EE4D5A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Peach: { type: "sequential", values: { 2: "FDE0C5EB4A40", 3: "FDE0C5F59E72EB4A40", 4: "FDE0C5F8B58BF2855DEB4A40", 5: "FDE0C5F8B58BF59E72F2855DEB4A40", 6: "FDE0C5FACBA6F8B58BF2855DEF6A4CEB4A40", 7: "FDE0C5FACBA6F8B58BF59E72F2855DEF6A4CEB4A40" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, PinkYl: { type: "sequential", values: { 2: "FEF6B5E15383", 3: "FEF6B5FFA679E15383", 4: "FEF6B5FFC285FA8A76E15383", 5: "FEF6B5FFC285FFA679FA8A76E15383", 6: "FEF6B5FFDD9AFFC285FA8A76F16D7AE15383", 7: "FEF6B5FFDD9AFFC285FFA679FA8A76F16D7AE15383" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, PurpOr: { type: "sequential", values: { 2: "F9DDDA573B88", 3: "F9DDDACE78B3573B88", 4: "F9DDDAE597B9AD5FAD573B88", 5: "F9DDDAE597B9CE78B3AD5FAD573B88", 6: "F9DDDAF2B9C4E597B9AD5FAD834BA0573B88", 7: "F9DDDAF2B9C4E597B9CE78B3AD5FAD834BA0573B88" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Purp: { type: "sequential", values: { 2: "F3E0F763589F", 3: "F3E0F7B998DD63589F", 4: "F3E0F7D1AFE89F82CE63589F", 5: "F3E0F7D1AFE8B998DD9F82CE63589F", 6: "F3E0F7E4C7F1D1AFE89F82CE826DBA63589F", 7: "F3E0F7E4C7F1D1AFE8B998DD9F82CE826DBA63589F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, RedOr: { type: "sequential", values: { 2: "F6D2A9B13F64", 3: "F6D2A9EA8171B13F64", 4: "F6D2A9F19C7CDD686CB13F64", 5: "F6D2A9F19C7CEA8171DD686CB13F64", 6: "F6D2A9F5B78EF19C7CDD686CCA5268B13F64", 7: "F6D2A9F5B78EF19C7CEA8171DD686CCA5268B13F64" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, SunsetDark: { type: "sequential", values: { 2: "FCDE9C7C1D6F", 3: "FCDE9CE34F6F7C1D6F", 4: "FCDE9CF0746EDC39777C1D6F", 5: "FCDE9CF0746EE34F6FDC39777C1D6F", 6: "FCDE9CFAA476F0746EDC3977B9257A7C1D6F", 7: "FCDE9CFAA476F0746EE34F6FDC3977B9257A7C1D6F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Sunset: { type: "sequential", values: { 2: "F3E79B5C53A5", 3: "F3E79BEB7F865C53A5", 4: "F3E79BF8A07ECE66935C53A5", 5: "F3E79BF8A07EEB7F86CE66935C53A5", 6: "F3E79BFAC484F8A07ECE6693A059A05C53A5", 7: "F3E79BFAC484F8A07EEB7F86CE6693A059A05C53A5" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, TealGrn: { type: "sequential", values: { 2: "B0F2BC257D98", 3: "B0F2BC4CC8A3257D98", 4: "B0F2BC67DBA538B2A3257D98", 5: "B0F2BC67DBA54CC8A338B2A3257D98", 6: "B0F2BC89E8AC67DBA538B2A32C98A0257D98", 7: "B0F2BC89E8AC67DBA54CC8A338B2A32C98A0257D98" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Teal: { type: "sequential", values: { 2: "D1EEEA2A5674", 3: "D1EEEA68ABB82A5674", 4: "D1EEEA85C4C94F90A62A5674", 5: "D1EEEA85C4C968ABB84F90A62A5674", 6: "D1EEEAA8DBD985C4C94F90A63B738F2A5674", 7: "D1EEEAA8DBD985C4C968ABB84F90A63B738F2A5674" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, agGrnYl: { type: "sequential", values: { 2: "245668EDEF5D", 3: "24566839AB7EEDEF5D", 4: "2456680D8F816EC574EDEF5D", 5: "2456680D8F8139AB7E6EC574EDEF5D", 6: "2456680F72790D8F816EC574A9DC67EDEF5D", 7: "2456680F72790D8F8139AB7E6EC574A9DC67EDEF5D" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, agSunset: { type: "sequential", values: { 2: "4B2991EDD9A3", 3: "4B2991EA4F88EDD9A3", 4: "4B2991C0369DFA7876EDD9A3", 5: "4B2991C0369DEA4F88FA7876EDD9A3", 6: "4B2991872CA2C0369DFA7876F6A97AEDD9A3", 7: "4B2991872CA2C0369DEA4F88FA7876F6A97AEDD9A3" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Antique: { type: "qualitative", values: { 2: "855C75D9AF6B", 3: "855C75D9AF6BAF6458", 4: "855C75D9AF6BAF6458736F4C", 5: "855C75D9AF6BAF6458736F4C526A83", 6: "855C75D9AF6BAF6458736F4C526A83625377", 7: "855C75D9AF6BAF6458736F4C526A8362537768855C", 8: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5E", 9: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5EA06177", 10: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5EA061778C785D" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Bold: { type: "qualitative", values: { 2: "7F3C8D11A579", 3: "7F3C8D11A5793969AC", 4: "7F3C8D11A5793969ACF2B701", 5: "7F3C8D11A5793969ACF2B701E73F74", 6: "7F3C8D11A5793969ACF2B701E73F7480BA5A", 7: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310", 8: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695", 9: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695CF1C90", 10: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695CF1C90F97B72" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Pastel: { type: "qualitative", values: { 2: "66C5CCF6CF71", 3: "66C5CCF6CF71F89C74", 4: "66C5CCF6CF71F89C74DCB0F2", 5: "66C5CCF6CF71F89C74DCB0F287C55F", 6: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3", 7: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1", 8: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB74", 9: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB748BE0A4", 10: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB748BE0A4B497E7" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Prism: { type: "qualitative", values: { 2: "5F46901D6996", 3: "5F46901D699638A6A5", 4: "5F46901D699638A6A50F8554", 5: "5F46901D699638A6A50F855473AF48", 6: "5F46901D699638A6A50F855473AF48EDAD08", 7: "5F46901D699638A6A50F855473AF48EDAD08E17C05", 8: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E", 9: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E94346E", 10: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E94346E6F4070" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Safe: { type: "qualitative", values: { 2: "88CCEECC6677", 3: "88CCEECC6677DDCC77", 4: "88CCEECC6677DDCC77117733", 5: "88CCEECC6677DDCC77117733332288", 6: "88CCEECC6677DDCC77117733332288AA4499", 7: "88CCEECC6677DDCC77117733332288AA449944AA99", 8: "88CCEECC6677DDCC77117733332288AA449944AA99999933", 9: "88CCEECC6677DDCC77117733332288AA449944AA99999933882255", 10: "88CCEECC6677DDCC77117733332288AA449944AA99999933882255661100" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Vivid: { type: "qualitative", values: { 2: "E586065D69B1", 3: "E586065D69B152BCA3", 4: "E586065D69B152BCA399C945", 5: "E586065D69B152BCA399C945CC61B0", 6: "E586065D69B152BCA399C945CC61B024796C", 7: "E586065D69B152BCA399C945CC61B024796CDAA51B", 8: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4", 9: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4764E9F", 10: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4764E9FED645A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" } }, cmocean: { Balance: { type: "diverging", values: { 3: "181C43F1ECEB3C0912", 4: "181C4375AABED08B733C0912", 5: "181C433888BAF1ECEBC05A3C3C0912", 6: "181C431670BCAAC2CBDCB2A4B338263C0912", 7: "181C430C5EBE75AABEF1ECEBD08B73A724243C0912", 8: "181C431C50BA5197BABFCDD3E1C2B8C76F539916273C0912", 9: "181C432548B03888BA98BAC5F1ECEBD8A493C05A3C9010293C0912", 10: "181C432942A2267BBA75AABECAD4D8E4CBC4D08B73BA482E860E293C0912", 11: "181C43293F9A1670BC599CBBAAC2CBF1ECEBDCB2A4CA795DB338267E0E293C0912", 12: "181C43293B8F0B66BD4892BA8EB5C3D3D9DCE6D2CDD69D8AC5684BAC2B24780E283C0912", 13: "181C432938880C5EBE3888BA75AABEB6C9CFF1ECEBDFBBB0D08B73C05A3CA72424730E273C0912", 14: "181C432837841357BE2B7FBA5F9FBB9EBCC7D8DCDEE8D7D2D9A998CB7B60BC4D329F1B26700E273C0912", 15: "181C4327347D1C50BA2178BB5197BA88B2C1BFCDD3F1ECEBE1C2B8D49984C76F53B8432B9916276B0F253C0912", 16: "181C4327337A214CB61670BC438FBA75AABEAAC2CBDBDEE0E9D9D5DCB2A4D08B73C36346B33826941328680F253C0912", 17: "181C432632762548B00F6ABD3888BA65A2BC98BAC5C7D2D7F1ECEBE3C9C1D8A493CD7F65C05A3CAF3024901029650F243C0912", 18: "181C432530732745A90A64BE2E81BA569ABB85B1C0B3C7CEDEE0E1EADCD8DEB9ADD39681C97458BD5034AB29248B0F29630E233C0912", 19: "181C43252F6F2942A20C5EBE267BBA4B94BA75AABEA1BEC8CAD4D8F1ECEBE4CBC4DAAB9BD08B73C66B4DBA482EA72424860E29600E223C0912", 20: "181C43242E6C29409E1059BE1E76BB408DBA68A4BC91B7C3B9CAD0E1E1E3EBDEDBDFBDB2D69F8DCD8268C36143B74029A11D25830E295E0E213C0912" }, url: "http://matplotlib.org/cmocean/" }, Curl: { type: "diverging", values: { 3: "151D44FEF6F5340D35", 4: "151D447DB390DB8C77340D35", 5: "151D442C947FFEF6F5C45A61340D35", 6: "151D44117D79B6CBAFE6B7A2AE4060340D35", 7: "151D44156D737DB390FEF6F5DB8C779D3060340D35", 8: "151D4419626D50A284CCD6C1ECCAB9D06F66902760340D35", 9: "151D441B59682C947FA3C2A2FEF6F5E2A891C45A61862060340D35", 10: "151D441C536417887D7DB390D8DDCCEFD3C6DB8C77B94B607D1C5F340D35", 11: "151D441C4D61117D795DA786B6CBAFFEF6F5E6B7A2D4776AAE406076195D340D35", 12: "151D441C495E127576419D8299BE9DDFE1D3F1DACEE0A189CC6764A5376070185C340D35", 13: "151D441C465C156D732C947F7DB390C3D1BAFEF6F5E9C2AFDB8C77C45A619D30606C175A340D35", 14: "151D441C425A1767701C8C7E65AA88ABC5A8E4E4D8F3DFD5E4AE98D67C6CBC4F60972B61661658340D35", 15: "151D441C405819626D14847C50A28492BB99CCD6C1FEF6F5ECCAB9E09D85D06F66B44660902760641557340D35", 16: "151D441B3E571A5D6A117D793B9B817DB390B6CBAFE7E6DBF4E1D8E6B7A2DB8C77CA6363AE40608A2360601455340D35", 17: "151D441B3C561B59681177772C947F6BAC8AA3C2A2D3DAC8FEF6F5EED0C1E2A891D7806EC45A61A83A608620605D1454340D35", 18: "151D441B3A541B56661372751F8D7E57A5858FBA97BFCFB6EAE8DEF5E4DCE8BEABDF9982D27468BE5260A23560811E5F5A1452340D35", 19: "151D441B38531C5364156D7317887D479F827DB390AEC7AAD8DDCCFEF6F5EFD3C6E5B19ADB8C77CD6A65B94B609D30607D1C5F581351340D35", 20: "151D441A37531C506216697113837B3899816DAD8A9CBF9FC6D3BCEDEAE1F6E6DFEAC5B3E1A38BD7816FC86162B44560992D617A1B5E571350340D35" }, url: "http://matplotlib.org/cmocean/" }, Delta: { type: "diverging", values: { 3: "112040FFFDCD172313", 4: "1120406CB5B3AAAC20172313", 5: "1120403391A9FFFDCD61920B172313", 6: "1120402378A3ACCEC6D8C55F32801F172313", 7: "1120401C67A06CB5B3FFFDCDAAAC20187328172313", 8: "1120401B5B9E44A1AEC5DAD0E6D480819D060D682B172313", 9: "1120401C529D3391A997C5BEFFFDCDCBBB4661920B0B602D172313", 10: "1120401F4A9B2A83A66CB5B3D1E1D6ECDC91AAAC204889160D592D172313", 11: "1120402343972378A34EA8AFACCEC6FFFDCDD8C55F8EA20B32801F10542C172313", 12: "112040263E911F6FA13D9BAC8BC1BAD9E5DAEFE29CC3B73B759906247924124F2B172313", 13: "112040273C8B1C67A03391A96CB5B3BBD5CCFFFDCDE1CD73AAAC2061920B187328144C2A172313", 14: "1120402639841B619F2C87A754ABB0A0C9C1DFE9DCF2E6A5D1BF5195A40F4F8C13116D2A154829172313", 15: "11204025377E1B5B9E2780A544A1AE84BEB8C5DAD0FFFDCDE6D480BEB436819D063F851A0D682B164629172313", 16: "11204025367A1B569D2378A33A98AB6CB5B3ACCEC6E3EBDEF3E9A9D8C55FAAAC2070970732801F0B632C174327172313", 17: "1120402435761C529D2072A23391A959AEB097C5BECDDED4FFFDCDEAD98BCBBB469AA61361920B287C230B602D174127172313", 18: "1120402333721E4D9C1E6CA12D89A749A5AE80BDB7B6D3CAE6EDDFF5EBADDECB6CBAB23088A008528D121F77260C5C2D183F26172313", 19: "11204022326F1F4A9B1C67A02A83A6409EAD6CB5B3A3CAC2D1E1D6FFFDCDECDC91D3C155AAAC207A9B064889161873280D592D183E25172313", 20: "11204021316D21469A1B639F267EA53896AB5BAEB18FC2BBBED7CDE9EEE0F6EDB1E3CF77C5B83F9BA6146C96073D851B136F290F562C193D24172313" }, url: "http://matplotlib.org/cmocean/" }, Algae: { type: "sequential", values: { 3: "D7F9D0129450122414", 4: "D7F9D064B463126E45122414", 5: "D7F9D084C47A129450185B3B122414", 6: "D7F9D096CD8A44A855097D4B1A5034122414", 7: "D7F9D0A2D59564B463129450126E451A4930122414", 8: "D7F9D0AADA9D77BD6F34A35307844D1663401A432C122414", 9: "D7F9D0AFDDA284C47A50AD591294500C7849185B3B194029122414", 10: "D7F9D0B4E0A88EC98264B4632CA05207874D126E45195538193C27122414", 11: "D7F9D0B6E2AB96CD8A72BB6C44A855129450097D4B1567411A5034183A25122414", 12: "D7F9D0BAE4AF9DD1907BBF7356AF5C269E51088A4E0E754817613E1A4C32183824122414", 13: "D7F9D0BDE6B1A2D59584C47A64B4633BA65412945008814C126E45185B3B1A4930173622122414", 14: "D7F9D0BEE7B3A6D7998BC7806FB96A4CAB58229C51098C4F0B7A491468421957391A462E173522122414", 15: "D7F9D0C0E9B6AADA9D91CA8577BD6F5AB05D34A35312945007844D0F73471663401954371A432C173420122414", 16: "D7F9D0C2EAB7ACDBA096CD8A7EC17564B46344A855209C51098D4F097D4B126E45175F3D1A503419412B173320122414", 17: "D7F9D0C3EBB9AFDDA29AD08D84C47A6CB86850AD592EA15212945007864D0C7849146A43185B3B1A4D3319402916321F122414", 18: "D7F9D0C4EBBAB1DEA59ED2918AC77E74BB6D5BB15E3DA6541E9B510A8E4F08804B0F73471565401958391A4B31193E2816311E122414", 19: "D7F9D0C5ECBBB4E0A8A2D5958EC9827ABE7264B4634AAB572CA05212945007874D0B7B4A126E4517623F1955381A4930193C2716301E122414", 20: "D7F9D0C7EDBDB5E1A9A4D69892CB8680C1766BB76754AE5B39A5531C9A510B8F4F07824C0D7648136A43185E3D1A53361A472E183B26162F1D122414" }, url: "http://matplotlib.org/cmocean/" }, Amp: { type: "sequential", values: { 3: "F1EDECC0583B3C0912", 4: "F1EDECD08B73A622253C0912", 5: "F1EDECD7A291C0583B9010293C0912", 6: "F1EDECDCB1A3CA775BB338267F0E293C0912", 7: "F1EDECDFBCB0D08B73C0583BA62225740E283C0912", 8: "F1EDECE1C3B9D49884C76F52B7412A9A16276B0F253C0912", 9: "F1EDECE2C7BFD7A291CC7E64C0583BAF3024901029650F243C0912", 10: "F1EDECE4CCC5D9AA9BD08B73C66A4DB9462DA62225870E29600E223C0912", 11: "F1EDECE5CEC8DCB1A3D3957FCA775BC0583BB338269E1A267F0E295C0E213C0912", 12: "F1EDECE6D2CCDDB7ABD59C88CD8168C56749BB4A30AD2C24971428780E285A0E1F3C0912", 13: "F1EDECE7D4CFDFBCB0D7A291D08B73C87256C0583BB53D28A62225901029740E28570E1E3C0912", 14: "F1EDECE7D5D0E0BFB5D9A898D2927DCB7C61C46447BC4D31B033259F1B26890F296F0E26560E1E3C0912", 15: "F1EDECE8D8D3E1C3B9DAAD9ED49884CE846AC76F52C0583BB7412AAB2A249A1627840E296B0F25530D1D3C0912", 16: "F1EDECE9D9D4E2C5BCDCB1A3D69E8BD08B73CA775BC36346BC4E32B33826A622259413287F0E29680F25520D1C3C0912", 17: "F1EDECE9DAD6E2C7BFDDB5A8D7A291D2907ACC7E64C66B4EC0583BB9452CAF3024A11D259010297B0E29650F24510D1C3C0912", 18: "F1EDECE9DBD7E3C9C2DEB8ACD8A796D39681CE856CC97457C36244BD4F33B53C27AA28249C18278B0F29770E28630E234F0D1B3C0912", 19: "F1EDECEADCD9E4CCC5DFBCB0D9AA9BD59A87D08B73CB7A60C66A4DC0583BB9462DB13425A62225981527870E29740E28600E224E0D1A3C0912", 20: "F1EDECEADDDAE4CDC6DFBEB3DBAE9FD69F8CD18F78CD8066C87155C36143BD5134B63F29AE2D24A21E25931228830E29700E275F0E214D0C1A3C0912" }, url: "http://matplotlib.org/cmocean/" }, Deep: { type: "sequential", values: { 3: "FDFECC488E9E281A2C", 4: "FDFECC5DBAA43E6495281A2C", 5: "FDFECC78CEA3488E9E404D8C281A2C", 6: "FDFECC92D8A452A8A340759841407B281A2C", 7: "FDFECCA5DFA75DBAA4488E9E3E6495403A6E281A2C", 8: "FDFECCB2E3AA6AC5A44FA1A2427C9A3E57913D3562281A2C", 9: "FDFECCBBE6AC78CEA355AEA3488E9E3F6F97404D8C3B325C281A2C", 10: "FDFECCC4E9AF85D3A35DBAA44D9DA144809B3E6495414684392F55281A2C", 11: "FDFECCC8EAB192D8A466C2A452A8A3488E9E4075983E5B9341407B382D51281A2C", 12: "FDFECCCEECB39CDCA56EC8A357B1A44C9AA044839B3F6C963F5490403C73362B4D281A2C", 13: "FDFECCD2EEB5A5DFA778CEA35DBAA450A4A2488E9E4279993E6495404D8C403A6E352A4A281A2C", 14: "FDFECCD4EFB6ACE1A881D2A364C1A454ACA34B98A045859C4071973E5C934148873E3767352949281A2C", 15: "FDFECCD9F0B8B2E3AA89D5A36AC5A458B3A44FA1A2488E9E427C9A3E6A963E57914144813D3562342846281A2C", 16: "FDFECCDBF1B9B7E5AB92D8A471CAA35DBAA452A8A34B97A045869C4075983E64953F528F41407B3C335F332744281A2C", 17: "FDFECCDDF2BABBE6AC98DAA478CEA362BFA455AEA34E9EA1488E9E437F9A3F6F973E5F93404D8C413E763B325C322643281A2C", 18: "FDFECCDFF2BBBFE7AE9FDDA57FD1A367C3A459B4A451A5A24B96A046879C4178993E69963E5992414988403C713A3058322541281A2C", 19: "FDFECCE1F3BCC4E9AFA5DFA785D3A36DC7A35DBAA453ABA34D9DA1488E9E44809B4072983E64953F5590414684403A6E392F55312540281A2C", 20: "FDFECCE3F4BDC6EAB0AAE0A88BD6A373CBA361BEA456B0A450A3A24A959F46889C427A993F6D973E60943F508E4243803F3869392E5430243E281A2C" }, url: "http://matplotlib.org/cmocean/" }, Dense: { type: "sequential", values: { 3: "E6F1F17871D5360E24", 4: "E6F1F176A4E57642A5360E24", 5: "E6F1F186B9E37871D56F2E85360E24", 6: "E6F1F196C5E27390E37954BB682471360E24", 7: "E6F1F1A2CEE276A4E57871D57642A5621E63360E24", 8: "E6F1F1ABD3E37EB0E47488E1795CC37337935D1A58360E24", 9: "E6F1F1B1D6E386B9E37397E47871D5784EB36F2E855A1851360E24", 10: "E6F1F1B7DAE48EC0E276A4E57583DF7961C87642A56B287A56164B360E24", 11: "E6F1F1BADBE596C5E27BADE47390E37871D57954BB743B99682471531546360E24", 12: "E6F1F1BFDEE69CCAE280B3E3749BE4757FDD7964CB784BAF72348F652068511443360E24", 13: "E6F1F1C2DFE6A2CEE286B9E376A4E5748BE27871D57959C07642A56F2E85621E634F1440360E24", 14: "E6F1F1C4E0E6A6D0E38CBEE27AABE47395E4767DDC7966CD7950B6743B9B6C2A7E5F1B5D4E133E360E24", 15: "E6F1F1C7E2E7ABD3E390C2E27EB0E4749DE57488E17871D5795CC37849AD7337936A27775D1A584B133B360E24", 16: "E6F1F1C9E3E8AED4E396C5E282B5E376A4E57390E3767CDC7968CE7954BB7642A571328C6824715B19544A133A360E24", 17: "E6F1F1CBE4E8B1D6E39AC8E286B9E379A9E47397E47584DF7871D57960C7784EB3753D9D6F2E8566216C5A1851491238360E24", 18: "E6F1F1CCE4E8B4D8E49ECBE28ABDE37CAEE4759EE5748DE2767BDB7969CF7958BF7748AB7339966D2B7F641F6758174E481237360E24", 19: "E6F1F1CEE5E9B7DAE4A2CEE28EC0E27FB2E376A4E57394E47583DF7871D57961C87951B77642A57235906B287A621E6356164B471236360E24", 20: "E6F1F1D0E6E9B9DAE4A5CFE292C3E283B6E378A8E4749AE4748AE27679DA786AD0795AC1784CB1753E9F70318A6A2675601C5E551649461234360E24" }, url: "http://matplotlib.org/cmocean/" }, Gray: { type: "sequential", values: { 3: "000000727171FFFFFD", 4: "0000004A4A499B9A9AFFFFFD", 5: "000000373737727171B1B1B0FFFFFD", 6: "0000002B2B2B5A59598A8989C0BFBEFFFFFD", 7: "0000002323234A4A497271719B9A9AC9C8C7FFFFFD", 8: "0000001D1D1D3F3F3F605F5F838282A7A7A6D1D1D0FFFFFD", 9: "0000001A1919373737545453727171908F8FB1B1B0D6D6D4FFFFFD", 10: "0000001615153130304A4A496463637F7E7E9B9A9AB9B9B8DBDAD9FFFFFD", 11: "0000001413132B2B2B4242415A59597271718A8989A3A3A2C0BFBEDEDEDDFFFFFD", 12: "0000001110102726263D3C3C5151506666657C7C7B939292ABAAA9C5C5C4E1E1DFFFFFFD", 13: "0000000F0E0E2323233737374A4A495D5D5C7271718685859B9A9AB1B1B0C9C8C7E3E3E2FFFFFD", 14: "0000000D0D0D2020203332324443435655556868677A7A798E8D8DA2A2A1B7B6B5CDCDCCE5E4E3FFFFFD", 15: "0000000B0B0B1D1D1D2F2F2E3F3F3F504F4F605F5F727171838282959494A7A7A6BBBBBAD1D1D0E7E7E6FFFFFD", 16: "0000000A0A0A1C1B1B2B2B2B3B3A3A4A4A495A59596969687979788A89899B9A9AADACACC0BFBED3D3D2E8E8E7FFFFFD", 17: "0000000909091A1919292828373737464545545453636262727171807F7F908F8FA0A09FB1B1B0C3C3C2D6D6D4EAEAE8FFFFFD", 18: "0000000808081817172626253433334141404F4E4E5C5C5B6A6A69787877878686969595A5A5A4B6B5B4C6C6C5D8D8D7EBEBEAFFFFFD", 19: "0000000707071615152323233130303E3D3D4A4A495756566463637271717F7E7E8D8C8C9B9A9AAAA9A8B9B9B8C9C8C7DBDAD9ECECEBFFFFFD", 20: "0000000606061514142121212E2E2E3A39394746465252515E5E5D6B6B6A7777768584849291919F9F9EAEADADBCBCBBCCCCCBDCDCDBEEEDECFFFFFD" }, url: "http://matplotlib.org/cmocean/" }, Haline: { type: "sequential", values: { 3: "2A186C3C9387FDEF9A", 4: "2A186C206E8B5AB978FDEF9A", 5: "2A186C0F5B903C938778CB68FDEF9A", 6: "2A186C0D4E962D7C894AAA8194D35DFDEF9A", 7: "2A186C14439C206E8B3C93875AB978A8D85CFDEF9A", 8: "2A186C1B3AA016638D31828846A48369C46FB8DB60FDEF9A", 9: "2A186C2034A20F5B902977893C93874FAF7E78CB68C1DD64FDEF9A", 10: "2A186C252DA30C5493206E8B34868843A0845AB97886D062CADF69FDEF9A", 11: "2A186C2829A30D4E9618668C2D7C893C93874AAA8163C07294D35DD0E06DFDEF9A", 12: "2A186C2B24A010489914618E26758A358988429D8551B27D6EC66DA0D65CD4E170FDEF9A", 13: "2A186C2D219D14439C0F5B90206E8B2F80893C938748A6825AB97878CB68A8D85CD8E273FDEF9A", 14: "2A186C2D209C173F9E0D56921A688C2A7989378A88419B864DAE7F62BF7382CE63B1D95DDAE375FDEF9A", 15: "2A186C2E1E981B3AA00C529416638D25738A3182883C938746A48353B47C69C46F8BD160B8DB60DEE479FDEF9A", 16: "2A186C2E1E951D37A10D4E96125F8F206E8B2D7C89378B88409A864AAA815AB97871C86B94D35DBDDC62E0E57AFDEF9A", 17: "2A186C2E1D932034A20F4A980F5B901C6A8C2977893385883C938744A1844FAF7E5FBE7578CB689BD55CC1DD64E1E57CFDEF9A", 18: "2A186C2E1D912230A311479A0D579218658D24728A2F7F89388C883F998648A78254B57B66C27180CE64A3D75CC6DE66E3E67EFDEF9A", 19: "2A186C2E1C8E252DA314439C0C549314628E206E8B2B7A893486883C938743A0844CAD805AB9786CC56E86D062A8D85CCADF69E5E680FDEF9A", 20: "2A186C2E1C8C262BA316409D0C5195115E8F1D6B8B27768A308189388D883F998647A58351B17D5EBD7573C86A8DD25FAFD95DCCDF6AE7E781FDEF9A" }, url: "http://matplotlib.org/cmocean/" }, Ice: { type: "sequential", values: { 3: "040613427BB7EAFDFD", 4: "0406133F4B9661A8C7EAFDFD", 5: "040613383975427BB779BED0EAFDFD", 6: "040613302F5F3E5EA95296C18CCBD6EAFDFD", 7: "0406132928513F4B96427BB761A8C79AD3DAEAFDFD", 8: "0406132523473C40843E66AE4D8EBE6EB4CCA8D9DEEAFDFD", 9: "0406132120413839753F57A3427BB7579CC379BED0AFDDE1EAFDFD", 10: "0406131E1D3B3433693F4B963E6AB04A8ABD61A8C783C5D3B7E1E4EAFDFD", 11: "0406131C1C38302F5F3D43893E5EA9427BB75296C16AB0CB8CCBD6BCE4E7EAFDFD", 12: "0406131919342C2B573B3E7F3F54A03F6EB24887BC5A9FC472B8CE95D0D8C0E6E8EAFDFD", 13: "0406131718312928513839753F4B963E62AC427BB74F91BF61A8C779BED09AD3DAC4E7EAEAFDFD", 14: "04061317172F27254C35356C3E458C3F59A53F70B34785BB559AC269AFCA80C3D2A2D6DCC6E8EBEAFDFD", 15: "04061315152C2523473332663C40843F529E3E66AE427BB74D8EBE5CA1C56EB4CC86C7D4A8D9DEC9EAEDEAFDFD", 16: "04061314142B232244302F5F3A3C7B3F4B963E5EA93F71B44684BB5296C161A8C774BACE8CCBD6ABDBE0CBEBEEEAFDFD", 17: "04061313132A2120412E2C5A3839753E478F3F57A33E69B0427BB74B8BBD579CC367ADC979BED092CED7AFDDE1CDECEFEAFDFD", 18: "0406131213281F1F3E2C2A5536356E3D42873F519D3E61AB4072B44682BA5092C05DA2C56CB2CB7FC2D297D1D9B3DFE3CFEDEFEAFDFD", 19: "0406131112271E1D3B2928513433693B3E803F4B963E5AA63E6AB0427BB74A8ABD5599C261A8C771B6CD83C5D39AD3DAB7E1E4D1EEF0EAFDFD", 20: "0406131011251D1C3A28264E3231643A3B7A3E48903F55A13E63AD4073B44581BA4E90BF599EC465ACC975BBCF88C8D4A0D6DCB9E2E5D3EFF1EAFDFD" }, url: "http://matplotlib.org/cmocean/" }, Matter: { type: "sequential", values: { 3: "FEEDB0CE43562F0F3E", 4: "FEEDB0EB78589F24622F0F3E", 5: "FEEDB0F29567CE4356841C632F0F3E", 6: "FEEDB0F5A773E26253B32E5F721A602F0F3E", 7: "FEEDB0F7B37CEB7858CE43569F246267195D2F0F3E", 8: "FEEDB0F8BB83EF8960DE5953BB335C901F635E18592F0F3E", 9: "FEEDB0F9C187F29567E66A54CE4356AC2A60841C635917572F0F3E", 10: "FEEDB0FAC68CF49F6DEB7858DB5453C0365B9F24627A1B625316542F0F3E", 11: "FEEDB0FAC98EF5A773EE855EE26253CE4356B32E5F952063721A604F16522F0F3E", 12: "FEEDB0FACD92F6AE78F08D62E76E55D95053C3395AA928618C1E636B195E4D15512F0F3E", 13: "FEEDB0FBD094F7B37CF29567EB7858E05D53CE4356B8315D9F2462841C6367195D4A154F2F0F3E", 14: "FEEDB0FBD196F8B77FF39C6BED825CE56754D74E54C53B59AF2B609621637D1B6262185B49154E2F0F3E", 15: "FEEDB0FBD498F8BB83F4A16FEF8960E87056DE5953CE4356BB335CA62761901F63781A615E185946144D2F0F3E", 16: "FEEDB0FBD59AF9BE85F5A773F18F63EB7858E26253D64D54C63C59B32E5F9F2462891D63721A605B175845144C2F0F3E", 17: "FEEDB0FBD79BF9C187F6AB76F29567ED7F5BE66A54DC5553CE4356BF365BAC2A60992263841C636E195F59175744144B2F0F3E", 18: "FEEDB0FCD89CF9C38AF7AF79F39A6AEE865EE97256E05E53D54C54C73D59B7305EA52662921F637E1B626A195E56175542144B2F0F3E", 19: "FEEDB0FCDA9DFAC68CF7B37CF49F6DF08B61EB7858E46653DB5453CE4356C0365BB02C5F9F24628D1E637A1B6267195D53165441134A2F0F3E", 20: "FEEDB0FCDB9FFAC88DF8B67EF5A370F19164EC7E5AE76C55DF5B53D54B54C83D58B9325DAA29619A2263881D63761A6163185B5216534013492F0F3E" }, url: "http://matplotlib.org/cmocean/" }, Oxy: { type: "sequential", values: { 3: "4005059B9A9ADDAF19", 4: "4005056F6F6ECBCAC9DDAF19", 5: "4005055C5B5B9B9A9AE4E4E3DDAF19", 6: "400505504F4F81807FB7B7B6F8FE69DDAF19", 7: "400505850A0B6F6F6E9B9A9ACBCAC9ECF54EDDAF19", 8: "4005057D050E646363878786AFAEAED9D9D8EAEA3BDDAF19", 9: "40050576050F5C5B5B7A7A799B9A9ABDBDBCE4E4E3E9E334DDAF19", 10: "4005056F060F5554546F6F6E8B8B8AAAAAA9CBCAC9EEEEECE8DC30DDAF19", 11: "4005056B060F504F4F67666681807F9B9A9AB7B7B6D4D4D3F8FE69E7D72CDDAF19", 12: "40050566070E8A11096160607777768E8E8DA7A6A6C1C1C0DDDDDCF0F95AE6D32ADDAF19", 13: "40050563070E850A0B5C5B5B6F6F6E8584839B9A9AB1B1B0CBCAC9E4E4E3ECF54EE6D028DDAF19", 14: "40050562070D81060D5757566868677C7B7B919090A4A4A3BBBBBAD3D3D2EBEBE9EAEE40E5CF28DDAF19", 15: "4005055D070C7D050E5353536463637675748787869B9A9AAFAEAEC3C3C2D9D9D8F0F0EFEAEA3BE5CB26DDAF19", 16: "4005055C070C79050F504F4F5F5F5E6F6F6E81807F929190A3A3A2B7B7B6CBCAC9DFDFDEF8FE69E9E637E4C925DDAF19", 17: "4005055B070C76050F8D15085C5B5B6B6A6A7A7A798A8A899B9A9AABABAABDBDBCD0D0CFE4E4E3F4FC62E9E334E4C825DDAF19", 18: "40050558070B72060F89100A585757666665747373838382929291A3A2A1B3B3B2C5C5C3D6D6D5EAE9E8EFF857E8DF31E3C623DDAF19", 19: "40050557070B6F060F850A0B5554546262616F6F6E7D7D7C8B8B8A9B9A9AAAAAA9BAB9B8CBCAC9DBDBDAEEEEECECF54EE8DC30E3C423DDAF19", 20: "40050555070B6D060F83080C5251515F5E5E6B6B6A787777858584939392A2A1A0B1B0AFC0C0BFCFCFCEE0E0DFF2F2F1EAF145E8D92EE3C322DDAF19" }, url: "http://matplotlib.org/cmocean/" }, Phase: { type: "sequential", values: { 3: "A8780D7D73F0A8780D", 4: "A8780DD02FD01E93A8A8780D", 5: "A8780DDF2A937D73F00C987EA8780D", 6: "A8780DDC3C6DB64BED3B8CCB199A5EA8780D", 7: "A8780DD74957D02FD07D73F01E93A8319946A8780D", 8: "A8780DD2514BDB25B0A957F24D87D81496904B972FA8780D", 9: "A8780DCF5643DF2A93C041E57D73F02E8FBE0C987E5A9423A8780D", 10: "A8780DCB5A3CDE337ED02FD0A05DF45883DF1E93A80E996E689119A8780D", 11: "A8780DC95D38DC3C6DD926B9B64BED7D73F03B8CCB179598199A5E728F14A8780D", 12: "A8780DC66033D94361DD26A6C53CE19A62F46080E42891B811978A279A4F778D12A8780D", 13: "A8780DC46230D74957DF2A93D02FD0AE52F07D73F04589D31E93A80C987E3199467D8B10A8780D", 14: "A8780DC2642ED54D51DF3184D727BEBD45E89565F4667EE7328EC218959A0C99734098397F8B0FA8780D", 15: "A8780DC0662BD2514BDE3678DB25B0C839DDA957F27D73F04D87D82591B4149690119A694B972F84890EA8780D", 16: "A8780DBF672AD05347DC3C6DDE27A0D02FD0B64BED9366F4687CE83B8CCB1E93A80F9786199A5E53962986880EA8780D", 17: "A8780DBE6828CF5643DB4066DF2A93D529C4C041E5A25CF37D73F05584DE2E8FBE19959E0C987E219A555A942388870EA8780D", 18: "A8780DBD6926CD583FD9455EDF2F87DA26B6C937DBB050EF9168F46B7BE9428AD12492B21596940B99752B9A4C61931E8B860DA8780D", 19: "A8780DBB6A25CB5A3CD74957DE337EDC25A9D02FD0BB46E9A05DF47D73F05883DF348EC41E93A812978C0E996E3199466891198D850DA8780D", 20: "A8780DBA6B23CA5C3AD54B53DD3876DE289DD42AC7C33EE2AC54F18F69F46E7AEB4788D52A90BA1A94A00E9884139A663C993C6B90178F840DA8780D" }, url: "http://matplotlib.org/cmocean/" }, Solar: { type: "sequential", values: { 3: "331418B66413E1FD4B", 4: "331418973B1CCB921AE1FD4B", 5: "331418822D22B66413D4AB23E1FD4B", 6: "331418732724A54A17C47F15D8BA2AE1FD4B", 7: "331418682325973B1CB66413CB921ADAC42FE1FD4B", 8: "3314186021248C3220AA5116C07714D0A01FDCCD33E1FD4B", 9: "3314185B2023822D22A04519B66413C78616D4AB23DDD236E1FD4B", 10: "331418561F237A2924973B1CAD5515BE7313CB921AD6B327DDD738E1FD4B", 11: "331418541E227327248F341FA54A17B66413C47F15CF9B1DD8BA2ADEDB3AE1FD4B", 12: "331418501D216D25258930219E421AAF5814BC7013C88917D1A420D9C12DDEDE3BE1FD4B", 13: "3314184D1C21682325822D22973B1CA84E16B66413C27B14CB921AD4AB23DAC42FDFE13DE1FD4B", 14: "3314184C1C206422247C2A2391361EA24718B05A14BB6E13C68416CE9A1CD5B126DBC931DFE23DE1FD4B", 15: "3314184A1B206021247828248C32209C401AAA5116B66413C07714C98B18D0A01FD7B528DCCD33DFE53FE1FD4B", 16: "331418481B1F5E2124732724872F21973B1CA54A17B15B14BB6D13C47F15CB921AD2A621D8BA2ADCD034DFE63FE1FD4B", 17: "331418471A1F5B20236F2525822D2293371DA04519AC5415B66413BF7413C78616CE981CD4AB23D9BE2CDDD236DFE740E1FD4B", 18: "331418461A1F591F236B24257E2B238E341F9B401AA74D17B15C14BA6C13C27C14C98C18D09E1ED5AF25D9C22EDDD537DFE941E1FD4B", 19: "331418451A1E561F236823257A29248A3120973B1CA34818AD5515B66413BE7313C58215CB921AD1A220D6B327DAC42FDDD738E0EA41E1FD4B", 20: "33141843191E551E22652324772824852E2193381D9F4319A84F16B25D14BA6B13C17A14C78817CD971BD3A721D7B728DBC831DED939E0EB42E1FD4B" }, url: "http://matplotlib.org/cmocean/" }, Speed: { type: "sequential", values: { 3: "FFFDCD5F920C172313", 4: "FFFDCDAAAC20187328172313", 5: "FFFDCDC9BA455F920C0B602D172313", 6: "FFFDCDD8C55F8EA20B32801F10542C172313", 7: "FFFDCDE1CD73AAAC205F920C187328144C2A172313", 8: "FFFDCDE6D480BDB434819D063F851A0D682B164528172313", 9: "FFFDCDE9D889C9BA4598A5125F920C287C230B602D174127172313", 10: "FFFDCDECDC91D2C053AAAC207A9B064688171873280D592D183E25172313", 11: "FFFDCDEDDE96D8C55FB8B22F8EA20B5F920C32801F0F6C2B10542C193B23172313", 12: "FFFDCDEFE29CDDCA6AC1B6399DA7157599064B8A152479240B652C124F2B193922172313", 13: "FFFDCDF1E4A0E1CD73C9BA45AAAC20879F085F920C39831C1873280B602D144C2A193721172313", 14: "FFFDCDF1E5A2E3D079D0BE4FB5B02B95A40F7198064F8C132C7D21106C2A0C5B2D154829193621172313", 15: "FFFDCDF3E7A7E6D480D4C157BDB434A0A818819D065F920C3F851A2178250D682B0E572D16452819341F172313", 16: "FFFDCDF3E9A9E7D684D8C55FC4B73DAAAC208EA20B709707518C1232801F1873280B632C10542C17432719331F172313", 17: "FFFDCDF4EAABE9D889DBC866C9BA45B2AF2898A5127C9C065F920C448818287C23126E2A0B602D11512C17412719321E172313", 18: "FFFDCDF5EBADEADA8DDECB6CCEBD4CBAB230A2A91988A0086E9707528D1238831D1F77260E6A2B0C5C2D134E2B183F2619311E172313", 19: "FFFDCDF6ECAFECDC91E1CD73D2C053C0B537AAAC2093A30E7A9B065F920C4688172D7E211873280C662C0D592D144C2A183E2519301D172313", 20: "FFFDCDF6EDB1EDDD93E3CF77D5C259C5B83FB1AE279BA614859F076C9607548E113B841C257A24136F290B632C0F562C15492A193D24192F1C172313" }, url: "http://matplotlib.org/cmocean/" }, Tempo: { type: "sequential", values: { 3: "FFF6F42A937F151D44", 4: "FFF6F47DB390156D73151D44", 5: "FFF6F4A1C1A12A937F1B5968151D44", 6: "FFF6F4B6CBAF5DA786117D791C4D61151D44", 7: "FFF6F4C3D1BA7DB3902A937F156D731C465C151D44", 8: "FFF6F4CCD6C192BB9950A28413847B19626D1C4058151D44", 9: "FFF6F4D2D9C7A1C1A169AB892A937F1177771B59681B3C56151D44", 10: "FFF6F4D8DDCCACC6A97DB390479F8216877C156D731C53641B3853151D44", 11: "FFF6F4DBDECFB6CBAF8DB9975DA7862A937F117D7918656F1C4D611A3651151D44", 12: "FFF6F4DFE1D3BDCEB597BD9C6FAD8B419D821A8A7D1275761A5F6B1C495E1A3450151D44", 13: "FFF6F4E2E2D6C3D1BAA1C1A17DB39056A4852A937F12817B156D731B59681C465C19324F151D44", 14: "FFF6F4E3E3D7C8D4BEA9C5A68AB79565AA883D9C811C8C7E11797817666F1C55651C425A19314F151D44", 15: "FFF6F4E6E5DACCD6C1B0C8AB92BB9972AF8C50A2842A937F13847B13737519626D1C51631C4058192F4D151D44", 16: "FFF6F4E7E6DBCFD8C4B6CBAF9BBE9E7DB3905DA7863B9B811E8D7E117D79156D731A5D6A1C4D611B3E57192E4D151D44", 17: "FFF6F4E9E7DDD2D9C7BACDB3A1C1A186B69369AB8949A0832A937F16867C1177771768701B59681C4B5F1B3C56182D4C151D44", 18: "FFF6F4EAE8DED5DBC9BFCFB6A8C4A58FBA9774AF8D57A5853A9A811F8D7E11807A13727518646E1B56661C485D1B3A54182C4C151D44", 19: "FFF6F4EBE9DFD8DDCCC3D1BAACC6A996BC9B7DB39063A988479F822A937F16877C117A78156D7319606C1C53641C465C1B3853182B4B151D44", 20: "FFF6F4EDEAE1D9DDCDC6D3BCB1C8AC9CBF9F85B5936DAD8A54A484389981218E7E12827B1276761669711A5C6A1C50621C435A1A3753182A4B151D44" }, url: "http://matplotlib.org/cmocean/" }, Thermal: { type: "sequential", values: { 3: "042333B15F82E8FA5B", 4: "042333744992EB7958E8FA5B", 5: "042333563B9CB15F82F99242E8FA5B", 6: "04233340349F8B538DD66C6CFCA63CE8FA5B", 7: "0423332C3395744992B15F82EB7958FBB23DE8FA5B", 8: "0423331F348763419895568ACC6873F5864AFABE3FE8FA5B", 9: "04233319337C563B9C83508FB15F82DE7065F99242F9C441E8FA5B", 10: "0423331333724B379F7449929A5889C66677EB7958FB9C3EF8CB43E8FA5B", 11: "04233310326C40349F6743968B538DB15F82D66C6CF2814EFCA63CF7D045E8FA5B", 12: "0423330D316535339C5F3F997E4E909F5A88C1647AE17262F68A47FCAE3CF6D347E8FA5B", 13: "0423330C30602C3395563B9C74499290558BB15F82D06970EB7958F99242FBB23DF5D748E8FA5B", 14: "0423330B305D25348F4E389E6A459585518EA25B87BE637BDB6E68F1804FFB993FFBB93EF5D849E8FA5B", 15: "042333092F591F34874736A06341987C4D9095568AB15F82CC6873E4735FF5864AFB9F3DFABE3FF4DC4BE8FA5B", 16: "042333092E561C348240349F5C3E9A7449928B538DA35B86BD637CD66C6CEB7958F78C45FCA63CFAC140F3DD4BE8FA5B", 17: "042333082E5419337C39339E563B9C6D469483508F995889B15F82C76676DE7065EF7E52F99242FCAA3CF9C441F3DF4CE8FA5B", 18: "042333082D5216337733339B50399E6643977A4C918F548CA55C86BB627DD16A6FE5745EF3834CFA983FFCAF3CF9C842F2E14DE8FA5B", 19: "042333072C501333722C33954B379F60409974499287518E9A5889B15F82C66677DA6E69EB7958F68848FB9C3EFBB23DF8CB43F2E24EE8FA5B", 20: "042333072C4D12326F2734914635A05B3D9B6E4794804E8F92558BA65C86BA627ECE6971E07163EE7D53F88E44FBA13DFBB73DF8CD44F1E44FE8FA5B" }, url: "http://matplotlib.org/cmocean/" }, Turbid: { type: "sequential", values: { 3: "E9F6ABA1703B221F1B", 4: "E9F6ABBF9747795338221F1B", 5: "E9F6ABCAAE58A1703B634634221F1B", 6: "E9F6ABCFBC66B587408A5E3A563E30221F1B", 7: "E9F6ABD3C671BF9747A1703B7953384E392E221F1B", 8: "E9F6ABD6CC78C5A450B0803E91623A6D4B3646352B221F1B", 9: "E9F6ABD8D17ECAAE58B98C42A1703B845A39634634423329221F1B", 10: "E9F6ABDAD583CDB55FBF9747AD7D3D95653A7953385C42323E3028221F1B", 11: "E9F6ABDBD886CFBC66C4A14DB58740A1703B8A5E3A714E37563E303B2F27221F1B", 12: "E9F6ABDCDB8AD2C16CC7A752BB8F43AB7A3C97683A8158396A4935513B2F392D26221F1B", 13: "E9F6ABDDDD8DD3C671CAAE58BF9747B2833EA1703B8E603A7953386346344E392E372C25221F1B", 14: "E9F6ABDEDF8ED5C974CCB35DC39F4CB78A41A9783C99693B865B39724E375E433349372C362B24221F1B", 15: "E9F6ABDFE191D6CC78CEB761C5A450BC9144B0803EA1703B91623A7F56396D4B365A413146352B342A24221F1B", 16: "E9F6ABDFE292D7CF7BCFBC66C8A954BF9747B58740A8773C9A6A3B8A5E3A795338674835563E3044342A332A23221F1B", 17: "E9F6ABE0E394D8D17ED1BF69CAAE58C29C4AB98C42AE7D3DA1703B94653A845A39744F37634634533C2F423329322923221F1B", 18: "E9F6ABE0E495D9D380D2C26DCBB25CC4A24EBC9244B3843FA8773C9B6B3B8D603A7E56396F4C365F4333503B2E403229312822221F1B", 19: "E9F6ABE1E597DAD583D3C671CDB55FC6A651BF9747B78940AD7D3DA1703B95653A875C397953386B4A355C42324E392E3E3028302822221F1B", 20: "E9F6ABE2E798DAD784D4C873CEB862C8AA55C19B4ABA8E42B1823EA7763C9C6B3B8F613A8258397550376648355940314A382C3D30272F2721221F1B" }, url: "http://matplotlib.org/cmocean/" } }, colorbrewer: { BrBG: { type: "diverging", values: { 3: "D8B365F5F5F55AB4AC", 4: "A6611ADFC27D80CDC1018571", 5: "A6611ADFC27DF5F5F580CDC1018571", 6: "8C510AD8B365F6E8C3C7EAE55AB4AC01665E", 7: "8C510AD8B365F6E8C3F5F5F5C7EAE55AB4AC01665E", 8: "8C510ABF812DDFC27DF6E8C3C7EAE580CDC135978F01665E", 9: "8C510ABF812DDFC27DF6E8C3F5F5F5C7EAE580CDC135978F01665E", 10: "5430058C510ABF812DDFC27DF6E8C3C7EAE580CDC135978F01665E003C30", 11: "5430058C510ABF812DDFC27DF6E8C3F5F5F5C7EAE580CDC135978F01665E003C30" }, url: "https://colorbrewer2.org/" }, PRGn: { type: "diverging", values: { 3: "AF8DC3F7F7F77FBF7B", 4: "7B3294C2A5CFA6DBA0008837", 5: "7B3294C2A5CFF7F7F7A6DBA0008837", 6: "762A83AF8DC3E7D4E8D9F0D37FBF7B1B7837", 7: "762A83AF8DC3E7D4E8F7F7F7D9F0D37FBF7B1B7837", 8: "762A839970ABC2A5CFE7D4E8D9F0D3A6DBA05AAE611B7837", 9: "762A839970ABC2A5CFE7D4E8F7F7F7D9F0D3A6DBA05AAE611B7837", 10: "40004B762A839970ABC2A5CFE7D4E8D9F0D3A6DBA05AAE611B783700441B", 11: "40004B762A839970ABC2A5CFE7D4E8F7F7F7D9F0D3A6DBA05AAE611B783700441B" }, url: "https://colorbrewer2.org/" }, PiYG: { type: "diverging", values: { 3: "E9A3C9F7F7F7A1D76A", 4: "D01C8BF1B6DAB8E1864DAC26", 5: "D01C8BF1B6DAF7F7F7B8E1864DAC26", 6: "C51B7DE9A3C9FDE0EFE6F5D0A1D76A4D9221", 7: "C51B7DE9A3C9FDE0EFF7F7F7E6F5D0A1D76A4D9221", 8: "C51B7DDE77AEF1B6DAFDE0EFE6F5D0B8E1867FBC414D9221", 9: "C51B7DDE77AEF1B6DAFDE0EFF7F7F7E6F5D0B8E1867FBC414D9221", 10: "8E0152C51B7DDE77AEF1B6DAFDE0EFE6F5D0B8E1867FBC414D9221276419", 11: "8E0152C51B7DDE77AEF1B6DAFDE0EFF7F7F7E6F5D0B8E1867FBC414D9221276419" }, url: "https://colorbrewer2.org/" }, PuOr: { type: "diverging", values: { 3: "F1A340F7F7F7998EC3", 4: "E66101FDB863B2ABD25E3C99", 5: "E66101FDB863F7F7F7B2ABD25E3C99", 6: "B35806F1A340FEE0B6D8DAEB998EC3542788", 7: "B35806F1A340FEE0B6F7F7F7D8DAEB998EC3542788", 8: "B35806E08214FDB863FEE0B6D8DAEBB2ABD28073AC542788", 9: "B35806E08214FDB863FEE0B6F7F7F7D8DAEBB2ABD28073AC542788", 10: "7F3B08B35806E08214FDB863FEE0B6D8DAEBB2ABD28073AC5427882D004B", 11: "7F3B08B35806E08214FDB863FEE0B6F7F7F7D8DAEBB2ABD28073AC5427882D004B" }, url: "https://colorbrewer2.org/" }, RdBu: { type: "diverging", values: { 3: "EF8A62F7F7F767A9CF", 4: "CA0020F4A58292C5DE0571B0", 5: "CA0020F4A582F7F7F792C5DE0571B0", 6: "B2182BEF8A62FDDBC7D1E5F067A9CF2166AC", 7: "B2182BEF8A62FDDBC7F7F7F7D1E5F067A9CF2166AC", 8: "B2182BD6604DF4A582FDDBC7D1E5F092C5DE4393C32166AC", 9: "B2182BD6604DF4A582FDDBC7F7F7F7D1E5F092C5DE4393C32166AC", 10: "67001FB2182BD6604DF4A582FDDBC7D1E5F092C5DE4393C32166AC053061", 11: "67001FB2182BD6604DF4A582FDDBC7F7F7F7D1E5F092C5DE4393C32166AC053061" }, url: "https://colorbrewer2.org/" }, RdGy: { type: "diverging", values: { 3: "EF8A62FFFFFF999999", 4: "CA0020F4A582BABABA404040", 5: "CA0020F4A582FFFFFFBABABA404040", 6: "B2182BEF8A62FDDBC7E0E0E09999994D4D4D", 7: "B2182BEF8A62FDDBC7FFFFFFE0E0E09999994D4D4D", 8: "B2182BD6604DF4A582FDDBC7E0E0E0BABABA8787874D4D4D", 9: "B2182BD6604DF4A582FDDBC7FFFFFFE0E0E0BABABA8787874D4D4D", 10: "67001FB2182BD6604DF4A582FDDBC7E0E0E0BABABA8787874D4D4D1A1A1A", 11: "67001FB2182BD6604DF4A582FDDBC7FFFFFFE0E0E0BABABA8787874D4D4D1A1A1A" }, url: "https://colorbrewer2.org/" }, RdYlBu: { type: "diverging", values: { 3: "FC8D59FFFFBF91BFDB", 4: "D7191CFDAE61ABD9E92C7BB6", 5: "D7191CFDAE61FFFFBFABD9E92C7BB6", 6: "D73027FC8D59FEE090E0F3F891BFDB4575B4", 7: "D73027FC8D59FEE090FFFFBFE0F3F891BFDB4575B4", 8: "D73027F46D43FDAE61FEE090E0F3F8ABD9E974ADD14575B4", 9: "D73027F46D43FDAE61FEE090FFFFBFE0F3F8ABD9E974ADD14575B4", 10: "A50026D73027F46D43FDAE61FEE090E0F3F8ABD9E974ADD14575B4313695", 11: "A50026D73027F46D43FDAE61FEE090FFFFBFE0F3F8ABD9E974ADD14575B4313695" }, url: "https://colorbrewer2.org/" }, RdYlGn: { type: "diverging", values: { 3: "FC8D59FFFFBF91CF60", 4: "D7191CFDAE61A6D96A1A9641", 5: "D7191CFDAE61FFFFBFA6D96A1A9641", 6: "D73027FC8D59FEE08BD9EF8B91CF601A9850", 7: "D73027FC8D59FEE08BFFFFBFD9EF8B91CF601A9850", 8: "D73027F46D43FDAE61FEE08BD9EF8BA6D96A66BD631A9850", 9: "D73027F46D43FDAE61FEE08BFFFFBFD9EF8BA6D96A66BD631A9850", 10: "A50026D73027F46D43FDAE61FEE08BD9EF8BA6D96A66BD631A9850006837", 11: "A50026D73027F46D43FDAE61FEE08BFFFFBFD9EF8BA6D96A66BD631A9850006837" }, url: "https://colorbrewer2.org/" }, Spectral: { type: "diverging", values: { 3: "FC8D59FFFFBF99D594", 4: "D7191CFDAE61ABDDA42B83BA", 5: "D7191CFDAE61FFFFBFABDDA42B83BA", 6: "D53E4FFC8D59FEE08BE6F59899D5943288BD", 7: "D53E4FFC8D59FEE08BFFFFBFE6F59899D5943288BD", 8: "D53E4FF46D43FDAE61FEE08BE6F598ABDDA466C2A53288BD", 9: "D53E4FF46D43FDAE61FEE08BFFFFBFE6F598ABDDA466C2A53288BD", 10: "9E0142D53E4FF46D43FDAE61FEE08BE6F598ABDDA466C2A53288BD5E4FA2", 11: "9E0142D53E4FF46D43FDAE61FEE08BFFFFBFE6F598ABDDA466C2A53288BD5E4FA2" }, url: "https://colorbrewer2.org/" }, Accent: { type: "qualitative", values: { 3: "7FC97FBEAED4FDC086", 4: "7FC97FBEAED4FDC086FFFF99", 5: "7FC97FBEAED4FDC086FFFF99386CB0", 6: "7FC97FBEAED4FDC086FFFF99386CB0F0027F", 7: "7FC97FBEAED4FDC086FFFF99386CB0F0027FBF5B17", 8: "7FC97FBEAED4FDC086FFFF99386CB0F0027FBF5B17666666" }, url: "https://colorbrewer2.org/" }, Dark2: { type: "qualitative", values: { 3: "1B9E77D95F027570B3", 4: "1B9E77D95F027570B3E7298A", 5: "1B9E77D95F027570B3E7298A66A61E", 6: "1B9E77D95F027570B3E7298A66A61EE6AB02", 7: "1B9E77D95F027570B3E7298A66A61EE6AB02A6761D", 8: "1B9E77D95F027570B3E7298A66A61EE6AB02A6761D666666" }, url: "https://colorbrewer2.org/" }, Paired: { type: "qualitative", values: { 3: "A6CEE31F78B4B2DF8A", 4: "A6CEE31F78B4B2DF8A33A02C", 5: "A6CEE31F78B4B2DF8A33A02CFB9A99", 6: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1C", 7: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6F", 8: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00", 9: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D6", 10: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9A", 11: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9AFFFF99", 12: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9AFFFF99B15928" }, url: "https://colorbrewer2.org/" }, Pastel1: { type: "qualitative", values: { 3: "FBB4AEB3CDE3CCEBC5", 4: "FBB4AEB3CDE3CCEBC5DECBE4", 5: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6", 6: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCC", 7: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BD", 8: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BDFDDAEC", 9: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BDFDDAECF2F2F2" }, url: "https://colorbrewer2.org/" }, Pastel2: { type: "qualitative", values: { 3: "B3E2CDFDCDACCBD5E8", 4: "B3E2CDFDCDACCBD5E8F4CAE4", 5: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9", 6: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AE", 7: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AEF1E2CC", 8: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AEF1E2CCCCCCCC" }, url: "https://colorbrewer2.org/" }, Set1: { type: "qualitative", values: { 3: "E41A1C377EB84DAF4A", 4: "E41A1C377EB84DAF4A984EA3", 5: "E41A1C377EB84DAF4A984EA3FF7F00", 6: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33", 7: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628", 8: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628F781BF", 9: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628F781BF999999" }, url: "https://colorbrewer2.org/" }, Set2: { type: "qualitative", values: { 3: "66C2A5FC8D628DA0CB", 4: "66C2A5FC8D628DA0CBE78AC3", 5: "66C2A5FC8D628DA0CBE78AC3A6D854", 6: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92F", 7: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92FE5C494", 8: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92FE5C494B3B3B3" }, url: "https://colorbrewer2.org/" }, Set3: { type: "qualitative", values: { 3: "8DD3C7FFFFB3BEBADA", 4: "8DD3C7FFFFB3BEBADAFB8072", 5: "8DD3C7FFFFB3BEBADAFB807280B1D3", 6: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462", 7: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69", 8: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5", 9: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9", 10: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BD", 11: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BDCCEBC5", 12: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BDCCEBC5FFED6F" }, url: "https://colorbrewer2.org/" }, Blues: { type: "sequential", values: { 3: "DEEBF79ECAE13182BD", 4: "EFF3FFBDD7E76BAED62171B5", 5: "EFF3FFBDD7E76BAED63182BD08519C", 6: "EFF3FFC6DBEF9ECAE16BAED63182BD08519C", 7: "EFF3FFC6DBEF9ECAE16BAED64292C62171B5084594", 8: "F7FBFFDEEBF7C6DBEF9ECAE16BAED64292C62171B5084594", 9: "F7FBFFDEEBF7C6DBEF9ECAE16BAED64292C62171B508519C08306B" }, url: "https://colorbrewer2.org/" }, BuGn: { type: "sequential", values: { 3: "E5F5F999D8C92CA25F", 4: "EDF8FBB2E2E266C2A4238B45", 5: "EDF8FBB2E2E266C2A42CA25F006D2C", 6: "EDF8FBCCECE699D8C966C2A42CA25F006D2C", 7: "EDF8FBCCECE699D8C966C2A441AE76238B45005824", 8: "F7FCFDE5F5F9CCECE699D8C966C2A441AE76238B45005824", 9: "F7FCFDE5F5F9CCECE699D8C966C2A441AE76238B45006D2C00441B" }, url: "https://colorbrewer2.org/" }, BuPu: { type: "sequential", values: { 3: "E0ECF49EBCDA8856A7", 4: "EDF8FBB3CDE38C96C688419D", 5: "EDF8FBB3CDE38C96C68856A7810F7C", 6: "EDF8FBBFD3E69EBCDA8C96C68856A7810F7C", 7: "EDF8FBBFD3E69EBCDA8C96C68C6BB188419D6E016B", 8: "F7FCFDE0ECF4BFD3E69EBCDA8C96C68C6BB188419D6E016B", 9: "F7FCFDE0ECF4BFD3E69EBCDA8C96C68C6BB188419D810F7C4D004B" }, url: "https://colorbrewer2.org/" }, GnBu: { type: "sequential", values: { 3: "E0F3DBA8DDB543A2CA", 4: "F0F9E8BAE4BC7BCCC42B8CBE", 5: "F0F9E8BAE4BC7BCCC443A2CA0868AC", 6: "F0F9E8CCEBC5A8DDB57BCCC443A2CA0868AC", 7: "F0F9E8CCEBC5A8DDB57BCCC44EB3D32B8CBE08589E", 8: "F7FCF0E0F3DBCCEBC5A8DDB57BCCC44EB3D32B8CBE08589E", 9: "F7FCF0E0F3DBCCEBC5A8DDB57BCCC44EB3D32B8CBE0868AC084081" }, url: "https://colorbrewer2.org/" }, Greens: { type: "sequential", values: { 3: "E5F5E0A1D99B31A354", 4: "EDF8E9BAE4B374C476238B45", 5: "EDF8E9BAE4B374C47631A354006D2C", 6: "EDF8E9C7E9C0A1D99B74C47631A354006D2C", 7: "EDF8E9C7E9C0A1D99B74C47641AB5D238B45005A32", 8: "F7FCF5E5F5E0C7E9C0A1D99B74C47641AB5D238B45005A32", 9: "F7FCF5E5F5E0C7E9C0A1D99B74C47641AB5D238B45006D2C00441B" }, url: "https://colorbrewer2.org/" }, Greys: { type: "sequential", values: { 3: "F0F0F0BDBDBD636363", 4: "F7F7F7CCCCCC969696525252", 5: "F7F7F7CCCCCC969696636363252525", 6: "F7F7F7D9D9D9BDBDBD969696636363252525", 7: "F7F7F7D9D9D9BDBDBD969696737373525252252525", 8: "FFFFFFF0F0F0D9D9D9BDBDBD969696737373525252252525", 9: "FFFFFFF0F0F0D9D9D9BDBDBD969696737373525252252525000000" }, url: "https://colorbrewer2.org/" }, OrRd: { type: "sequential", values: { 3: "FEE8C8FDBB84E34A33", 4: "FEF0D9FDCC8AFC8D59D7301F", 5: "FEF0D9FDCC8AFC8D59E34A33B30000", 6: "FEF0D9FDD49EFDBB84FC8D59E34A33B30000", 7: "FEF0D9FDD49EFDBB84FC8D59EF6548D7301F990000", 8: "FFF7ECFEE8C8FDD49EFDBB84FC8D59EF6548D7301F990000", 9: "FFF7ECFEE8C8FDD49EFDBB84FC8D59EF6548D7301FB300007F0000" }, url: "https://colorbrewer2.org/" }, Oranges: { type: "sequential", values: { 3: "FEE6CEFDAE6BE6550D", 4: "FEEDDEFDBE85FD8D3CD94701", 5: "FEEDDEFDBE85FD8D3CE6550DA63603", 6: "FEEDDEFDD0A2FDAE6BFD8D3CE6550DA63603", 7: "FEEDDEFDD0A2FDAE6BFD8D3CF16913D948018C2D04", 8: "FFF5EBFEE6CEFDD0A2FDAE6BFD8D3CF16913D948018C2D04", 9: "FFF5EBFEE6CEFDD0A2FDAE6BFD8D3CF16913D94801A636037F2704" }, url: "https://colorbrewer2.org/" }, PuBuGn: { type: "sequential", values: { 3: "ECE2F0A6BDDB1C9099", 4: "F6EFF7BDC9E167A9CF02818A", 5: "F6EFF7BDC9E167A9CF1C9099016C59", 6: "F6EFF7D0D1E6A6BDDB67A9CF1C9099016C59", 7: "F6EFF7D0D1E6A6BDDB67A9CF3690C002818A016450", 8: "FFF7FBECE2F0D0D1E6A6BDDB67A9CF3690C002818A016450", 9: "FFF7FBECE2F0D0D1E6A6BDDB67A9CF3690C002818A016C59014636" }, url: "https://colorbrewer2.org/" }, PuBu: { type: "sequential", values: { 3: "ECE7F2A6BDDB2B8CBE", 4: "F1EEF6BDC9E174A9CF0570B0", 5: "F1EEF6BDC9E174A9CF2B8CBE045A8D", 6: "F1EEF6D0D1E6A6BDDB74A9CF2B8CBE045A8D", 7: "F1EEF6D0D1E6A6BDDB74A9CF3690C00570B0034E7B", 8: "FFF7FBECE7F2D0D1E6A6BDDB74A9CF3690C00570B0034E7B", 9: "FFF7FBECE7F2D0D1E6A6BDDB74A9CF3690C00570B0045A8D023858" }, url: "https://colorbrewer2.org/" }, PuRd: { type: "sequential", values: { 3: "E7E1EFC994C7DD1C77", 4: "F1EEF6D7B5D8DF65B0CE1256", 5: "F1EEF6D7B5D8DF65B0DD1C77980043", 6: "F1EEF6D4B9DAC994C7DF65B0DD1C77980043", 7: "F1EEF6D4B9DAC994C7DF65B0E7298ACE125691003F", 8: "F7F4F9E7E1EFD4B9DAC994C7DF65B0E7298ACE125691003F", 9: "F7F4F9E7E1EFD4B9DAC994C7DF65B0E7298ACE125698004367001F" }, url: "https://colorbrewer2.org/" }, Purples: { type: "sequential", values: { 3: "EFEDF5BCBDDC756BB1", 4: "F2F0F7CBC9E29E9AC86A51A3", 5: "F2F0F7CBC9E29E9AC8756BB154278F", 6: "F2F0F7DADAEBBCBDDC9E9AC8756BB154278F", 7: "F2F0F7DADAEBBCBDDC9E9AC8807DBA6A51A34A1486", 8: "FCFBFDEFEDF5DADAEBBCBDDC9E9AC8807DBA6A51A34A1486", 9: "FCFBFDEFEDF5DADAEBBCBDDC9E9AC8807DBA6A51A354278F3F007D" }, url: "https://colorbrewer2.org/" }, RdPu: { type: "sequential", values: { 3: "FDE0DDFA9FB5C51B8A", 4: "FEEBE2FBB4B9F768A1AE017E", 5: "FEEBE2FBB4B9F768A1C51B8A7A0177", 6: "FEEBE2FCC5C0FA9FB5F768A1C51B8A7A0177", 7: "FEEBE2FCC5C0FA9FB5F768A1DD3497AE017E7A0177", 8: "FFF7F3FDE0DDFCC5C0FA9FB5F768A1DD3497AE017E7A0177", 9: "FFF7F3FDE0DDFCC5C0FA9FB5F768A1DD3497AE017E7A017749006A" }, url: "https://colorbrewer2.org/" }, Reds: { type: "sequential", values: { 3: "FEE0D2FC9272DE2D26", 4: "FEE5D9FCAE91FB6A4ACB181D", 5: "FEE5D9FCAE91FB6A4ADE2D26A50F15", 6: "FEE5D9FCBBA1FC9272FB6A4ADE2D26A50F15", 7: "FEE5D9FCBBA1FC9272FB6A4AEF3B2CCB181D99000D", 8: "FFF5F0FEE0D2FCBBA1FC9272FB6A4AEF3B2CCB181D99000D", 9: "FFF5F0FEE0D2FCBBA1FC9272FB6A4AEF3B2CCB181DA50F1567000D" }, url: "https://colorbrewer2.org/" }, YlGnBu: { type: "sequential", values: { 3: "EDF8B17FCDBB2C7FB8", 4: "FFFFCCA1DAB441B6C4225EA8", 5: "FFFFCCA1DAB441B6C42C7FB8253494", 6: "FFFFCCC7E9B47FCDBB41B6C42C7FB8253494", 7: "FFFFCCC7E9B47FCDBB41B6C41D91C0225EA80C2C84", 8: "FFFFD9EDF8B1C7E9B47FCDBB41B6C41D91C0225EA80C2C84", 9: "FFFFD9EDF8B1C7E9B47FCDBB41B6C41D91C0225EA8253494081D58" }, url: "https://colorbrewer2.org/" }, YlGn: { type: "sequential", values: { 3: "F7FCB9ADDD8E31A354", 4: "FFFFCCC2E69978C679238443", 5: "FFFFCCC2E69978C67931A354006837", 6: "FFFFCCD9F0A3ADDD8E78C67931A354006837", 7: "FFFFCCD9F0A3ADDD8E78C67941AB5D238443005A32", 8: "FFFFE5F7FCB9D9F0A3ADDD8E78C67941AB5D238443005A32", 9: "FFFFE5F7FCB9D9F0A3ADDD8E78C67941AB5D238443006837004529" }, url: "https://colorbrewer2.org/" }, YlOrBr: { type: "sequential", values: { 3: "FFF7BCFEC44FD95F0E", 4: "FFFFD4FED98EFE9929CC4C02", 5: "FFFFD4FED98EFE9929D95F0E993404", 6: "FFFFD4FEE391FEC44FFE9929D95F0E993404", 7: "FFFFD4FEE391FEC44FFE9929EC7014CC4C028C2D04", 8: "FFFFE5FFF7BCFEE391FEC44FFE9929EC7014CC4C028C2D04", 9: "FFFFE5FFF7BCFEE391FEC44FFE9929EC7014CC4C02993404662506" }, url: "https://colorbrewer2.org/" }, YlOrRd: { type: "sequential", values: { 3: "FFEDA0FEB24CF03B20", 4: "FFFFB2FECC5CFD8D3CE31A1C", 5: "FFFFB2FECC5CFD8D3CF03B20BD0026", 6: "FFFFB2FED976FEB24CFD8D3CF03B20BD0026", 7: "FFFFB2FED976FEB24CFD8D3CFC4E2AE31A1CB10026", 8: "FFFFCCFFEDA0FED976FEB24CFD8D3CFC4E2AE31A1CB10026", 9: "FFFFCCFFEDA0FED976FEB24CFD8D3CFC4E2AE31A1CBD0026800026" }, url: "https://colorbrewer2.org/" } }, lightbartlein: { BlueDarkOrange12: { type: "diverging", values: { 2: "1E8E99993F00", 3: "1E8E99FFE5CC993F00", 4: "1E8E99CCFEFFFFCA99993F00", 5: "1E8E99B2FCFFFFE5CCFFAD65993F00", 6: "1E8E9999F9FFCCFEFFFFCA99FF8E32993F00", 7: "1E8E9999F9FFCCFEFFFFE5CCFFCA99FF8E32993F00", 8: "1E8E9999F9FFB2FCFFE5FFFFFFE5CCFFAD65FF8E32993F00", 9: "1E8E9951C3CCB2FCFFCCFEFFFFE5CCFFCA99FFAD65CC5800993F00", 10: "1E8E9951C3CC99F9FFCCFEFFE5FFFFFFE5CCFFCA99FF8E32CC5800993F00", 11: "1E8E9951C3CC99F9FFB2FCFFCCFEFFFFE5CCFFCA99FFAD65FF8E32CC5800993F00", 12: "1E8E9951C3CC99F9FFB2FCFFCCFEFFE5FFFFFFE5CCFFCA99FFAD65FF8E32CC5800993F00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkOrange18: { type: "diverging", values: { 2: "006666662700", 3: "006666CBFFFF662700", 4: "00666699FFFFFFCA99662700", 5: "00666633FFFFCBFFFFFF8E33662700", 6: "00666600FFFFB2FFFFFFE5CBFF6E00662700", 7: "00666600FFFF99FFFFCBFFFFFFCA99FF6E00662700", 8: "00666600CCCC65FFFFB2FFFFFFE5CBFFAD65CC5500662700", 9: "00666600CCCC33FFFF99FFFFCBFFFFFFCA99FF8E33CC5500662700", 10: "00666600CCCC33FFFF99FFFFCBFFFFE5FFFFFFCA99FF8E33CC5500662700", 11: "00666600CCCC00FFFF65FFFFB2FFFFCBFFFFFFE5CBFFAD65FF6E00CC5500662700", 12: "00666600CCCC00FFFF65FFFF99FFFFCBFFFFE5FFFFFFCA99FFAD65FF6E00CC5500662700", 13: "00666600999900FFFF33FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FF8E33FF6E00993D00662700", 14: "00666600999900FFFF33FFFF65FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFAD65FF8E33FF6E00993D00662700", 15: "00666600999900CCCC33FFFF65FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FFAD65FF8E33CC5500993D00662700", 16: "00666600999900CCCC00FFFF65FFFF99FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFCA99FFAD65FF6E00CC5500993D00662700", 17: "00666600999900CCCC00FFFF33FFFF65FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FFAD65FF8E33FF6E00CC5500993D00662700", 18: "00666600999900CCCC00FFFF33FFFF65FFFF99FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFCA99FFAD65FF8E33FF6E00CC5500993D00662700" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkRed12: { type: "diverging", values: { 2: "290AD8A50021", 3: "290AD8FFFFBFA50021", 4: "290AD8AAF7FFFFE099A50021", 5: "290AD872D9FFFFFFBFFFAD72A50021", 6: "290AD83FA0FFAAF7FFFFE099F76D5EA50021", 7: "290AD83FA0FFAAF7FFFFFFBFFFE099F76D5EA50021", 8: "290AD83FA0FF72D9FFE0FFFFFFFFBFFFAD72F76D5EA50021", 9: "290AD8264DFF72D9FFAAF7FFFFFFBFFFE099FFAD72D82632A50021", 10: "290AD8264DFF3FA0FFAAF7FFE0FFFFFFFFBFFFE099F76D5ED82632A50021", 11: "290AD8264DFF3FA0FF72D9FFAAF7FFFFFFBFFFE099FFAD72F76D5ED82632A50021", 12: "290AD8264DFF3FA0FF72D9FFAAF7FFE0FFFFFFFFBFFFE099FFAD72F76D5ED82632A50021" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkRed18: { type: "diverging", values: { 2: "2400D8A50021", 3: "2400D8EAFFFFA50021", 4: "2400D899EAFFFFD699A50021", 5: "2400D856B0FFEAFFFFFF7856A50021", 6: "2400D83D87FFBCF9FFFFF1BCFF3D3DA50021", 7: "2400D83D87FF99EAFFEAFFFFFFD699FF3D3DA50021", 8: "2400D82857FF75D3FFBCF9FFFFF1BCFFAC75F72735A50021", 9: "2400D82857FF56B0FF99EAFFEAFFFFFFD699FF7856F72735A50021", 10: "2400D82857FF56B0FF99EAFFEAFFFFFFFFEAFFD699FF7856F72735A50021", 11: "2400D82857FF3D87FF75D3FFBCF9FFEAFFFFFFF1BCFFAC75FF3D3DF72735A50021", 12: "2400D82857FF3D87FF75D3FF99EAFFEAFFFFFFFFEAFFD699FFAC75FF3D3DF72735A50021", 13: "2400D8181CF73D87FF56B0FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FF7856FF3D3DD8152FA50021", 14: "2400D8181CF73D87FF56B0FF75D3FFBCF9FFEAFFFFFFFFEAFFF1BCFFAC75FF7856FF3D3DD8152FA50021", 15: "2400D8181CF72857FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FFAC75FF7856F72735D8152FA50021", 16: "2400D8181CF72857FF3D87FF75D3FF99EAFFBCF9FFEAFFFFFFFFEAFFF1BCFFD699FFAC75FF3D3DF72735D8152FA50021", 17: "2400D8181CF72857FF3D87FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FFAC75FF7856FF3D3DF72735D8152FA50021", 18: "2400D8181CF72857FF3D87FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFFFEAFFF1BCFFD699FFAC75FF7856FF3D3DF72735D8152FA50021" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGray: { type: "diverging", values: { 2: "0099CC333333", 3: "0099CCE5E5E5333333", 4: "0099CC99FFFF999999333333", 5: "0099CC99FFFFE5E5E5999999333333", 6: "0099CC66E5FFCCFFFFE5E5E5666666333333", 7: "0099CC66E5FF99FFFFE5E5E5999999666666333333", 8: "0099CC66E5FF99FFFFCCFFFFE5E5E5999999666666333333" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGreen: { type: "diverging", values: { 2: "0000FF00FF00", 3: "0000FFE5E5FF00FF00", 4: "0000FFB2B2FFB2FFB200FF00", 5: "0000FF9999FFE5E5FF99FF9900FF00", 6: "0000FF9999FFCBCBFFCBFFCB99FF9900FF00", 7: "0000FF6565FFB2B2FFE5E5FFB2FFB265FF6500FF00", 8: "0000FF6565FFB2B2FFE5E5FFE5FFE5B2FFB265FF6500FF00", 9: "0000FF6565FF9999FFCBCBFFE5E5FFCBFFCB99FF9965FF6500FF00", 10: "0000FF3333FF9999FFB2B2FFE5E5FFE5FFE5B2FFB299FF9933FF3300FF00", 11: "0000FF3333FF9999FFB2B2FFCBCBFFE5E5FFCBFFCBB2FFB299FF9933FF3300FF00", 12: "0000FF3333FF6565FFB2B2FFCBCBFFE5E5FFE5FFE5CBFFCBB2FFB265FF6533FF3300FF00", 13: "0000FF3333FF6565FF9999FFB2B2FFCBCBFFE5E5FFCBFFCBB2FFB299FF9965FF6533FF3300FF00", 14: "0000FF3333FF6565FF9999FFB2B2FFCBCBFFE5E5FFE5FFE5CBFFCBB2FFB299FF9965FF6533FF3300FF00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGrey: { type: "diverging", values: { 2: "0099CC333333", 3: "0099CCE5E5E5333333", 4: "0099CC99FFFF999999333333", 5: "0099CC99FFFFE5E5E5999999333333", 6: "0099CC66E5FFCCFFFFE5E5E5666666333333", 7: "0099CC66E5FF99FFFFE5E5E5999999666666333333", 8: "0099CC66E5FF99FFFFCCFFFFE5E5E5999999666666333333" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange10: { type: "diverging", values: { 2: "0054FFFF5500", 3: "0054FFCCFFFFFF5500", 4: "0054FF99EDFFFFEE99FF5500", 5: "0054FF65CCFFCCFFFFFFCC65FF5500", 6: "0054FF65CCFFCCFFFFFFFFCCFFCC65FF5500", 7: "0054FF65CCFF99EDFFCCFFFFFFEE99FF9932FF5500", 8: "0054FF3299FF99EDFFCCFFFFFFFFCCFFEE99FF9932FF5500", 9: "0054FF3299FF65CCFF99EDFFCCFFFFFFEE99FFCC65FF9932FF5500", 10: "0054FF3299FF65CCFF99EDFFCCFFFFFFFFCCFFEE99FFCC65FF9932FF5500" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange12: { type: "diverging", values: { 2: "002AFFFF2A00", 3: "002AFFFFFFCCFF2A00", 4: "002AFF65CCFFFFEE99FF2A00", 5: "002AFF99EDFFFFFFCCFFCC65FF2A00", 6: "002AFF3299FF65CCFFFFEE99FF9932FF2A00", 7: "002AFF3299FF65CCFFFFFFCCFFEE99FF9932FF2A00", 8: "002AFF3299FF99EDFFCCFFFFFFFFCCFFCC65FF9932FF2A00", 9: "002AFF1965FF99EDFF65CCFFFFFFCCFFEE99FFCC65FF6619FF2A00", 10: "002AFF1965FF3299FF65CCFFCCFFFFFFFFCCFFEE99FF9932FF6619FF2A00", 11: "002AFF1965FF3299FF99EDFF65CCFFFFFFCCFFEE99FFCC65FF9932FF6619FF2A00", 12: "002AFF1965FF3299FF99EDFF65CCFFCCFFFFFFFFCCFFEE99FFCC65FF9932FF6619FF2A00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange8: { type: "diverging", values: { 2: "007FFFFF7F00", 3: "007FFFFFFFCCFF7F00", 4: "007FFF99EDFFFFEE99FF7F00", 5: "007FFF99EDFFFFFFCCFFEE99FF7F00", 6: "007FFF4CC3FFCCFFFFFFFFCCFFC34CFF7F00", 7: "007FFF4CC3FF99EDFFFFFFCCFFEE99FFC34CFF7F00", 8: "007FFF4CC3FF99EDFFCCFFFFFFFFCCFFEE99FFC34CFF7F00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrangeRed: { type: "diverging", values: { 2: "075AFFFF0000", 3: "075AFFF7F9FFFF0000", 4: "075AFFBFD4FFFFFF00FF0000", 5: "075AFF8CB2FFF7F9FFFFCC00FF0000", 6: "075AFF8CB2FFE5EEFFFFFF99FFCC00FF0000", 7: "075AFF5990FFBFD4FFF7F9FFFFFF00FF9900FF0000", 8: "075AFF5990FFBFD4FFF7F9FFFFFFCCFFFF00FF9900FF0000", 9: "075AFF5990FF8CB2FFE5EEFFF7F9FFFFFF99FFCC00FF9900FF0000", 10: "075AFF3276FF8CB2FFBFD4FFF7F9FFFFFFCCFFFF00FFCC00FF6600FF0000", 11: "075AFF3276FF8CB2FFBFD4FFE5EEFFF7F9FFFFFF99FFFF00FFCC00FF6600FF0000", 12: "075AFF3276FF5990FFBFD4FFE5EEFFF7F9FFFFFFCCFFFF99FFFF00FF9900FF6600FF0000", 13: "075AFF3276FF5990FF8CB2FFBFD4FFE5EEFFF7F9FFFFFF99FFFF00FFCC00FF9900FF6600FF0000", 14: "075AFF3276FF5990FF8CB2FFBFD4FFE5EEFFF7F9FFFFFFCCFFFF99FFFF00FFCC00FF9900FF6600FF0000" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BrownBlue10: { type: "diverging", values: { 2: "662F0000A9CC", 3: "662F00F2DACD00A9CC", 4: "662F00D8AF9799F8FF00A9CC", 5: "662F00CC9B7AF2DACD65EFFF00A9CC", 6: "662F00CC9B7AF2DACDCCFDFF65EFFF00A9CC", 7: "662F00CC9B7AD8AF97F2DACD99F8FF32E3FF00A9CC", 8: "662F00996035D8AF97F2DACDCCFDFF99F8FF32E3FF00A9CC", 9: "662F00996035CC9B7AD8AF97F2DACD99F8FF65EFFF32E3FF00A9CC", 10: "662F00996035CC9B7AD8AF97F2DACDCCFDFF99F8FF65EFFF32E3FF00A9CC" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BrownBlue12: { type: "diverging", values: { 2: "331900007A99", 3: "33190004FDFF007A99", 4: "33190010AF9735F8FF007A99", 5: "331900049B7A04FDFF01EFFF007A99", 6: "33190035603510AF9735F8FF32E3FF007A99", 7: "33190035603510AF9704FDFF35F8FF32E3FF007A99", 8: "331900356035049B7A2ADACD04FDFF01EFFF32E3FF007A99", 9: "331900022F00049B7A10AF9704FDFF35F8FF01EFFF00A9CC007A99", 10: "331900022F0035603510AF972ADACD04FDFF35F8FF32E3FF00A9CC007A99", 11: "331900022F00356035049B7A10AF9704FDFF35F8FF01EFFF32E3FF00A9CC007A99", 12: "331900022F00356035049B7A10AF972ADACD04FDFF35F8FF01EFFF32E3FF00A9CC007A99" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, GreenMagenta: { type: "diverging", values: { 2: "005000500050", 3: "005000FFF1FF500050", 4: "00500086FF86FF86FF500050", 5: "00500050FF50FFF1FFFF50FF500050", 6: "00500000F100BBFFBBFFBBFFF100F1500050", 7: "00500000BB0086FF86FFF1FFFF86FFF100F1500050", 8: "00500000BB0050FF50BBFFBBFFBBFFFF50FFBB00BB500050", 9: "00500000BB0050FF50BBFFBBFFF1FFFFBBFFFF50FFBB00BB500050", 10: "00500000BB0000F10086FF86FFFFFFFFF1FFFF86FFF100F1BB00BB500050", 11: "00500000BB0000F10050FF50BBFFBBFFF1FFFFBBFFFF86FFF100F1860086500050", 12: "00500000860000F10050FF5086FF86FFFFFFFFF1FFFF86FFFF50FFF100F1860086500050", 13: "00500000860000BB0050FF5086FF86BBFFBBFFF1FFFFBBFFFF86FFFF50FFF100F1860086500050", 14: "00500000860000BB0000F10086FF86BBFFBBFFFFFFFFF1FFFFBBFFFF86FFF100F1BB00BB860086500050", 15: "00500000860000BB0000F10050FF5086FF86BBFFBBFFF1FFFFBBFFFF86FFFF50FFF100F1BB00BB860086500050", 16: "00500000860000BB0000F10050FF5086FF86BBFFBBFFFFFFFFF1FFFFBBFFFF86FFFF50FFF100F1BB00BB860086500050" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, RedYellowBlue: { type: "diverging", values: { 2: "A50021264CFF", 3: "A50021FFFFBF264CFF", 4: "A50021FFAD72AAF7FF264CFF", 5: "A50021F76D5EFFFFBF72D8FF264CFF", 6: "A50021F76D5EFFE099E0FFFF72D8FF264CFF", 7: "A50021F76D5EFFAD72FFFFBFAAF7FF72D8FF264CFF", 8: "A50021D82632FFAD72FFE099E0FFFFAAF7FF3FA0FF264CFF", 9: "A50021D82632F76D5EFFE099FFFFBFE0FFFF72D8FF3FA0FF264CFF", 10: "A50021D82632F76D5EFFAD72FFE099E0FFFFAAF7FF72D8FF3FA0FF264CFF", 11: "A50021D82632F76D5EFFAD72FFE099FFFFBFE0FFFFAAF7FF72D8FF3FA0FF264CFF" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, Blues10: { type: "sequential", values: { 2: "E5FFFF003FFF", 3: "E5FFFF7FD4FF003FFF", 4: "E5FFFF99E5FF4CA5FF003FFF", 5: "E5FFFFB2F2FF7FD4FF3288FF003FFF", 6: "E5FFFFB2F2FF7FD4FF65BFFF3288FF003FFF", 7: "E5FFFFB2F2FF99E5FF7FD4FF4CA5FF1965FF003FFF", 8: "E5FFFFCCFAFF99E5FF7FD4FF65BFFF4CA5FF1965FF003FFF", 9: "E5FFFFCCFAFFB2F2FF99E5FF7FD4FF4CA5FF3288FF1965FF003FFF", 10: "E5FFFFCCFAFFB2F2FF99E5FF7FD4FF65BFFF4CA5FF3288FF1965FF003FFF" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, Blues7: { type: "sequential", values: { 2: "FFFFFF007A99", 3: "FFFFFF66EFFF007A99", 4: "FFFFFF99F8FF33E3FF007A99", 5: "FFFFFF99F8FF66EFFF33E3FF007A99", 6: "FFFFFFCCFDFF99F8FF33E3FF00AACC007A99", 7: "FFFFFFCCFDFF99F8FF66EFFF33E3FF00AACC007A99" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" } }, matplotlib: { Inferno: { type: "sequential", values: { 3: "000004BC3754FCFFA4", 4: "000004781C6DED6925FCFFA4", 5: "00000457106EBC3754F98C0AFCFFA4", 6: "000004420A68932667DD513AFCA50AFCFFA4", 7: "000004320A5E781C6DBC3754ED6925FCB418FCFFA4", 8: "000004280B5365156E9F2A63D44842F57D15FAC228FCFFA4", 9: "000004210C4A57106E8A226ABC3754E35933F98C0AF9C932FCFFA4", 10: "0000041B0C414C0C6B781C6DA52C60CF4446ED6925FB9906F7D13DFCFFA4", 11: "000004180C3C420A686A176E932667BC3754DD513AF3761BFCA50AF6D746FCFFA4", 12: "000004140B3439096361136E85216BA92E5ECB4149E65D2FF78212FCAE12F5DB4CFCFFA4", 13: "000004110A30320A5E57106E781C6D9A2865BC3754D84C3EED6925F98C0AFCB418F4DF53FCFFA4", 14: "00000410092D2D0B594F0D6C6D186E8D2369AD305DC83F4BE15635F2741CFB9606FBBC21F4E156FCFFA4", 15: "0000040D0829280B53490B6A65156E82206C9F2A63BC3754D44842E8602DF57D15FB9D07FAC228F3E55DFCFFA4", 16: "0000040C0826240C4F420A685D126E781C6D932667AE305CC73E4CDD513AED6925F8850FFCA50AFAC62DF2E661FCFFA4", 17: "0000040B0724210C4A3D096557106E71196E8A226AA32C61BC3754D04545E35933F1711FF98C0AFCAA0FF9C932F2E865FCFFA4", 18: "0000040A07221E0C45380962510E6C69166E801F6C982766B0315BC63D4DD94D3DE9612BF47918FA9407FCB014F8CD37F2EA69FCFFA4", 19: "00000409061F1B0C41320A5E4C0C6B62146E781C6D8F2469A52C60BC3754CF4446E05536ED6925F68013FB9906FCB418F7D13DF1EC6DFCFFA4", 20: "00000408051D190C3E2F0A5B470B6A5C126E721A6E87216B9B2964B1325AC43C4ED74B3FE55C30F06F20F8870EFC9F07FBBA1FF7D340F1ED71FCFFA4" }, url: "https://bids.github.io/colormap" }, Magma: { type: "sequential", values: { 3: "000004B73779FCFDBF", 4: "000004721F81F1605DFCFDBF", 5: "00000451127CB73779FB8761FCFDBF", 6: "0000043B0F708C2981DE4968FE9F6DFCFDBF", 7: "0000042C115F721F81B73779F1605DFEAE77FCFDBF", 8: "0000042211505F187F982D80D3436EF8765CFEBB81FCFDBF", 9: "0000041D114751127C832681B73779E55064FB8761FEC287FCFDBF", 10: "000004180F3D451077721F819E2F7FCD4071F1605DFD9467FECA8DFCFDBF", 11: "000004150E383B0F70641A808C2981B73779DE4968F66E5CFE9F6DFECF92FCFDBF", 12: "000004120D313310675A167E7E2482A3307EC83E73E95462F97B5DFEA973FED395FCFDBF", 13: "000004100B2D2C115F51127C721F81932B80B73779D8456CF1605DFB8761FEAE77FED799FCFDBF", 14: "0000040E0B2B271258491078671B80862781A6317DC53C74E34E65F66C5CFC9065FEB67CFED89AFCFDBF", 15: "0000040C0926221150420F755F187F7B2382982D80B73779D3436EEB5760F8765CFD9869FEBB81FDDC9EFCFDBF", 16: "0000040B092420114B3B0F7057157E721F818C2981A8327DC43C75DE4968F1605DFA7F5EFE9F6DFEBF84FDDEA0FCFDBF", 17: "0000040A08221D114736106B51127C6A1C818326819C2E7FB73779CF4070E55064F4695CFB8761FEA571FEC287FDE0A1FCFDBF", 18: "0000040907201A10423111654A1079621980792282912B81AA337DC23B75D9466BEC5860F7725CFC8E64FEAA74FEC68AFDE2A3FCFDBF", 19: "00000408071E180F3D2C115F4510775C167F721F818827819E2F7FB73779CD4071E24D66F1605DF9795DFD9467FEAE77FECA8DFDE3A5FCFDBF", 20: "00000407061C160F3B29115A400F7456147D6B1D81802582942C80AB337CC03A76D6456CE85362F4675CFA815FFD9A6AFEB47BFECC8FFDE5A7FCFDBF" }, url: "https://bids.github.io/colormap" }, Plasma: { type: "sequential", values: { 3: "0D0887CC4778F0F921", 4: "0D08879C179EED7953F0F921", 5: "0D08877E03A8CC4778F89441F0F921", 6: "0D08876A00A8B12A90E16462FCA636F0F921", 7: "0D08875C01A69C179ECC4778ED7953FDB22FF0F921", 8: "0D08875302A38B0AA5B83289DB5C68F48849FEBD2AF0F921", 9: "0D08874C02A17E03A8AA2395CC4778E56B5DF89441FDC328F0F921", 10: "0D088746039F7401A89C179EBD3786D8576BED7953FA9E3BFDCA26F0F921", 11: "0D088743039E6A00A88F0DA4B12A90CC4778E16462F1834CFCA636FCCE25F0F921", 12: "0D08873E049C6300A78707A6A62098C03A83D5546EE76F5AF58C46FDAE32FCD225F0F921", 13: "0D08873A049A5C01A67E03A89C179EB52F8CCC4778DE5F65ED7953F89441FDB22FFBD524F0F921", 14: "0D088738049A5801A47701A8920FA3AC2694C23C81D45270E4695EF1814DFA9B3DFEB82CFBD724F0F921", 15: "0D08873504985302A37100A88B0AA5A31E9AB83289CC4778DB5C68E97158F48849FBA139FEBD2AFADA24F0F921", 16: "0D08873305975002A26A00A88405A79C179EB12A90C33D80D35171E16462ED7953F68F44FCA636FEC029F9DC24F0F921", 17: "0D08873105974C02A16600A77E03A89511A1AA2395BC3587CC4778D9586AE56B5DF07F4FF89441FDAB33FDC328F9DD25F0F921", 18: "0D08872F05964903A06100A77801A88E0CA4A21D9AB42E8DC43E7FD24F71DE6164E97257F3854BF99A3EFDAF31FDC627F8DF25F0F921", 19: "0D08872E059546039F5C01A67401A88808A69C179EAD2793BD3786CC4778D8576BE3685FED7953F58B47FA9E3BFDB22FFDCA26F8E125F0F921", 20: "0D08872C059444039E5901A56F00A88305A79613A1A72197B6308BC5407ED14E72DD5E66E76E5BEF7E50F79044FBA238FEB72DFDCB26F7E225F0F921" }, url: "https://bids.github.io/colormap" }, Viridis: { type: "sequential", values: { 3: "44015421918CFDE725", 4: "44015431688E35B779FDE725", 5: "4401543B528B21918C5CC863FDE725", 6: "4401544144872A788E22A8847AD151FDE725", 7: "44015444398331688E21918C35B7798ED645FDE725", 8: "44015446327E365C8D277F8E1FA1874AC16DA0DA39FDE725", 9: "440154472D7B3B528B2C728E21918C27AD815CC863AADC32FDE725", 10: "4401544828783E4A8931688E26828E1F9E8935B7796CCD5AB5DE2BFDE725", 11: "440154482576414487355F8D2A788E21918C22A88442BE717AD151BDDF26FDE725", 12: "440154482173433E8538598C2D708E25858E1E9B8A2AB07F50C46A86D549C2DF23FDE725", 13: "440154481F704439833B528B31688E287C8E21918C20A48635B7795CC8638ED645C8E020FDE725", 14: "440154481D6F4535813D4D8A34618D2B748E24878E1F998A25AC8240BD7267CC5C98D83ECAE11FFDE725", 15: "440154481B6D46327E3F4889365C8D2E6E8E277F8E21918C1FA1872DB27D4AC16D70CF57A0DA39D0E11CFDE725", 16: "440154481A6C472F7D41448739568C31688E2A788E23888E1F988B22A88435B77954C5687AD151A5DB36D2E21BFDE725", 17: "44015448186A472D7B4240863B528B33638D2C728E26828E21918C1F9F8827AD813DBC745CC86381D34DAADC32D5E21AFDE725", 18: "440154481769472A7A433D843D4E8A355E8D2E6D8E297B8E23898E1F978B21A5852EB37C46C06F65CB5E89D548B0DD2FD8E219FDE725", 19: "4401544816684828784439833E4A89375A8C31688E2B758E26828E21918C1F9E8925AB8235B7794EC36B6CCD5A8ED645B5DE2BDAE319FDE725", 20: "4401544814674826774537813F478839558C32648E2D718E287D8E238A8D1F968B20A38629AF7F3BBB7556C66773D05695D840B8DE29DDE318FDE725" }, url: "https://bids.github.io/colormap" } }, mycarta: { Cube1: { type: "sequential", values: { 3: "78008549D07EF9965B", 4: "7800854C9ED985EB50F9965B", 5: "780085627DF649D07EB6EC57F9965B", 6: "7800856E62FD38B6B85CE349CCEC5AF9965B", 7: "7800857751F24C9ED949D07E85EB50D5E65BF9965B", 8: "7800857D45E4598CEC3BBEA956DE52A2EC55DCDD5CF9965B", 9: "7800857F3BDC627DF63CAEC549D07E68E74AB6EC57E0D75CF9965B", 10: "780085812DD2686FFB4C9ED93EC2A053DB5D85EB50C3EC59E6D25DF9965B", 11: "7800858126CD6E62FD5691E838B6B849D07E5CE34998EC53CCEC5AEACD5DF9965B", 12: "780085821CC57359F95C87F040AACA41C59A51D8656FE84CA9EC56D2EA5BEDC95EF9965B", 13: "7800858316C07751F2627DF64C9ED939BBB049D07E58E14C85EB50B6EC57D5E65BEFC65EF9965B", 14: "7800858313BD7A4BEB6673FA5394E53AB1C043C79550D76A63E64A96EC53BFEC59D9E15BF0C45EF9965B", 15: "780085830FB87D45E46A6BFC598CEC43A7CE3BBEA949D07E56DE5275E94DA2EC55C6EC59DCDD5CF2C05EF9965B", 16: "780085830DB57E40E06E62FD5E84F24C9ED938B6B843C8934FD66C5CE34985EB50ADEC56CCEC5ADEDA5CF3BE5EF9965B", 17: "780085830CB27F3BDC715DFC627DF65197E23CAEC53EC1A349D07E54DC5A68E74A91EB52B6EC57D0EB5AE0D75CF3BC5EF9965B", 18: "780085830BB08034D77457F76675F9578FEA45A5D039B9B244C9914ED56F59E14B78EA4E9DEC54BDEC58D3E95BE3D55DF4BA5EF9965B", 19: "780085830AAD812DD27751F2686FFB5B89EF4C9ED939B2BE3EC2A049D07E53DB5D61E54985EB50A7EC55C3EC59D5E65BE6D25DF4B85EF9965B", 20: "7800858209AA812AD0794DED6B68FD5F82F35098E03FABC93ABCAE45CA8E4DD47157E04E6DE84B8EEB52AFEC57C8EC59D8E25BE7D05DF5B65EF9965B" }, url: "https://mycarta.wordpress.com/color-palettes/" }, CubeYF: { type: "sequential", values: { 3: "7B029039BAB1D1EB5B", 4: "7B02905A89EE51D866D1EB5B", 5: "7B02906A6AFE39BAB160E547D1EB5B", 6: "7B02907357F84C9ED947CD8576E94DD1EB5B", 7: "7B02907D48EA5A89EE39BAB151D8668AEB51D1EB5B", 8: "7B0290813EDF6577FB45A7D044C99159E0519AEC54D1EB5B", 9: "7B02908337D86A6AFE5197E039BAB14BD27A60E547A3EC55D1EB5B", 10: "7B0290842FD06F5FFC5A89EE40ACC841C59951D8666CE74AA8EC56D1EB5B", 11: "7B0290852BCC7357F8627CF84C9ED939BAB147CD8558DE5776E94DADEC56D1EB5B", 12: "7B02908624C67850F16773FD5493E43EAFC43FC29F4CD3745BE24E84EB50B0EC57D1EB5B", 13: "7B0290861FC27D48EA6A6AFE5A89EE48A3D439BAB146CB8C51D86660E5478AEB51B4EC57D1EB5B", 14: "7B0290861DC07F44E46E62FD6180F54F99DE3CB1C13EC1A349D07E57DD5868E74993EC53B4EC57D1EB5B", 15: "7B02908618BC813EDF715CFC6577FB5590E745A7D039BAB144C9914DD47159E0516FE84B9AEC54B7EC58D1EB5B", 16: "7B02908615BA823ADB7357F86870FE5A89EE4C9ED93CB2BF3DC0A447CD8551D8665CE34A76E94D9FEC55B8EC58D1EB5B", 17: "7B02908613B88337D87653F46A6AFE5F83F35197E041ABCA39BAB142C6964BD27A55DC5C60E5477EE94FA3EC55B8EC58D1EB5B", 18: "7B02908611B58433D4794EF06D64FD637AF9568FE849A1D63BB3BE3DC0A646CB8A4ED56F59DF5467E64986EB50A5EC55BBEC58D1EB5B", 19: "7B0290850FB3842FD07D48EA6F5FFC6774FD5A89EE4E9ADD40ACC839BAB141C59949D08051D8665AE14F6CE74A8AEB51A8EC56BDEC58D1EB5B", 20: "7B0290850DB1852DCE7F45E6715BFB686EFF5E84F25294E347A4D33AB4BD3CBFA845CA8D4CD37654DB5F5CE34971E84C91EB52ABEC56BFEC59D1EB5B" }, url: "https://mycarta.wordpress.com/color-palettes/" }, LinearL: { type: "sequential", values: { 3: "040404008E3FFFFFFF", 4: "0404040A557A4FBC00FFFFFF", 5: "0404041B397F008E3FACC600FFFFFF", 6: "040404282678006C6514AB00D1CB57FFFFFF", 7: "0404042C1D640A557A008E3F4FBC00E2CF8AFFFFFF", 8: "0404042D19541B428800765C00A52787C300EED4A8FFFFFF", 9: "0404042D17471B397F00646D008E3F34B100ACC600F5D6B7FFFFFF", 10: "0404042D15371F31790A557A007B5600A02D4FBC00C5C900F7DBC3FFFFFF", 11: "0404042E142D282678194788006C65008E3F14AB0072C100D1CB57F8DFCCFFFFFF", 12: "0404042B13262C206E1B3F85036070007F52009D323DB40095C400DBCE79F7E2D1FFFFFF", 13: "0404042911242C1D641B397F0A557A007260008E3F00A91F4FBC00ACC600E2CF8AF7E5D6FFFFFF", 14: "0404042811232D1B5C1E337B154A8500676B00814F009A342DAF006AC100BEC900E8D29BF7E6D8FFFFFF", 15: "040404260F212D1954212E781B4288045E7200765C008E3F00A52742B60087C300C9C918EED4A8F7E8DCFFFFFF", 16: "040404250F202D184D2826781B3D830A557A006C6500834D00993514AB004FBC009DC500D1CB57F3D5AFF8EAE0FFFFFF", 17: "040404240E202D17472C22741B397F114E8100646D007958008E3F00A22C34B1005CC100ACC600D7CD6DF5D6B7F7EBE1FFFFFF", 18: "040404230E1F2D16402C1F6D1D347B1B458A045C7300706200844B00973700AA1744B7007DC200BAC800DDCF7FF8D8BDF7ECE5FFFFFF", 19: "040404210D1D2D15372C1D641F31791C40860A557A00686A007B56008E3F00A02D28AE004FBC0091C300C5C900E2CF8AF7DBC3F7EEE7FFFFFF", 20: "040404200C1C2E15322D1C5F222C781B3C81104F8001626F00735F00854900963800A8223BB30057C000A1C500CBCA33E7D197F7DCC6F7EFE8FFFFFF" }, url: "https://mycarta.wordpress.com/color-palettes/" } }, scientific: { Berlin: { type: "diverging", values: { 3: "9EB0FF190C09FFADAD", 4: "9EB0FF1A4256501803FFADAD", 5: "9EB0FF286886190C097B321CFFADAD", 6: "9EB0FF3280A6112732371000964A36FFADAD", 7: "9EB0FF3E90BC1A4256190C09501803A65948FFADAD", 8: "9EB0FF489ACA225771101D252D0E0068240FB46658FFADAD", 9: "9EB0FF519FD328688614303E190C093F12017B321CBC6D61FFADAD", 10: "9EB0FF5BA4DB2D75971A425611191E280D015018038A3F2AC4756AFFADAD", 11: "9EB0FF60A5DF3280A620526A112732190C093710005F1F0A964A36CA7B71FFADAD", 12: "9EB0FF67A8E33889B2245D78153544111519250C014413016E2813A05341CE7F76FFADAD", 13: "9EB0FF6CA9E63E90BC2868861A425611212A190C09310F005018037B321CA65948D2837AFFADAD", 14: "9EB0FF6FA9E84395C32C71921E4E65132D3A111317230C023C11015D1E09863B26AE6051D5857DFFADAD", 15: "9EB0FF74AAEB489ACA2F789C225771163849101D25190C092D0E0047140168240F8E422EB46658D98982FFADAD", 16: "9EB0FF76ABEC4D9DCF3280A625607C1A4256112732121215220C02371000501803732B16964A36B86A5CDB8B84FFADAD", 17: "9EB0FF79ABED519FD33685AD2868861D4B6114303E111A20190C092A0E013F1201591C077B321C9C4F3DBC6D61DD8D86FFADAD", 18: "9EB0FF7BACEE56A2D7398BB42B6F8F20546C173A4B11232C121214210B03330F0048150263210C843924A25544C07165DF8F89FFADAD", 19: "9EB0FF7EACF05BA4DB3E90BC2D7597235B751A4256122C3811191E190C09280D013B11005018036C27118A3F2AA65948C4756AE1918BFFADAD", 20: "9EB0FF80ACF15DA5DD4194C1307A9E26627F1C495F153342112028131112200B04300F00421301571B06752D17904430AC5E4FC6776CE3938EFFADAD" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Broc: { type: "diverging", values: { 3: "2C1A4CEBEEEC262600", 4: "2C1A4C8BA7C2C5C58F262600", 5: "2C1A4C5B82A9EBEEEC9B9B62262600", 6: "2C1A4C3F6B99B3C5D7DCDBB881814C262600", 7: "2C1A4C305C8C8BA7C2EBEEECC5C58F72723F262600", 8: "2C1A4C2A51836F92B3C4D2E0E4E4C8AEAE73646434262600", 9: "2C1A4C294B7D5B82A9A5BBD0EBEEECD4D4AA9B9B625D5D2D262600", 10: "2C1A4C2844774B76A08BA7C2CED9E5E8E8D2C5C58F8D8D56555527262600", 11: "2C1A4C2841743F6B997697B7B3C5D7EBEEECDCDBB8B6B67C81814C505023262600", 12: "2C1A4C293C6F366392688CB09EB5CCD5DFE8EBEBD9D0D0A2A8A86D7777444C4C20262600", 13: "2C1A4C29396C305C8C5B82A98BA7C2BDCDDCEBEEECE0E0C1C5C58F9B9B6272723F49491D262600", 14: "2C1A4C29386A2D57885079A37B9BBAAABED2D9E2EAECEDDDD7D7AEB8B87E9191596A6A3847471C262600", 15: "2C1A4C2935672A518347729E6F92B399B2CAC4D2E0EBEEECE4E4C8CECE9EAEAE73898952646434434319262600", 16: "2C1A4C2A3366294E803F6B996489AD8BA7C2B3C5D7DCE4EBEDEEDFDCDBB8C5C58FA3A36981814C616031424218262600", 17: "2C1A4C2A3164294B7D3966955B82A97F9EBCA5BBD0CBD8E4EBEEECE7E7CFD4D4AABCBC839B9B627B7B475D5D2D404016262600", 18: "2C1A4C2A306328477A346191527BA47495B697B0C8BACBDBDEE5ECEDEEE1DFDFBFCCCC9BB2B27793935B75754259592A3E3E15262600", 19: "2C1A4C2A2E61284477305C8C4B76A06B8EB18BA7C2ACC0D3CED9E5EBEEECE8E8D2D8D8B1C5C58FAAAA6F8D8D5672723F5555273C3D14262600", 20: "2C1A4C2A2D602843752E588945719C6187AC82A0BDA0B7CDBFCFDDE0E7ECEEEFE3E1E1C4D2D2A5BEBE85A1A1678787516C6C3A5454263B3B12262600" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Cork: { type: "diverging", values: { 3: "2C1A4CDBE6E5424D03", 4: "2C1A4C84A1BE95C199424D03", 5: "2C1A4C577EA6DBE6E56BA870424D03", 6: "2C1A4C3D6896AABFD3B7D5BA539655424D03", 7: "2C1A4C31598A84A1BEDBE6E595C199488943424D03", 8: "2C1A4C2C4F816A8DB0BACBDBC5DDC87DB381427D35424D03", 9: "2C1A4C2A497B577EA69DB4CBDBE6E5ABCEAE6BA87041762E424D03", 10: "2C1A4C2A437548729E84A1BEC3D2DFCDE1CF95C1995E9F62407027424D03", 11: "2C1A4C2A3F723D68967092B4AABFD3DBE6E5B7D5BA85B789539655406C23424D03", 12: "2C1A4C2A3B6E36608F6388AD96AFC8C9D7E2D2E4D5A5CAA877AF7C4B8E4A416920424D03", 13: "2C1A4C2A386B31598A577EA684A1BEB3C6D7DBE6E5BFDAC295C1996BA87048894341661D424D03", 14: "2C1A4C2A36692E54854C76A07596B6A1B8CECDDAE4D5E6D9AFD0B287B98B61A16644823B41651C424D03", 15: "2C1A4C2A34662C4F81456F9B6A8DB091ACC5BACBDBDBE6E5C5DDC8A1C8A47DB3815A9C5D427D35416319424D03", 16: "2C1A4C2A32652B4C7E3D68965F85AB84A1BEAABFD3CFDCE4D6E6DBB7D5BA95C19973AD78539655417A31416118424D03", 17: "2C1A4C2A31632A497B396392577EA67999B99DB4CBC1D0DEDBE6E5CBE0CEABCEAE8BBB8F6BA8704E914E41762E416017424D03", 18: "2C1A4C2B2F622A4678345E8E4E77A16E91B38FAAC4B1C4D6D1DDE5D8E7DCBDD8C09FC7A281B58563A3684A8C4841732B415F16424D03", 19: "2C1A4C2B2E602A437531598A48729E658AAE84A1BEA3B9CFC3D2DFDBE6E5CDE1CFB1D1B495C19979B07D5E9F62488943407027415D14424D03", 20: "2C1A4C2B2C5F2A41742F5687436D9A5D83A97B9BBA98B1C9B6C7D8D3DFE5D9E7DEC1DBC4A7CBAA8DBC9171AC76589B5B45843D406F26425C13424D03" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Lisbon: { type: "diverging", values: { 3: "E6E5FF171919FFFFD9", 4: "E6E5FF1E4368575134FFFFD9", 5: "E6E5FF416A971719197F784CFFFFD9", 6: "E6E5FF6083AE132A423835229A9160FFFFD9", 7: "E6E5FF7794BD1E4368171919575134ABA26EFFFFD9", 8: "E6E5FF86A0C62F59841122332D2B1C6D6741B9B17DFFFFD9", 9: "E6E5FF90A7CC416A9716334F171919433F287F784CC1BA87FFFFD9", 10: "E6E5FF9BAFD35177A41E4368111E2C27251A5751348D8556C9C390FFFFD9", 11: "E6E5FFA0B3D66083AE2A537D132A4217191938352266603D9A9160CFC998FFFFD9", 12: "E6E5FFA8B9DA6D8DB6345E8A173756111B2723211848442B736C45A49C69D3CD9DFFFFD9", 13: "E6E5FFADBCDE7794BD416A971E436812253A171919322F1F5751347F784CABA26ED7D2A2FFFFD9", 14: "E6E5FFB0BEDF7E9AC14C73A0274F7815304B121A24201F183F3C26645E3C898153B3AB77D9D4A4FFFFD9", 15: "E6E5FFB5C2E286A0C6567BA72F5984193A5A1122331719192D2B1C4C472D6D6741918959B9B17DDCD8A9FFFFD9", 16: "E6E5FFB8C4E48BA3C96083AE38628F1E4368132A42121A221F1E183835225751347770479A9160BDB682DEDAACFFFFD9", 17: "E6E5FFBBC6E590A7CC6889B3416A97244C7416334F111F2E17191928261A433F28605A397F784CA09865C1BA87E0DCAFFFFFD9", 18: "E6E5FFBDC8E796ABCF6F8EB84A729E2B557F193C5D12273C1219211E1D173330204D492E69633F877F52A69E6AC5BE8BE2DEB1FFFFD9", 19: "E6E5FFC0CAE99BAFD37794BD5177A4325C881E4368142E48111E2C17191927251A3E3A25575134716B448D8556ABA26EC9C390E4E1B4FFFFD9", 20: "E6E5FFC3CCEA9EB1D47C98C0597DA93A6491224A711736531224371319201C1C17302D1E46422A5E5838797249948B5BB1A975CBC593E6E3B6FFFFD9" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Roma: { type: "diverging", values: { 3: "7F1900CAEBC91A3399", 4: "7F1900D9CF6D61BDD31A3399", 5: "7F1900C1A23CCAEBC94898C51A3399", 6: "7F1900B3862CE3E59A8AD8D83E82BB1A3399", 7: "7F1900AB7424D9CF6DCAEBC961BDD33975B61A3399", 8: "7F1900A5691FCBB64DE1E9AA9EE1D750A8CB346AB11A3399", 9: "7F1900A1611CC1A23CE1DF8BCAEBC97AD0D74898C53264AE1A3399", 10: "7F19009D5918B99333D9CF6DDFEAB2A9E4D561BDD3428CBF2F5EAB1A3399", 11: "7F19009B5516B3862CCFBD54E3E59ACAEBC98AD8D855AFCE3E82BB2D59A91A3399", 12: "7F1900984F14AE7C27C8AF47E0DC83DCEBB7B1E6D372CBD64DA3C93B7AB82C56A81A3399", 13: "7F1900964B12AB7424C1A23CD9CF6DE2E7A3CAEBC995DDD761BDD34898C53975B62B53A71A3399", 14: "7F1900954911A86F21BB9735D1C159E2E190DAEBBBB6E8D27FD3D757B1CE4490C1366FB32A51A61A3399", 15: "7F1900934410A5691FB78F30CBB64DDED97EE1E9AACAEBC99EE1D76EC7D550A8CB4189BE346AB1294EA51A3399", 16: "7F190092420FA3651DB3862CC5AB43D9CF6DE3E59AD9EBBCB8E8D18AD8D861BDD34B9FC73E82BB3367AF284DA41A3399", 17: "7F190091400EA1611CB08029C1A23CD4C65FE1DF8BE0EAB0CAEBC9A6E3D57AD0D759B4D04898C53C7DB93264AE274BA31A3399", 18: "7F1900903E0D9F5D1AAD7A27BC9936CEBB52DED87BE3E7A1D7EBBEBBE9D092DCD76BC6D553ABCC4591C23A78B73061AD274AA31A3399", 19: "7F19008F3C0C9D5918AB7424B99333C9B149D9CF6DE2E293DFEAB2CAEBC9A9E4D582D4D861BDD34EA4C9428CBF3975B62F5EAB2648A21A3399", 20: "7F19008D3A0B9C5717A97122B68C2FC4A841D5C861E0DD86E2E8A6D6ECC0BDE9CF98DFD775CCD65BB6D04A9DC74087BD3770B42F5CAB2547A11A3399" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Tofino: { type: "diverging", values: { 3: "DED9FF0D1613DBE69B", 4: "DED9FF273C65244D28DBE69B", 5: "DED9FF3E5E9A0D161337733CDBE69B", 6: "DED9FF5777BA19253D18321A4A8D4BDBE69B", 7: "DED9FF6E89CB273C650D1613244D285C9E57DBE69B", 8: "DED9FF7E95D4334F83141D2E1427162E623370AB63DBE69B", 9: "DED9FF889DD93E5E9A1D2D4A0D16131C3B1F37733C7CB369DBE69B", 10: "DED9FF93A4DE4A6BAC273C65121926122214244D283F814488B970DBE69B", 11: "DED9FF98A8E15777BA304A7B19253D0D161318321A2B5B2F4A8D4B91BE74DBE69B", 12: "DED9FFA0ADE46481C537548B203151111721111F121E402131683655975397C278DBE69B", 13: "DED9FFA6B1E66E89CB3E5E9A273C651620340D1613152C18244D2837733C5C9E579DC57BDBE69B", 14: "DED9FFA8B3E8768FD04767A72E47761C2A4610161E101C121A381D2A5A2E3D7D4167A65EA0C67CDBE69B", 15: "DED9FFAEB7EA7E95D44F6FB1334F83223456141D2E0D16131427162043232E623342854670AB63A6CA7FDBE69B", 16: "DED9FFB0B9EB8399D75777BA395790273C6519253D0F151D0F1C1218321A244D28336C384A8D4B76AF66A9CB81DBE69B", 17: "DED9FFB3BBEC889DD95F7DC13E5E9A2C44711D2D4A121A280D16131223141C3B1F28562C37733C5093507CB369ACCD83DBE69B", 18: "DED9FFB6BCED8EA0DC6683C64565A5314C7E2235591621360F151B0F1B12162D182045242C5F313B7B40579A5482B66CAFCE84DBE69B", 19: "DED9FFB8BEEF93A4DE6E89CB4A6BAC355288273C651B29431219260D16131222141A361C244D283066353F81445C9E5788B970B2D086DBE69B", 20: "DED9FFBBC0F096A6DF738DCE5171B43A59932B426F1F304F151F320E151A0E1A11152A171D3E2027542C346D3944874764A45C8BBB71B5D187DBE69B" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Vik: { type: "diverging", values: { 3: "001261ECE5E0590008", 4: "00126171A8C4D39774590008", 5: "001261307DA6ECE5E0C37243590008", 6: "001261116496A7C9DAE1B8A0B75A26590008", 7: "00126106548B71A8C4ECE5E0D39774AB4814590008", 8: "001261034A854B90B3BDD6E3E7C6B2CA82589C3709590008", 9: "001261034481307DA694BED2ECE5E0DCAC90C37243942F06590008", 10: "001261033E7D1E6F9D71A8C4C9DDE7EACEBDD39774BE65338B2706590008", 11: "001261023A7B1164965496B7A7C9DAECE5E0E1B8A0CD8961B75A26852206590008", 12: "001261023678095B904289AF8AB8CED2E1E9ECD3C5DAA688C87C51B04F1B811F06590008", 13: "00126102337606548B307DA671A8C4B3D1DFECE5E0E4BFAAD39774C37243AB48147E1D06590008", 14: "001261023175044F882373A05A9ABA9AC2D5D8E4E9EDD7CBDEB095CE8B64BF6938A33E0D7C1B06590008", 15: "001261022E73034A85196B9A4B90B384B4CCBDD6E3ECE5E0E7C6B2D8A283CA8258BC622F9C3709781806590008", 16: "001261022D720347831164963C85AC71A8C4A7C9DADBE5E9EED9CDE1B8A0D39774C6794CB75A26983307761706590008", 17: "001261022B710344810C5E92307DA6619EBD94BED2C6DBE6ECE5E0E9CCBADCAC90CF8E68C37243B3531F942F06741506590008", 18: "001261022A7003417F08598F2575A15194B680B2CAB0CFDEDEE6E9EEDBD0E4BEA8D7A081CC855DC06B3AAF4C188F2B06731406590008", 19: "00126102286F033E7D06548B1E6F9D458BB071A8C49DC4D6C9DDE7ECE5E0EACEBDDFB298D39774C97E53BE6533AB48148B2706711307590008", 20: "00126102276E033C7C0551891769993983AB64A0BE8DBAD0B6D3E1E0E6E9EEDDD3E5C1ADDBA88BD0906BC6774ABB602DA5400F8926066F1107590008" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Acton: { type: "sequential", values: { 3: "2E214DC46E9BE6E6F0", 4: "2E214D926390D495B8E6E6F0", 5: "2E214D775A86C46E9BD4A6C4E6E6F0", 6: "2E214D66507BA66694D486ADD5B2CDE6E6F0", 7: "2E214D5B4873926390C46E9BD495B8D7BAD2E6E6F0", 8: "2E214D54426E835F8BAD6795D37FA8D39FBFD9C1D7E6E6F0", 9: "2E214D503E6A775A869F6593C46E9BD58CB1D4A6C4DAC5D9E6E6F0", 10: "2E214D4B3B666E5480926390B26795D17BA5D495B8D4ADC9DBC9DCE6E6F0", 11: "2E214D49396466507B87608DA66694C46E9BD486ADD49BBCD5B2CDDCCCDEE6E6F0", 12: "2E214D463662604B777F5D899C6592B56896CF78A3D58EB3D3A1C1D6B7D0DDCEE0E6E6F0", 13: "2E214D4434605B4873775A86926390AA6694C46E9BD482AAD495B8D4A6C4D7BAD2DED0E1E6E6F0", 14: "2E214D43335F5845717156828A618EA16593B86996CD76A1D58AB0D49ABCD4ABC7D8BED5DED1E2E6E6F0", 15: "2E214D41315D54426E6B537F835F8B996592AD6795C46E9BD37FA8D590B4D39FBFD4AFCAD9C1D7DFD3E3E6E6F0", 16: "2E214D3F305C52406C66507B7D5C88926390A66694B96997CC75A1D486ADD495B8D3A3C2D5B2CDD9C3D8DFD4E4E6E6F0", 17: "2E214D3E305B503E6A634D79775A868C628E9F6593B16795C46E9BD17CA6D58CB1D499BBD4A6C4D6B5CEDAC5D9DFD5E4E6E6F0", 18: "2E214D3D2F5A4D3D685F4A7672578386608C986491A96694BA6997CB74A0D483ABD491B5D39DBDD4AAC7D6B8D0DAC7DBE0D6E5E6E6F0", 19: "2E214D3C2E594B3B665B48736E5480815E8A926390A26693B26795C46E9BD17BA5D589AFD495B8D3A0C0D4ADC9D7BAD2DBC9DCE0D7E6E6E6F0", 20: "2E214D3B2D584A3A655946726A527E7B5B888D628F9D6592AB6694BB6A98CA739FD381AAD58DB2D498BAD3A4C2D5AFCBD7BDD4DBCADDE1D8E7E6E6F0" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Bamako: { type: "sequential", values: { 3: "00404C617E14FFE599", 4: "00404C3A652A969206FFE599", 5: "00404C2B5A34617E14B9A525FFE599", 6: "00404C225539486E22808D04CDB53DFFE599", 7: "00404C1C513D3A652A617E14969206D8BE4DFFE599", 8: "00404C184E3F315F304E721F768908AA9B16DFC55AFFE599", 9: "00404C154C412B5A34436A25617E14878E03B9A525E3C961FFE599", 10: "00404C134B422657373A652A52741C71870B969206C5AE32E7CD68FFE599", 11: "00404C124A4322553933602E486E22617E14808D04A39710CDB53DE9D06EFFE599", 12: "00404C1049441E523B2F5D3141692755761B6E850D8B8F03AF9E1BD4BB47EBD171FFE599", 13: "00404C0F48451C513D2B5A343A652A4C7020617E147A8B06969206B9A525D8BE4DEDD375FFE599", 14: "00404C0E48451A4F3E27583635612D456B2457771A6B840E858E03A1960FC1AB2EDCC254EED476FFE599", 15: "00404C0D4746184E3F245637315F303F68274E721F617E147689088E9003AA9B16C8B036DFC55AEFD67AFFE599", 16: "00404C0C4646174D402255392D5C323A652A486E225878196A830F808D04969206B2A01ECDB53DE1C75EF0D77CFFE599", 17: "00404C0B4647154C4120533A2B5A3436622D436A2551731D617E1473880A878E039E950CB9A525D1B943E3C961F1D87DFFE599", 18: "00404C0B4647144C411E523C28593533602F3E67284B6F215978196982107C8B068F9003A69913C0AA2CD5BC49E5CB65F2D87FFFE599", 19: "00404C0A4547134B421C513D265737305E313A652A466C2452741C617E1471870B838E03969206AD9D19C5AE32D8BE4DE7CD68F3D981FFE599", 20: "00404C094548124A431A503E2456382D5C3237632C4169264C71205A7918688210798A078A8F039C940BB4A120C9B238DBC152E7CE6AF4DA83FFE599" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Batlow: { type: "sequential", values: { 3: "011959818233FACCFA", 4: "0119593E6C55D59448FACCFA", 5: "011959235C60818233F49E71FACCFA", 6: "011959184F61577647B28D32FCA78DFACCFA", 7: "0119591345603E6C55818233D59448FDAC9EFACCFA", 8: "011959113F602E645C627941A38A2EE9995EFDB1ADFACCFA", 9: "0119590F3B5F235C604E734C818233BF9038F49E71FDB4B5FACCFA", 10: "0119590E365E1D55613E6C55687B3E9B882ED59448F9A380FDB7BDFACCFA", 11: "0119590D345E184F6132665B577647818233B28D32E39856FCA78DFDB9C4FACCFA", 12: "0119590C315D154A612A615E4A714F6D7C3C95872EC5913CED9B65FDAA98FDBBC8FACCFA", 13: "0119590B2F5D134560235C603E6C555D7844818233AA8C2FD59448F49E71FDAC9EFDBCCCFACCFA", 14: "0119590B2E5D1242601E576134685A51744B707D3A91862EBB8F36E19755F8A27CFDAFA6FDBDCEFACCFA", 15: "0119590A2C5C113F601B53612E645C477050627941818233A38A2EC9923FE9995EFAA485FDB1ADFDBED3FACCFA", 16: "0119590A2B5C103D5F184F6128605F3E6C55577647717E398F862FB28D32D59448EF9C69FCA78DFDB3B1FCBFD5FACCFA", 17: "011959092A5C0F3B5F164C61235C603769584E734C667A3F8182339D892EBF9038DE9651F49E71FCA994FDB4B5FCC0D7FACCFA", 18: "01195909295C0F385F1548611F586130665B456F515C7745737E388D852FAC8C30CB9240E6985AF7A17AFDAB9AFDB6B9FCC1D9FACCFA", 19: "01195908285C0E365E1345601D55612B625D3E6C5553744A687B3E8182339B882EB98F35D59448EC9A63F9A380FDAC9EFDB7BDFCC1DBFACCFA", 20: "01195908275C0E355E1343601A5261265F5F386A584B724E5F7843757E388B852FA88B2FC3913BDC964FF19D6BFAA587FDAFA4FDB8BFFCC2DDFACCFA" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Bilbao: { type: "sequential", values: { 3: "FFFFFFAA86654D0001", 4: "FFFFFFB9AF8B9E61554D0001", 5: "FFFFFFC2BCA6AA8665934B474D0001", 6: "FFFFFFC8C4B8B29F76A3705C883C3B4D0001", 7: "FFFFFFCECCC4B9AF8BAA86659E61557F33324D0001", 8: "FFFFFFD3D2CDBEB79AAF9870A5775E99554E772B2B4D0001", 9: "FFFFFFD7D7D3C2BCA6B5A57CAA8665A26B59934B477327264D0001", 10: "FFFFFFDCDBD9C5C0AFB9AF8BAE946DA67A609E61558D43416E22224D0001", 11: "FFFFFFDEDEDCC8C4B8BDB596B29F76AA8665A3705C9B5951883C3B6B1F1F4D0001", 12: "FFFFFFE2E1E0CBC8BFBFB89EB6A880AD916BA77D61A1685897524C823736681D1D4D0001", 13: "FFFFFFE4E4E3CECCC4C2BCA6B9AF8BB19B72AA8665A4745D9E6155934B477F3332661A1B4D0001", 14: "FFFFFFE5E5E4D1CFC9C4BFADBCB394B4A37AAC906AA77E62A26D5A9C5A518F46437B2F2E65191A4D0001", 15: "FFFFFFE8E8E7D3D2CDC6C2B2BEB79AB7AA83AF9870AA8665A5775EA0675799554E8B413F772B2B6217184D0001", 16: "FFFFFFE9E9E8D5D4D0C8C4B8C0B9A1B9AF8BB29F76AC8F69A87F62A3705C9E615596504B883C3B7529286116174D0001", 17: "FFFFFFEAEAEAD7D7D3CAC7BCC2BCA6BBB291B5A57CAE956DAA8665A67960A26B599D5C52934B478439387327266015164D0001", 18: "FFFFFFECECEBDAD9D6CCC9C0C3BEABBDB598B7AB84B19C73AC8E69A88063A4735DA066579A574F9047448136347025245F13154D0001", 19: "FFFFFFEDEDECDCDBD9CECCC4C5C0AFBFB89DB9AF8BB3A279AE946DAA8665A67A60A36E5B9E615598534D8D43417F33326E22225D12144D0001", 20: "FFFFFFEEEEEEDDDCDAD0CEC7C6C2B3C0BAA2BBB190B5A77FB09A71AC8D68A88163A5755EA169599D5D53964F4A8B403E7C302F6D21215C11134D0001" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Buda: { type: "sequential", values: { 3: "B301B3CD857EFFFF66", 4: "B301B3C2618AD7AA75FFFF66", 5: "B301B3BC4E90CD857EDBBD70FFFF66", 6: "B301B3B84294C76F85D39B79DEC96DFFFF66", 7: "B301B3B53998C2618ACD857ED7AA75E0D06BFFFF66", 8: "B301B3B4339ABE568DC97583D1957AD9B572E2D76AFFFF66", 9: "B301B3B32F9CBC4E90C56A87CD857ED4A077DBBD70E3DB69FFFF66", 10: "B301B3B32B9EB94892C2618ACA7982D1917BD7AA75DDC36FE5DF68FFFF66", 11: "B301B3B3289FB84294BF598CC76F85CD857ED39B79D8B173DEC96DE7E268FFFF66", 12: "B301B3B325A1B63D96BD548EC46888CA7B81D08F7CD5A377DAB772E0CD6CE8E467FFFF66", 13: "B301B3B323A2B53998BC4E90C2618AC87384CD857ED2977AD7AA75DBBD70E0D06BE9E667FFFF66", 14: "B301B3B321A3B43699BA4A92C05B8CC66C86CB7D81CF8D7CD49E78D8B073DDC16FE1D46BEAE767FFFF66", 15: "B301B3B31FA4B4339AB94693BE568DC46688C97583CD857ED1957AD5A576D9B572DDC56EE2D76AEBE967FFFF66", 16: "B301B3B31EA5B4319BB84294BD528FC2618AC76F85CB7E80CF8C7CD39B79D7AA75DAB971DEC96DE3D969ECEB67FFFF66", 17: "B301B3B31CA6B32F9CB73F95BC4E90C05C8BC56A87C97882CD857ED1927BD4A077D8AE74DBBD70DFCB6DE3DB69EDEC67FFFF66", 18: "B301B3B31BA6B32D9DB63C96BA4B91BF588DC36588C77284CB7E80CF8B7DD29879D6A576D9B373DCC06FE0CE6CE4DD69EEED67FFFF66", 19: "B301B3B31AA7B32B9EB53998B94892BE558EC2618AC66D86CA7982CD857ED1917BD49E78D7AA75DAB672DDC36FE0D06BE5DF68EFEE66FFFF66", 20: "B301B3B318A8B3299FB53798B84593BC518FC15D8BC46987C87384CC7F80CF8A7DD2977AD5A277D8AD74DBBA71DEC66EE1D36BE5E068F0EF66FFFF66" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Davos: { type: "sequential", values: { 3: "00054A6C8E93FEFEFE", 4: "00054A43709D99AD88FEFEFE", 5: "00054A2F5A966C8E93BBC794FEFEFE", 6: "00054A234A8C547D9C849E89D4DBA8FEFEFE", 7: "00054A1C3F8343709D6C8E9399AD88E1E5B6FEFEFE", 8: "00054A17377C38649A5A829A7D998CABBB8CEBEDC4FEFEFE", 9: "00054A1432772F5A964E799D6C8E938BA388BBC794EFF0CBFEFEFE", 10: "00054A112C7129529143709D5E859879968D99AD88C9D29EF3F3D2FEFEFE", 11: "00054A102A6F234A8C3A679B547D9C6C8E93849E89A4B68AD4DBA8F5F5D7FEFEFE", 12: "00054A0E266B1F44873561994B769D61869776958E8FA588B0BF8EDDE2B1F6F6DBFEFEFE", 13: "00054A0C23681C3F832F5A9643709D57809B6C8E93809B8B99AD88BBC794E1E5B6F7F7DEFEFEFE", 14: "00054A0B22671A3B7F2A54933C699C507A9C63889774938F89A188A3B489C5CF9BE7EABEF8F8E0FEFEFE", 15: "00054A0A1F6417377C274F9038649A49759D5A829A6C8E937D998C91A787ABBB8CCDD5A1EBEDC4F9F9E3FEFEFE", 16: "00054A091E62163479234A8C335F9843709D547D9C64889674938F849E8999AD88B4C190D4DBA8EDEFC7F9F9E5FEFEFE", 17: "00054A081C611432772147892F5A963E6B9C4E799D5D84996C8E937A978D8BA388A0B289BBC794D9DFADEFF0CBFAF9E6FEFEFE", 18: "00054A071B60132F741E43862B56933A669B48749D567F9B658996739290819C8A92A887A8B88BC3CD99DEE3B3F1F2CFFAFAE8FEFEFE", 19: "00054A071A5E112C711C3F8329529136629A43709D517B9C5E85986C8E9379968D88A08999AD88AEBD8DC9D29EE1E5B6F3F3D2FBFAE9FEFEFE", 20: "00054A06185D112B701A3C80264E8F325E983F6C9D4C779D58819A658A957291907F9A8B8DA4889EB188B6C391CFD6A2E6E9BCF3F4D4FBFBEBFEFEFE" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Devon: { type: "sequential", values: { 3: "2C1A4C7E8FDDFFFFFF", 4: "2C1A4C3669ADBAB3F1FFFFFF", 5: "2C1A4C29588F7E8FDDCAC6F4FFFFFF", 6: "2C1A4C274A7E4C77C4A8A5ECD5D1F6FFFFFF", 7: "2C1A4C2741743669AD7E8FDDBAB3F1DBD8F8FFFFFF", 8: "2C1A4C283B6E2D609C597DCC9E9EE9C3BEF3E1DEF9FFFFFF", 9: "2C1A4C29386A29588F4272BC7E8FDDAFAAEECAC6F4E4E2FAFFFFFF", 10: "2C1A4C2934672751863669AD6181D0989BE7BAB3F1D0CCF5E8E5FAFFFFFF", 11: "2C1A4C293265274A7E2F62A04C77C47E8FDDA8A5ECC0BAF2D5D1F6EAE8FBFFFFFF", 12: "2C1A4C2A2F622745792B5D983E6FB86784D39398E5B2ADEFC6C0F3D9D5F7ECEAFBFFFFFF", 13: "2C1A4C2A2D6027417429588F3669AD537BC97E8FDDA3A1EABAB3F1CAC6F4DBD8F8EDECFBFFFFFF", 14: "2C1A4C2A2C5F283E712753883064A34573BF6B86D58F96E3ADA8EEBFB9F2CECAF5DEDCF8EEEDFCFFFFFF", 15: "2C1A4C2A2A5D283B6E274F832D609C3C6DB5597DCC7E8FDD9E9EE9B4AEEFC3BEF3D2CDF6E1DEF9F0EEFCFFFFFF", 16: "2C1A4C2A295C28396C274A7E2A5C953669AD4C77C46D87D68D95E3A8A5ECBAB3F1C7C2F4D5D1F6E3E0F9F1EFFCFFFFFF", 17: "2C1A4C2A295B29386A27477B29588F3265A64272BC5F80CF7E8FDD9A9BE7AFAAEEBEB8F2CAC6F4D7D4F7E4E2FAF2F0FCFFFFFF", 18: "2C1A4C2A285A29366927447828548A2E629F3B6DB4517AC86F88D78C95E2A4A2EBB5AFF0C2BCF2CEC9F5DAD6F7E6E4FAF2F1FCFFFFFF", 19: "2C1A4C2B27592934672741742751862C5E993669AD4774C06181D07E8FDD989BE7ACA7EDBAB3F1C5C0F3D0CCF5DBD8F8E8E5FAF3F2FDFFFFFF", 20: "2C1A4C2B2658293366283F72274E822A5B933266A73F70B9557CCA7188D88A94E1A2A0EAB1ACEFBDB7F1C8C3F4D2CEF6DEDBF8E8E6FAF4F3FDFFFFFF" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, GrayC: { type: "sequential", values: { 3: "FFFFFF767676000000", 4: "FFFFFFA2A2A24E4E4E000000", 5: "FFFFFFB8B8B87676763C3C3C000000", 6: "FFFFFFC6C6C69191915E5E5E303030000000", 7: "FFFFFFD0D0D0A2A2A27676764E4E4E2A2A2A000000", 8: "FFFFFFD7D7D7AFAFAF898989656565434343242424000000", 9: "FFFFFFDBDBDBB8B8B89797977676765959593C3C3C212121000000", 10: "FFFFFFE0E0E0C0C0C0A2A2A28585856969694E4E4E3535351D1D1D000000", 11: "FFFFFFE2E2E2C6C6C6ACACAC9191917676765E5E5E4747473030301B1B1B000000", 12: "FFFFFFE5E5E5CCCCCCB2B2B29A9A9A8282826C6C6C5656564141412C2C2C1A1A1A000000", 13: "FFFFFFE7E7E7D0D0D0B8B8B8A2A2A28C8C8C7676766262624E4E4E3C3C3C2A2A2A181818000000", 14: "FFFFFFE8E8E8D3D3D3BEBEBEA9A9A99595958080806E6E6E5A5A5A484848373737262626171717000000", 15: "FFFFFFEBEBEBD7D7D7C2C2C2AFAFAF9C9C9C898989767676656565545454434343343434242424161616000000", 16: "FFFFFFECECECD9D9D9C6C6C6B4B4B4A2A2A29191917F7F7F6F6F6F5E5E5E4E4E4E3F3F3F303030222222151515000000", 17: "FFFFFFEDEDEDDBDBDBCACACAB8B8B8A7A7A79797978686867676766868685959594A4A4A3C3C3C2E2E2E212121141414000000", 18: "FFFFFFEEEEEEDDDDDDCDCDCDBDBDBDADADAD9D9D9D8D8D8D7E7E7E7070706161615353534545453838382B2B2B1F1F1F131313000000", 19: "FFFFFFEFEFEFE0E0E0D0D0D0C0C0C0B1B1B1A2A2A29494948585857676766969695B5B5B4E4E4E4242423535352A2A2A1D1D1D121212000000", 20: "FFFFFFF0F0F0E1E1E1D2D2D2C3C3C3B5B5B5A6A6A69999998B8B8B7D7D7D7171716363635757574B4B4B3E3E3E3333332727271D1D1D111111000000" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Hawaii: { type: "sequential", values: { 3: "8C02739C961CB3F2FD", 4: "8C027399633080C55FB3F2FD", 5: "8C0273974E3E9C961C6CD48CB3F2FD", 6: "8C02739541479C75248FB63C62DCA9B3F2FD", 7: "8C027394384D9963309C961C80C55F5FE2BBB3F2FD", 8: "8C02739332529856389C7E2094AE3074CE7961E6CAB3F2FD", 9: "8C0273922E55974E3E9B6F289C961C8ABC486CD48C66E8D3B3F2FD", 10: "8C0273922A599647429963309D831E97A92A80C55F66D89C6CEBDBB3F2FD", 11: "8C027391285A9541479859369C75249C961C8FB63C78CB7062DCA971ECE0B3F2FD", 12: "8C027391255D943C4A97533A9A6B2A9D871D98A52687BE4E71D07F60E0B476EDE3B3F2FD", 13: "8C027391235F94384D974E3E9963309C7A229C961C92B13580C55F6CD48C5FE2BB7AEEE7B3F2FD", 14: "8C0273902160933550964941985C349B71279D891C99A3238CBA4479CA6E68D79760E4C47DEEE8B3F2FD", 15: "8C0273901F629332529545449856389A692C9C7E209C961C94AE3085C05274CE7964DAA061E6CA82EFEBB3F2FD", 16: "8C0273901E6393305495414797523B9963309C75249D8A1C9AA1228FB63C80C55F70D18362DCA963E7CF84EFECB3F2FD", 17: "8C0273901D63922E55953E49974E3E995E339B6F289D811F9C961C96AA2B8ABC487BC9696CD48C60DEB066E8D387EFEEB3F2FD", 18: "8C0273901C64922C57943B4B964A409858369A682C9C79239D8C1C9AA02191B33784C15476CC7468D6955FE0B768E9D78AF0EFB3F2FD", 19: "8C02738F1A65922A5994384D9647429754399963309B72269D831E9C961C97A92A8CB94280C55F72CF7D66D89C5FE2BB6CEBDB8DF0F0B3F2FD", 20: "8C02738F196692295A93364F95444597513C995F329B6C2A9C7B219D8D1C9A9F2093B03388BE4C7CC8676FD28664DAA25FE4C26DEBDC8FF0F1B3F2FD" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Imola: { type: "sequential", values: { 3: "1A33B354867FFFFF66", 4: "1A33B3396B947BAE74FFFF66", 5: "1A33B3305E9D54867F91C36FFFFF66", 6: "1A33B32C55A142748B6A9D789FD26BFFFF66", 7: "1A33B32950A4396B9454867F7BAE74AADA69FFFF66", 8: "1A33B3274CA634649946798764967A87BA71B5E268FFFF66", 9: "1A33B32549A8305E9D3F718E54867F70A37791C36FBDE667FFFF66", 10: "1A33B32446A92E599F396B94497B8560927B7BAE7498CB6DC4EA67FFFF66", 11: "1A33B32345AA2C55A135659842748B54867F6A9D7883B6729FD26BCAEC67FFFF66", 12: "1A33B32243AB2A52A332629B3D6F904B7D845D907C73A6768ABD70A6D76ACFEE66FFFF66", 13: "1A33B32242AB2950A4305E9D396B9445778954867F6799797BAE7491C36FAADA69D3F066FFFF66", 14: "1A33B32141AC284EA52E5B9F36679740728D4C7F835C8E7C6EA17782B57296C96DB0DF68D5F066FFFF66", 15: "1A33B32140AC274CA62D58A03464993C6E9146798754867F64967A75A87687BA719BCD6CB5E268D9F266FFFF66", 16: "1A33B3203FAD264AA72C55A132609B396B9442748B4D7F825B8D7D6A9D787BAE748CBF709FD26BB9E468DBF366FFFF66", 17: "1A33B3203EAD2549A82B53A2305E9D3768963F718E487B8654867F61937B70A37780B37391C36FA3D56BBDE667DDF466FFFF66", 18: "1A33B3203EAD2548A82A52A32F5B9E3465983C6E914476894E80825A8C7D679A7976A97585B87295C86EA7D86AC0E867DFF466FFFF66", 19: "1A33B31F3DAE2446A92950A42E599F33629A396B9441738C497B8554867F60927B6DA0787BAE7489BC7198CB6DAADA69C4EA67E2F566FFFF66", 20: "1A33B31F3CAE2446A9284EA52D57A031609C3768963E708F4577884E8181598B7D66987A72A5767FB2738DC0709CCE6CAFDE69C6EB67E4F666FFFF66" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, LaJolla: { type: "sequential", values: { 3: "FFFFCCDE744F1A1A01", 4: "FFFFCCECA855A547421A1A01", 5: "FFFFCCF2C360DE744F7F3B341A1A01", 6: "FFFFCCF6D470E79452C2554A68352A1A1A01", 7: "FFFFCCF8DF80ECA855DE744FA547425B30241A1A01", 8: "FFFFCCFAE58BEFB759E68C51CD5D4C8F403B4F2C1E1A1A01", 9: "FFFFCCFBE992F2C360E99B53DE744FB84F477F3B34492A1B1A1A01", 10: "FFFFCCFBEC9AF4CC68ECA855E48751D2624DA5474273382F4228181A1A01", 11: "FFFFCCFCEE9DF6D470EEB357E79452DE744FC2554A96423E68352A3E27161A1A01", 12: "FFFFCCFCF0A3F7DA79F0BB5BEA9E53E38351D5664DB34D468A3F396032263A26151A1A01", 13: "FFFFCCFDF1A6F8DF80F2C360ECA855E68F52DE744FC8594BA547427F3B345B30243725131A1A01", 14: "FFFFCCFDF2A8F9E285F3CA65EEB057E99852E38150D7694EBC514898433E763931542E203624131A1A01", 15: "FFFFCCFDF3ACFAE58BF5CF6AEFB759EAA153E68C51DE744FCD5D4CAF4B458F403B6F372D4F2C1E3323111A1A01", 16: "FFFFCCFDF4AEFAE78FF6D470F1BD5CECA855E79452E28050D86A4EC2554AA54742863E3768352A4C2B1D3123111A1A01", 17: "FFFFCCFDF5AFFBE992F7D875F2C360EDAE56E99B53E58851DE744FD0614CB84F479C443F7F3B34633328492A1B3022101A1A01", 18: "FFFFCCFDF5B1FBEA96F8DC7BF3C864EEB458EBA254E79052E27E50D96B4EC7584BAE4A4593413C7839315E312545291A2E220F1A1A01", 19: "FFFFCCFEF6B3FBEC9AF8DF80F4CC68F0B95AECA855E89752E48751DE744FD2624DBD5248A547428B3F3A73382F5B30244228182D210E1A1A01", 20: "FFFFCCFEF7B5FCED9CF9E184F5D06CF1BF5DEDAD56EA9D53E68E52E17D50DA6C4ECA5B4BB54D469D4440843D376E362D562F214128172B210D1A1A01" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, LaPaz: { type: "sequential", values: { 3: "1A0C645C8CA3FEF2F3", 4: "1A0C6436679D94A298FEF2F3", 5: "1A0C642D53935C8CA3B3AC96FEF2F3", 6: "1A0C6428468B4277A27C9B9ECAB79DFEF2F3", 7: "1A0C64263C8536679D5C8CA394A298D9C0A7FEF2F3", 8: "1A0C64253681305C98487DA37398A0A5A795E4C9B2FEF2F3", 9: "1A0C6424327E2D53933D71A05C8CA3859E9CB3AC96EACEB9FEF2F3", 10: "1A0C64232D7B2A4C8F36679D4C80A36E95A194A298BFB199EFD3C0FEF2F3", 11: "1A0C64222B7928468B315E994277A25C8CA37C9B9E9FA696CAB79DF2D7C6FEF2F3", 12: "1A0C642128772740882F59963B6F9F4F83A46A94A1899F9AAAA995D3BCA3F4D9C9FEF2F3", 13: "1A0C64212675263C852D539336679D457AA25C8CA377999F94A298B3AC96D9C0A7F5DBCDFEF2F3", 14: "1A0C642125752539832B4E9032609A3E73A15185A46792A2829D9C9EA596BCB098DFC5ADF6DDCFFEF2F3", 15: "1A0C642023732536812A4A8E305C983A6D9F487DA35C8CA37398A08BA09AA5A795C3B39AE4C9B2F7DFD3FEF2F3", 16: "1A0C6420217224347F28468B2E579536679D4277A25285A46692A27C9B9E94A298ADAA95CAB79DE7CBB5F8E0D4FEF2F3", 17: "1A0C6420207124327E2842892D539333629B3D71A04B80A35C8CA36F96A1859E9C9BA496B3AC96D0BAA0EACEB9F9E1D6FEF2F3", 18: "1A0C641F1F7123307C273F872B4F91315E99396C9E447AA25386A46591A2789A9F8DA099A2A696BAAF97D5BDA4ECD0BDF9E2D8FEF2F3", 19: "1A0C641F1E70232D7B263C852A4C8F2F5A9736679D3F74A14C80A35C8CA36E95A1809D9D94A298A8A895BFB199D9C0A7EFD3C0FAE3DAFEF2F3", 20: "1A0C641F1D6F222C7A263A8429498D2E569534639B3C70A0467BA35487A46390A276999F879F9B99A497AEAA95C5B49BDEC3ABF0D4C2FAE5DCFEF2F3" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Nuuk: { type: "sequential", values: { 3: "05598CA1A698FEFEB2", 4: "05598C6F878DBAB98DFEFEB2", 5: "05598C537785A1A698C3C285FEFEB2", 6: "05598C436E82859493B2B293CACA83FEFEB2", 7: "05598C3869826F878DA1A698BAB98DD1D084FEFEB2", 8: "05598C3266825F7D888D9996AEAF95BFBE88D7D787FEFEB2", 9: "05598C2D64835377857D8F91A1A698B5B591C3C285DCDB8AFEFEB2", 10: "05598C2962844A72836F878D929C96ABAD96BAB98DC7C684E0E08EFEFEB2", 11: "05598C276184436E82638089859493A1A698B2B293BDBD8ACACA83E4E391FEFEB2", 12: "05598C2460853D6B825B7B87798D90959E97A9AC97B6B690C0C087CECE83E6E693FEFEB2", 13: "05598C2260853869825377856F878D8A9795A1A698B0B194BAB98DC3C285D1D084E8E895FEFEB2", 14: "05598C215F863567824D738466818A809192979F97A8AB97B4B492BDBC8AC5C584D4D486E9E997FEFEB2", 15: "05598C1F5F863266824871835F7D88778B8F8D9996A1A698AEAF95B7B78FBFBE88C8C783D7D787ECEB99FEFEB2", 16: "05598C1E5E862F6583436E82587A866F878D85949398A097A7AA97B2B293BAB98DC1C187CACA83D9D988EDED9AFEFEB2", 17: "05598C1C5E872D64833F6C8253778568838B7D8F91919B96A1A698ACAE96B5B591BCBB8BC3C285CDCC83DCDB8AEEEE9CFEFEB2", 18: "05598C1B5E872B63833C6A824E7484627F89768B8F89969499A097A6AA97B0B194B7B78FBEBD89C5C484CFCF84DEDE8CEFEF9DFEFEB2", 19: "05598C1A5D872962843869824A72835C7C876F878D819192929C96A1A698ABAD96B3B492BAB98DC0BF88C7C684D1D084E0E08EF0F09EFEFEB2", 20: "05598C195D882862843668824670835779866A848B7B8E918B97959AA198A6A997AFB094B6B690BBBB8BC1C186C8C883D3D385E1E18FF1F1A0FEFEB2" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Oleron: { type: "sequential", values: { 3: "1A26591A4C00FDFDE6", 4: "1A2659AAB7E87A711FFDFDE6", 5: "1A26598390C31A4C00A88F4EFDFDE6", 6: "1A26596C79ACC4D1F6535E02C5A46CFDFDE6", 7: "1A26595D699CAAB7E81A4C007A711FD7B37FFDFDE6", 8: "1A2659535F9294A1D3CEDAF944590094823AE5C090FDFDE6", 9: "1A26594C598C8390C3BCC9F31A4C00606309A88F4EECC79AFDFDE6", 10: "1A26594552857784B7AAB7E8D3E0FA3C56007A711FB79A5EF1CEA4FDFDE6", 11: "1A2659424F826C79AC99A6D9C4D1F61A4C00535E028C7C31C5A46CF3D4ABFDFDE6", 12: "1A26593D4A7D6470A38E9BCEB7C4F1D7E4FB35540067670E9B8640D1AD78F5D7B0FDFDE6", 13: "1A26593A477A5D699C8390C3AAB7E8CAD6F81A4C004B5B017A711FA88F4ED7B37FF6DAB5FDFDE6", 14: "1A26593945785864977A87BA9DAADCBFCBF4DAE6FC3153005C61068A7B2EB39759E0BA89F6DCB7FDFDE6", 15: "1A2659354275535F927380B394A1D3B4C1EFCEDAF91A4C004459006C691294823ABC9D63E5C090F7DFBCFDFDE6", 16: "1A26593440734F5C8F6C79AC8B97CAAAB7E8C4D1F6DBE8FC2F5200535E027A711F9F8945C5A46CE9C495F7E1BEFDFDE6", 17: "1A2659323F724C598C6774A78390C3A1ADE0BCC9F3D2DEFA1A4C003E570060630985782AA88F4ECCAA73ECC79AF8E2C0FDFDE6", 18: "1A2659313D70495588626FA27C89BC98A4D7B2BFEEC8D5F8DCE9FD2C51004D5C016E6A14907F35B19557D3AF7AEECB9FF8E4C3FDFDE6", 19: "1A26592F3B6F4552855D699C7784B7909DD0AAB7E8C0CDF5D3E0FA1A4C003C56005A60057A711F99843EB79A5ED7B37FF1CEA4F8E6C5FDFDE6", 20: "1A26592E3A6D445083596699727EB18996C9A3AFE1B9C6F2CBD8F8DEEAFD2A5100495A0165660C837628A18A47BE9F65DEB886F2D0A7F9E7C7FDFDE6" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Oslo: { type: "sequential", values: { 3: "010101507BBCFFFFFF", 4: "0101011F4C7B89A0CAFFFFFF", 5: "01010115395B507BBCA2B0CAFFFFFF", 6: "010101122D482C5D967494C9B2BCCCFFFFFF", 7: "01010110263C1F4C7B507BBC89A0CABDC4CFFFFFFF", 8: "0101010F21331941693364A16B8EC897A9C9C7CCD3FFFFFF", 9: "0101010E1E2E15395B26578C507BBC7B98CAA2B0CACED1D7FFFFFF", 10: "0101010D1B291332511F4C7B3869A8658AC789A0CAAAB6CAD4D6DBFFFFFF", 11: "0101010D1927122D481A446D2C5D96507BBC7494C992A6C9B2BCCCD8DADEFFFFFF", 12: "0101010D1723102941183E642454883D6CAC6187C57F9BCA9AACC9B9C1CDDBDDE0FFFFFF", 13: "0101010C162010263C15395B1F4C7B30619C507BBC6F90C989A0CAA2B0CABDC4CFDEE0E2FFFFFF", 14: "0101010C151F0F23371434541B4670285990406EAF5E85C47997CA91A6C9A8B4CAC3C8D1E0E1E4FFFFFF", 15: "0101010B131D0F213313314E1941692352853364A1507BBC6B8EC8819CCA97A9C9ADB8CBC7CCD3E3E4E6FFFFFF", 16: "0101010B131C0E1F31122D48173C611F4C7B2C5D964170B15C84C37494C989A0CA9DADC9B2BCCCCACED5E5E6E7FFFFFF", 17: "0101010A121B0E1E2E112B4415395B1C487326578C3767A6507BBC678BC77B98CA8EA4C9A2B0CAB6BECDCED1D7E6E7E9FFFFFF", 18: "0101010911190E1C2C1028401435551A436C2251832F609B4371B25B83C37091C9839DCA94A8C9A7B4CABAC2CED1D3D9E8E9EAFFFFFF", 19: "0101010910180D1B2910263C133251183F661F4C7B295A913869A8507BBC658AC77896C989A0CA99ABC9AAB6CABDC4CFD4D6DBE9EAEBFFFFFF", 20: "010101080F170D1A280F243912304C173B601D487525558931629E4472B35982C26E90C87E9ACA8DA3C99EAEC9AEB9CBC2C7D1D5D8DCEBECEDFFFFFF" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Tokyo: { type: "sequential", values: { 3: "1A0E34908786FEFED8", 4: "1A0E34855E7897AE91FEFED8", 5: "1A0E3476466C908786A1C599FEFED8", 6: "1A0E346737628B6F7F949E8CAED6A2FEFED8", 7: "1A0E345A2D59855E7890878697AE91BAE1AAFEFED8", 8: "1A0E345127547E51728C768192988A9BBB95C7EAB2FEFED8", 9: "1A0E344B235076466C89697D90878695A48EA1C599CEEEB7FEFED8", 10: "1A0E3445204C6E3E67855E788D798292948997AE91A7CE9DD5F2BCFEFED8", 11: "1A0E34421E4A6737628054748B6F7F908786949E8C9AB693AED6A2DAF4BFFEFED8", 12: "1A0E343D1C4760315D7B4E7088667B8E7C8391918995A68F9DBE96B6DDA7DEF6C2FEFED8", 13: "1A0E343A1A465A2D5976466C855E788C7380908786939A8B97AE91A1C599BAE1AAE1F7C4FEFED8", 14: "1A0E34391A45562A57714068815775896B7D8E7E83918F8894A28D99B593A5CB9CC1E6AFE3F8C5FEFED8", 15: "1A0E343618435127546C3C657E517287647B8C768190878692988A96A88F9BBB95A9D09FC7EAB2E6F9C7FEFED8", 16: "1A0E343418424E25526737627A4B6F855E788B6F7F8E7F84918E88949E8C97AE919EC097AED6A2CAECB5E7F9C8FEFED8", 17: "1A0E343317414B235063335F76466C82597689697D8D788290878692958A95A48E99B392A1C599B2DAA5CEEEB7E9FAC9FEFED8", 18: "1A0E3431164048214E5F305C7242697F537387637A8B72808E8084918D88939B8B96A98F9AB894A4CA9BB7DEA8D2F0BAEAFACAFEFED8", 19: "1A0E3430163F45204C5A2D596E3E677C4F71855E788A6C7E8D798290878692948994A18D97AE919CBD95A7CE9DBAE1AAD5F2BCECFACBFEFED8", 20: "1A0E342E153F431F4B572B586B3A64794A6E835A7688677C8C74808E8184918D8793998B95A58E98B2929FC197AAD2A0C0E5AED7F3BDEDFBCCFEFED8" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Turku: { type: "sequential", values: { 3: "000000938C5BFFE6E6", 4: "0000005F5F44CFA67CFFE6E6", 5: "00000049493A938C5BE4AA8FFFE6E6", 6: "0000003C3C3271704CB9A06EEFB1A1FFE6E6", 7: "00000033322B5F5F44938C5BCFA67CF5B8ADFFE6E6", 8: "0000002C2C2753523E797750AF9C68DBA886F9BFB7FFE6E6", 9: "00000028282349493A6B6A49938C5BC2A373E4AA8FFBC3BDFFE6E6", 10: "0000002424204242355F5F447E7C52A99965CFA67CEAAD98FCC7C3FFE6E6", 11: "00000022221F3C3C3256564071704C938C5BB9A06ED8A782EFB1A1FDCBC7FFE6E6", 12: "0000001F1F1C37372E504F3D676748827F53A49663C6A475DEA889F3B5A8FDCDCAFFE6E6", 13: "0000001D1D1A33322B49493A5F5F4476744E938C5BB39E6BCFA67CE4AA8FF5B8ADFECFCCFFE6E6", 14: "0000001C1C192F2F294444375858416D6C4A858154A19461BFA271D7A781E9AC95F7BCB3FED0CEFFE6E6", 15: "0000001A1A182C2C2740403453523E656547797750938C5BAF9C68C8A477DBA886ECAE9BF9BFB7FED2D0FFE6E6", 16: "0000001919172A2A253C3C324E4D3C5F5F4471704C8682559F9461B9A06ECFA67CE0A98BEFB1A1FAC1BAFED3D1FFE6E6", 17: "00000018181628282339393049493A5A5A426B6A497D7B51938C5BAA9A66C2A373D4A780E4AA8FF2B3A5FBC3BDFED4D3FFE6E6", 18: "00000017171526262236362D45453755543F64644775734E8783569D9360B59F6CC9A578DAA784E8AC94F4B6AAFBC5C0FED6D4FFE6E6", 19: "00000016161424242033322B42423551503D5F5F446E6D4B7E7C52938C5BA99965BEA270CFA67CDDA888EAAD98F5B8ADFCC7C3FED7D5FFE6E6", 20: "00000015151323231F30302A3F3F344D4C3B5B5B4268684877754F8984569C925FB29D6AC4A474D3A67FE1A98CEDAF9CF7BBB1FCC8C4FFD8D6FFE6E6" }, url: "http://www.fabiocrameri.ch/colourmaps.php" } }, tableau: { BlueRed: { type: "qualitative", values: { 6: "2C69B0F02720AC613C6BA3D6EA6B73E9C39B", 12: "2C69B0B5C8E2F02720FFB6B0AC613CE9C39B6BA3D6B5DFFDAC8763DDC9B4BD0A36F4737A" }, url: "http://www.tableausoftware.com" }, ColorBlind: { type: "qualitative", values: { 10: "006BA4FF800EABABAB5959595F9ED1C85200898989A2C8ECFFBC79CFCFCF" }, url: "http://www.tableausoftware.com" }, Gray: { type: "qualitative", values: { 5: "60636AA5ACAF4144518F8782CFCFCF" }, url: "http://www.tableausoftware.com" }, GreenOrange: { type: "qualitative", values: { 6: "32A251FF7F0F3CB7CCFFD94A39737CB85A0D", 12: "32A251ACD98DFF7F0FFFB9773CB7CC98D9E4B85A0DFFD94A39737C86B4A982853BCCC94D" }, url: "http://www.tableausoftware.com" }, PurpleGray: { type: "qualitative", values: { 6: "7B66D2DC5FBD94917B995688D098EED7D5C5", 12: "7B66D2A699E8DC5FBDFFC0DA5F5A41B4B19B995688D898BAAB6AD5D098EE8B7C6EDBD4C5" }, url: "http://www.tableausoftware.com" }, TableauLight: { type: "qualitative", values: { 10: "AEC7E8FFBB7898DF8AFF9896C5B0D5C49C94F7B6D2C7C7C7DBDB8D9EDAE5" }, url: "http://www.tableausoftware.com" }, TableauMedium: { type: "qualitative", values: { 10: "729ECEFF9E4A67BF5CED665DAD8BC9A8786EED97CAA2A2A2CDCC5D6DCCDA" }, url: "http://www.tableausoftware.com" }, Tableau: { type: "qualitative", values: { 10: "1F77B4FF7F0E2CA02CD627289467BD8C564BE377C27F7F7FBCBD2217BECF", 20: "1F77B4AEC7E8FF7F0EFFBB782CA02C98DF8AD62728FF98969467BDC5B0D58C564BC49C94E377C2F7B6D27F7F7FC7C7C7BCBD22DBDB8D17BECF9EDAE5" }, url: "http://www.tableausoftware.com" }, TrafficLight: { type: "qualitative", values: { 9: "B10318DBA13A309343D82526FFC15669B764F26C64FFDD719FCD99" }, url: "http://www.tableausoftware.com" } }, wesanderson: { Aquatic1: { type: "qualitative", values: { 5: "3424191C4027F1C90E665899B89382" }, url: "http://wesandersonpalettes.tumblr.com/post/109568074320/steve-zissou-the-deeper-you-go-the-weirder-life" }, Aquatic2: { type: "qualitative", values: { 5: "8B9CB8E9E541589FC2A08D5EBDB9CE" }, url: "http://wesandersonpalettes.tumblr.com/post/125170837755/steve-zissou-please-dont-make-fun-of-me-i-just" }, Aquatic3: { type: "qualitative", values: { 5: "D6A142C28072C8B7A1BD442D64543C" }, url: "http://wesandersonpalettes.tumblr.com/post/139482629630/ah-weve-never-made-great-husbands-have-we-of" }, Cavalcanti: { type: "qualitative", values: { 5: "D1AA000832139294606F9879842111" }, url: "http://wesandersonpalettes.tumblr.com/post/79348553036/castello-cavalcanti-how-can-i-help" }, Chevalier: { type: "qualitative", values: { 4: "355243FECA49C9D5D5BBA289" }, url: "http://wesandersonpalettes.tumblr.com/post/79263620764/hotel-chevalier" }, Darjeeling1: { type: "qualitative", values: { 4: "9E9797C28E008366599C5A33" }, url: "http://wesandersonpalettes.tumblr.com/post/80149649946/jack-i-wonder-if-the-three-of-us-wouldve-been" }, Darjeeling2: { type: "qualitative", values: { 5: "D5E3D8618A98F9DA95AE4B16787064" }, url: "http://wesandersonpalettes.tumblr.com/post/109980167015/peter-fuck-the-itinerary" }, Darjeeling3: { type: "qualitative", values: { 5: "A8AB50FFE83DA9D3D224477D5A917C" }, url: "http://wesandersonpalettes.tumblr.com/post/143938510215/the-chief-steward-welcome-aboard" }, Darjeeling4: { type: "qualitative", values: { 5: "746768684762800806BC840EAE595C" }, url: "http://wesandersonpalettes.tumblr.com/post/160334044570/i-wonder-if-the-three-of-us-wouldve-been-friends" }, FantasticFox1: { type: "qualitative", values: { 5: "F9DB20934B4E42170DC27922E2C8A7" }, url: "http://wesandersonpalettes.tumblr.com/post/80149872170/mrs-fox-you-know-you-really-are-fantastic-mr" }, FantasticFox2: { type: "qualitative", values: { 5: "E4BF44C657429AD0BB332737ABA18D" }, url: "http://wesandersonpalettes.tumblr.com/post/110716093015/ash-should-we-dance" }, GrandBudapest1: { type: "qualitative", values: { 4: "EEAE65FB4F55481313CC5F27" }, url: "http://wesandersonpalettes.tumblr.com/post/79784389334/the-grand-budapest-hotel" }, GrandBudapest2: { type: "qualitative", values: { 4: "FFA68EFBCCB78C1108290B04" }, url: "http://wesandersonpalettes.tumblr.com/post/109473911685/m-gustave-you-see-there-are-still-faint" }, GrandBudapest3: { type: "qualitative", values: { 6: "FFDCB6253845E7AD9D66756E8B3F31966D35" }, url: "http://wesandersonpalettes.tumblr.com/post/112305028860/m-gustave-mendls-is-the-best" }, GrandBudapest4: { type: "qualitative", values: { 5: "BA6E00502056FFF6BB9A7F191F121B" }, url: "http://wesandersonpalettes.tumblr.com/post/117849683385/concierge-and-how-long-will-you-be-staying-with" }, GrandBudapest5: { type: "qualitative", values: { 5: "E192838C1B4CD19336E7C7BE330C00" }, url: "http://wesandersonpalettes.tumblr.com/post/122169507295/m-gustave-its-quite-a-thing-winning-the-loyalty" }, IsleOfDogs1: { type: "qualitative", values: { 5: "FEC5AFAE7E71D26732322323181213" }, url: "http://wesandersonpalettes.tumblr.com/post/172304342835/were-a-pack-of-scary-indestructible-alpha-dogs" }, IsleOfDogs2: { type: "qualitative", values: { 6: "986C968A1F1FD5AB550E0C0CDCC2C982726C" }, url: "http://wesandersonpalettes.tumblr.com/post/172586941620/be-advised-that-small-dogs-still-pose-a-threat-to" }, IsleOfDogs3: { type: "qualitative", values: { 4: "E58EA7E0C1A01E1263D8B148" }, url: "http://wesandersonpalettes.tumblr.com/post/184134532240/tracy-walker-that-crook-hes-stealing-the" }, Margot1: { type: "qualitative", values: { 5: "897712F3C2A4F69F97FED68C629075" }, url: "http://wesandersonpalettes.tumblr.com/post/79348364517/margot-takes-a-bath" }, Margot2: { type: "qualitative", values: { 4: "768B93BC240FF9ECC5D47329" }, url: "http://wesandersonpalettes.tumblr.com/post/79641785036/margot-takes-a-break" }, Margot3: { type: "qualitative", values: { 4: "87A2A4CAA065D6CABFD6A0A0" }, url: "http://wesandersonpalettes.tumblr.com/post/109473707895/etheline-raleigh-says-youve-been-spending-six" }, Mendl: { type: "qualitative", values: { 4: "DE8DB9B8C0F6CF93875C80CC" }, url: "http://wesandersonpalettes.tumblr.com/post/79348206200/mendls-heaven" }, Moonrise1: { type: "qualitative", values: { 5: "72CADDF0A5B08C8536C3B477FAD063" }, url: "http://wesandersonpalettes.tumblr.com/post/79263667140/sam-i-love-you-but-you-dont-know-what-youre" }, Moonrise2: { type: "qualitative", values: { 4: "667C74B56A27C2BA7C1F1917" }, url: "http://wesandersonpalettes.tumblr.com/post/79641731527/sam-why-do-you-always-use-binoculars-suzy-it" }, Moonrise3: { type: "qualitative", values: { 4: "F2DA52C59D00CBCBC91B1E14" }, url: "http://wesandersonpalettes.tumblr.com/post/79783357790/suzy-ive-always-wanted-to-be-an-orphan-most-of" }, Moonrise4: { type: "qualitative", values: { 5: "7B8761C1A62E4F8F6B3B453C9F3208" }, url: "http://wesandersonpalettes.tumblr.com/post/79956897654/coming-soon" }, Moonrise5: { type: "qualitative", values: { 6: "DF8C90D8D28EF5BE253D4A1CD13060A86B4C" }, url: "http://wesandersonpalettes.tumblr.com/post/116909186645/walt-bishop-our-daughters-been-abducted-by-one" }, Moonrise6: { type: "qualitative", values: { 5: "BF513DC9A296C5C1887BB191D9AE30" }, url: "http://wesandersonpalettes.tumblr.com/post/118877161325/sam-im-not-that-strong-of-a-swimmer-so-i-wear-a" }, Moonrise7: { type: "qualitative", values: { 5: "232355616860A75B44912B29FFE38F" }, url: "http://wesandersonpalettes.tumblr.com/post/137096576550/social-services-access-denied" }, Royal1: { type: "qualitative", values: { 4: "79A43AF2D6AF5E4829181401" }, url: "http://wesandersonpalettes.tumblr.com/post/79957796915/royal-o-reilly-tenenbaum-1932-2001" }, Royal2: { type: "qualitative", values: { 5: "C2ABBA8C3B49B6ACA6212053D1D3D5" }, url: "http://wesandersonpalettes.tumblr.com/post/115124780615/royal-anybody-interested-in-grabbing-a-couple-of" }, Royal3: { type: "qualitative", values: { 5: "FC576CED7E53E2998B2E1718FBD6CA" }, url: "http://wesandersonpalettes.tumblr.com/post/129921576355/royal-ive-always-been-considered-an-asshole-for" }, Zissou: { type: "qualitative", values: { 5: "0099E612255AF23814DFB78BB6C3C5" }, url: "http://wesandersonpalettes.tumblr.com/post/79956949771/steve-zissou-dont-point-that-gun-at-him-hes-an" } }, okabeito: { Okabe_Ito_Categorigal: { type: "qualitative", values: { 8: "000000e69f0056b4e9009e73f0e4420072b2d55e00cc79a7" }, url: "https://jfly.uni-koeln.de/color/" } }, d3: { Observable10: { type: "qualitative", values: { 10: "4269d0efb118ff725c6cc5b03ca951ff8ab7a463f297bbf59c6b4e9498a0" }, url: "https://d3js.org/d3-scale-chromatic/categorical#schemeObservable10" } }, joshuastevens: { Carrots: { type: "sequential", url: "https://gist.github.com/jscarto/167b38829aa9eb3758a4f8b1bc3d723f", values: { 2: "372442f6f8be", 3: "372442e06131f6f8be", 4: "372442c0304ce49c45f6f8be", 5: "372442a62142e06131e2b83af6f8be", 6: "3724428f2747cd4643e4864bddc857f6f8be", 7: "3724427c2a4bc0304ce06131e49c45ded068f6f8be", 8: "372442712b4db8183ed34d3ee47a48e3ac3fe2d776f6f8be", 9: "372442662c4fa62142c83d47e06131e48d49e2b83ae5da7ef6f8be", 10: "372442622b4f982545c0304cd6523ce37443e49c45e0c145e7dd85f6f8be", 11: "37244260294c8f2747bb2042cd4643e06131e4864be4a641ddc857e8e08bf6f8be", 12: "3724425e2849842949b21b3fc53948d7543ae3723fe49248e3b03ddbce61e9e28ff6f8be", 13: "3724425d26477c2a4ba62142c0304cd14a40e06131e47d4ce49c45e2b83aded068eae492f6f8be", 14: "3724425c2545772b4c9d2444bc2344ca4045d95739e26f3ce48a4ae4a442e1bf41e0d36fece596f6f8be", 15: "3724425b2444712b4d952646b8183ec53749d34d3ee06131e47a48e49348e3ac3fdfc44ce2d776ece799f6f8be", 16: "3724425a23426e2b4e8f2747b01c40c0304ccd4643da5838e26f3ce4864be49c45e3b23cddc857e3d97bede89df6f8be", 17: "372442582241662c4f872949a62142bc2646c83d47d44f3de06131e37746e48d49e4a243e2b83adbcd5fe5da7eeeea9ff6f8be", 18: "372442582241642c50832949a02343ba1f41c43649cf4941db5937e26d3ae4814ce49547e3aa40e2bd3cddcf65e6dd83efeaa1f6f8be", 19: "37244258223f622b4f7c2a4b982545b31b3fc0304ccb4144d6523ce06131e37443e4874be49c45e3af3ee0c145ded068e7dd85efeaa1f6f8be", 20: "37244257213e602a4c7a2a4b932646ae1d40bd2747c63a48d14c3fdb5937e26b39e47c4be49048e4a143e3b23cdfc54edfd36de8e08aefeba3f6f8be" } }, BlueFluorite: { type: "sequential", url: "https://gist.github.com/jscarto/6cc7f547bb7d5d9acda51e5c15256b01", values: { 2: "291b32f1f3ee", 3: "291b329274b3f1f3ee", 4: "291b328f3b9c8da7cbf1f3ee", 5: "291b32792b889274b385c0d7f1f3ee", 6: "291b326e227d9154a69094c285cfddf1f3ee", 7: "291b3260226f8f3b9c9274b38da7cb97d5def1f3ee", 8: "291b32582265823191925da9918abd89b5d2a2dadff1f3ee", 9: "291b3252215e792b88914aa29274b38f9ac585c0d7acdde0f1f3ee", 10: "291b324e215a7226818f3b9c9263ac9285bb8da7cb82c8dbb3e0e0f1f3ee", 11: "291b324a20566e227d8634949154a69274b39094c28ab2d085cfddbae2e1f1f3ee", 12: "291b324720526622767f2f8d9046a09265ad9282ba8f9dc788bad48fd2debee3e2f1f3ee", 13: "291b3244204f60226f792b888f3b9c9259a89274b3918dbf8da7cb85c0d797d5dec1e5e3f1f3ee", 14: "291b3242204d5c226b742783893596914ea39268ae9280b99096c38baecf83c6da9dd7dfc6e6e4f1f3ee", 15: "291b32401f4c5822657024808231919044a0925da99274b3918abd8e9fc889b5d281cbdca2dadfc8e7e4f1f3ee", 16: "291b323f1f4a5522636e227d7e2e8d8f3b9c9154a6926aaf927fb89094c28da7cb87bbd585cfddaadcdfcde8e5f1f3ee", 17: "291b323c1f4652215e672277792b888a3697914aa29260ab9274b39187bc8f9ac58badce85c0d78dd1deacdde0cee9e6f1f3ee", 18: "291b323c1f4650215d64227476298586339390439f9258a7926bb0927eb8918fc08ea2c98ab4d183c5d992d4deb1dfe0d2e9e7f1f3ee", 19: "291b323b1f454e215a60226f72268180308e8f3b9c9150a49263ac9274b39285bb9095c38da7cb88b8d382c8db97d5deb3e0e0d2e9e7f1f3ee", 20: "291b323a1e454a21575e226c6f247f7d2d8c8b37989047a1925aa8926bb0927cb7918cbf8f9cc68bacce87bbd580ccdd9bd7deb7e2e0d3eae7f1f3ee" } }, AridElevation: { type: "sequential", url: "https://gist.github.com/jscarto/392c7854cdb73aa82b416bfaf53efcc9", values: { 2: "999188ffffff", 3: "999188d3c4b5ffffff", 4: "999188bfb4a4e0d9d4ffffff", 5: "999188b5aa9dd3c4b5e6e2dfffffff", 6: "999188afa699c7bbabdbd1c9ebe8e5ffffff", 7: "999188aca296bfb4a4d3c4b5e0d9d4eeeceaffffff", 8: "999188a99f94b9afa0cabdaed8ccc4e3dddaf1eeedffffff", 9: "999188a79e92b5aa9dc4b7a8d3c4b5dcd3cde6e2dff2f1efffffff", 10: "999188a69d91b2a89abfb4a4ccbfafd8cac1e0d9d4e9e5e3f3f2f1ffffff", 11: "999188a49c90afa699bbb0a1c7bbabd3c4b5dbd1c9e2dcd7ebe8e5f5f3f3ffffff", 12: "999188a39b90ada497b8ad9fc2b6a7cec0b0d7cac0ddd5cfe5dfdcece9e8f6f4f4ffffff", 13: "999188a29a8faca296b5aa9dbfb4a4c9bcadd3c4b5d9cec7e0d9d4e6e2dfeeeceaf6f5f4ffffff", 14: "999188a1998eaaa094b3a99bbcb0a2c5b9aacec0b1d7c8bedbd2cbe1dbd7e8e4e2efecebf7f6f5ffffff", 15: "999188a1998ea99f94b1a799b9afa0c2b7a7cabdaed3c4b5d8ccc4ded5d0e3dddaeae6e4f1eeedf7f6f6ffffff", 16: "999188a0988da89e93afa699b7ac9ebfb4a4c7bbabcfc2b2d7c9bedbd1c9e0d9d4e5e1ddebe8e5f1efeef8f7f7ffffff", 17: "999188a0978da79e92aea497b5aa9dbdb1a3c4b7a8ccbfafd3c4b5d8ccc2dcd3cde1dbd6e6e2dfeceae8f2f1eff8f7f7ffffff", 18: "999188a0978da79d92ada397b4a99cbbafa1c1b6a6c8bcaccfc2b2d6c8bddacfc7ded6d0e3ddd9e8e4e1edebe9f3f2f1f9f8f8ffffff", 19: "9991889f978ca69d91aca296b2a89ab8ad9fbfb4a4c6b9aaccbfafd3c4b5d8cac1dbd2cbe0d9d4e4dfdbe9e5e3eeeceaf3f2f1f9f8f8ffffff", 20: "9991889f968ca49b90aba295b1a699b7ac9ebdb2a3c3b7a7c9bdadcfc2b2d6c7bcd9cdc5ddd4cfe1dad6e5e1ddeae7e4efecebf4f3f2f9f9f8ffffff" } }, Florida: { type: "sequential", url: "https://gist.github.com/jscarto/218474b4962a022644c3b05af193a4b3", values: { 2: "060910fff724", 3: "060910b45b2efff724", 4: "060910604b2aef7d14fff724", 5: "060910403b3bb45b2eff9805fff724", 6: "0609102f323c83522bd77022ffad0bfff724", 7: "060910272c37604b2ab45b2eef7d14ffb80ffff724", 8: "0609102126334e423593532ecb6927ff8701ffc212fff724", 9: "0609101e2330403b3b744f29b45b2ee0741fff9805ffc915fff724", 10: "0609101a212e333740604b2a9a542fc66629ef7d14ffa208ffce16fff724", 11: "060910181f2c2f323c54443183522bb45b2ed77022fb8307ffad0bffd217fff724", 12: "060910161d2b2a2f394940376e4f28a05430c4642ae4761cff8c02ffb30dffd518fff724", 13: "060910141b2a272c37403b3b604b2a8c532db45b2ed06b25ef7d14ff9805ffb80fffd719fff724", 14: "060910131b2924293536383f5645307b502aa35530c1632bdb7221f8820cffa007ffbd11ffda1afff724", 15: "06091011192821263331343e4e42356b4e2893532eb45b2ecb6927e5771bff8701ffa609ffc212ffdc1bfff724", 16: "0609101019272025322f323c473f38604b2a83522ba85531c0622bd77022ef7d14ff9103ffad0bffc714ffde1cfff724", 17: "0609100f17261e23302c303a403b3b58472f744f2996542eb45b2ec96828e0741ff6810dff9805ffb00cffc915ffe01cfff724", 18: "0609100f17261c222f292d383b393e524433684e288a522da95631be612bd26d24e8791afd8503ff9e06ffb60effcc15ffe21dfff724", 19: "0609100e17251a212e272c373337404a4036604b2a7c502a9a542fb45b2ec66629d97121ef7d14ff8c02ffa208ffb80fffce16ffe21dfff724", 20: "0609100e1625191f2d25293531343e453e395a472e704f298e532da95631bd602ccf6b26e2751df5800eff9103ffa709ffbc10ffd117ffe41dfff724" } } } }, $T = ["RdPu_6", "Bilbao_7", "RdBu_5", "BuPu_7", "PiYG_6", "Bilbao_3", "YlGn_9", "Broc_4", "PuBu_3", "RdBu_3", "Set2_3", "PuBu_6", "Acton_8", "Acton_6", "BrBG_8", "Greys_5", "PiYG_10", "PuBuGn_6", "PuBuGn_7", "Purples_3", "Reds_6", "GnBu_3", "PRGn_7", "PiYG_8", "Broc_11", "PuOr_8", "Greys_8", "GnBu_9", "OrRd_8", "YlOrBr_7", "GnBu_6", "YlOrBr_3", "PiYG_7", "Blues_9", "Broc_10", "BrBG_9", "BuGn_4", "Okabe_Ito_Categorigal_8", "PuBu_4", "Blues_4", "PRGn_10", "RdYlBu_10", "Paired_3", "PuRd_4", "BrBG_7", "YlOrRd_8", "Greys_4", "RdPu_9", "YlGnBu_4", "Blues_7", "BrBG_4", "Greens_4", "RdYlBu_5", "Oranges_5", "Oranges_6", "Broc_7", "PRGn_8", "Purples_4", "OrRd_4", "YlGn_6", "RdBu_10", "YlGnBu_9", "Purples_6", "BuGn_8", "PuOr_9", "BuPu_5", "YlOrBr_4", "BuPu_9", "PiYG_5", "Greens_7", "Bilbao_4", "Bilbao_8", "PuBu_7", "YlGnBu_8", "Acton_9", "PuBuGn_3", "BuPu_8", "Greens_3", "Broc_9", "Oranges_8", "PuOr_3", "RdYlBu_7", "BrBG_6", "PiYG_4", "Broc_8", "PuRd_6", "PuBuGn_9", "Broc_3", "Greys_7", "RdYlBu_11", "BuGn_3", "Reds_3", "RdPu_8", "Oranges_9", "PRGn_11", "BuPu_4", "OrRd_7", "BuGn_5", "GnBu_5", "GnBu_8", "YlGnBu_7", "OrRd_6", "YlOrRd_3", "Reds_9", "PuOr_10", "BuPu_3", "RdBu_11", "RdBu_8", "PuOr_4", "Blues_8", "PRGn_9", "RdYlBu_3", "GreenMagenta_16", "PuRd_8", "Blues_3", "Broc_6", "Purples_5", "Purples_7", "Greys_3", "RdBu_9", "RdYlBu_9", "BuGn_6", "Greens_8", "PiYG_3", "Blues_6", "YlOrBr_8", "YlGn_7", "RdPu_3", "BuGn_9", "OrRd_3", "RdPu_7", "PRGn_4", "PuBuGn_4", "GnBu_4", "PRGn_5", "PuRd_5", "PuOr_7", "BrBG_11", "RdYlBu_6", "YlGnBu_5", "YlGn_5", "PuBu_8", "Greys_6", "Acton_3", "Acton_4", "BrBG_5", "Bilbao_5", "Bilbao_9", "Oranges_7", "Oranges_3", "RdBu_4", "Reds_5", "Reds_8", "RdYlBu_4", "PuBuGn_8", "PiYG_9", "BrBG_3", "PuOr_5", "Reds_7", "YlOrBr_5", "YlOrBr_9", "YlOrRd_4", "Greens_9", "YlGnBu_6", "Greens_6", "BuGn_7", "YlOrRd_5", "RdBu_7", "Reds_4", "PuRd_7", "PuBuGn_5", "Purples_9", "BrBG_10", "PRGn_6", "PuRd_3", "YlGn_3", "RdPu_4", "YlOrRd_7", "OrRd_5", "RdYlBu_8", "BuPu_6", "Dark2_3", "Acton_7", "PuRd_9", "Bilbao_6", "PiYG_11", "Oranges_4", "PuOr_11", "RdPu_5", "PuBu_5", "YlGnBu_3", "YlOrBr_6", "Purples_8", "Greens_5", "PRGn_3", "RdBu_6", "Paired_4", "YlGn_4", "YlGn_8", "PuBu_9", "YlOrRd_6", "Broc_5", "Greys_9", "Blues_5", "PuOr_6", "GnBu_7", "OrRd_9", "Acton_5", "Safe_2", "Safe_3", "Safe_4", "Safe_5", "Safe_6", "Safe_7", "Safe_8", "Safe_9", "Safe_10"];
+var Am, zx, rf = { cartocolors: { ArmyRose: { type: "diverging", values: { 2: "798234D46780", 3: "798234FDFBE4D46780", 4: "798234D0D3A2F0C6C3D46780", 5: "798234D0D3A2FDFBE4F0C6C3D46780", 6: "798234A3AD62D0D3A2F0C6C3DF91A3D46780", 7: "798234A3AD62D0D3A2FDFBE4F0C6C3DF91A3D46780" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Earth: { type: "diverging", values: { 2: "A169282887A1", 3: "A16928EDEAC22887A1", 4: "A16928D6BD8DB5C8B82887A1", 5: "A16928D6BD8DEDEAC2B5C8B82887A1", 6: "A16928BD925AD6BD8DB5C8B879A7AC2887A1", 7: "A16928BD925AD6BD8DEDEAC2B5C8B879A7AC2887A1" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Fall: { type: "diverging", values: { 2: "3D5941CA562C", 3: "3D5941F6EDBDCA562C", 4: "3D5941B5B991EDBB8ACA562C", 5: "3D5941B5B991F6EDBDEDBB8ACA562C", 6: "3D5941778868B5B991EDBB8ADE8A5ACA562C", 7: "3D5941778868B5B991F6EDBDEDBB8ADE8A5ACA562C" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Geyser: { type: "diverging", values: { 2: "008080CA562C", 3: "008080F6EDBDCA562C", 4: "008080B4C8A8EDBB8ACA562C", 5: "008080B4C8A8F6EDBDEDBB8ACA562C", 6: "00808070A494B4C8A8EDBB8ADE8A5ACA562C", 7: "00808070A494B4C8A8F6EDBDEDBB8ADE8A5ACA562C" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, TealRose: { type: "diverging", values: { 2: "009392D0587E", 3: "009392F1EAC8D0587E", 4: "009392B1C7B3E5B9ADD0587E", 5: "009392B1C7B3F1EAC8E5B9ADD0587E", 6: "00939272AAA1B1C7B3E5B9ADD98994D0587E", 7: "00939272AAA1B1C7B3F1EAC8E5B9ADD98994D0587E" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Temps: { type: "diverging", values: { 2: "009392CF597E", 3: "009392E9E29CCF597E", 4: "0093929CCB86EEB479CF597E", 5: "0093929CCB86E9E29CEEB479CF597E", 6: "00939239B1859CCB86EEB479E88471CF597E", 7: "00939239B1859CCB86E9E29CEEB479E88471CF597E" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Tropic: { type: "diverging", values: { 2: "009B9EC75DAB", 3: "009B9EF1F1F1C75DAB", 4: "009B9EA7D3D4E4C1D9C75DAB", 5: "009B9EA7D3D4F1F1F1E4C1D9C75DAB", 6: "009B9E42B7B9A7D3D4E4C1D9D691C1C75DAB", 7: "009B9E42B7B9A7D3D4F1F1F1E4C1D9D691C1C75DAB" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BluGrn: { type: "sequential", values: { 2: "C4E6C31D4F60", 3: "C4E6C34DA2841D4F60", 4: "C4E6C36DBC9036877A1D4F60", 5: "C4E6C36DBC904DA28436877A1D4F60", 6: "C4E6C396D2A46DBC9036877A266B6E1D4F60", 7: "C4E6C396D2A46DBC904DA28436877A266B6E1D4F60" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BluYl: { type: "sequential", values: { 2: "F7FEAE045275", 3: "F7FEAE46AEA0045275", 4: "F7FEAE7CCBA2089099045275", 5: "F7FEAE7CCBA246AEA0089099045275", 6: "F7FEAEB7E6A57CCBA208909900718B045275", 7: "F7FEAEB7E6A57CCBA246AEA008909900718B045275" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BrwnYl: { type: "sequential", values: { 2: "EDE5CF541F3F", 3: "EDE5CFC1766F541F3F", 4: "EDE5CFD39C83A65461541F3F", 5: "EDE5CFD39C83C1766FA65461541F3F", 6: "EDE5CFE0C2A2D39C83A65461813753541F3F", 7: "EDE5CFE0C2A2D39C83C1766FA65461813753541F3F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, BurgYl: { type: "sequential", values: { 2: "FBE6C570284A", 3: "FBE6C5DC717670284A", 4: "FBE6C5EE8A82C8586C70284A", 5: "FBE6C5EE8A82DC7176C8586C70284A", 6: "FBE6C5F5BA98EE8A82C8586C9C3F5D70284A", 7: "FBE6C5F5BA98EE8A82DC7176C8586C9C3F5D70284A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Burg: { type: "sequential", values: { 2: "FFC6C4672044", 3: "FFC6C4CC607D672044", 4: "FFC6C4E38191AD466C672044", 5: "FFC6C4E38191CC607DAD466C672044", 6: "FFC6C4F4A3A8E38191AD466C8B3058672044", 7: "FFC6C4F4A3A8E38191CC607DAD466C8B3058672044" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, DarkMint: { type: "sequential", values: { 2: "D2FBD4123F5A", 3: "D2FBD4559C9E123F5A", 4: "D2FBD47BBCB03A7C89123F5A", 5: "D2FBD47BBCB0559C9E3A7C89123F5A", 6: "D2FBD4A5DBC27BBCB03A7C89235D72123F5A", 7: "D2FBD4A5DBC27BBCB0559C9E3A7C89235D72123F5A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Emrld: { type: "sequential", values: { 2: "D3F2A3074050", 3: "D3F2A34C9B82074050", 4: "D3F2A36CC08B217A79074050", 5: "D3F2A36CC08B4C9B82217A79074050", 6: "D3F2A397E1966CC08B217A79105965074050", 7: "D3F2A397E1966CC08B4C9B82217A79105965074050" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Magenta: { type: "sequential", values: { 2: "F3CBD36C2167", 3: "F3CBD3CA699D6C2167", 4: "F3CBD3DD88ACB14D8E6C2167", 5: "F3CBD3DD88ACCA699DB14D8E6C2167", 6: "F3CBD3EAA9BDDD88ACB14D8E91357D6C2167", 7: "F3CBD3EAA9BDDD88ACCA699DB14D8E91357D6C2167" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Mint: { type: "sequential", values: { 2: "E4F1E10D585F", 3: "E4F1E163A6A00D585F", 4: "E4F1E189C0B6448C8A0D585F", 5: "E4F1E189C0B663A6A0448C8A0D585F", 6: "E4F1E1B4D9CC89C0B6448C8A2872740D585F", 7: "E4F1E1B4D9CC89C0B663A6A0448C8A2872740D585F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, OrYel: { type: "sequential", values: { 2: "ECDA9AEE4D5A", 3: "ECDA9AF7945DEE4D5A", 4: "ECDA9AF3AD6AF97B57EE4D5A", 5: "ECDA9AF3AD6AF7945DF97B57EE4D5A", 6: "ECDA9AEFC47EF3AD6AF97B57F66356EE4D5A", 7: "ECDA9AEFC47EF3AD6AF7945DF97B57F66356EE4D5A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Peach: { type: "sequential", values: { 2: "FDE0C5EB4A40", 3: "FDE0C5F59E72EB4A40", 4: "FDE0C5F8B58BF2855DEB4A40", 5: "FDE0C5F8B58BF59E72F2855DEB4A40", 6: "FDE0C5FACBA6F8B58BF2855DEF6A4CEB4A40", 7: "FDE0C5FACBA6F8B58BF59E72F2855DEF6A4CEB4A40" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, PinkYl: { type: "sequential", values: { 2: "FEF6B5E15383", 3: "FEF6B5FFA679E15383", 4: "FEF6B5FFC285FA8A76E15383", 5: "FEF6B5FFC285FFA679FA8A76E15383", 6: "FEF6B5FFDD9AFFC285FA8A76F16D7AE15383", 7: "FEF6B5FFDD9AFFC285FFA679FA8A76F16D7AE15383" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, PurpOr: { type: "sequential", values: { 2: "F9DDDA573B88", 3: "F9DDDACE78B3573B88", 4: "F9DDDAE597B9AD5FAD573B88", 5: "F9DDDAE597B9CE78B3AD5FAD573B88", 6: "F9DDDAF2B9C4E597B9AD5FAD834BA0573B88", 7: "F9DDDAF2B9C4E597B9CE78B3AD5FAD834BA0573B88" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Purp: { type: "sequential", values: { 2: "F3E0F763589F", 3: "F3E0F7B998DD63589F", 4: "F3E0F7D1AFE89F82CE63589F", 5: "F3E0F7D1AFE8B998DD9F82CE63589F", 6: "F3E0F7E4C7F1D1AFE89F82CE826DBA63589F", 7: "F3E0F7E4C7F1D1AFE8B998DD9F82CE826DBA63589F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, RedOr: { type: "sequential", values: { 2: "F6D2A9B13F64", 3: "F6D2A9EA8171B13F64", 4: "F6D2A9F19C7CDD686CB13F64", 5: "F6D2A9F19C7CEA8171DD686CB13F64", 6: "F6D2A9F5B78EF19C7CDD686CCA5268B13F64", 7: "F6D2A9F5B78EF19C7CEA8171DD686CCA5268B13F64" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, SunsetDark: { type: "sequential", values: { 2: "FCDE9C7C1D6F", 3: "FCDE9CE34F6F7C1D6F", 4: "FCDE9CF0746EDC39777C1D6F", 5: "FCDE9CF0746EE34F6FDC39777C1D6F", 6: "FCDE9CFAA476F0746EDC3977B9257A7C1D6F", 7: "FCDE9CFAA476F0746EE34F6FDC3977B9257A7C1D6F" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Sunset: { type: "sequential", values: { 2: "F3E79B5C53A5", 3: "F3E79BEB7F865C53A5", 4: "F3E79BF8A07ECE66935C53A5", 5: "F3E79BF8A07EEB7F86CE66935C53A5", 6: "F3E79BFAC484F8A07ECE6693A059A05C53A5", 7: "F3E79BFAC484F8A07EEB7F86CE6693A059A05C53A5" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, TealGrn: { type: "sequential", values: { 2: "B0F2BC257D98", 3: "B0F2BC4CC8A3257D98", 4: "B0F2BC67DBA538B2A3257D98", 5: "B0F2BC67DBA54CC8A338B2A3257D98", 6: "B0F2BC89E8AC67DBA538B2A32C98A0257D98", 7: "B0F2BC89E8AC67DBA54CC8A338B2A32C98A0257D98" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Teal: { type: "sequential", values: { 2: "D1EEEA2A5674", 3: "D1EEEA68ABB82A5674", 4: "D1EEEA85C4C94F90A62A5674", 5: "D1EEEA85C4C968ABB84F90A62A5674", 6: "D1EEEAA8DBD985C4C94F90A63B738F2A5674", 7: "D1EEEAA8DBD985C4C968ABB84F90A63B738F2A5674" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, agGrnYl: { type: "sequential", values: { 2: "245668EDEF5D", 3: "24566839AB7EEDEF5D", 4: "2456680D8F816EC574EDEF5D", 5: "2456680D8F8139AB7E6EC574EDEF5D", 6: "2456680F72790D8F816EC574A9DC67EDEF5D", 7: "2456680F72790D8F8139AB7E6EC574A9DC67EDEF5D" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, agSunset: { type: "sequential", values: { 2: "4B2991EDD9A3", 3: "4B2991EA4F88EDD9A3", 4: "4B2991C0369DFA7876EDD9A3", 5: "4B2991C0369DEA4F88FA7876EDD9A3", 6: "4B2991872CA2C0369DFA7876F6A97AEDD9A3", 7: "4B2991872CA2C0369DEA4F88FA7876F6A97AEDD9A3" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Antique: { type: "qualitative", values: { 2: "855C75D9AF6B", 3: "855C75D9AF6BAF6458", 4: "855C75D9AF6BAF6458736F4C", 5: "855C75D9AF6BAF6458736F4C526A83", 6: "855C75D9AF6BAF6458736F4C526A83625377", 7: "855C75D9AF6BAF6458736F4C526A8362537768855C", 8: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5E", 9: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5EA06177", 10: "855C75D9AF6BAF6458736F4C526A8362537768855C9C9C5EA061778C785D" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Bold: { type: "qualitative", values: { 2: "7F3C8D11A579", 3: "7F3C8D11A5793969AC", 4: "7F3C8D11A5793969ACF2B701", 5: "7F3C8D11A5793969ACF2B701E73F74", 6: "7F3C8D11A5793969ACF2B701E73F7480BA5A", 7: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310", 8: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695", 9: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695CF1C90", 10: "7F3C8D11A5793969ACF2B701E73F7480BA5AE68310008695CF1C90F97B72" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Pastel: { type: "qualitative", values: { 2: "66C5CCF6CF71", 3: "66C5CCF6CF71F89C74", 4: "66C5CCF6CF71F89C74DCB0F2", 5: "66C5CCF6CF71F89C74DCB0F287C55F", 6: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3", 7: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1", 8: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB74", 9: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB748BE0A4", 10: "66C5CCF6CF71F89C74DCB0F287C55F9EB9F3FE88B1C9DB748BE0A4B497E7" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Prism: { type: "qualitative", values: { 2: "5F46901D6996", 3: "5F46901D699638A6A5", 4: "5F46901D699638A6A50F8554", 5: "5F46901D699638A6A50F855473AF48", 6: "5F46901D699638A6A50F855473AF48EDAD08", 7: "5F46901D699638A6A50F855473AF48EDAD08E17C05", 8: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E", 9: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E94346E", 10: "5F46901D699638A6A50F855473AF48EDAD08E17C05CC503E94346E6F4070" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Safe: { type: "qualitative", values: { 2: "88CCEECC6677", 3: "88CCEECC6677DDCC77", 4: "88CCEECC6677DDCC77117733", 5: "88CCEECC6677DDCC77117733332288", 6: "88CCEECC6677DDCC77117733332288AA4499", 7: "88CCEECC6677DDCC77117733332288AA449944AA99", 8: "88CCEECC6677DDCC77117733332288AA449944AA99999933", 9: "88CCEECC6677DDCC77117733332288AA449944AA99999933882255", 10: "88CCEECC6677DDCC77117733332288AA449944AA99999933882255661100" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" }, Vivid: { type: "qualitative", values: { 2: "E586065D69B1", 3: "E586065D69B152BCA3", 4: "E586065D69B152BCA399C945", 5: "E586065D69B152BCA399C945CC61B0", 6: "E586065D69B152BCA399C945CC61B024796C", 7: "E586065D69B152BCA399C945CC61B024796CDAA51B", 8: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4", 9: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4764E9F", 10: "E586065D69B152BCA399C945CC61B024796CDAA51B2F8AC4764E9FED645A" }, url: "https://github.com/CartoDB/CartoColor/wiki/CARTOColor-Scheme-Names" } }, cmocean: { Balance: { type: "diverging", values: { 3: "181C43F1ECEB3C0912", 4: "181C4375AABED08B733C0912", 5: "181C433888BAF1ECEBC05A3C3C0912", 6: "181C431670BCAAC2CBDCB2A4B338263C0912", 7: "181C430C5EBE75AABEF1ECEBD08B73A724243C0912", 8: "181C431C50BA5197BABFCDD3E1C2B8C76F539916273C0912", 9: "181C432548B03888BA98BAC5F1ECEBD8A493C05A3C9010293C0912", 10: "181C432942A2267BBA75AABECAD4D8E4CBC4D08B73BA482E860E293C0912", 11: "181C43293F9A1670BC599CBBAAC2CBF1ECEBDCB2A4CA795DB338267E0E293C0912", 12: "181C43293B8F0B66BD4892BA8EB5C3D3D9DCE6D2CDD69D8AC5684BAC2B24780E283C0912", 13: "181C432938880C5EBE3888BA75AABEB6C9CFF1ECEBDFBBB0D08B73C05A3CA72424730E273C0912", 14: "181C432837841357BE2B7FBA5F9FBB9EBCC7D8DCDEE8D7D2D9A998CB7B60BC4D329F1B26700E273C0912", 15: "181C4327347D1C50BA2178BB5197BA88B2C1BFCDD3F1ECEBE1C2B8D49984C76F53B8432B9916276B0F253C0912", 16: "181C4327337A214CB61670BC438FBA75AABEAAC2CBDBDEE0E9D9D5DCB2A4D08B73C36346B33826941328680F253C0912", 17: "181C432632762548B00F6ABD3888BA65A2BC98BAC5C7D2D7F1ECEBE3C9C1D8A493CD7F65C05A3CAF3024901029650F243C0912", 18: "181C432530732745A90A64BE2E81BA569ABB85B1C0B3C7CEDEE0E1EADCD8DEB9ADD39681C97458BD5034AB29248B0F29630E233C0912", 19: "181C43252F6F2942A20C5EBE267BBA4B94BA75AABEA1BEC8CAD4D8F1ECEBE4CBC4DAAB9BD08B73C66B4DBA482EA72424860E29600E223C0912", 20: "181C43242E6C29409E1059BE1E76BB408DBA68A4BC91B7C3B9CAD0E1E1E3EBDEDBDFBDB2D69F8DCD8268C36143B74029A11D25830E295E0E213C0912" }, url: "http://matplotlib.org/cmocean/" }, Curl: { type: "diverging", values: { 3: "151D44FEF6F5340D35", 4: "151D447DB390DB8C77340D35", 5: "151D442C947FFEF6F5C45A61340D35", 6: "151D44117D79B6CBAFE6B7A2AE4060340D35", 7: "151D44156D737DB390FEF6F5DB8C779D3060340D35", 8: "151D4419626D50A284CCD6C1ECCAB9D06F66902760340D35", 9: "151D441B59682C947FA3C2A2FEF6F5E2A891C45A61862060340D35", 10: "151D441C536417887D7DB390D8DDCCEFD3C6DB8C77B94B607D1C5F340D35", 11: "151D441C4D61117D795DA786B6CBAFFEF6F5E6B7A2D4776AAE406076195D340D35", 12: "151D441C495E127576419D8299BE9DDFE1D3F1DACEE0A189CC6764A5376070185C340D35", 13: "151D441C465C156D732C947F7DB390C3D1BAFEF6F5E9C2AFDB8C77C45A619D30606C175A340D35", 14: "151D441C425A1767701C8C7E65AA88ABC5A8E4E4D8F3DFD5E4AE98D67C6CBC4F60972B61661658340D35", 15: "151D441C405819626D14847C50A28492BB99CCD6C1FEF6F5ECCAB9E09D85D06F66B44660902760641557340D35", 16: "151D441B3E571A5D6A117D793B9B817DB390B6CBAFE7E6DBF4E1D8E6B7A2DB8C77CA6363AE40608A2360601455340D35", 17: "151D441B3C561B59681177772C947F6BAC8AA3C2A2D3DAC8FEF6F5EED0C1E2A891D7806EC45A61A83A608620605D1454340D35", 18: "151D441B3A541B56661372751F8D7E57A5858FBA97BFCFB6EAE8DEF5E4DCE8BEABDF9982D27468BE5260A23560811E5F5A1452340D35", 19: "151D441B38531C5364156D7317887D479F827DB390AEC7AAD8DDCCFEF6F5EFD3C6E5B19ADB8C77CD6A65B94B609D30607D1C5F581351340D35", 20: "151D441A37531C506216697113837B3899816DAD8A9CBF9FC6D3BCEDEAE1F6E6DFEAC5B3E1A38BD7816FC86162B44560992D617A1B5E571350340D35" }, url: "http://matplotlib.org/cmocean/" }, Delta: { type: "diverging", values: { 3: "112040FFFDCD172313", 4: "1120406CB5B3AAAC20172313", 5: "1120403391A9FFFDCD61920B172313", 6: "1120402378A3ACCEC6D8C55F32801F172313", 7: "1120401C67A06CB5B3FFFDCDAAAC20187328172313", 8: "1120401B5B9E44A1AEC5DAD0E6D480819D060D682B172313", 9: "1120401C529D3391A997C5BEFFFDCDCBBB4661920B0B602D172313", 10: "1120401F4A9B2A83A66CB5B3D1E1D6ECDC91AAAC204889160D592D172313", 11: "1120402343972378A34EA8AFACCEC6FFFDCDD8C55F8EA20B32801F10542C172313", 12: "112040263E911F6FA13D9BAC8BC1BAD9E5DAEFE29CC3B73B759906247924124F2B172313", 13: "112040273C8B1C67A03391A96CB5B3BBD5CCFFFDCDE1CD73AAAC2061920B187328144C2A172313", 14: "1120402639841B619F2C87A754ABB0A0C9C1DFE9DCF2E6A5D1BF5195A40F4F8C13116D2A154829172313", 15: "11204025377E1B5B9E2780A544A1AE84BEB8C5DAD0FFFDCDE6D480BEB436819D063F851A0D682B164629172313", 16: "11204025367A1B569D2378A33A98AB6CB5B3ACCEC6E3EBDEF3E9A9D8C55FAAAC2070970732801F0B632C174327172313", 17: "1120402435761C529D2072A23391A959AEB097C5BECDDED4FFFDCDEAD98BCBBB469AA61361920B287C230B602D174127172313", 18: "1120402333721E4D9C1E6CA12D89A749A5AE80BDB7B6D3CAE6EDDFF5EBADDECB6CBAB23088A008528D121F77260C5C2D183F26172313", 19: "11204022326F1F4A9B1C67A02A83A6409EAD6CB5B3A3CAC2D1E1D6FFFDCDECDC91D3C155AAAC207A9B064889161873280D592D183E25172313", 20: "11204021316D21469A1B639F267EA53896AB5BAEB18FC2BBBED7CDE9EEE0F6EDB1E3CF77C5B83F9BA6146C96073D851B136F290F562C193D24172313" }, url: "http://matplotlib.org/cmocean/" }, Algae: { type: "sequential", values: { 3: "D7F9D0129450122414", 4: "D7F9D064B463126E45122414", 5: "D7F9D084C47A129450185B3B122414", 6: "D7F9D096CD8A44A855097D4B1A5034122414", 7: "D7F9D0A2D59564B463129450126E451A4930122414", 8: "D7F9D0AADA9D77BD6F34A35307844D1663401A432C122414", 9: "D7F9D0AFDDA284C47A50AD591294500C7849185B3B194029122414", 10: "D7F9D0B4E0A88EC98264B4632CA05207874D126E45195538193C27122414", 11: "D7F9D0B6E2AB96CD8A72BB6C44A855129450097D4B1567411A5034183A25122414", 12: "D7F9D0BAE4AF9DD1907BBF7356AF5C269E51088A4E0E754817613E1A4C32183824122414", 13: "D7F9D0BDE6B1A2D59584C47A64B4633BA65412945008814C126E45185B3B1A4930173622122414", 14: "D7F9D0BEE7B3A6D7998BC7806FB96A4CAB58229C51098C4F0B7A491468421957391A462E173522122414", 15: "D7F9D0C0E9B6AADA9D91CA8577BD6F5AB05D34A35312945007844D0F73471663401954371A432C173420122414", 16: "D7F9D0C2EAB7ACDBA096CD8A7EC17564B46344A855209C51098D4F097D4B126E45175F3D1A503419412B173320122414", 17: "D7F9D0C3EBB9AFDDA29AD08D84C47A6CB86850AD592EA15212945007864D0C7849146A43185B3B1A4D3319402916321F122414", 18: "D7F9D0C4EBBAB1DEA59ED2918AC77E74BB6D5BB15E3DA6541E9B510A8E4F08804B0F73471565401958391A4B31193E2816311E122414", 19: "D7F9D0C5ECBBB4E0A8A2D5958EC9827ABE7264B4634AAB572CA05212945007874D0B7B4A126E4517623F1955381A4930193C2716301E122414", 20: "D7F9D0C7EDBDB5E1A9A4D69892CB8680C1766BB76754AE5B39A5531C9A510B8F4F07824C0D7648136A43185E3D1A53361A472E183B26162F1D122414" }, url: "http://matplotlib.org/cmocean/" }, Amp: { type: "sequential", values: { 3: "F1EDECC0583B3C0912", 4: "F1EDECD08B73A622253C0912", 5: "F1EDECD7A291C0583B9010293C0912", 6: "F1EDECDCB1A3CA775BB338267F0E293C0912", 7: "F1EDECDFBCB0D08B73C0583BA62225740E283C0912", 8: "F1EDECE1C3B9D49884C76F52B7412A9A16276B0F253C0912", 9: "F1EDECE2C7BFD7A291CC7E64C0583BAF3024901029650F243C0912", 10: "F1EDECE4CCC5D9AA9BD08B73C66A4DB9462DA62225870E29600E223C0912", 11: "F1EDECE5CEC8DCB1A3D3957FCA775BC0583BB338269E1A267F0E295C0E213C0912", 12: "F1EDECE6D2CCDDB7ABD59C88CD8168C56749BB4A30AD2C24971428780E285A0E1F3C0912", 13: "F1EDECE7D4CFDFBCB0D7A291D08B73C87256C0583BB53D28A62225901029740E28570E1E3C0912", 14: "F1EDECE7D5D0E0BFB5D9A898D2927DCB7C61C46447BC4D31B033259F1B26890F296F0E26560E1E3C0912", 15: "F1EDECE8D8D3E1C3B9DAAD9ED49884CE846AC76F52C0583BB7412AAB2A249A1627840E296B0F25530D1D3C0912", 16: "F1EDECE9D9D4E2C5BCDCB1A3D69E8BD08B73CA775BC36346BC4E32B33826A622259413287F0E29680F25520D1C3C0912", 17: "F1EDECE9DAD6E2C7BFDDB5A8D7A291D2907ACC7E64C66B4EC0583BB9452CAF3024A11D259010297B0E29650F24510D1C3C0912", 18: "F1EDECE9DBD7E3C9C2DEB8ACD8A796D39681CE856CC97457C36244BD4F33B53C27AA28249C18278B0F29770E28630E234F0D1B3C0912", 19: "F1EDECEADCD9E4CCC5DFBCB0D9AA9BD59A87D08B73CB7A60C66A4DC0583BB9462DB13425A62225981527870E29740E28600E224E0D1A3C0912", 20: "F1EDECEADDDAE4CDC6DFBEB3DBAE9FD69F8CD18F78CD8066C87155C36143BD5134B63F29AE2D24A21E25931228830E29700E275F0E214D0C1A3C0912" }, url: "http://matplotlib.org/cmocean/" }, Deep: { type: "sequential", values: { 3: "FDFECC488E9E281A2C", 4: "FDFECC5DBAA43E6495281A2C", 5: "FDFECC78CEA3488E9E404D8C281A2C", 6: "FDFECC92D8A452A8A340759841407B281A2C", 7: "FDFECCA5DFA75DBAA4488E9E3E6495403A6E281A2C", 8: "FDFECCB2E3AA6AC5A44FA1A2427C9A3E57913D3562281A2C", 9: "FDFECCBBE6AC78CEA355AEA3488E9E3F6F97404D8C3B325C281A2C", 10: "FDFECCC4E9AF85D3A35DBAA44D9DA144809B3E6495414684392F55281A2C", 11: "FDFECCC8EAB192D8A466C2A452A8A3488E9E4075983E5B9341407B382D51281A2C", 12: "FDFECCCEECB39CDCA56EC8A357B1A44C9AA044839B3F6C963F5490403C73362B4D281A2C", 13: "FDFECCD2EEB5A5DFA778CEA35DBAA450A4A2488E9E4279993E6495404D8C403A6E352A4A281A2C", 14: "FDFECCD4EFB6ACE1A881D2A364C1A454ACA34B98A045859C4071973E5C934148873E3767352949281A2C", 15: "FDFECCD9F0B8B2E3AA89D5A36AC5A458B3A44FA1A2488E9E427C9A3E6A963E57914144813D3562342846281A2C", 16: "FDFECCDBF1B9B7E5AB92D8A471CAA35DBAA452A8A34B97A045869C4075983E64953F528F41407B3C335F332744281A2C", 17: "FDFECCDDF2BABBE6AC98DAA478CEA362BFA455AEA34E9EA1488E9E437F9A3F6F973E5F93404D8C413E763B325C322643281A2C", 18: "FDFECCDFF2BBBFE7AE9FDDA57FD1A367C3A459B4A451A5A24B96A046879C4178993E69963E5992414988403C713A3058322541281A2C", 19: "FDFECCE1F3BCC4E9AFA5DFA785D3A36DC7A35DBAA453ABA34D9DA1488E9E44809B4072983E64953F5590414684403A6E392F55312540281A2C", 20: "FDFECCE3F4BDC6EAB0AAE0A88BD6A373CBA361BEA456B0A450A3A24A959F46889C427A993F6D973E60943F508E4243803F3869392E5430243E281A2C" }, url: "http://matplotlib.org/cmocean/" }, Dense: { type: "sequential", values: { 3: "E6F1F17871D5360E24", 4: "E6F1F176A4E57642A5360E24", 5: "E6F1F186B9E37871D56F2E85360E24", 6: "E6F1F196C5E27390E37954BB682471360E24", 7: "E6F1F1A2CEE276A4E57871D57642A5621E63360E24", 8: "E6F1F1ABD3E37EB0E47488E1795CC37337935D1A58360E24", 9: "E6F1F1B1D6E386B9E37397E47871D5784EB36F2E855A1851360E24", 10: "E6F1F1B7DAE48EC0E276A4E57583DF7961C87642A56B287A56164B360E24", 11: "E6F1F1BADBE596C5E27BADE47390E37871D57954BB743B99682471531546360E24", 12: "E6F1F1BFDEE69CCAE280B3E3749BE4757FDD7964CB784BAF72348F652068511443360E24", 13: "E6F1F1C2DFE6A2CEE286B9E376A4E5748BE27871D57959C07642A56F2E85621E634F1440360E24", 14: "E6F1F1C4E0E6A6D0E38CBEE27AABE47395E4767DDC7966CD7950B6743B9B6C2A7E5F1B5D4E133E360E24", 15: "E6F1F1C7E2E7ABD3E390C2E27EB0E4749DE57488E17871D5795CC37849AD7337936A27775D1A584B133B360E24", 16: "E6F1F1C9E3E8AED4E396C5E282B5E376A4E57390E3767CDC7968CE7954BB7642A571328C6824715B19544A133A360E24", 17: "E6F1F1CBE4E8B1D6E39AC8E286B9E379A9E47397E47584DF7871D57960C7784EB3753D9D6F2E8566216C5A1851491238360E24", 18: "E6F1F1CCE4E8B4D8E49ECBE28ABDE37CAEE4759EE5748DE2767BDB7969CF7958BF7748AB7339966D2B7F641F6758174E481237360E24", 19: "E6F1F1CEE5E9B7DAE4A2CEE28EC0E27FB2E376A4E57394E47583DF7871D57961C87951B77642A57235906B287A621E6356164B471236360E24", 20: "E6F1F1D0E6E9B9DAE4A5CFE292C3E283B6E378A8E4749AE4748AE27679DA786AD0795AC1784CB1753E9F70318A6A2675601C5E551649461234360E24" }, url: "http://matplotlib.org/cmocean/" }, Gray: { type: "sequential", values: { 3: "000000727171FFFFFD", 4: "0000004A4A499B9A9AFFFFFD", 5: "000000373737727171B1B1B0FFFFFD", 6: "0000002B2B2B5A59598A8989C0BFBEFFFFFD", 7: "0000002323234A4A497271719B9A9AC9C8C7FFFFFD", 8: "0000001D1D1D3F3F3F605F5F838282A7A7A6D1D1D0FFFFFD", 9: "0000001A1919373737545453727171908F8FB1B1B0D6D6D4FFFFFD", 10: "0000001615153130304A4A496463637F7E7E9B9A9AB9B9B8DBDAD9FFFFFD", 11: "0000001413132B2B2B4242415A59597271718A8989A3A3A2C0BFBEDEDEDDFFFFFD", 12: "0000001110102726263D3C3C5151506666657C7C7B939292ABAAA9C5C5C4E1E1DFFFFFFD", 13: "0000000F0E0E2323233737374A4A495D5D5C7271718685859B9A9AB1B1B0C9C8C7E3E3E2FFFFFD", 14: "0000000D0D0D2020203332324443435655556868677A7A798E8D8DA2A2A1B7B6B5CDCDCCE5E4E3FFFFFD", 15: "0000000B0B0B1D1D1D2F2F2E3F3F3F504F4F605F5F727171838282959494A7A7A6BBBBBAD1D1D0E7E7E6FFFFFD", 16: "0000000A0A0A1C1B1B2B2B2B3B3A3A4A4A495A59596969687979788A89899B9A9AADACACC0BFBED3D3D2E8E8E7FFFFFD", 17: "0000000909091A1919292828373737464545545453636262727171807F7F908F8FA0A09FB1B1B0C3C3C2D6D6D4EAEAE8FFFFFD", 18: "0000000808081817172626253433334141404F4E4E5C5C5B6A6A69787877878686969595A5A5A4B6B5B4C6C6C5D8D8D7EBEBEAFFFFFD", 19: "0000000707071615152323233130303E3D3D4A4A495756566463637271717F7E7E8D8C8C9B9A9AAAA9A8B9B9B8C9C8C7DBDAD9ECECEBFFFFFD", 20: "0000000606061514142121212E2E2E3A39394746465252515E5E5D6B6B6A7777768584849291919F9F9EAEADADBCBCBBCCCCCBDCDCDBEEEDECFFFFFD" }, url: "http://matplotlib.org/cmocean/" }, Haline: { type: "sequential", values: { 3: "2A186C3C9387FDEF9A", 4: "2A186C206E8B5AB978FDEF9A", 5: "2A186C0F5B903C938778CB68FDEF9A", 6: "2A186C0D4E962D7C894AAA8194D35DFDEF9A", 7: "2A186C14439C206E8B3C93875AB978A8D85CFDEF9A", 8: "2A186C1B3AA016638D31828846A48369C46FB8DB60FDEF9A", 9: "2A186C2034A20F5B902977893C93874FAF7E78CB68C1DD64FDEF9A", 10: "2A186C252DA30C5493206E8B34868843A0845AB97886D062CADF69FDEF9A", 11: "2A186C2829A30D4E9618668C2D7C893C93874AAA8163C07294D35DD0E06DFDEF9A", 12: "2A186C2B24A010489914618E26758A358988429D8551B27D6EC66DA0D65CD4E170FDEF9A", 13: "2A186C2D219D14439C0F5B90206E8B2F80893C938748A6825AB97878CB68A8D85CD8E273FDEF9A", 14: "2A186C2D209C173F9E0D56921A688C2A7989378A88419B864DAE7F62BF7382CE63B1D95DDAE375FDEF9A", 15: "2A186C2E1E981B3AA00C529416638D25738A3182883C938746A48353B47C69C46F8BD160B8DB60DEE479FDEF9A", 16: "2A186C2E1E951D37A10D4E96125F8F206E8B2D7C89378B88409A864AAA815AB97871C86B94D35DBDDC62E0E57AFDEF9A", 17: "2A186C2E1D932034A20F4A980F5B901C6A8C2977893385883C938744A1844FAF7E5FBE7578CB689BD55CC1DD64E1E57CFDEF9A", 18: "2A186C2E1D912230A311479A0D579218658D24728A2F7F89388C883F998648A78254B57B66C27180CE64A3D75CC6DE66E3E67EFDEF9A", 19: "2A186C2E1C8E252DA314439C0C549314628E206E8B2B7A893486883C938743A0844CAD805AB9786CC56E86D062A8D85CCADF69E5E680FDEF9A", 20: "2A186C2E1C8C262BA316409D0C5195115E8F1D6B8B27768A308189388D883F998647A58351B17D5EBD7573C86A8DD25FAFD95DCCDF6AE7E781FDEF9A" }, url: "http://matplotlib.org/cmocean/" }, Ice: { type: "sequential", values: { 3: "040613427BB7EAFDFD", 4: "0406133F4B9661A8C7EAFDFD", 5: "040613383975427BB779BED0EAFDFD", 6: "040613302F5F3E5EA95296C18CCBD6EAFDFD", 7: "0406132928513F4B96427BB761A8C79AD3DAEAFDFD", 8: "0406132523473C40843E66AE4D8EBE6EB4CCA8D9DEEAFDFD", 9: "0406132120413839753F57A3427BB7579CC379BED0AFDDE1EAFDFD", 10: "0406131E1D3B3433693F4B963E6AB04A8ABD61A8C783C5D3B7E1E4EAFDFD", 11: "0406131C1C38302F5F3D43893E5EA9427BB75296C16AB0CB8CCBD6BCE4E7EAFDFD", 12: "0406131919342C2B573B3E7F3F54A03F6EB24887BC5A9FC472B8CE95D0D8C0E6E8EAFDFD", 13: "0406131718312928513839753F4B963E62AC427BB74F91BF61A8C779BED09AD3DAC4E7EAEAFDFD", 14: "04061317172F27254C35356C3E458C3F59A53F70B34785BB559AC269AFCA80C3D2A2D6DCC6E8EBEAFDFD", 15: "04061315152C2523473332663C40843F529E3E66AE427BB74D8EBE5CA1C56EB4CC86C7D4A8D9DEC9EAEDEAFDFD", 16: "04061314142B232244302F5F3A3C7B3F4B963E5EA93F71B44684BB5296C161A8C774BACE8CCBD6ABDBE0CBEBEEEAFDFD", 17: "04061313132A2120412E2C5A3839753E478F3F57A33E69B0427BB74B8BBD579CC367ADC979BED092CED7AFDDE1CDECEFEAFDFD", 18: "0406131213281F1F3E2C2A5536356E3D42873F519D3E61AB4072B44682BA5092C05DA2C56CB2CB7FC2D297D1D9B3DFE3CFEDEFEAFDFD", 19: "0406131112271E1D3B2928513433693B3E803F4B963E5AA63E6AB0427BB74A8ABD5599C261A8C771B6CD83C5D39AD3DAB7E1E4D1EEF0EAFDFD", 20: "0406131011251D1C3A28264E3231643A3B7A3E48903F55A13E63AD4073B44581BA4E90BF599EC465ACC975BBCF88C8D4A0D6DCB9E2E5D3EFF1EAFDFD" }, url: "http://matplotlib.org/cmocean/" }, Matter: { type: "sequential", values: { 3: "FEEDB0CE43562F0F3E", 4: "FEEDB0EB78589F24622F0F3E", 5: "FEEDB0F29567CE4356841C632F0F3E", 6: "FEEDB0F5A773E26253B32E5F721A602F0F3E", 7: "FEEDB0F7B37CEB7858CE43569F246267195D2F0F3E", 8: "FEEDB0F8BB83EF8960DE5953BB335C901F635E18592F0F3E", 9: "FEEDB0F9C187F29567E66A54CE4356AC2A60841C635917572F0F3E", 10: "FEEDB0FAC68CF49F6DEB7858DB5453C0365B9F24627A1B625316542F0F3E", 11: "FEEDB0FAC98EF5A773EE855EE26253CE4356B32E5F952063721A604F16522F0F3E", 12: "FEEDB0FACD92F6AE78F08D62E76E55D95053C3395AA928618C1E636B195E4D15512F0F3E", 13: "FEEDB0FBD094F7B37CF29567EB7858E05D53CE4356B8315D9F2462841C6367195D4A154F2F0F3E", 14: "FEEDB0FBD196F8B77FF39C6BED825CE56754D74E54C53B59AF2B609621637D1B6262185B49154E2F0F3E", 15: "FEEDB0FBD498F8BB83F4A16FEF8960E87056DE5953CE4356BB335CA62761901F63781A615E185946144D2F0F3E", 16: "FEEDB0FBD59AF9BE85F5A773F18F63EB7858E26253D64D54C63C59B32E5F9F2462891D63721A605B175845144C2F0F3E", 17: "FEEDB0FBD79BF9C187F6AB76F29567ED7F5BE66A54DC5553CE4356BF365BAC2A60992263841C636E195F59175744144B2F0F3E", 18: "FEEDB0FCD89CF9C38AF7AF79F39A6AEE865EE97256E05E53D54C54C73D59B7305EA52662921F637E1B626A195E56175542144B2F0F3E", 19: "FEEDB0FCDA9DFAC68CF7B37CF49F6DF08B61EB7858E46653DB5453CE4356C0365BB02C5F9F24628D1E637A1B6267195D53165441134A2F0F3E", 20: "FEEDB0FCDB9FFAC88DF8B67EF5A370F19164EC7E5AE76C55DF5B53D54B54C83D58B9325DAA29619A2263881D63761A6163185B5216534013492F0F3E" }, url: "http://matplotlib.org/cmocean/" }, Oxy: { type: "sequential", values: { 3: "4005059B9A9ADDAF19", 4: "4005056F6F6ECBCAC9DDAF19", 5: "4005055C5B5B9B9A9AE4E4E3DDAF19", 6: "400505504F4F81807FB7B7B6F8FE69DDAF19", 7: "400505850A0B6F6F6E9B9A9ACBCAC9ECF54EDDAF19", 8: "4005057D050E646363878786AFAEAED9D9D8EAEA3BDDAF19", 9: "40050576050F5C5B5B7A7A799B9A9ABDBDBCE4E4E3E9E334DDAF19", 10: "4005056F060F5554546F6F6E8B8B8AAAAAA9CBCAC9EEEEECE8DC30DDAF19", 11: "4005056B060F504F4F67666681807F9B9A9AB7B7B6D4D4D3F8FE69E7D72CDDAF19", 12: "40050566070E8A11096160607777768E8E8DA7A6A6C1C1C0DDDDDCF0F95AE6D32ADDAF19", 13: "40050563070E850A0B5C5B5B6F6F6E8584839B9A9AB1B1B0CBCAC9E4E4E3ECF54EE6D028DDAF19", 14: "40050562070D81060D5757566868677C7B7B919090A4A4A3BBBBBAD3D3D2EBEBE9EAEE40E5CF28DDAF19", 15: "4005055D070C7D050E5353536463637675748787869B9A9AAFAEAEC3C3C2D9D9D8F0F0EFEAEA3BE5CB26DDAF19", 16: "4005055C070C79050F504F4F5F5F5E6F6F6E81807F929190A3A3A2B7B7B6CBCAC9DFDFDEF8FE69E9E637E4C925DDAF19", 17: "4005055B070C76050F8D15085C5B5B6B6A6A7A7A798A8A899B9A9AABABAABDBDBCD0D0CFE4E4E3F4FC62E9E334E4C825DDAF19", 18: "40050558070B72060F89100A585757666665747373838382929291A3A2A1B3B3B2C5C5C3D6D6D5EAE9E8EFF857E8DF31E3C623DDAF19", 19: "40050557070B6F060F850A0B5554546262616F6F6E7D7D7C8B8B8A9B9A9AAAAAA9BAB9B8CBCAC9DBDBDAEEEEECECF54EE8DC30E3C423DDAF19", 20: "40050555070B6D060F83080C5251515F5E5E6B6B6A787777858584939392A2A1A0B1B0AFC0C0BFCFCFCEE0E0DFF2F2F1EAF145E8D92EE3C322DDAF19" }, url: "http://matplotlib.org/cmocean/" }, Phase: { type: "sequential", values: { 3: "A8780D7D73F0A8780D", 4: "A8780DD02FD01E93A8A8780D", 5: "A8780DDF2A937D73F00C987EA8780D", 6: "A8780DDC3C6DB64BED3B8CCB199A5EA8780D", 7: "A8780DD74957D02FD07D73F01E93A8319946A8780D", 8: "A8780DD2514BDB25B0A957F24D87D81496904B972FA8780D", 9: "A8780DCF5643DF2A93C041E57D73F02E8FBE0C987E5A9423A8780D", 10: "A8780DCB5A3CDE337ED02FD0A05DF45883DF1E93A80E996E689119A8780D", 11: "A8780DC95D38DC3C6DD926B9B64BED7D73F03B8CCB179598199A5E728F14A8780D", 12: "A8780DC66033D94361DD26A6C53CE19A62F46080E42891B811978A279A4F778D12A8780D", 13: "A8780DC46230D74957DF2A93D02FD0AE52F07D73F04589D31E93A80C987E3199467D8B10A8780D", 14: "A8780DC2642ED54D51DF3184D727BEBD45E89565F4667EE7328EC218959A0C99734098397F8B0FA8780D", 15: "A8780DC0662BD2514BDE3678DB25B0C839DDA957F27D73F04D87D82591B4149690119A694B972F84890EA8780D", 16: "A8780DBF672AD05347DC3C6DDE27A0D02FD0B64BED9366F4687CE83B8CCB1E93A80F9786199A5E53962986880EA8780D", 17: "A8780DBE6828CF5643DB4066DF2A93D529C4C041E5A25CF37D73F05584DE2E8FBE19959E0C987E219A555A942388870EA8780D", 18: "A8780DBD6926CD583FD9455EDF2F87DA26B6C937DBB050EF9168F46B7BE9428AD12492B21596940B99752B9A4C61931E8B860DA8780D", 19: "A8780DBB6A25CB5A3CD74957DE337EDC25A9D02FD0BB46E9A05DF47D73F05883DF348EC41E93A812978C0E996E3199466891198D850DA8780D", 20: "A8780DBA6B23CA5C3AD54B53DD3876DE289DD42AC7C33EE2AC54F18F69F46E7AEB4788D52A90BA1A94A00E9884139A663C993C6B90178F840DA8780D" }, url: "http://matplotlib.org/cmocean/" }, Solar: { type: "sequential", values: { 3: "331418B66413E1FD4B", 4: "331418973B1CCB921AE1FD4B", 5: "331418822D22B66413D4AB23E1FD4B", 6: "331418732724A54A17C47F15D8BA2AE1FD4B", 7: "331418682325973B1CB66413CB921ADAC42FE1FD4B", 8: "3314186021248C3220AA5116C07714D0A01FDCCD33E1FD4B", 9: "3314185B2023822D22A04519B66413C78616D4AB23DDD236E1FD4B", 10: "331418561F237A2924973B1CAD5515BE7313CB921AD6B327DDD738E1FD4B", 11: "331418541E227327248F341FA54A17B66413C47F15CF9B1DD8BA2ADEDB3AE1FD4B", 12: "331418501D216D25258930219E421AAF5814BC7013C88917D1A420D9C12DDEDE3BE1FD4B", 13: "3314184D1C21682325822D22973B1CA84E16B66413C27B14CB921AD4AB23DAC42FDFE13DE1FD4B", 14: "3314184C1C206422247C2A2391361EA24718B05A14BB6E13C68416CE9A1CD5B126DBC931DFE23DE1FD4B", 15: "3314184A1B206021247828248C32209C401AAA5116B66413C07714C98B18D0A01FD7B528DCCD33DFE53FE1FD4B", 16: "331418481B1F5E2124732724872F21973B1CA54A17B15B14BB6D13C47F15CB921AD2A621D8BA2ADCD034DFE63FE1FD4B", 17: "331418471A1F5B20236F2525822D2293371DA04519AC5415B66413BF7413C78616CE981CD4AB23D9BE2CDDD236DFE740E1FD4B", 18: "331418461A1F591F236B24257E2B238E341F9B401AA74D17B15C14BA6C13C27C14C98C18D09E1ED5AF25D9C22EDDD537DFE941E1FD4B", 19: "331418451A1E561F236823257A29248A3120973B1CA34818AD5515B66413BE7313C58215CB921AD1A220D6B327DAC42FDDD738E0EA41E1FD4B", 20: "33141843191E551E22652324772824852E2193381D9F4319A84F16B25D14BA6B13C17A14C78817CD971BD3A721D7B728DBC831DED939E0EB42E1FD4B" }, url: "http://matplotlib.org/cmocean/" }, Speed: { type: "sequential", values: { 3: "FFFDCD5F920C172313", 4: "FFFDCDAAAC20187328172313", 5: "FFFDCDC9BA455F920C0B602D172313", 6: "FFFDCDD8C55F8EA20B32801F10542C172313", 7: "FFFDCDE1CD73AAAC205F920C187328144C2A172313", 8: "FFFDCDE6D480BDB434819D063F851A0D682B164528172313", 9: "FFFDCDE9D889C9BA4598A5125F920C287C230B602D174127172313", 10: "FFFDCDECDC91D2C053AAAC207A9B064688171873280D592D183E25172313", 11: "FFFDCDEDDE96D8C55FB8B22F8EA20B5F920C32801F0F6C2B10542C193B23172313", 12: "FFFDCDEFE29CDDCA6AC1B6399DA7157599064B8A152479240B652C124F2B193922172313", 13: "FFFDCDF1E4A0E1CD73C9BA45AAAC20879F085F920C39831C1873280B602D144C2A193721172313", 14: "FFFDCDF1E5A2E3D079D0BE4FB5B02B95A40F7198064F8C132C7D21106C2A0C5B2D154829193621172313", 15: "FFFDCDF3E7A7E6D480D4C157BDB434A0A818819D065F920C3F851A2178250D682B0E572D16452819341F172313", 16: "FFFDCDF3E9A9E7D684D8C55FC4B73DAAAC208EA20B709707518C1232801F1873280B632C10542C17432719331F172313", 17: "FFFDCDF4EAABE9D889DBC866C9BA45B2AF2898A5127C9C065F920C448818287C23126E2A0B602D11512C17412719321E172313", 18: "FFFDCDF5EBADEADA8DDECB6CCEBD4CBAB230A2A91988A0086E9707528D1238831D1F77260E6A2B0C5C2D134E2B183F2619311E172313", 19: "FFFDCDF6ECAFECDC91E1CD73D2C053C0B537AAAC2093A30E7A9B065F920C4688172D7E211873280C662C0D592D144C2A183E2519301D172313", 20: "FFFDCDF6EDB1EDDD93E3CF77D5C259C5B83FB1AE279BA614859F076C9607548E113B841C257A24136F290B632C0F562C15492A193D24192F1C172313" }, url: "http://matplotlib.org/cmocean/" }, Tempo: { type: "sequential", values: { 3: "FFF6F42A937F151D44", 4: "FFF6F47DB390156D73151D44", 5: "FFF6F4A1C1A12A937F1B5968151D44", 6: "FFF6F4B6CBAF5DA786117D791C4D61151D44", 7: "FFF6F4C3D1BA7DB3902A937F156D731C465C151D44", 8: "FFF6F4CCD6C192BB9950A28413847B19626D1C4058151D44", 9: "FFF6F4D2D9C7A1C1A169AB892A937F1177771B59681B3C56151D44", 10: "FFF6F4D8DDCCACC6A97DB390479F8216877C156D731C53641B3853151D44", 11: "FFF6F4DBDECFB6CBAF8DB9975DA7862A937F117D7918656F1C4D611A3651151D44", 12: "FFF6F4DFE1D3BDCEB597BD9C6FAD8B419D821A8A7D1275761A5F6B1C495E1A3450151D44", 13: "FFF6F4E2E2D6C3D1BAA1C1A17DB39056A4852A937F12817B156D731B59681C465C19324F151D44", 14: "FFF6F4E3E3D7C8D4BEA9C5A68AB79565AA883D9C811C8C7E11797817666F1C55651C425A19314F151D44", 15: "FFF6F4E6E5DACCD6C1B0C8AB92BB9972AF8C50A2842A937F13847B13737519626D1C51631C4058192F4D151D44", 16: "FFF6F4E7E6DBCFD8C4B6CBAF9BBE9E7DB3905DA7863B9B811E8D7E117D79156D731A5D6A1C4D611B3E57192E4D151D44", 17: "FFF6F4E9E7DDD2D9C7BACDB3A1C1A186B69369AB8949A0832A937F16867C1177771768701B59681C4B5F1B3C56182D4C151D44", 18: "FFF6F4EAE8DED5DBC9BFCFB6A8C4A58FBA9774AF8D57A5853A9A811F8D7E11807A13727518646E1B56661C485D1B3A54182C4C151D44", 19: "FFF6F4EBE9DFD8DDCCC3D1BAACC6A996BC9B7DB39063A988479F822A937F16877C117A78156D7319606C1C53641C465C1B3853182B4B151D44", 20: "FFF6F4EDEAE1D9DDCDC6D3BCB1C8AC9CBF9F85B5936DAD8A54A484389981218E7E12827B1276761669711A5C6A1C50621C435A1A3753182A4B151D44" }, url: "http://matplotlib.org/cmocean/" }, Thermal: { type: "sequential", values: { 3: "042333B15F82E8FA5B", 4: "042333744992EB7958E8FA5B", 5: "042333563B9CB15F82F99242E8FA5B", 6: "04233340349F8B538DD66C6CFCA63CE8FA5B", 7: "0423332C3395744992B15F82EB7958FBB23DE8FA5B", 8: "0423331F348763419895568ACC6873F5864AFABE3FE8FA5B", 9: "04233319337C563B9C83508FB15F82DE7065F99242F9C441E8FA5B", 10: "0423331333724B379F7449929A5889C66677EB7958FB9C3EF8CB43E8FA5B", 11: "04233310326C40349F6743968B538DB15F82D66C6CF2814EFCA63CF7D045E8FA5B", 12: "0423330D316535339C5F3F997E4E909F5A88C1647AE17262F68A47FCAE3CF6D347E8FA5B", 13: "0423330C30602C3395563B9C74499290558BB15F82D06970EB7958F99242FBB23DF5D748E8FA5B", 14: "0423330B305D25348F4E389E6A459585518EA25B87BE637BDB6E68F1804FFB993FFBB93EF5D849E8FA5B", 15: "042333092F591F34874736A06341987C4D9095568AB15F82CC6873E4735FF5864AFB9F3DFABE3FF4DC4BE8FA5B", 16: "042333092E561C348240349F5C3E9A7449928B538DA35B86BD637CD66C6CEB7958F78C45FCA63CFAC140F3DD4BE8FA5B", 17: "042333082E5419337C39339E563B9C6D469483508F995889B15F82C76676DE7065EF7E52F99242FCAA3CF9C441F3DF4CE8FA5B", 18: "042333082D5216337733339B50399E6643977A4C918F548CA55C86BB627DD16A6FE5745EF3834CFA983FFCAF3CF9C842F2E14DE8FA5B", 19: "042333072C501333722C33954B379F60409974499287518E9A5889B15F82C66677DA6E69EB7958F68848FB9C3EFBB23DF8CB43F2E24EE8FA5B", 20: "042333072C4D12326F2734914635A05B3D9B6E4794804E8F92558BA65C86BA627ECE6971E07163EE7D53F88E44FBA13DFBB73DF8CD44F1E44FE8FA5B" }, url: "http://matplotlib.org/cmocean/" }, Turbid: { type: "sequential", values: { 3: "E9F6ABA1703B221F1B", 4: "E9F6ABBF9747795338221F1B", 5: "E9F6ABCAAE58A1703B634634221F1B", 6: "E9F6ABCFBC66B587408A5E3A563E30221F1B", 7: "E9F6ABD3C671BF9747A1703B7953384E392E221F1B", 8: "E9F6ABD6CC78C5A450B0803E91623A6D4B3646352B221F1B", 9: "E9F6ABD8D17ECAAE58B98C42A1703B845A39634634423329221F1B", 10: "E9F6ABDAD583CDB55FBF9747AD7D3D95653A7953385C42323E3028221F1B", 11: "E9F6ABDBD886CFBC66C4A14DB58740A1703B8A5E3A714E37563E303B2F27221F1B", 12: "E9F6ABDCDB8AD2C16CC7A752BB8F43AB7A3C97683A8158396A4935513B2F392D26221F1B", 13: "E9F6ABDDDD8DD3C671CAAE58BF9747B2833EA1703B8E603A7953386346344E392E372C25221F1B", 14: "E9F6ABDEDF8ED5C974CCB35DC39F4CB78A41A9783C99693B865B39724E375E433349372C362B24221F1B", 15: "E9F6ABDFE191D6CC78CEB761C5A450BC9144B0803EA1703B91623A7F56396D4B365A413146352B342A24221F1B", 16: "E9F6ABDFE292D7CF7BCFBC66C8A954BF9747B58740A8773C9A6A3B8A5E3A795338674835563E3044342A332A23221F1B", 17: "E9F6ABE0E394D8D17ED1BF69CAAE58C29C4AB98C42AE7D3DA1703B94653A845A39744F37634634533C2F423329322923221F1B", 18: "E9F6ABE0E495D9D380D2C26DCBB25CC4A24EBC9244B3843FA8773C9B6B3B8D603A7E56396F4C365F4333503B2E403229312822221F1B", 19: "E9F6ABE1E597DAD583D3C671CDB55FC6A651BF9747B78940AD7D3DA1703B95653A875C397953386B4A355C42324E392E3E3028302822221F1B", 20: "E9F6ABE2E798DAD784D4C873CEB862C8AA55C19B4ABA8E42B1823EA7763C9C6B3B8F613A8258397550376648355940314A382C3D30272F2721221F1B" }, url: "http://matplotlib.org/cmocean/" } }, colorbrewer: { BrBG: { type: "diverging", values: { 3: "D8B365F5F5F55AB4AC", 4: "A6611ADFC27D80CDC1018571", 5: "A6611ADFC27DF5F5F580CDC1018571", 6: "8C510AD8B365F6E8C3C7EAE55AB4AC01665E", 7: "8C510AD8B365F6E8C3F5F5F5C7EAE55AB4AC01665E", 8: "8C510ABF812DDFC27DF6E8C3C7EAE580CDC135978F01665E", 9: "8C510ABF812DDFC27DF6E8C3F5F5F5C7EAE580CDC135978F01665E", 10: "5430058C510ABF812DDFC27DF6E8C3C7EAE580CDC135978F01665E003C30", 11: "5430058C510ABF812DDFC27DF6E8C3F5F5F5C7EAE580CDC135978F01665E003C30" }, url: "https://colorbrewer2.org/" }, PRGn: { type: "diverging", values: { 3: "AF8DC3F7F7F77FBF7B", 4: "7B3294C2A5CFA6DBA0008837", 5: "7B3294C2A5CFF7F7F7A6DBA0008837", 6: "762A83AF8DC3E7D4E8D9F0D37FBF7B1B7837", 7: "762A83AF8DC3E7D4E8F7F7F7D9F0D37FBF7B1B7837", 8: "762A839970ABC2A5CFE7D4E8D9F0D3A6DBA05AAE611B7837", 9: "762A839970ABC2A5CFE7D4E8F7F7F7D9F0D3A6DBA05AAE611B7837", 10: "40004B762A839970ABC2A5CFE7D4E8D9F0D3A6DBA05AAE611B783700441B", 11: "40004B762A839970ABC2A5CFE7D4E8F7F7F7D9F0D3A6DBA05AAE611B783700441B" }, url: "https://colorbrewer2.org/" }, PiYG: { type: "diverging", values: { 3: "E9A3C9F7F7F7A1D76A", 4: "D01C8BF1B6DAB8E1864DAC26", 5: "D01C8BF1B6DAF7F7F7B8E1864DAC26", 6: "C51B7DE9A3C9FDE0EFE6F5D0A1D76A4D9221", 7: "C51B7DE9A3C9FDE0EFF7F7F7E6F5D0A1D76A4D9221", 8: "C51B7DDE77AEF1B6DAFDE0EFE6F5D0B8E1867FBC414D9221", 9: "C51B7DDE77AEF1B6DAFDE0EFF7F7F7E6F5D0B8E1867FBC414D9221", 10: "8E0152C51B7DDE77AEF1B6DAFDE0EFE6F5D0B8E1867FBC414D9221276419", 11: "8E0152C51B7DDE77AEF1B6DAFDE0EFF7F7F7E6F5D0B8E1867FBC414D9221276419" }, url: "https://colorbrewer2.org/" }, PuOr: { type: "diverging", values: { 3: "F1A340F7F7F7998EC3", 4: "E66101FDB863B2ABD25E3C99", 5: "E66101FDB863F7F7F7B2ABD25E3C99", 6: "B35806F1A340FEE0B6D8DAEB998EC3542788", 7: "B35806F1A340FEE0B6F7F7F7D8DAEB998EC3542788", 8: "B35806E08214FDB863FEE0B6D8DAEBB2ABD28073AC542788", 9: "B35806E08214FDB863FEE0B6F7F7F7D8DAEBB2ABD28073AC542788", 10: "7F3B08B35806E08214FDB863FEE0B6D8DAEBB2ABD28073AC5427882D004B", 11: "7F3B08B35806E08214FDB863FEE0B6F7F7F7D8DAEBB2ABD28073AC5427882D004B" }, url: "https://colorbrewer2.org/" }, RdBu: { type: "diverging", values: { 3: "EF8A62F7F7F767A9CF", 4: "CA0020F4A58292C5DE0571B0", 5: "CA0020F4A582F7F7F792C5DE0571B0", 6: "B2182BEF8A62FDDBC7D1E5F067A9CF2166AC", 7: "B2182BEF8A62FDDBC7F7F7F7D1E5F067A9CF2166AC", 8: "B2182BD6604DF4A582FDDBC7D1E5F092C5DE4393C32166AC", 9: "B2182BD6604DF4A582FDDBC7F7F7F7D1E5F092C5DE4393C32166AC", 10: "67001FB2182BD6604DF4A582FDDBC7D1E5F092C5DE4393C32166AC053061", 11: "67001FB2182BD6604DF4A582FDDBC7F7F7F7D1E5F092C5DE4393C32166AC053061" }, url: "https://colorbrewer2.org/" }, RdGy: { type: "diverging", values: { 3: "EF8A62FFFFFF999999", 4: "CA0020F4A582BABABA404040", 5: "CA0020F4A582FFFFFFBABABA404040", 6: "B2182BEF8A62FDDBC7E0E0E09999994D4D4D", 7: "B2182BEF8A62FDDBC7FFFFFFE0E0E09999994D4D4D", 8: "B2182BD6604DF4A582FDDBC7E0E0E0BABABA8787874D4D4D", 9: "B2182BD6604DF4A582FDDBC7FFFFFFE0E0E0BABABA8787874D4D4D", 10: "67001FB2182BD6604DF4A582FDDBC7E0E0E0BABABA8787874D4D4D1A1A1A", 11: "67001FB2182BD6604DF4A582FDDBC7FFFFFFE0E0E0BABABA8787874D4D4D1A1A1A" }, url: "https://colorbrewer2.org/" }, RdYlBu: { type: "diverging", values: { 3: "FC8D59FFFFBF91BFDB", 4: "D7191CFDAE61ABD9E92C7BB6", 5: "D7191CFDAE61FFFFBFABD9E92C7BB6", 6: "D73027FC8D59FEE090E0F3F891BFDB4575B4", 7: "D73027FC8D59FEE090FFFFBFE0F3F891BFDB4575B4", 8: "D73027F46D43FDAE61FEE090E0F3F8ABD9E974ADD14575B4", 9: "D73027F46D43FDAE61FEE090FFFFBFE0F3F8ABD9E974ADD14575B4", 10: "A50026D73027F46D43FDAE61FEE090E0F3F8ABD9E974ADD14575B4313695", 11: "A50026D73027F46D43FDAE61FEE090FFFFBFE0F3F8ABD9E974ADD14575B4313695" }, url: "https://colorbrewer2.org/" }, RdYlGn: { type: "diverging", values: { 3: "FC8D59FFFFBF91CF60", 4: "D7191CFDAE61A6D96A1A9641", 5: "D7191CFDAE61FFFFBFA6D96A1A9641", 6: "D73027FC8D59FEE08BD9EF8B91CF601A9850", 7: "D73027FC8D59FEE08BFFFFBFD9EF8B91CF601A9850", 8: "D73027F46D43FDAE61FEE08BD9EF8BA6D96A66BD631A9850", 9: "D73027F46D43FDAE61FEE08BFFFFBFD9EF8BA6D96A66BD631A9850", 10: "A50026D73027F46D43FDAE61FEE08BD9EF8BA6D96A66BD631A9850006837", 11: "A50026D73027F46D43FDAE61FEE08BFFFFBFD9EF8BA6D96A66BD631A9850006837" }, url: "https://colorbrewer2.org/" }, Spectral: { type: "diverging", values: { 3: "FC8D59FFFFBF99D594", 4: "D7191CFDAE61ABDDA42B83BA", 5: "D7191CFDAE61FFFFBFABDDA42B83BA", 6: "D53E4FFC8D59FEE08BE6F59899D5943288BD", 7: "D53E4FFC8D59FEE08BFFFFBFE6F59899D5943288BD", 8: "D53E4FF46D43FDAE61FEE08BE6F598ABDDA466C2A53288BD", 9: "D53E4FF46D43FDAE61FEE08BFFFFBFE6F598ABDDA466C2A53288BD", 10: "9E0142D53E4FF46D43FDAE61FEE08BE6F598ABDDA466C2A53288BD5E4FA2", 11: "9E0142D53E4FF46D43FDAE61FEE08BFFFFBFE6F598ABDDA466C2A53288BD5E4FA2" }, url: "https://colorbrewer2.org/" }, Accent: { type: "qualitative", values: { 3: "7FC97FBEAED4FDC086", 4: "7FC97FBEAED4FDC086FFFF99", 5: "7FC97FBEAED4FDC086FFFF99386CB0", 6: "7FC97FBEAED4FDC086FFFF99386CB0F0027F", 7: "7FC97FBEAED4FDC086FFFF99386CB0F0027FBF5B17", 8: "7FC97FBEAED4FDC086FFFF99386CB0F0027FBF5B17666666" }, url: "https://colorbrewer2.org/" }, Dark2: { type: "qualitative", values: { 3: "1B9E77D95F027570B3", 4: "1B9E77D95F027570B3E7298A", 5: "1B9E77D95F027570B3E7298A66A61E", 6: "1B9E77D95F027570B3E7298A66A61EE6AB02", 7: "1B9E77D95F027570B3E7298A66A61EE6AB02A6761D", 8: "1B9E77D95F027570B3E7298A66A61EE6AB02A6761D666666" }, url: "https://colorbrewer2.org/" }, Paired: { type: "qualitative", values: { 3: "A6CEE31F78B4B2DF8A", 4: "A6CEE31F78B4B2DF8A33A02C", 5: "A6CEE31F78B4B2DF8A33A02CFB9A99", 6: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1C", 7: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6F", 8: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00", 9: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D6", 10: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9A", 11: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9AFFFF99", 12: "A6CEE31F78B4B2DF8A33A02CFB9A99E31A1CFDBF6FFF7F00CAB2D66A3D9AFFFF99B15928" }, url: "https://colorbrewer2.org/" }, Pastel1: { type: "qualitative", values: { 3: "FBB4AEB3CDE3CCEBC5", 4: "FBB4AEB3CDE3CCEBC5DECBE4", 5: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6", 6: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCC", 7: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BD", 8: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BDFDDAEC", 9: "FBB4AEB3CDE3CCEBC5DECBE4FED9A6FFFFCCE5D8BDFDDAECF2F2F2" }, url: "https://colorbrewer2.org/" }, Pastel2: { type: "qualitative", values: { 3: "B3E2CDFDCDACCBD5E8", 4: "B3E2CDFDCDACCBD5E8F4CAE4", 5: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9", 6: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AE", 7: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AEF1E2CC", 8: "B3E2CDFDCDACCBD5E8F4CAE4E6F5C9FFF2AEF1E2CCCCCCCC" }, url: "https://colorbrewer2.org/" }, Set1: { type: "qualitative", values: { 3: "E41A1C377EB84DAF4A", 4: "E41A1C377EB84DAF4A984EA3", 5: "E41A1C377EB84DAF4A984EA3FF7F00", 6: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33", 7: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628", 8: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628F781BF", 9: "E41A1C377EB84DAF4A984EA3FF7F00FFFF33A65628F781BF999999" }, url: "https://colorbrewer2.org/" }, Set2: { type: "qualitative", values: { 3: "66C2A5FC8D628DA0CB", 4: "66C2A5FC8D628DA0CBE78AC3", 5: "66C2A5FC8D628DA0CBE78AC3A6D854", 6: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92F", 7: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92FE5C494", 8: "66C2A5FC8D628DA0CBE78AC3A6D854FFD92FE5C494B3B3B3" }, url: "https://colorbrewer2.org/" }, Set3: { type: "qualitative", values: { 3: "8DD3C7FFFFB3BEBADA", 4: "8DD3C7FFFFB3BEBADAFB8072", 5: "8DD3C7FFFFB3BEBADAFB807280B1D3", 6: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462", 7: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69", 8: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5", 9: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9", 10: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BD", 11: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BDCCEBC5", 12: "8DD3C7FFFFB3BEBADAFB807280B1D3FDB462B3DE69FCCDE5D9D9D9BC80BDCCEBC5FFED6F" }, url: "https://colorbrewer2.org/" }, Blues: { type: "sequential", values: { 3: "DEEBF79ECAE13182BD", 4: "EFF3FFBDD7E76BAED62171B5", 5: "EFF3FFBDD7E76BAED63182BD08519C", 6: "EFF3FFC6DBEF9ECAE16BAED63182BD08519C", 7: "EFF3FFC6DBEF9ECAE16BAED64292C62171B5084594", 8: "F7FBFFDEEBF7C6DBEF9ECAE16BAED64292C62171B5084594", 9: "F7FBFFDEEBF7C6DBEF9ECAE16BAED64292C62171B508519C08306B" }, url: "https://colorbrewer2.org/" }, BuGn: { type: "sequential", values: { 3: "E5F5F999D8C92CA25F", 4: "EDF8FBB2E2E266C2A4238B45", 5: "EDF8FBB2E2E266C2A42CA25F006D2C", 6: "EDF8FBCCECE699D8C966C2A42CA25F006D2C", 7: "EDF8FBCCECE699D8C966C2A441AE76238B45005824", 8: "F7FCFDE5F5F9CCECE699D8C966C2A441AE76238B45005824", 9: "F7FCFDE5F5F9CCECE699D8C966C2A441AE76238B45006D2C00441B" }, url: "https://colorbrewer2.org/" }, BuPu: { type: "sequential", values: { 3: "E0ECF49EBCDA8856A7", 4: "EDF8FBB3CDE38C96C688419D", 5: "EDF8FBB3CDE38C96C68856A7810F7C", 6: "EDF8FBBFD3E69EBCDA8C96C68856A7810F7C", 7: "EDF8FBBFD3E69EBCDA8C96C68C6BB188419D6E016B", 8: "F7FCFDE0ECF4BFD3E69EBCDA8C96C68C6BB188419D6E016B", 9: "F7FCFDE0ECF4BFD3E69EBCDA8C96C68C6BB188419D810F7C4D004B" }, url: "https://colorbrewer2.org/" }, GnBu: { type: "sequential", values: { 3: "E0F3DBA8DDB543A2CA", 4: "F0F9E8BAE4BC7BCCC42B8CBE", 5: "F0F9E8BAE4BC7BCCC443A2CA0868AC", 6: "F0F9E8CCEBC5A8DDB57BCCC443A2CA0868AC", 7: "F0F9E8CCEBC5A8DDB57BCCC44EB3D32B8CBE08589E", 8: "F7FCF0E0F3DBCCEBC5A8DDB57BCCC44EB3D32B8CBE08589E", 9: "F7FCF0E0F3DBCCEBC5A8DDB57BCCC44EB3D32B8CBE0868AC084081" }, url: "https://colorbrewer2.org/" }, Greens: { type: "sequential", values: { 3: "E5F5E0A1D99B31A354", 4: "EDF8E9BAE4B374C476238B45", 5: "EDF8E9BAE4B374C47631A354006D2C", 6: "EDF8E9C7E9C0A1D99B74C47631A354006D2C", 7: "EDF8E9C7E9C0A1D99B74C47641AB5D238B45005A32", 8: "F7FCF5E5F5E0C7E9C0A1D99B74C47641AB5D238B45005A32", 9: "F7FCF5E5F5E0C7E9C0A1D99B74C47641AB5D238B45006D2C00441B" }, url: "https://colorbrewer2.org/" }, Greys: { type: "sequential", values: { 3: "F0F0F0BDBDBD636363", 4: "F7F7F7CCCCCC969696525252", 5: "F7F7F7CCCCCC969696636363252525", 6: "F7F7F7D9D9D9BDBDBD969696636363252525", 7: "F7F7F7D9D9D9BDBDBD969696737373525252252525", 8: "FFFFFFF0F0F0D9D9D9BDBDBD969696737373525252252525", 9: "FFFFFFF0F0F0D9D9D9BDBDBD969696737373525252252525000000" }, url: "https://colorbrewer2.org/" }, OrRd: { type: "sequential", values: { 3: "FEE8C8FDBB84E34A33", 4: "FEF0D9FDCC8AFC8D59D7301F", 5: "FEF0D9FDCC8AFC8D59E34A33B30000", 6: "FEF0D9FDD49EFDBB84FC8D59E34A33B30000", 7: "FEF0D9FDD49EFDBB84FC8D59EF6548D7301F990000", 8: "FFF7ECFEE8C8FDD49EFDBB84FC8D59EF6548D7301F990000", 9: "FFF7ECFEE8C8FDD49EFDBB84FC8D59EF6548D7301FB300007F0000" }, url: "https://colorbrewer2.org/" }, Oranges: { type: "sequential", values: { 3: "FEE6CEFDAE6BE6550D", 4: "FEEDDEFDBE85FD8D3CD94701", 5: "FEEDDEFDBE85FD8D3CE6550DA63603", 6: "FEEDDEFDD0A2FDAE6BFD8D3CE6550DA63603", 7: "FEEDDEFDD0A2FDAE6BFD8D3CF16913D948018C2D04", 8: "FFF5EBFEE6CEFDD0A2FDAE6BFD8D3CF16913D948018C2D04", 9: "FFF5EBFEE6CEFDD0A2FDAE6BFD8D3CF16913D94801A636037F2704" }, url: "https://colorbrewer2.org/" }, PuBuGn: { type: "sequential", values: { 3: "ECE2F0A6BDDB1C9099", 4: "F6EFF7BDC9E167A9CF02818A", 5: "F6EFF7BDC9E167A9CF1C9099016C59", 6: "F6EFF7D0D1E6A6BDDB67A9CF1C9099016C59", 7: "F6EFF7D0D1E6A6BDDB67A9CF3690C002818A016450", 8: "FFF7FBECE2F0D0D1E6A6BDDB67A9CF3690C002818A016450", 9: "FFF7FBECE2F0D0D1E6A6BDDB67A9CF3690C002818A016C59014636" }, url: "https://colorbrewer2.org/" }, PuBu: { type: "sequential", values: { 3: "ECE7F2A6BDDB2B8CBE", 4: "F1EEF6BDC9E174A9CF0570B0", 5: "F1EEF6BDC9E174A9CF2B8CBE045A8D", 6: "F1EEF6D0D1E6A6BDDB74A9CF2B8CBE045A8D", 7: "F1EEF6D0D1E6A6BDDB74A9CF3690C00570B0034E7B", 8: "FFF7FBECE7F2D0D1E6A6BDDB74A9CF3690C00570B0034E7B", 9: "FFF7FBECE7F2D0D1E6A6BDDB74A9CF3690C00570B0045A8D023858" }, url: "https://colorbrewer2.org/" }, PuRd: { type: "sequential", values: { 3: "E7E1EFC994C7DD1C77", 4: "F1EEF6D7B5D8DF65B0CE1256", 5: "F1EEF6D7B5D8DF65B0DD1C77980043", 6: "F1EEF6D4B9DAC994C7DF65B0DD1C77980043", 7: "F1EEF6D4B9DAC994C7DF65B0E7298ACE125691003F", 8: "F7F4F9E7E1EFD4B9DAC994C7DF65B0E7298ACE125691003F", 9: "F7F4F9E7E1EFD4B9DAC994C7DF65B0E7298ACE125698004367001F" }, url: "https://colorbrewer2.org/" }, Purples: { type: "sequential", values: { 3: "EFEDF5BCBDDC756BB1", 4: "F2F0F7CBC9E29E9AC86A51A3", 5: "F2F0F7CBC9E29E9AC8756BB154278F", 6: "F2F0F7DADAEBBCBDDC9E9AC8756BB154278F", 7: "F2F0F7DADAEBBCBDDC9E9AC8807DBA6A51A34A1486", 8: "FCFBFDEFEDF5DADAEBBCBDDC9E9AC8807DBA6A51A34A1486", 9: "FCFBFDEFEDF5DADAEBBCBDDC9E9AC8807DBA6A51A354278F3F007D" }, url: "https://colorbrewer2.org/" }, RdPu: { type: "sequential", values: { 3: "FDE0DDFA9FB5C51B8A", 4: "FEEBE2FBB4B9F768A1AE017E", 5: "FEEBE2FBB4B9F768A1C51B8A7A0177", 6: "FEEBE2FCC5C0FA9FB5F768A1C51B8A7A0177", 7: "FEEBE2FCC5C0FA9FB5F768A1DD3497AE017E7A0177", 8: "FFF7F3FDE0DDFCC5C0FA9FB5F768A1DD3497AE017E7A0177", 9: "FFF7F3FDE0DDFCC5C0FA9FB5F768A1DD3497AE017E7A017749006A" }, url: "https://colorbrewer2.org/" }, Reds: { type: "sequential", values: { 3: "FEE0D2FC9272DE2D26", 4: "FEE5D9FCAE91FB6A4ACB181D", 5: "FEE5D9FCAE91FB6A4ADE2D26A50F15", 6: "FEE5D9FCBBA1FC9272FB6A4ADE2D26A50F15", 7: "FEE5D9FCBBA1FC9272FB6A4AEF3B2CCB181D99000D", 8: "FFF5F0FEE0D2FCBBA1FC9272FB6A4AEF3B2CCB181D99000D", 9: "FFF5F0FEE0D2FCBBA1FC9272FB6A4AEF3B2CCB181DA50F1567000D" }, url: "https://colorbrewer2.org/" }, YlGnBu: { type: "sequential", values: { 3: "EDF8B17FCDBB2C7FB8", 4: "FFFFCCA1DAB441B6C4225EA8", 5: "FFFFCCA1DAB441B6C42C7FB8253494", 6: "FFFFCCC7E9B47FCDBB41B6C42C7FB8253494", 7: "FFFFCCC7E9B47FCDBB41B6C41D91C0225EA80C2C84", 8: "FFFFD9EDF8B1C7E9B47FCDBB41B6C41D91C0225EA80C2C84", 9: "FFFFD9EDF8B1C7E9B47FCDBB41B6C41D91C0225EA8253494081D58" }, url: "https://colorbrewer2.org/" }, YlGn: { type: "sequential", values: { 3: "F7FCB9ADDD8E31A354", 4: "FFFFCCC2E69978C679238443", 5: "FFFFCCC2E69978C67931A354006837", 6: "FFFFCCD9F0A3ADDD8E78C67931A354006837", 7: "FFFFCCD9F0A3ADDD8E78C67941AB5D238443005A32", 8: "FFFFE5F7FCB9D9F0A3ADDD8E78C67941AB5D238443005A32", 9: "FFFFE5F7FCB9D9F0A3ADDD8E78C67941AB5D238443006837004529" }, url: "https://colorbrewer2.org/" }, YlOrBr: { type: "sequential", values: { 3: "FFF7BCFEC44FD95F0E", 4: "FFFFD4FED98EFE9929CC4C02", 5: "FFFFD4FED98EFE9929D95F0E993404", 6: "FFFFD4FEE391FEC44FFE9929D95F0E993404", 7: "FFFFD4FEE391FEC44FFE9929EC7014CC4C028C2D04", 8: "FFFFE5FFF7BCFEE391FEC44FFE9929EC7014CC4C028C2D04", 9: "FFFFE5FFF7BCFEE391FEC44FFE9929EC7014CC4C02993404662506" }, url: "https://colorbrewer2.org/" }, YlOrRd: { type: "sequential", values: { 3: "FFEDA0FEB24CF03B20", 4: "FFFFB2FECC5CFD8D3CE31A1C", 5: "FFFFB2FECC5CFD8D3CF03B20BD0026", 6: "FFFFB2FED976FEB24CFD8D3CF03B20BD0026", 7: "FFFFB2FED976FEB24CFD8D3CFC4E2AE31A1CB10026", 8: "FFFFCCFFEDA0FED976FEB24CFD8D3CFC4E2AE31A1CB10026", 9: "FFFFCCFFEDA0FED976FEB24CFD8D3CFC4E2AE31A1CBD0026800026" }, url: "https://colorbrewer2.org/" } }, lightbartlein: { BlueDarkOrange12: { type: "diverging", values: { 2: "1E8E99993F00", 3: "1E8E99FFE5CC993F00", 4: "1E8E99CCFEFFFFCA99993F00", 5: "1E8E99B2FCFFFFE5CCFFAD65993F00", 6: "1E8E9999F9FFCCFEFFFFCA99FF8E32993F00", 7: "1E8E9999F9FFCCFEFFFFE5CCFFCA99FF8E32993F00", 8: "1E8E9999F9FFB2FCFFE5FFFFFFE5CCFFAD65FF8E32993F00", 9: "1E8E9951C3CCB2FCFFCCFEFFFFE5CCFFCA99FFAD65CC5800993F00", 10: "1E8E9951C3CC99F9FFCCFEFFE5FFFFFFE5CCFFCA99FF8E32CC5800993F00", 11: "1E8E9951C3CC99F9FFB2FCFFCCFEFFFFE5CCFFCA99FFAD65FF8E32CC5800993F00", 12: "1E8E9951C3CC99F9FFB2FCFFCCFEFFE5FFFFFFE5CCFFCA99FFAD65FF8E32CC5800993F00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkOrange18: { type: "diverging", values: { 2: "006666662700", 3: "006666CBFFFF662700", 4: "00666699FFFFFFCA99662700", 5: "00666633FFFFCBFFFFFF8E33662700", 6: "00666600FFFFB2FFFFFFE5CBFF6E00662700", 7: "00666600FFFF99FFFFCBFFFFFFCA99FF6E00662700", 8: "00666600CCCC65FFFFB2FFFFFFE5CBFFAD65CC5500662700", 9: "00666600CCCC33FFFF99FFFFCBFFFFFFCA99FF8E33CC5500662700", 10: "00666600CCCC33FFFF99FFFFCBFFFFE5FFFFFFCA99FF8E33CC5500662700", 11: "00666600CCCC00FFFF65FFFFB2FFFFCBFFFFFFE5CBFFAD65FF6E00CC5500662700", 12: "00666600CCCC00FFFF65FFFF99FFFFCBFFFFE5FFFFFFCA99FFAD65FF6E00CC5500662700", 13: "00666600999900FFFF33FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FF8E33FF6E00993D00662700", 14: "00666600999900FFFF33FFFF65FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFAD65FF8E33FF6E00993D00662700", 15: "00666600999900CCCC33FFFF65FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FFAD65FF8E33CC5500993D00662700", 16: "00666600999900CCCC00FFFF65FFFF99FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFCA99FFAD65FF6E00CC5500993D00662700", 17: "00666600999900CCCC00FFFF33FFFF65FFFF99FFFFB2FFFFCBFFFFFFE5CBFFCA99FFAD65FF8E33FF6E00CC5500993D00662700", 18: "00666600999900CCCC00FFFF33FFFF65FFFF99FFFFB2FFFFCBFFFFE5FFFFFFE5CBFFCA99FFAD65FF8E33FF6E00CC5500993D00662700" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkRed12: { type: "diverging", values: { 2: "290AD8A50021", 3: "290AD8FFFFBFA50021", 4: "290AD8AAF7FFFFE099A50021", 5: "290AD872D9FFFFFFBFFFAD72A50021", 6: "290AD83FA0FFAAF7FFFFE099F76D5EA50021", 7: "290AD83FA0FFAAF7FFFFFFBFFFE099F76D5EA50021", 8: "290AD83FA0FF72D9FFE0FFFFFFFFBFFFAD72F76D5EA50021", 9: "290AD8264DFF72D9FFAAF7FFFFFFBFFFE099FFAD72D82632A50021", 10: "290AD8264DFF3FA0FFAAF7FFE0FFFFFFFFBFFFE099F76D5ED82632A50021", 11: "290AD8264DFF3FA0FF72D9FFAAF7FFFFFFBFFFE099FFAD72F76D5ED82632A50021", 12: "290AD8264DFF3FA0FF72D9FFAAF7FFE0FFFFFFFFBFFFE099FFAD72F76D5ED82632A50021" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueDarkRed18: { type: "diverging", values: { 2: "2400D8A50021", 3: "2400D8EAFFFFA50021", 4: "2400D899EAFFFFD699A50021", 5: "2400D856B0FFEAFFFFFF7856A50021", 6: "2400D83D87FFBCF9FFFFF1BCFF3D3DA50021", 7: "2400D83D87FF99EAFFEAFFFFFFD699FF3D3DA50021", 8: "2400D82857FF75D3FFBCF9FFFFF1BCFFAC75F72735A50021", 9: "2400D82857FF56B0FF99EAFFEAFFFFFFD699FF7856F72735A50021", 10: "2400D82857FF56B0FF99EAFFEAFFFFFFFFEAFFD699FF7856F72735A50021", 11: "2400D82857FF3D87FF75D3FFBCF9FFEAFFFFFFF1BCFFAC75FF3D3DF72735A50021", 12: "2400D82857FF3D87FF75D3FF99EAFFEAFFFFFFFFEAFFD699FFAC75FF3D3DF72735A50021", 13: "2400D8181CF73D87FF56B0FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FF7856FF3D3DD8152FA50021", 14: "2400D8181CF73D87FF56B0FF75D3FFBCF9FFEAFFFFFFFFEAFFF1BCFFAC75FF7856FF3D3DD8152FA50021", 15: "2400D8181CF72857FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FFAC75FF7856F72735D8152FA50021", 16: "2400D8181CF72857FF3D87FF75D3FF99EAFFBCF9FFEAFFFFFFFFEAFFF1BCFFD699FFAC75FF3D3DF72735D8152FA50021", 17: "2400D8181CF72857FF3D87FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFF1BCFFD699FFAC75FF7856FF3D3DF72735D8152FA50021", 18: "2400D8181CF72857FF3D87FF56B0FF75D3FF99EAFFBCF9FFEAFFFFFFFFEAFFF1BCFFD699FFAC75FF7856FF3D3DF72735D8152FA50021" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGray: { type: "diverging", values: { 2: "0099CC333333", 3: "0099CCE5E5E5333333", 4: "0099CC99FFFF999999333333", 5: "0099CC99FFFFE5E5E5999999333333", 6: "0099CC66E5FFCCFFFFE5E5E5666666333333", 7: "0099CC66E5FF99FFFFE5E5E5999999666666333333", 8: "0099CC66E5FF99FFFFCCFFFFE5E5E5999999666666333333" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGreen: { type: "diverging", values: { 2: "0000FF00FF00", 3: "0000FFE5E5FF00FF00", 4: "0000FFB2B2FFB2FFB200FF00", 5: "0000FF9999FFE5E5FF99FF9900FF00", 6: "0000FF9999FFCBCBFFCBFFCB99FF9900FF00", 7: "0000FF6565FFB2B2FFE5E5FFB2FFB265FF6500FF00", 8: "0000FF6565FFB2B2FFE5E5FFE5FFE5B2FFB265FF6500FF00", 9: "0000FF6565FF9999FFCBCBFFE5E5FFCBFFCB99FF9965FF6500FF00", 10: "0000FF3333FF9999FFB2B2FFE5E5FFE5FFE5B2FFB299FF9933FF3300FF00", 11: "0000FF3333FF9999FFB2B2FFCBCBFFE5E5FFCBFFCBB2FFB299FF9933FF3300FF00", 12: "0000FF3333FF6565FFB2B2FFCBCBFFE5E5FFE5FFE5CBFFCBB2FFB265FF6533FF3300FF00", 13: "0000FF3333FF6565FF9999FFB2B2FFCBCBFFE5E5FFCBFFCBB2FFB299FF9965FF6533FF3300FF00", 14: "0000FF3333FF6565FF9999FFB2B2FFCBCBFFE5E5FFE5FFE5CBFFCBB2FFB299FF9965FF6533FF3300FF00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueGrey: { type: "diverging", values: { 2: "0099CC333333", 3: "0099CCE5E5E5333333", 4: "0099CC99FFFF999999333333", 5: "0099CC99FFFFE5E5E5999999333333", 6: "0099CC66E5FFCCFFFFE5E5E5666666333333", 7: "0099CC66E5FF99FFFFE5E5E5999999666666333333", 8: "0099CC66E5FF99FFFFCCFFFFE5E5E5999999666666333333" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange10: { type: "diverging", values: { 2: "0054FFFF5500", 3: "0054FFCCFFFFFF5500", 4: "0054FF99EDFFFFEE99FF5500", 5: "0054FF65CCFFCCFFFFFFCC65FF5500", 6: "0054FF65CCFFCCFFFFFFFFCCFFCC65FF5500", 7: "0054FF65CCFF99EDFFCCFFFFFFEE99FF9932FF5500", 8: "0054FF3299FF99EDFFCCFFFFFFFFCCFFEE99FF9932FF5500", 9: "0054FF3299FF65CCFF99EDFFCCFFFFFFEE99FFCC65FF9932FF5500", 10: "0054FF3299FF65CCFF99EDFFCCFFFFFFFFCCFFEE99FFCC65FF9932FF5500" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange12: { type: "diverging", values: { 2: "002AFFFF2A00", 3: "002AFFFFFFCCFF2A00", 4: "002AFF65CCFFFFEE99FF2A00", 5: "002AFF99EDFFFFFFCCFFCC65FF2A00", 6: "002AFF3299FF65CCFFFFEE99FF9932FF2A00", 7: "002AFF3299FF65CCFFFFFFCCFFEE99FF9932FF2A00", 8: "002AFF3299FF99EDFFCCFFFFFFFFCCFFCC65FF9932FF2A00", 9: "002AFF1965FF99EDFF65CCFFFFFFCCFFEE99FFCC65FF6619FF2A00", 10: "002AFF1965FF3299FF65CCFFCCFFFFFFFFCCFFEE99FF9932FF6619FF2A00", 11: "002AFF1965FF3299FF99EDFF65CCFFFFFFCCFFEE99FFCC65FF9932FF6619FF2A00", 12: "002AFF1965FF3299FF99EDFF65CCFFCCFFFFFFFFCCFFEE99FFCC65FF9932FF6619FF2A00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrange8: { type: "diverging", values: { 2: "007FFFFF7F00", 3: "007FFFFFFFCCFF7F00", 4: "007FFF99EDFFFFEE99FF7F00", 5: "007FFF99EDFFFFFFCCFFEE99FF7F00", 6: "007FFF4CC3FFCCFFFFFFFFCCFFC34CFF7F00", 7: "007FFF4CC3FF99EDFFFFFFCCFFEE99FFC34CFF7F00", 8: "007FFF4CC3FF99EDFFCCFFFFFFFFCCFFEE99FFC34CFF7F00" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BlueOrangeRed: { type: "diverging", values: { 2: "075AFFFF0000", 3: "075AFFF7F9FFFF0000", 4: "075AFFBFD4FFFFFF00FF0000", 5: "075AFF8CB2FFF7F9FFFFCC00FF0000", 6: "075AFF8CB2FFE5EEFFFFFF99FFCC00FF0000", 7: "075AFF5990FFBFD4FFF7F9FFFFFF00FF9900FF0000", 8: "075AFF5990FFBFD4FFF7F9FFFFFFCCFFFF00FF9900FF0000", 9: "075AFF5990FF8CB2FFE5EEFFF7F9FFFFFF99FFCC00FF9900FF0000", 10: "075AFF3276FF8CB2FFBFD4FFF7F9FFFFFFCCFFFF00FFCC00FF6600FF0000", 11: "075AFF3276FF8CB2FFBFD4FFE5EEFFF7F9FFFFFF99FFFF00FFCC00FF6600FF0000", 12: "075AFF3276FF5990FFBFD4FFE5EEFFF7F9FFFFFFCCFFFF99FFFF00FF9900FF6600FF0000", 13: "075AFF3276FF5990FF8CB2FFBFD4FFE5EEFFF7F9FFFFFF99FFFF00FFCC00FF9900FF6600FF0000", 14: "075AFF3276FF5990FF8CB2FFBFD4FFE5EEFFF7F9FFFFFFCCFFFF99FFFF00FFCC00FF9900FF6600FF0000" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BrownBlue10: { type: "diverging", values: { 2: "662F0000A9CC", 3: "662F00F2DACD00A9CC", 4: "662F00D8AF9799F8FF00A9CC", 5: "662F00CC9B7AF2DACD65EFFF00A9CC", 6: "662F00CC9B7AF2DACDCCFDFF65EFFF00A9CC", 7: "662F00CC9B7AD8AF97F2DACD99F8FF32E3FF00A9CC", 8: "662F00996035D8AF97F2DACDCCFDFF99F8FF32E3FF00A9CC", 9: "662F00996035CC9B7AD8AF97F2DACD99F8FF65EFFF32E3FF00A9CC", 10: "662F00996035CC9B7AD8AF97F2DACDCCFDFF99F8FF65EFFF32E3FF00A9CC" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, BrownBlue12: { type: "diverging", values: { 2: "331900007A99", 3: "33190004FDFF007A99", 4: "33190010AF9735F8FF007A99", 5: "331900049B7A04FDFF01EFFF007A99", 6: "33190035603510AF9735F8FF32E3FF007A99", 7: "33190035603510AF9704FDFF35F8FF32E3FF007A99", 8: "331900356035049B7A2ADACD04FDFF01EFFF32E3FF007A99", 9: "331900022F00049B7A10AF9704FDFF35F8FF01EFFF00A9CC007A99", 10: "331900022F0035603510AF972ADACD04FDFF35F8FF32E3FF00A9CC007A99", 11: "331900022F00356035049B7A10AF9704FDFF35F8FF01EFFF32E3FF00A9CC007A99", 12: "331900022F00356035049B7A10AF972ADACD04FDFF35F8FF01EFFF32E3FF00A9CC007A99" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, GreenMagenta: { type: "diverging", values: { 2: "005000500050", 3: "005000FFF1FF500050", 4: "00500086FF86FF86FF500050", 5: "00500050FF50FFF1FFFF50FF500050", 6: "00500000F100BBFFBBFFBBFFF100F1500050", 7: "00500000BB0086FF86FFF1FFFF86FFF100F1500050", 8: "00500000BB0050FF50BBFFBBFFBBFFFF50FFBB00BB500050", 9: "00500000BB0050FF50BBFFBBFFF1FFFFBBFFFF50FFBB00BB500050", 10: "00500000BB0000F10086FF86FFFFFFFFF1FFFF86FFF100F1BB00BB500050", 11: "00500000BB0000F10050FF50BBFFBBFFF1FFFFBBFFFF86FFF100F1860086500050", 12: "00500000860000F10050FF5086FF86FFFFFFFFF1FFFF86FFFF50FFF100F1860086500050", 13: "00500000860000BB0050FF5086FF86BBFFBBFFF1FFFFBBFFFF86FFFF50FFF100F1860086500050", 14: "00500000860000BB0000F10086FF86BBFFBBFFFFFFFFF1FFFFBBFFFF86FFF100F1BB00BB860086500050", 15: "00500000860000BB0000F10050FF5086FF86BBFFBBFFF1FFFFBBFFFF86FFFF50FFF100F1BB00BB860086500050", 16: "00500000860000BB0000F10050FF5086FF86BBFFBBFFFFFFFFF1FFFFBBFFFF86FFFF50FFF100F1BB00BB860086500050" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, RedYellowBlue: { type: "diverging", values: { 2: "A50021264CFF", 3: "A50021FFFFBF264CFF", 4: "A50021FFAD72AAF7FF264CFF", 5: "A50021F76D5EFFFFBF72D8FF264CFF", 6: "A50021F76D5EFFE099E0FFFF72D8FF264CFF", 7: "A50021F76D5EFFAD72FFFFBFAAF7FF72D8FF264CFF", 8: "A50021D82632FFAD72FFE099E0FFFFAAF7FF3FA0FF264CFF", 9: "A50021D82632F76D5EFFE099FFFFBFE0FFFF72D8FF3FA0FF264CFF", 10: "A50021D82632F76D5EFFAD72FFE099E0FFFFAAF7FF72D8FF3FA0FF264CFF", 11: "A50021D82632F76D5EFFAD72FFE099FFFFBFE0FFFFAAF7FF72D8FF3FA0FF264CFF" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, Blues10: { type: "sequential", values: { 2: "E5FFFF003FFF", 3: "E5FFFF7FD4FF003FFF", 4: "E5FFFF99E5FF4CA5FF003FFF", 5: "E5FFFFB2F2FF7FD4FF3288FF003FFF", 6: "E5FFFFB2F2FF7FD4FF65BFFF3288FF003FFF", 7: "E5FFFFB2F2FF99E5FF7FD4FF4CA5FF1965FF003FFF", 8: "E5FFFFCCFAFF99E5FF7FD4FF65BFFF4CA5FF1965FF003FFF", 9: "E5FFFFCCFAFFB2F2FF99E5FF7FD4FF4CA5FF3288FF1965FF003FFF", 10: "E5FFFFCCFAFFB2F2FF99E5FF7FD4FF65BFFF4CA5FF3288FF1965FF003FFF" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" }, Blues7: { type: "sequential", values: { 2: "FFFFFF007A99", 3: "FFFFFF66EFFF007A99", 4: "FFFFFF99F8FF33E3FF007A99", 5: "FFFFFF99F8FF66EFFF33E3FF007A99", 6: "FFFFFFCCFDFF99F8FF33E3FF00AACC007A99", 7: "FFFFFFCCFDFF99F8FF66EFFF33E3FF00AACC007A99" }, url: "http://geog.uoregon.edu/datagraphics/color_scales.htm" } }, matplotlib: { Inferno: { type: "sequential", values: { 3: "000004BC3754FCFFA4", 4: "000004781C6DED6925FCFFA4", 5: "00000457106EBC3754F98C0AFCFFA4", 6: "000004420A68932667DD513AFCA50AFCFFA4", 7: "000004320A5E781C6DBC3754ED6925FCB418FCFFA4", 8: "000004280B5365156E9F2A63D44842F57D15FAC228FCFFA4", 9: "000004210C4A57106E8A226ABC3754E35933F98C0AF9C932FCFFA4", 10: "0000041B0C414C0C6B781C6DA52C60CF4446ED6925FB9906F7D13DFCFFA4", 11: "000004180C3C420A686A176E932667BC3754DD513AF3761BFCA50AF6D746FCFFA4", 12: "000004140B3439096361136E85216BA92E5ECB4149E65D2FF78212FCAE12F5DB4CFCFFA4", 13: "000004110A30320A5E57106E781C6D9A2865BC3754D84C3EED6925F98C0AFCB418F4DF53FCFFA4", 14: "00000410092D2D0B594F0D6C6D186E8D2369AD305DC83F4BE15635F2741CFB9606FBBC21F4E156FCFFA4", 15: "0000040D0829280B53490B6A65156E82206C9F2A63BC3754D44842E8602DF57D15FB9D07FAC228F3E55DFCFFA4", 16: "0000040C0826240C4F420A685D126E781C6D932667AE305CC73E4CDD513AED6925F8850FFCA50AFAC62DF2E661FCFFA4", 17: "0000040B0724210C4A3D096557106E71196E8A226AA32C61BC3754D04545E35933F1711FF98C0AFCAA0FF9C932F2E865FCFFA4", 18: "0000040A07221E0C45380962510E6C69166E801F6C982766B0315BC63D4DD94D3DE9612BF47918FA9407FCB014F8CD37F2EA69FCFFA4", 19: "00000409061F1B0C41320A5E4C0C6B62146E781C6D8F2469A52C60BC3754CF4446E05536ED6925F68013FB9906FCB418F7D13DF1EC6DFCFFA4", 20: "00000408051D190C3E2F0A5B470B6A5C126E721A6E87216B9B2964B1325AC43C4ED74B3FE55C30F06F20F8870EFC9F07FBBA1FF7D340F1ED71FCFFA4" }, url: "https://bids.github.io/colormap" }, Magma: { type: "sequential", values: { 3: "000004B73779FCFDBF", 4: "000004721F81F1605DFCFDBF", 5: "00000451127CB73779FB8761FCFDBF", 6: "0000043B0F708C2981DE4968FE9F6DFCFDBF", 7: "0000042C115F721F81B73779F1605DFEAE77FCFDBF", 8: "0000042211505F187F982D80D3436EF8765CFEBB81FCFDBF", 9: "0000041D114751127C832681B73779E55064FB8761FEC287FCFDBF", 10: "000004180F3D451077721F819E2F7FCD4071F1605DFD9467FECA8DFCFDBF", 11: "000004150E383B0F70641A808C2981B73779DE4968F66E5CFE9F6DFECF92FCFDBF", 12: "000004120D313310675A167E7E2482A3307EC83E73E95462F97B5DFEA973FED395FCFDBF", 13: "000004100B2D2C115F51127C721F81932B80B73779D8456CF1605DFB8761FEAE77FED799FCFDBF", 14: "0000040E0B2B271258491078671B80862781A6317DC53C74E34E65F66C5CFC9065FEB67CFED89AFCFDBF", 15: "0000040C0926221150420F755F187F7B2382982D80B73779D3436EEB5760F8765CFD9869FEBB81FDDC9EFCFDBF", 16: "0000040B092420114B3B0F7057157E721F818C2981A8327DC43C75DE4968F1605DFA7F5EFE9F6DFEBF84FDDEA0FCFDBF", 17: "0000040A08221D114736106B51127C6A1C818326819C2E7FB73779CF4070E55064F4695CFB8761FEA571FEC287FDE0A1FCFDBF", 18: "0000040907201A10423111654A1079621980792282912B81AA337DC23B75D9466BEC5860F7725CFC8E64FEAA74FEC68AFDE2A3FCFDBF", 19: "00000408071E180F3D2C115F4510775C167F721F818827819E2F7FB73779CD4071E24D66F1605DF9795DFD9467FEAE77FECA8DFDE3A5FCFDBF", 20: "00000407061C160F3B29115A400F7456147D6B1D81802582942C80AB337CC03A76D6456CE85362F4675CFA815FFD9A6AFEB47BFECC8FFDE5A7FCFDBF" }, url: "https://bids.github.io/colormap" }, Plasma: { type: "sequential", values: { 3: "0D0887CC4778F0F921", 4: "0D08879C179EED7953F0F921", 5: "0D08877E03A8CC4778F89441F0F921", 6: "0D08876A00A8B12A90E16462FCA636F0F921", 7: "0D08875C01A69C179ECC4778ED7953FDB22FF0F921", 8: "0D08875302A38B0AA5B83289DB5C68F48849FEBD2AF0F921", 9: "0D08874C02A17E03A8AA2395CC4778E56B5DF89441FDC328F0F921", 10: "0D088746039F7401A89C179EBD3786D8576BED7953FA9E3BFDCA26F0F921", 11: "0D088743039E6A00A88F0DA4B12A90CC4778E16462F1834CFCA636FCCE25F0F921", 12: "0D08873E049C6300A78707A6A62098C03A83D5546EE76F5AF58C46FDAE32FCD225F0F921", 13: "0D08873A049A5C01A67E03A89C179EB52F8CCC4778DE5F65ED7953F89441FDB22FFBD524F0F921", 14: "0D088738049A5801A47701A8920FA3AC2694C23C81D45270E4695EF1814DFA9B3DFEB82CFBD724F0F921", 15: "0D08873504985302A37100A88B0AA5A31E9AB83289CC4778DB5C68E97158F48849FBA139FEBD2AFADA24F0F921", 16: "0D08873305975002A26A00A88405A79C179EB12A90C33D80D35171E16462ED7953F68F44FCA636FEC029F9DC24F0F921", 17: "0D08873105974C02A16600A77E03A89511A1AA2395BC3587CC4778D9586AE56B5DF07F4FF89441FDAB33FDC328F9DD25F0F921", 18: "0D08872F05964903A06100A77801A88E0CA4A21D9AB42E8DC43E7FD24F71DE6164E97257F3854BF99A3EFDAF31FDC627F8DF25F0F921", 19: "0D08872E059546039F5C01A67401A88808A69C179EAD2793BD3786CC4778D8576BE3685FED7953F58B47FA9E3BFDB22FFDCA26F8E125F0F921", 20: "0D08872C059444039E5901A56F00A88305A79613A1A72197B6308BC5407ED14E72DD5E66E76E5BEF7E50F79044FBA238FEB72DFDCB26F7E225F0F921" }, url: "https://bids.github.io/colormap" }, Viridis: { type: "sequential", values: { 3: "44015421918CFDE725", 4: "44015431688E35B779FDE725", 5: "4401543B528B21918C5CC863FDE725", 6: "4401544144872A788E22A8847AD151FDE725", 7: "44015444398331688E21918C35B7798ED645FDE725", 8: "44015446327E365C8D277F8E1FA1874AC16DA0DA39FDE725", 9: "440154472D7B3B528B2C728E21918C27AD815CC863AADC32FDE725", 10: "4401544828783E4A8931688E26828E1F9E8935B7796CCD5AB5DE2BFDE725", 11: "440154482576414487355F8D2A788E21918C22A88442BE717AD151BDDF26FDE725", 12: "440154482173433E8538598C2D708E25858E1E9B8A2AB07F50C46A86D549C2DF23FDE725", 13: "440154481F704439833B528B31688E287C8E21918C20A48635B7795CC8638ED645C8E020FDE725", 14: "440154481D6F4535813D4D8A34618D2B748E24878E1F998A25AC8240BD7267CC5C98D83ECAE11FFDE725", 15: "440154481B6D46327E3F4889365C8D2E6E8E277F8E21918C1FA1872DB27D4AC16D70CF57A0DA39D0E11CFDE725", 16: "440154481A6C472F7D41448739568C31688E2A788E23888E1F988B22A88435B77954C5687AD151A5DB36D2E21BFDE725", 17: "44015448186A472D7B4240863B528B33638D2C728E26828E21918C1F9F8827AD813DBC745CC86381D34DAADC32D5E21AFDE725", 18: "440154481769472A7A433D843D4E8A355E8D2E6D8E297B8E23898E1F978B21A5852EB37C46C06F65CB5E89D548B0DD2FD8E219FDE725", 19: "4401544816684828784439833E4A89375A8C31688E2B758E26828E21918C1F9E8925AB8235B7794EC36B6CCD5A8ED645B5DE2BDAE319FDE725", 20: "4401544814674826774537813F478839558C32648E2D718E287D8E238A8D1F968B20A38629AF7F3BBB7556C66773D05695D840B8DE29DDE318FDE725" }, url: "https://bids.github.io/colormap" } }, mycarta: { Cube1: { type: "sequential", values: { 3: "78008549D07EF9965B", 4: "7800854C9ED985EB50F9965B", 5: "780085627DF649D07EB6EC57F9965B", 6: "7800856E62FD38B6B85CE349CCEC5AF9965B", 7: "7800857751F24C9ED949D07E85EB50D5E65BF9965B", 8: "7800857D45E4598CEC3BBEA956DE52A2EC55DCDD5CF9965B", 9: "7800857F3BDC627DF63CAEC549D07E68E74AB6EC57E0D75CF9965B", 10: "780085812DD2686FFB4C9ED93EC2A053DB5D85EB50C3EC59E6D25DF9965B", 11: "7800858126CD6E62FD5691E838B6B849D07E5CE34998EC53CCEC5AEACD5DF9965B", 12: "780085821CC57359F95C87F040AACA41C59A51D8656FE84CA9EC56D2EA5BEDC95EF9965B", 13: "7800858316C07751F2627DF64C9ED939BBB049D07E58E14C85EB50B6EC57D5E65BEFC65EF9965B", 14: "7800858313BD7A4BEB6673FA5394E53AB1C043C79550D76A63E64A96EC53BFEC59D9E15BF0C45EF9965B", 15: "780085830FB87D45E46A6BFC598CEC43A7CE3BBEA949D07E56DE5275E94DA2EC55C6EC59DCDD5CF2C05EF9965B", 16: "780085830DB57E40E06E62FD5E84F24C9ED938B6B843C8934FD66C5CE34985EB50ADEC56CCEC5ADEDA5CF3BE5EF9965B", 17: "780085830CB27F3BDC715DFC627DF65197E23CAEC53EC1A349D07E54DC5A68E74A91EB52B6EC57D0EB5AE0D75CF3BC5EF9965B", 18: "780085830BB08034D77457F76675F9578FEA45A5D039B9B244C9914ED56F59E14B78EA4E9DEC54BDEC58D3E95BE3D55DF4BA5EF9965B", 19: "780085830AAD812DD27751F2686FFB5B89EF4C9ED939B2BE3EC2A049D07E53DB5D61E54985EB50A7EC55C3EC59D5E65BE6D25DF4B85EF9965B", 20: "7800858209AA812AD0794DED6B68FD5F82F35098E03FABC93ABCAE45CA8E4DD47157E04E6DE84B8EEB52AFEC57C8EC59D8E25BE7D05DF5B65EF9965B" }, url: "https://mycarta.wordpress.com/color-palettes/" }, CubeYF: { type: "sequential", values: { 3: "7B029039BAB1D1EB5B", 4: "7B02905A89EE51D866D1EB5B", 5: "7B02906A6AFE39BAB160E547D1EB5B", 6: "7B02907357F84C9ED947CD8576E94DD1EB5B", 7: "7B02907D48EA5A89EE39BAB151D8668AEB51D1EB5B", 8: "7B0290813EDF6577FB45A7D044C99159E0519AEC54D1EB5B", 9: "7B02908337D86A6AFE5197E039BAB14BD27A60E547A3EC55D1EB5B", 10: "7B0290842FD06F5FFC5A89EE40ACC841C59951D8666CE74AA8EC56D1EB5B", 11: "7B0290852BCC7357F8627CF84C9ED939BAB147CD8558DE5776E94DADEC56D1EB5B", 12: "7B02908624C67850F16773FD5493E43EAFC43FC29F4CD3745BE24E84EB50B0EC57D1EB5B", 13: "7B0290861FC27D48EA6A6AFE5A89EE48A3D439BAB146CB8C51D86660E5478AEB51B4EC57D1EB5B", 14: "7B0290861DC07F44E46E62FD6180F54F99DE3CB1C13EC1A349D07E57DD5868E74993EC53B4EC57D1EB5B", 15: "7B02908618BC813EDF715CFC6577FB5590E745A7D039BAB144C9914DD47159E0516FE84B9AEC54B7EC58D1EB5B", 16: "7B02908615BA823ADB7357F86870FE5A89EE4C9ED93CB2BF3DC0A447CD8551D8665CE34A76E94D9FEC55B8EC58D1EB5B", 17: "7B02908613B88337D87653F46A6AFE5F83F35197E041ABCA39BAB142C6964BD27A55DC5C60E5477EE94FA3EC55B8EC58D1EB5B", 18: "7B02908611B58433D4794EF06D64FD637AF9568FE849A1D63BB3BE3DC0A646CB8A4ED56F59DF5467E64986EB50A5EC55BBEC58D1EB5B", 19: "7B0290850FB3842FD07D48EA6F5FFC6774FD5A89EE4E9ADD40ACC839BAB141C59949D08051D8665AE14F6CE74A8AEB51A8EC56BDEC58D1EB5B", 20: "7B0290850DB1852DCE7F45E6715BFB686EFF5E84F25294E347A4D33AB4BD3CBFA845CA8D4CD37654DB5F5CE34971E84C91EB52ABEC56BFEC59D1EB5B" }, url: "https://mycarta.wordpress.com/color-palettes/" }, LinearL: { type: "sequential", values: { 3: "040404008E3FFFFFFF", 4: "0404040A557A4FBC00FFFFFF", 5: "0404041B397F008E3FACC600FFFFFF", 6: "040404282678006C6514AB00D1CB57FFFFFF", 7: "0404042C1D640A557A008E3F4FBC00E2CF8AFFFFFF", 8: "0404042D19541B428800765C00A52787C300EED4A8FFFFFF", 9: "0404042D17471B397F00646D008E3F34B100ACC600F5D6B7FFFFFF", 10: "0404042D15371F31790A557A007B5600A02D4FBC00C5C900F7DBC3FFFFFF", 11: "0404042E142D282678194788006C65008E3F14AB0072C100D1CB57F8DFCCFFFFFF", 12: "0404042B13262C206E1B3F85036070007F52009D323DB40095C400DBCE79F7E2D1FFFFFF", 13: "0404042911242C1D641B397F0A557A007260008E3F00A91F4FBC00ACC600E2CF8AF7E5D6FFFFFF", 14: "0404042811232D1B5C1E337B154A8500676B00814F009A342DAF006AC100BEC900E8D29BF7E6D8FFFFFF", 15: "040404260F212D1954212E781B4288045E7200765C008E3F00A52742B60087C300C9C918EED4A8F7E8DCFFFFFF", 16: "040404250F202D184D2826781B3D830A557A006C6500834D00993514AB004FBC009DC500D1CB57F3D5AFF8EAE0FFFFFF", 17: "040404240E202D17472C22741B397F114E8100646D007958008E3F00A22C34B1005CC100ACC600D7CD6DF5D6B7F7EBE1FFFFFF", 18: "040404230E1F2D16402C1F6D1D347B1B458A045C7300706200844B00973700AA1744B7007DC200BAC800DDCF7FF8D8BDF7ECE5FFFFFF", 19: "040404210D1D2D15372C1D641F31791C40860A557A00686A007B56008E3F00A02D28AE004FBC0091C300C5C900E2CF8AF7DBC3F7EEE7FFFFFF", 20: "040404200C1C2E15322D1C5F222C781B3C81104F8001626F00735F00854900963800A8223BB30057C000A1C500CBCA33E7D197F7DCC6F7EFE8FFFFFF" }, url: "https://mycarta.wordpress.com/color-palettes/" } }, scientific: { Berlin: { type: "diverging", values: { 3: "9EB0FF190C09FFADAD", 4: "9EB0FF1A4256501803FFADAD", 5: "9EB0FF286886190C097B321CFFADAD", 6: "9EB0FF3280A6112732371000964A36FFADAD", 7: "9EB0FF3E90BC1A4256190C09501803A65948FFADAD", 8: "9EB0FF489ACA225771101D252D0E0068240FB46658FFADAD", 9: "9EB0FF519FD328688614303E190C093F12017B321CBC6D61FFADAD", 10: "9EB0FF5BA4DB2D75971A425611191E280D015018038A3F2AC4756AFFADAD", 11: "9EB0FF60A5DF3280A620526A112732190C093710005F1F0A964A36CA7B71FFADAD", 12: "9EB0FF67A8E33889B2245D78153544111519250C014413016E2813A05341CE7F76FFADAD", 13: "9EB0FF6CA9E63E90BC2868861A425611212A190C09310F005018037B321CA65948D2837AFFADAD", 14: "9EB0FF6FA9E84395C32C71921E4E65132D3A111317230C023C11015D1E09863B26AE6051D5857DFFADAD", 15: "9EB0FF74AAEB489ACA2F789C225771163849101D25190C092D0E0047140168240F8E422EB46658D98982FFADAD", 16: "9EB0FF76ABEC4D9DCF3280A625607C1A4256112732121215220C02371000501803732B16964A36B86A5CDB8B84FFADAD", 17: "9EB0FF79ABED519FD33685AD2868861D4B6114303E111A20190C092A0E013F1201591C077B321C9C4F3DBC6D61DD8D86FFADAD", 18: "9EB0FF7BACEE56A2D7398BB42B6F8F20546C173A4B11232C121214210B03330F0048150263210C843924A25544C07165DF8F89FFADAD", 19: "9EB0FF7EACF05BA4DB3E90BC2D7597235B751A4256122C3811191E190C09280D013B11005018036C27118A3F2AA65948C4756AE1918BFFADAD", 20: "9EB0FF80ACF15DA5DD4194C1307A9E26627F1C495F153342112028131112200B04300F00421301571B06752D17904430AC5E4FC6776CE3938EFFADAD" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Broc: { type: "diverging", values: { 3: "2C1A4CEBEEEC262600", 4: "2C1A4C8BA7C2C5C58F262600", 5: "2C1A4C5B82A9EBEEEC9B9B62262600", 6: "2C1A4C3F6B99B3C5D7DCDBB881814C262600", 7: "2C1A4C305C8C8BA7C2EBEEECC5C58F72723F262600", 8: "2C1A4C2A51836F92B3C4D2E0E4E4C8AEAE73646434262600", 9: "2C1A4C294B7D5B82A9A5BBD0EBEEECD4D4AA9B9B625D5D2D262600", 10: "2C1A4C2844774B76A08BA7C2CED9E5E8E8D2C5C58F8D8D56555527262600", 11: "2C1A4C2841743F6B997697B7B3C5D7EBEEECDCDBB8B6B67C81814C505023262600", 12: "2C1A4C293C6F366392688CB09EB5CCD5DFE8EBEBD9D0D0A2A8A86D7777444C4C20262600", 13: "2C1A4C29396C305C8C5B82A98BA7C2BDCDDCEBEEECE0E0C1C5C58F9B9B6272723F49491D262600", 14: "2C1A4C29386A2D57885079A37B9BBAAABED2D9E2EAECEDDDD7D7AEB8B87E9191596A6A3847471C262600", 15: "2C1A4C2935672A518347729E6F92B399B2CAC4D2E0EBEEECE4E4C8CECE9EAEAE73898952646434434319262600", 16: "2C1A4C2A3366294E803F6B996489AD8BA7C2B3C5D7DCE4EBEDEEDFDCDBB8C5C58FA3A36981814C616031424218262600", 17: "2C1A4C2A3164294B7D3966955B82A97F9EBCA5BBD0CBD8E4EBEEECE7E7CFD4D4AABCBC839B9B627B7B475D5D2D404016262600", 18: "2C1A4C2A306328477A346191527BA47495B697B0C8BACBDBDEE5ECEDEEE1DFDFBFCCCC9BB2B27793935B75754259592A3E3E15262600", 19: "2C1A4C2A2E61284477305C8C4B76A06B8EB18BA7C2ACC0D3CED9E5EBEEECE8E8D2D8D8B1C5C58FAAAA6F8D8D5672723F5555273C3D14262600", 20: "2C1A4C2A2D602843752E588945719C6187AC82A0BDA0B7CDBFCFDDE0E7ECEEEFE3E1E1C4D2D2A5BEBE85A1A1678787516C6C3A5454263B3B12262600" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Cork: { type: "diverging", values: { 3: "2C1A4CDBE6E5424D03", 4: "2C1A4C84A1BE95C199424D03", 5: "2C1A4C577EA6DBE6E56BA870424D03", 6: "2C1A4C3D6896AABFD3B7D5BA539655424D03", 7: "2C1A4C31598A84A1BEDBE6E595C199488943424D03", 8: "2C1A4C2C4F816A8DB0BACBDBC5DDC87DB381427D35424D03", 9: "2C1A4C2A497B577EA69DB4CBDBE6E5ABCEAE6BA87041762E424D03", 10: "2C1A4C2A437548729E84A1BEC3D2DFCDE1CF95C1995E9F62407027424D03", 11: "2C1A4C2A3F723D68967092B4AABFD3DBE6E5B7D5BA85B789539655406C23424D03", 12: "2C1A4C2A3B6E36608F6388AD96AFC8C9D7E2D2E4D5A5CAA877AF7C4B8E4A416920424D03", 13: "2C1A4C2A386B31598A577EA684A1BEB3C6D7DBE6E5BFDAC295C1996BA87048894341661D424D03", 14: "2C1A4C2A36692E54854C76A07596B6A1B8CECDDAE4D5E6D9AFD0B287B98B61A16644823B41651C424D03", 15: "2C1A4C2A34662C4F81456F9B6A8DB091ACC5BACBDBDBE6E5C5DDC8A1C8A47DB3815A9C5D427D35416319424D03", 16: "2C1A4C2A32652B4C7E3D68965F85AB84A1BEAABFD3CFDCE4D6E6DBB7D5BA95C19973AD78539655417A31416118424D03", 17: "2C1A4C2A31632A497B396392577EA67999B99DB4CBC1D0DEDBE6E5CBE0CEABCEAE8BBB8F6BA8704E914E41762E416017424D03", 18: "2C1A4C2B2F622A4678345E8E4E77A16E91B38FAAC4B1C4D6D1DDE5D8E7DCBDD8C09FC7A281B58563A3684A8C4841732B415F16424D03", 19: "2C1A4C2B2E602A437531598A48729E658AAE84A1BEA3B9CFC3D2DFDBE6E5CDE1CFB1D1B495C19979B07D5E9F62488943407027415D14424D03", 20: "2C1A4C2B2C5F2A41742F5687436D9A5D83A97B9BBA98B1C9B6C7D8D3DFE5D9E7DEC1DBC4A7CBAA8DBC9171AC76589B5B45843D406F26425C13424D03" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Lisbon: { type: "diverging", values: { 3: "E6E5FF171919FFFFD9", 4: "E6E5FF1E4368575134FFFFD9", 5: "E6E5FF416A971719197F784CFFFFD9", 6: "E6E5FF6083AE132A423835229A9160FFFFD9", 7: "E6E5FF7794BD1E4368171919575134ABA26EFFFFD9", 8: "E6E5FF86A0C62F59841122332D2B1C6D6741B9B17DFFFFD9", 9: "E6E5FF90A7CC416A9716334F171919433F287F784CC1BA87FFFFD9", 10: "E6E5FF9BAFD35177A41E4368111E2C27251A5751348D8556C9C390FFFFD9", 11: "E6E5FFA0B3D66083AE2A537D132A4217191938352266603D9A9160CFC998FFFFD9", 12: "E6E5FFA8B9DA6D8DB6345E8A173756111B2723211848442B736C45A49C69D3CD9DFFFFD9", 13: "E6E5FFADBCDE7794BD416A971E436812253A171919322F1F5751347F784CABA26ED7D2A2FFFFD9", 14: "E6E5FFB0BEDF7E9AC14C73A0274F7815304B121A24201F183F3C26645E3C898153B3AB77D9D4A4FFFFD9", 15: "E6E5FFB5C2E286A0C6567BA72F5984193A5A1122331719192D2B1C4C472D6D6741918959B9B17DDCD8A9FFFFD9", 16: "E6E5FFB8C4E48BA3C96083AE38628F1E4368132A42121A221F1E183835225751347770479A9160BDB682DEDAACFFFFD9", 17: "E6E5FFBBC6E590A7CC6889B3416A97244C7416334F111F2E17191928261A433F28605A397F784CA09865C1BA87E0DCAFFFFFD9", 18: "E6E5FFBDC8E796ABCF6F8EB84A729E2B557F193C5D12273C1219211E1D173330204D492E69633F877F52A69E6AC5BE8BE2DEB1FFFFD9", 19: "E6E5FFC0CAE99BAFD37794BD5177A4325C881E4368142E48111E2C17191927251A3E3A25575134716B448D8556ABA26EC9C390E4E1B4FFFFD9", 20: "E6E5FFC3CCEA9EB1D47C98C0597DA93A6491224A711736531224371319201C1C17302D1E46422A5E5838797249948B5BB1A975CBC593E6E3B6FFFFD9" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Roma: { type: "diverging", values: { 3: "7F1900CAEBC91A3399", 4: "7F1900D9CF6D61BDD31A3399", 5: "7F1900C1A23CCAEBC94898C51A3399", 6: "7F1900B3862CE3E59A8AD8D83E82BB1A3399", 7: "7F1900AB7424D9CF6DCAEBC961BDD33975B61A3399", 8: "7F1900A5691FCBB64DE1E9AA9EE1D750A8CB346AB11A3399", 9: "7F1900A1611CC1A23CE1DF8BCAEBC97AD0D74898C53264AE1A3399", 10: "7F19009D5918B99333D9CF6DDFEAB2A9E4D561BDD3428CBF2F5EAB1A3399", 11: "7F19009B5516B3862CCFBD54E3E59ACAEBC98AD8D855AFCE3E82BB2D59A91A3399", 12: "7F1900984F14AE7C27C8AF47E0DC83DCEBB7B1E6D372CBD64DA3C93B7AB82C56A81A3399", 13: "7F1900964B12AB7424C1A23CD9CF6DE2E7A3CAEBC995DDD761BDD34898C53975B62B53A71A3399", 14: "7F1900954911A86F21BB9735D1C159E2E190DAEBBBB6E8D27FD3D757B1CE4490C1366FB32A51A61A3399", 15: "7F1900934410A5691FB78F30CBB64DDED97EE1E9AACAEBC99EE1D76EC7D550A8CB4189BE346AB1294EA51A3399", 16: "7F190092420FA3651DB3862CC5AB43D9CF6DE3E59AD9EBBCB8E8D18AD8D861BDD34B9FC73E82BB3367AF284DA41A3399", 17: "7F190091400EA1611CB08029C1A23CD4C65FE1DF8BE0EAB0CAEBC9A6E3D57AD0D759B4D04898C53C7DB93264AE274BA31A3399", 18: "7F1900903E0D9F5D1AAD7A27BC9936CEBB52DED87BE3E7A1D7EBBEBBE9D092DCD76BC6D553ABCC4591C23A78B73061AD274AA31A3399", 19: "7F19008F3C0C9D5918AB7424B99333C9B149D9CF6DE2E293DFEAB2CAEBC9A9E4D582D4D861BDD34EA4C9428CBF3975B62F5EAB2648A21A3399", 20: "7F19008D3A0B9C5717A97122B68C2FC4A841D5C861E0DD86E2E8A6D6ECC0BDE9CF98DFD775CCD65BB6D04A9DC74087BD3770B42F5CAB2547A11A3399" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Tofino: { type: "diverging", values: { 3: "DED9FF0D1613DBE69B", 4: "DED9FF273C65244D28DBE69B", 5: "DED9FF3E5E9A0D161337733CDBE69B", 6: "DED9FF5777BA19253D18321A4A8D4BDBE69B", 7: "DED9FF6E89CB273C650D1613244D285C9E57DBE69B", 8: "DED9FF7E95D4334F83141D2E1427162E623370AB63DBE69B", 9: "DED9FF889DD93E5E9A1D2D4A0D16131C3B1F37733C7CB369DBE69B", 10: "DED9FF93A4DE4A6BAC273C65121926122214244D283F814488B970DBE69B", 11: "DED9FF98A8E15777BA304A7B19253D0D161318321A2B5B2F4A8D4B91BE74DBE69B", 12: "DED9FFA0ADE46481C537548B203151111721111F121E402131683655975397C278DBE69B", 13: "DED9FFA6B1E66E89CB3E5E9A273C651620340D1613152C18244D2837733C5C9E579DC57BDBE69B", 14: "DED9FFA8B3E8768FD04767A72E47761C2A4610161E101C121A381D2A5A2E3D7D4167A65EA0C67CDBE69B", 15: "DED9FFAEB7EA7E95D44F6FB1334F83223456141D2E0D16131427162043232E623342854670AB63A6CA7FDBE69B", 16: "DED9FFB0B9EB8399D75777BA395790273C6519253D0F151D0F1C1218321A244D28336C384A8D4B76AF66A9CB81DBE69B", 17: "DED9FFB3BBEC889DD95F7DC13E5E9A2C44711D2D4A121A280D16131223141C3B1F28562C37733C5093507CB369ACCD83DBE69B", 18: "DED9FFB6BCED8EA0DC6683C64565A5314C7E2235591621360F151B0F1B12162D182045242C5F313B7B40579A5482B66CAFCE84DBE69B", 19: "DED9FFB8BEEF93A4DE6E89CB4A6BAC355288273C651B29431219260D16131222141A361C244D283066353F81445C9E5788B970B2D086DBE69B", 20: "DED9FFBBC0F096A6DF738DCE5171B43A59932B426F1F304F151F320E151A0E1A11152A171D3E2027542C346D3944874764A45C8BBB71B5D187DBE69B" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Vik: { type: "diverging", values: { 3: "001261ECE5E0590008", 4: "00126171A8C4D39774590008", 5: "001261307DA6ECE5E0C37243590008", 6: "001261116496A7C9DAE1B8A0B75A26590008", 7: "00126106548B71A8C4ECE5E0D39774AB4814590008", 8: "001261034A854B90B3BDD6E3E7C6B2CA82589C3709590008", 9: "001261034481307DA694BED2ECE5E0DCAC90C37243942F06590008", 10: "001261033E7D1E6F9D71A8C4C9DDE7EACEBDD39774BE65338B2706590008", 11: "001261023A7B1164965496B7A7C9DAECE5E0E1B8A0CD8961B75A26852206590008", 12: "001261023678095B904289AF8AB8CED2E1E9ECD3C5DAA688C87C51B04F1B811F06590008", 13: "00126102337606548B307DA671A8C4B3D1DFECE5E0E4BFAAD39774C37243AB48147E1D06590008", 14: "001261023175044F882373A05A9ABA9AC2D5D8E4E9EDD7CBDEB095CE8B64BF6938A33E0D7C1B06590008", 15: "001261022E73034A85196B9A4B90B384B4CCBDD6E3ECE5E0E7C6B2D8A283CA8258BC622F9C3709781806590008", 16: "001261022D720347831164963C85AC71A8C4A7C9DADBE5E9EED9CDE1B8A0D39774C6794CB75A26983307761706590008", 17: "001261022B710344810C5E92307DA6619EBD94BED2C6DBE6ECE5E0E9CCBADCAC90CF8E68C37243B3531F942F06741506590008", 18: "001261022A7003417F08598F2575A15194B680B2CAB0CFDEDEE6E9EEDBD0E4BEA8D7A081CC855DC06B3AAF4C188F2B06731406590008", 19: "00126102286F033E7D06548B1E6F9D458BB071A8C49DC4D6C9DDE7ECE5E0EACEBDDFB298D39774C97E53BE6533AB48148B2706711307590008", 20: "00126102276E033C7C0551891769993983AB64A0BE8DBAD0B6D3E1E0E6E9EEDDD3E5C1ADDBA88BD0906BC6774ABB602DA5400F8926066F1107590008" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Acton: { type: "sequential", values: { 3: "2E214DC46E9BE6E6F0", 4: "2E214D926390D495B8E6E6F0", 5: "2E214D775A86C46E9BD4A6C4E6E6F0", 6: "2E214D66507BA66694D486ADD5B2CDE6E6F0", 7: "2E214D5B4873926390C46E9BD495B8D7BAD2E6E6F0", 8: "2E214D54426E835F8BAD6795D37FA8D39FBFD9C1D7E6E6F0", 9: "2E214D503E6A775A869F6593C46E9BD58CB1D4A6C4DAC5D9E6E6F0", 10: "2E214D4B3B666E5480926390B26795D17BA5D495B8D4ADC9DBC9DCE6E6F0", 11: "2E214D49396466507B87608DA66694C46E9BD486ADD49BBCD5B2CDDCCCDEE6E6F0", 12: "2E214D463662604B777F5D899C6592B56896CF78A3D58EB3D3A1C1D6B7D0DDCEE0E6E6F0", 13: "2E214D4434605B4873775A86926390AA6694C46E9BD482AAD495B8D4A6C4D7BAD2DED0E1E6E6F0", 14: "2E214D43335F5845717156828A618EA16593B86996CD76A1D58AB0D49ABCD4ABC7D8BED5DED1E2E6E6F0", 15: "2E214D41315D54426E6B537F835F8B996592AD6795C46E9BD37FA8D590B4D39FBFD4AFCAD9C1D7DFD3E3E6E6F0", 16: "2E214D3F305C52406C66507B7D5C88926390A66694B96997CC75A1D486ADD495B8D3A3C2D5B2CDD9C3D8DFD4E4E6E6F0", 17: "2E214D3E305B503E6A634D79775A868C628E9F6593B16795C46E9BD17CA6D58CB1D499BBD4A6C4D6B5CEDAC5D9DFD5E4E6E6F0", 18: "2E214D3D2F5A4D3D685F4A7672578386608C986491A96694BA6997CB74A0D483ABD491B5D39DBDD4AAC7D6B8D0DAC7DBE0D6E5E6E6F0", 19: "2E214D3C2E594B3B665B48736E5480815E8A926390A26693B26795C46E9BD17BA5D589AFD495B8D3A0C0D4ADC9D7BAD2DBC9DCE0D7E6E6E6F0", 20: "2E214D3B2D584A3A655946726A527E7B5B888D628F9D6592AB6694BB6A98CA739FD381AAD58DB2D498BAD3A4C2D5AFCBD7BDD4DBCADDE1D8E7E6E6F0" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Bamako: { type: "sequential", values: { 3: "00404C617E14FFE599", 4: "00404C3A652A969206FFE599", 5: "00404C2B5A34617E14B9A525FFE599", 6: "00404C225539486E22808D04CDB53DFFE599", 7: "00404C1C513D3A652A617E14969206D8BE4DFFE599", 8: "00404C184E3F315F304E721F768908AA9B16DFC55AFFE599", 9: "00404C154C412B5A34436A25617E14878E03B9A525E3C961FFE599", 10: "00404C134B422657373A652A52741C71870B969206C5AE32E7CD68FFE599", 11: "00404C124A4322553933602E486E22617E14808D04A39710CDB53DE9D06EFFE599", 12: "00404C1049441E523B2F5D3141692755761B6E850D8B8F03AF9E1BD4BB47EBD171FFE599", 13: "00404C0F48451C513D2B5A343A652A4C7020617E147A8B06969206B9A525D8BE4DEDD375FFE599", 14: "00404C0E48451A4F3E27583635612D456B2457771A6B840E858E03A1960FC1AB2EDCC254EED476FFE599", 15: "00404C0D4746184E3F245637315F303F68274E721F617E147689088E9003AA9B16C8B036DFC55AEFD67AFFE599", 16: "00404C0C4646174D402255392D5C323A652A486E225878196A830F808D04969206B2A01ECDB53DE1C75EF0D77CFFE599", 17: "00404C0B4647154C4120533A2B5A3436622D436A2551731D617E1473880A878E039E950CB9A525D1B943E3C961F1D87DFFE599", 18: "00404C0B4647144C411E523C28593533602F3E67284B6F215978196982107C8B068F9003A69913C0AA2CD5BC49E5CB65F2D87FFFE599", 19: "00404C0A4547134B421C513D265737305E313A652A466C2452741C617E1471870B838E03969206AD9D19C5AE32D8BE4DE7CD68F3D981FFE599", 20: "00404C094548124A431A503E2456382D5C3237632C4169264C71205A7918688210798A078A8F039C940BB4A120C9B238DBC152E7CE6AF4DA83FFE599" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Batlow: { type: "sequential", values: { 3: "011959818233FACCFA", 4: "0119593E6C55D59448FACCFA", 5: "011959235C60818233F49E71FACCFA", 6: "011959184F61577647B28D32FCA78DFACCFA", 7: "0119591345603E6C55818233D59448FDAC9EFACCFA", 8: "011959113F602E645C627941A38A2EE9995EFDB1ADFACCFA", 9: "0119590F3B5F235C604E734C818233BF9038F49E71FDB4B5FACCFA", 10: "0119590E365E1D55613E6C55687B3E9B882ED59448F9A380FDB7BDFACCFA", 11: "0119590D345E184F6132665B577647818233B28D32E39856FCA78DFDB9C4FACCFA", 12: "0119590C315D154A612A615E4A714F6D7C3C95872EC5913CED9B65FDAA98FDBBC8FACCFA", 13: "0119590B2F5D134560235C603E6C555D7844818233AA8C2FD59448F49E71FDAC9EFDBCCCFACCFA", 14: "0119590B2E5D1242601E576134685A51744B707D3A91862EBB8F36E19755F8A27CFDAFA6FDBDCEFACCFA", 15: "0119590A2C5C113F601B53612E645C477050627941818233A38A2EC9923FE9995EFAA485FDB1ADFDBED3FACCFA", 16: "0119590A2B5C103D5F184F6128605F3E6C55577647717E398F862FB28D32D59448EF9C69FCA78DFDB3B1FCBFD5FACCFA", 17: "011959092A5C0F3B5F164C61235C603769584E734C667A3F8182339D892EBF9038DE9651F49E71FCA994FDB4B5FCC0D7FACCFA", 18: "01195909295C0F385F1548611F586130665B456F515C7745737E388D852FAC8C30CB9240E6985AF7A17AFDAB9AFDB6B9FCC1D9FACCFA", 19: "01195908285C0E365E1345601D55612B625D3E6C5553744A687B3E8182339B882EB98F35D59448EC9A63F9A380FDAC9EFDB7BDFCC1DBFACCFA", 20: "01195908275C0E355E1343601A5261265F5F386A584B724E5F7843757E388B852FA88B2FC3913BDC964FF19D6BFAA587FDAFA4FDB8BFFCC2DDFACCFA" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Bilbao: { type: "sequential", values: { 3: "FFFFFFAA86654D0001", 4: "FFFFFFB9AF8B9E61554D0001", 5: "FFFFFFC2BCA6AA8665934B474D0001", 6: "FFFFFFC8C4B8B29F76A3705C883C3B4D0001", 7: "FFFFFFCECCC4B9AF8BAA86659E61557F33324D0001", 8: "FFFFFFD3D2CDBEB79AAF9870A5775E99554E772B2B4D0001", 9: "FFFFFFD7D7D3C2BCA6B5A57CAA8665A26B59934B477327264D0001", 10: "FFFFFFDCDBD9C5C0AFB9AF8BAE946DA67A609E61558D43416E22224D0001", 11: "FFFFFFDEDEDCC8C4B8BDB596B29F76AA8665A3705C9B5951883C3B6B1F1F4D0001", 12: "FFFFFFE2E1E0CBC8BFBFB89EB6A880AD916BA77D61A1685897524C823736681D1D4D0001", 13: "FFFFFFE4E4E3CECCC4C2BCA6B9AF8BB19B72AA8665A4745D9E6155934B477F3332661A1B4D0001", 14: "FFFFFFE5E5E4D1CFC9C4BFADBCB394B4A37AAC906AA77E62A26D5A9C5A518F46437B2F2E65191A4D0001", 15: "FFFFFFE8E8E7D3D2CDC6C2B2BEB79AB7AA83AF9870AA8665A5775EA0675799554E8B413F772B2B6217184D0001", 16: "FFFFFFE9E9E8D5D4D0C8C4B8C0B9A1B9AF8BB29F76AC8F69A87F62A3705C9E615596504B883C3B7529286116174D0001", 17: "FFFFFFEAEAEAD7D7D3CAC7BCC2BCA6BBB291B5A57CAE956DAA8665A67960A26B599D5C52934B478439387327266015164D0001", 18: "FFFFFFECECEBDAD9D6CCC9C0C3BEABBDB598B7AB84B19C73AC8E69A88063A4735DA066579A574F9047448136347025245F13154D0001", 19: "FFFFFFEDEDECDCDBD9CECCC4C5C0AFBFB89DB9AF8BB3A279AE946DAA8665A67A60A36E5B9E615598534D8D43417F33326E22225D12144D0001", 20: "FFFFFFEEEEEEDDDCDAD0CEC7C6C2B3C0BAA2BBB190B5A77FB09A71AC8D68A88163A5755EA169599D5D53964F4A8B403E7C302F6D21215C11134D0001" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Buda: { type: "sequential", values: { 3: "B301B3CD857EFFFF66", 4: "B301B3C2618AD7AA75FFFF66", 5: "B301B3BC4E90CD857EDBBD70FFFF66", 6: "B301B3B84294C76F85D39B79DEC96DFFFF66", 7: "B301B3B53998C2618ACD857ED7AA75E0D06BFFFF66", 8: "B301B3B4339ABE568DC97583D1957AD9B572E2D76AFFFF66", 9: "B301B3B32F9CBC4E90C56A87CD857ED4A077DBBD70E3DB69FFFF66", 10: "B301B3B32B9EB94892C2618ACA7982D1917BD7AA75DDC36FE5DF68FFFF66", 11: "B301B3B3289FB84294BF598CC76F85CD857ED39B79D8B173DEC96DE7E268FFFF66", 12: "B301B3B325A1B63D96BD548EC46888CA7B81D08F7CD5A377DAB772E0CD6CE8E467FFFF66", 13: "B301B3B323A2B53998BC4E90C2618AC87384CD857ED2977AD7AA75DBBD70E0D06BE9E667FFFF66", 14: "B301B3B321A3B43699BA4A92C05B8CC66C86CB7D81CF8D7CD49E78D8B073DDC16FE1D46BEAE767FFFF66", 15: "B301B3B31FA4B4339AB94693BE568DC46688C97583CD857ED1957AD5A576D9B572DDC56EE2D76AEBE967FFFF66", 16: "B301B3B31EA5B4319BB84294BD528FC2618AC76F85CB7E80CF8C7CD39B79D7AA75DAB971DEC96DE3D969ECEB67FFFF66", 17: "B301B3B31CA6B32F9CB73F95BC4E90C05C8BC56A87C97882CD857ED1927BD4A077D8AE74DBBD70DFCB6DE3DB69EDEC67FFFF66", 18: "B301B3B31BA6B32D9DB63C96BA4B91BF588DC36588C77284CB7E80CF8B7DD29879D6A576D9B373DCC06FE0CE6CE4DD69EEED67FFFF66", 19: "B301B3B31AA7B32B9EB53998B94892BE558EC2618AC66D86CA7982CD857ED1917BD49E78D7AA75DAB672DDC36FE0D06BE5DF68EFEE66FFFF66", 20: "B301B3B318A8B3299FB53798B84593BC518FC15D8BC46987C87384CC7F80CF8A7DD2977AD5A277D8AD74DBBA71DEC66EE1D36BE5E068F0EF66FFFF66" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Davos: { type: "sequential", values: { 3: "00054A6C8E93FEFEFE", 4: "00054A43709D99AD88FEFEFE", 5: "00054A2F5A966C8E93BBC794FEFEFE", 6: "00054A234A8C547D9C849E89D4DBA8FEFEFE", 7: "00054A1C3F8343709D6C8E9399AD88E1E5B6FEFEFE", 8: "00054A17377C38649A5A829A7D998CABBB8CEBEDC4FEFEFE", 9: "00054A1432772F5A964E799D6C8E938BA388BBC794EFF0CBFEFEFE", 10: "00054A112C7129529143709D5E859879968D99AD88C9D29EF3F3D2FEFEFE", 11: "00054A102A6F234A8C3A679B547D9C6C8E93849E89A4B68AD4DBA8F5F5D7FEFEFE", 12: "00054A0E266B1F44873561994B769D61869776958E8FA588B0BF8EDDE2B1F6F6DBFEFEFE", 13: "00054A0C23681C3F832F5A9643709D57809B6C8E93809B8B99AD88BBC794E1E5B6F7F7DEFEFEFE", 14: "00054A0B22671A3B7F2A54933C699C507A9C63889774938F89A188A3B489C5CF9BE7EABEF8F8E0FEFEFE", 15: "00054A0A1F6417377C274F9038649A49759D5A829A6C8E937D998C91A787ABBB8CCDD5A1EBEDC4F9F9E3FEFEFE", 16: "00054A091E62163479234A8C335F9843709D547D9C64889674938F849E8999AD88B4C190D4DBA8EDEFC7F9F9E5FEFEFE", 17: "00054A081C611432772147892F5A963E6B9C4E799D5D84996C8E937A978D8BA388A0B289BBC794D9DFADEFF0CBFAF9E6FEFEFE", 18: "00054A071B60132F741E43862B56933A669B48749D567F9B658996739290819C8A92A887A8B88BC3CD99DEE3B3F1F2CFFAFAE8FEFEFE", 19: "00054A071A5E112C711C3F8329529136629A43709D517B9C5E85986C8E9379968D88A08999AD88AEBD8DC9D29EE1E5B6F3F3D2FBFAE9FEFEFE", 20: "00054A06185D112B701A3C80264E8F325E983F6C9D4C779D58819A658A957291907F9A8B8DA4889EB188B6C391CFD6A2E6E9BCF3F4D4FBFBEBFEFEFE" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Devon: { type: "sequential", values: { 3: "2C1A4C7E8FDDFFFFFF", 4: "2C1A4C3669ADBAB3F1FFFFFF", 5: "2C1A4C29588F7E8FDDCAC6F4FFFFFF", 6: "2C1A4C274A7E4C77C4A8A5ECD5D1F6FFFFFF", 7: "2C1A4C2741743669AD7E8FDDBAB3F1DBD8F8FFFFFF", 8: "2C1A4C283B6E2D609C597DCC9E9EE9C3BEF3E1DEF9FFFFFF", 9: "2C1A4C29386A29588F4272BC7E8FDDAFAAEECAC6F4E4E2FAFFFFFF", 10: "2C1A4C2934672751863669AD6181D0989BE7BAB3F1D0CCF5E8E5FAFFFFFF", 11: "2C1A4C293265274A7E2F62A04C77C47E8FDDA8A5ECC0BAF2D5D1F6EAE8FBFFFFFF", 12: "2C1A4C2A2F622745792B5D983E6FB86784D39398E5B2ADEFC6C0F3D9D5F7ECEAFBFFFFFF", 13: "2C1A4C2A2D6027417429588F3669AD537BC97E8FDDA3A1EABAB3F1CAC6F4DBD8F8EDECFBFFFFFF", 14: "2C1A4C2A2C5F283E712753883064A34573BF6B86D58F96E3ADA8EEBFB9F2CECAF5DEDCF8EEEDFCFFFFFF", 15: "2C1A4C2A2A5D283B6E274F832D609C3C6DB5597DCC7E8FDD9E9EE9B4AEEFC3BEF3D2CDF6E1DEF9F0EEFCFFFFFF", 16: "2C1A4C2A295C28396C274A7E2A5C953669AD4C77C46D87D68D95E3A8A5ECBAB3F1C7C2F4D5D1F6E3E0F9F1EFFCFFFFFF", 17: "2C1A4C2A295B29386A27477B29588F3265A64272BC5F80CF7E8FDD9A9BE7AFAAEEBEB8F2CAC6F4D7D4F7E4E2FAF2F0FCFFFFFF", 18: "2C1A4C2A285A29366927447828548A2E629F3B6DB4517AC86F88D78C95E2A4A2EBB5AFF0C2BCF2CEC9F5DAD6F7E6E4FAF2F1FCFFFFFF", 19: "2C1A4C2B27592934672741742751862C5E993669AD4774C06181D07E8FDD989BE7ACA7EDBAB3F1C5C0F3D0CCF5DBD8F8E8E5FAF3F2FDFFFFFF", 20: "2C1A4C2B2658293366283F72274E822A5B933266A73F70B9557CCA7188D88A94E1A2A0EAB1ACEFBDB7F1C8C3F4D2CEF6DEDBF8E8E6FAF4F3FDFFFFFF" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, GrayC: { type: "sequential", values: { 3: "FFFFFF767676000000", 4: "FFFFFFA2A2A24E4E4E000000", 5: "FFFFFFB8B8B87676763C3C3C000000", 6: "FFFFFFC6C6C69191915E5E5E303030000000", 7: "FFFFFFD0D0D0A2A2A27676764E4E4E2A2A2A000000", 8: "FFFFFFD7D7D7AFAFAF898989656565434343242424000000", 9: "FFFFFFDBDBDBB8B8B89797977676765959593C3C3C212121000000", 10: "FFFFFFE0E0E0C0C0C0A2A2A28585856969694E4E4E3535351D1D1D000000", 11: "FFFFFFE2E2E2C6C6C6ACACAC9191917676765E5E5E4747473030301B1B1B000000", 12: "FFFFFFE5E5E5CCCCCCB2B2B29A9A9A8282826C6C6C5656564141412C2C2C1A1A1A000000", 13: "FFFFFFE7E7E7D0D0D0B8B8B8A2A2A28C8C8C7676766262624E4E4E3C3C3C2A2A2A181818000000", 14: "FFFFFFE8E8E8D3D3D3BEBEBEA9A9A99595958080806E6E6E5A5A5A484848373737262626171717000000", 15: "FFFFFFEBEBEBD7D7D7C2C2C2AFAFAF9C9C9C898989767676656565545454434343343434242424161616000000", 16: "FFFFFFECECECD9D9D9C6C6C6B4B4B4A2A2A29191917F7F7F6F6F6F5E5E5E4E4E4E3F3F3F303030222222151515000000", 17: "FFFFFFEDEDEDDBDBDBCACACAB8B8B8A7A7A79797978686867676766868685959594A4A4A3C3C3C2E2E2E212121141414000000", 18: "FFFFFFEEEEEEDDDDDDCDCDCDBDBDBDADADAD9D9D9D8D8D8D7E7E7E7070706161615353534545453838382B2B2B1F1F1F131313000000", 19: "FFFFFFEFEFEFE0E0E0D0D0D0C0C0C0B1B1B1A2A2A29494948585857676766969695B5B5B4E4E4E4242423535352A2A2A1D1D1D121212000000", 20: "FFFFFFF0F0F0E1E1E1D2D2D2C3C3C3B5B5B5A6A6A69999998B8B8B7D7D7D7171716363635757574B4B4B3E3E3E3333332727271D1D1D111111000000" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Hawaii: { type: "sequential", values: { 3: "8C02739C961CB3F2FD", 4: "8C027399633080C55FB3F2FD", 5: "8C0273974E3E9C961C6CD48CB3F2FD", 6: "8C02739541479C75248FB63C62DCA9B3F2FD", 7: "8C027394384D9963309C961C80C55F5FE2BBB3F2FD", 8: "8C02739332529856389C7E2094AE3074CE7961E6CAB3F2FD", 9: "8C0273922E55974E3E9B6F289C961C8ABC486CD48C66E8D3B3F2FD", 10: "8C0273922A599647429963309D831E97A92A80C55F66D89C6CEBDBB3F2FD", 11: "8C027391285A9541479859369C75249C961C8FB63C78CB7062DCA971ECE0B3F2FD", 12: "8C027391255D943C4A97533A9A6B2A9D871D98A52687BE4E71D07F60E0B476EDE3B3F2FD", 13: "8C027391235F94384D974E3E9963309C7A229C961C92B13580C55F6CD48C5FE2BB7AEEE7B3F2FD", 14: "8C0273902160933550964941985C349B71279D891C99A3238CBA4479CA6E68D79760E4C47DEEE8B3F2FD", 15: "8C0273901F629332529545449856389A692C9C7E209C961C94AE3085C05274CE7964DAA061E6CA82EFEBB3F2FD", 16: "8C0273901E6393305495414797523B9963309C75249D8A1C9AA1228FB63C80C55F70D18362DCA963E7CF84EFECB3F2FD", 17: "8C0273901D63922E55953E49974E3E995E339B6F289D811F9C961C96AA2B8ABC487BC9696CD48C60DEB066E8D387EFEEB3F2FD", 18: "8C0273901C64922C57943B4B964A409858369A682C9C79239D8C1C9AA02191B33784C15476CC7468D6955FE0B768E9D78AF0EFB3F2FD", 19: "8C02738F1A65922A5994384D9647429754399963309B72269D831E9C961C97A92A8CB94280C55F72CF7D66D89C5FE2BB6CEBDB8DF0F0B3F2FD", 20: "8C02738F196692295A93364F95444597513C995F329B6C2A9C7B219D8D1C9A9F2093B03388BE4C7CC8676FD28664DAA25FE4C26DEBDC8FF0F1B3F2FD" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Imola: { type: "sequential", values: { 3: "1A33B354867FFFFF66", 4: "1A33B3396B947BAE74FFFF66", 5: "1A33B3305E9D54867F91C36FFFFF66", 6: "1A33B32C55A142748B6A9D789FD26BFFFF66", 7: "1A33B32950A4396B9454867F7BAE74AADA69FFFF66", 8: "1A33B3274CA634649946798764967A87BA71B5E268FFFF66", 9: "1A33B32549A8305E9D3F718E54867F70A37791C36FBDE667FFFF66", 10: "1A33B32446A92E599F396B94497B8560927B7BAE7498CB6DC4EA67FFFF66", 11: "1A33B32345AA2C55A135659842748B54867F6A9D7883B6729FD26BCAEC67FFFF66", 12: "1A33B32243AB2A52A332629B3D6F904B7D845D907C73A6768ABD70A6D76ACFEE66FFFF66", 13: "1A33B32242AB2950A4305E9D396B9445778954867F6799797BAE7491C36FAADA69D3F066FFFF66", 14: "1A33B32141AC284EA52E5B9F36679740728D4C7F835C8E7C6EA17782B57296C96DB0DF68D5F066FFFF66", 15: "1A33B32140AC274CA62D58A03464993C6E9146798754867F64967A75A87687BA719BCD6CB5E268D9F266FFFF66", 16: "1A33B3203FAD264AA72C55A132609B396B9442748B4D7F825B8D7D6A9D787BAE748CBF709FD26BB9E468DBF366FFFF66", 17: "1A33B3203EAD2549A82B53A2305E9D3768963F718E487B8654867F61937B70A37780B37391C36FA3D56BBDE667DDF466FFFF66", 18: "1A33B3203EAD2548A82A52A32F5B9E3465983C6E914476894E80825A8C7D679A7976A97585B87295C86EA7D86AC0E867DFF466FFFF66", 19: "1A33B31F3DAE2446A92950A42E599F33629A396B9441738C497B8554867F60927B6DA0787BAE7489BC7198CB6DAADA69C4EA67E2F566FFFF66", 20: "1A33B31F3CAE2446A9284EA52D57A031609C3768963E708F4577884E8181598B7D66987A72A5767FB2738DC0709CCE6CAFDE69C6EB67E4F666FFFF66" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, LaJolla: { type: "sequential", values: { 3: "FFFFCCDE744F1A1A01", 4: "FFFFCCECA855A547421A1A01", 5: "FFFFCCF2C360DE744F7F3B341A1A01", 6: "FFFFCCF6D470E79452C2554A68352A1A1A01", 7: "FFFFCCF8DF80ECA855DE744FA547425B30241A1A01", 8: "FFFFCCFAE58BEFB759E68C51CD5D4C8F403B4F2C1E1A1A01", 9: "FFFFCCFBE992F2C360E99B53DE744FB84F477F3B34492A1B1A1A01", 10: "FFFFCCFBEC9AF4CC68ECA855E48751D2624DA5474273382F4228181A1A01", 11: "FFFFCCFCEE9DF6D470EEB357E79452DE744FC2554A96423E68352A3E27161A1A01", 12: "FFFFCCFCF0A3F7DA79F0BB5BEA9E53E38351D5664DB34D468A3F396032263A26151A1A01", 13: "FFFFCCFDF1A6F8DF80F2C360ECA855E68F52DE744FC8594BA547427F3B345B30243725131A1A01", 14: "FFFFCCFDF2A8F9E285F3CA65EEB057E99852E38150D7694EBC514898433E763931542E203624131A1A01", 15: "FFFFCCFDF3ACFAE58BF5CF6AEFB759EAA153E68C51DE744FCD5D4CAF4B458F403B6F372D4F2C1E3323111A1A01", 16: "FFFFCCFDF4AEFAE78FF6D470F1BD5CECA855E79452E28050D86A4EC2554AA54742863E3768352A4C2B1D3123111A1A01", 17: "FFFFCCFDF5AFFBE992F7D875F2C360EDAE56E99B53E58851DE744FD0614CB84F479C443F7F3B34633328492A1B3022101A1A01", 18: "FFFFCCFDF5B1FBEA96F8DC7BF3C864EEB458EBA254E79052E27E50D96B4EC7584BAE4A4593413C7839315E312545291A2E220F1A1A01", 19: "FFFFCCFEF6B3FBEC9AF8DF80F4CC68F0B95AECA855E89752E48751DE744FD2624DBD5248A547428B3F3A73382F5B30244228182D210E1A1A01", 20: "FFFFCCFEF7B5FCED9CF9E184F5D06CF1BF5DEDAD56EA9D53E68E52E17D50DA6C4ECA5B4BB54D469D4440843D376E362D562F214128172B210D1A1A01" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, LaPaz: { type: "sequential", values: { 3: "1A0C645C8CA3FEF2F3", 4: "1A0C6436679D94A298FEF2F3", 5: "1A0C642D53935C8CA3B3AC96FEF2F3", 6: "1A0C6428468B4277A27C9B9ECAB79DFEF2F3", 7: "1A0C64263C8536679D5C8CA394A298D9C0A7FEF2F3", 8: "1A0C64253681305C98487DA37398A0A5A795E4C9B2FEF2F3", 9: "1A0C6424327E2D53933D71A05C8CA3859E9CB3AC96EACEB9FEF2F3", 10: "1A0C64232D7B2A4C8F36679D4C80A36E95A194A298BFB199EFD3C0FEF2F3", 11: "1A0C64222B7928468B315E994277A25C8CA37C9B9E9FA696CAB79DF2D7C6FEF2F3", 12: "1A0C642128772740882F59963B6F9F4F83A46A94A1899F9AAAA995D3BCA3F4D9C9FEF2F3", 13: "1A0C64212675263C852D539336679D457AA25C8CA377999F94A298B3AC96D9C0A7F5DBCDFEF2F3", 14: "1A0C642125752539832B4E9032609A3E73A15185A46792A2829D9C9EA596BCB098DFC5ADF6DDCFFEF2F3", 15: "1A0C642023732536812A4A8E305C983A6D9F487DA35C8CA37398A08BA09AA5A795C3B39AE4C9B2F7DFD3FEF2F3", 16: "1A0C6420217224347F28468B2E579536679D4277A25285A46692A27C9B9E94A298ADAA95CAB79DE7CBB5F8E0D4FEF2F3", 17: "1A0C6420207124327E2842892D539333629B3D71A04B80A35C8CA36F96A1859E9C9BA496B3AC96D0BAA0EACEB9F9E1D6FEF2F3", 18: "1A0C641F1F7123307C273F872B4F91315E99396C9E447AA25386A46591A2789A9F8DA099A2A696BAAF97D5BDA4ECD0BDF9E2D8FEF2F3", 19: "1A0C641F1E70232D7B263C852A4C8F2F5A9736679D3F74A14C80A35C8CA36E95A1809D9D94A298A8A895BFB199D9C0A7EFD3C0FAE3DAFEF2F3", 20: "1A0C641F1D6F222C7A263A8429498D2E569534639B3C70A0467BA35487A46390A276999F879F9B99A497AEAA95C5B49BDEC3ABF0D4C2FAE5DCFEF2F3" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Nuuk: { type: "sequential", values: { 3: "05598CA1A698FEFEB2", 4: "05598C6F878DBAB98DFEFEB2", 5: "05598C537785A1A698C3C285FEFEB2", 6: "05598C436E82859493B2B293CACA83FEFEB2", 7: "05598C3869826F878DA1A698BAB98DD1D084FEFEB2", 8: "05598C3266825F7D888D9996AEAF95BFBE88D7D787FEFEB2", 9: "05598C2D64835377857D8F91A1A698B5B591C3C285DCDB8AFEFEB2", 10: "05598C2962844A72836F878D929C96ABAD96BAB98DC7C684E0E08EFEFEB2", 11: "05598C276184436E82638089859493A1A698B2B293BDBD8ACACA83E4E391FEFEB2", 12: "05598C2460853D6B825B7B87798D90959E97A9AC97B6B690C0C087CECE83E6E693FEFEB2", 13: "05598C2260853869825377856F878D8A9795A1A698B0B194BAB98DC3C285D1D084E8E895FEFEB2", 14: "05598C215F863567824D738466818A809192979F97A8AB97B4B492BDBC8AC5C584D4D486E9E997FEFEB2", 15: "05598C1F5F863266824871835F7D88778B8F8D9996A1A698AEAF95B7B78FBFBE88C8C783D7D787ECEB99FEFEB2", 16: "05598C1E5E862F6583436E82587A866F878D85949398A097A7AA97B2B293BAB98DC1C187CACA83D9D988EDED9AFEFEB2", 17: "05598C1C5E872D64833F6C8253778568838B7D8F91919B96A1A698ACAE96B5B591BCBB8BC3C285CDCC83DCDB8AEEEE9CFEFEB2", 18: "05598C1B5E872B63833C6A824E7484627F89768B8F89969499A097A6AA97B0B194B7B78FBEBD89C5C484CFCF84DEDE8CEFEF9DFEFEB2", 19: "05598C1A5D872962843869824A72835C7C876F878D819192929C96A1A698ABAD96B3B492BAB98DC0BF88C7C684D1D084E0E08EF0F09EFEFEB2", 20: "05598C195D882862843668824670835779866A848B7B8E918B97959AA198A6A997AFB094B6B690BBBB8BC1C186C8C883D3D385E1E18FF1F1A0FEFEB2" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Oleron: { type: "sequential", values: { 3: "1A26591A4C00FDFDE6", 4: "1A2659AAB7E87A711FFDFDE6", 5: "1A26598390C31A4C00A88F4EFDFDE6", 6: "1A26596C79ACC4D1F6535E02C5A46CFDFDE6", 7: "1A26595D699CAAB7E81A4C007A711FD7B37FFDFDE6", 8: "1A2659535F9294A1D3CEDAF944590094823AE5C090FDFDE6", 9: "1A26594C598C8390C3BCC9F31A4C00606309A88F4EECC79AFDFDE6", 10: "1A26594552857784B7AAB7E8D3E0FA3C56007A711FB79A5EF1CEA4FDFDE6", 11: "1A2659424F826C79AC99A6D9C4D1F61A4C00535E028C7C31C5A46CF3D4ABFDFDE6", 12: "1A26593D4A7D6470A38E9BCEB7C4F1D7E4FB35540067670E9B8640D1AD78F5D7B0FDFDE6", 13: "1A26593A477A5D699C8390C3AAB7E8CAD6F81A4C004B5B017A711FA88F4ED7B37FF6DAB5FDFDE6", 14: "1A26593945785864977A87BA9DAADCBFCBF4DAE6FC3153005C61068A7B2EB39759E0BA89F6DCB7FDFDE6", 15: "1A2659354275535F927380B394A1D3B4C1EFCEDAF91A4C004459006C691294823ABC9D63E5C090F7DFBCFDFDE6", 16: "1A26593440734F5C8F6C79AC8B97CAAAB7E8C4D1F6DBE8FC2F5200535E027A711F9F8945C5A46CE9C495F7E1BEFDFDE6", 17: "1A2659323F724C598C6774A78390C3A1ADE0BCC9F3D2DEFA1A4C003E570060630985782AA88F4ECCAA73ECC79AF8E2C0FDFDE6", 18: "1A2659313D70495588626FA27C89BC98A4D7B2BFEEC8D5F8DCE9FD2C51004D5C016E6A14907F35B19557D3AF7AEECB9FF8E4C3FDFDE6", 19: "1A26592F3B6F4552855D699C7784B7909DD0AAB7E8C0CDF5D3E0FA1A4C003C56005A60057A711F99843EB79A5ED7B37FF1CEA4F8E6C5FDFDE6", 20: "1A26592E3A6D445083596699727EB18996C9A3AFE1B9C6F2CBD8F8DEEAFD2A5100495A0165660C837628A18A47BE9F65DEB886F2D0A7F9E7C7FDFDE6" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Oslo: { type: "sequential", values: { 3: "010101507BBCFFFFFF", 4: "0101011F4C7B89A0CAFFFFFF", 5: "01010115395B507BBCA2B0CAFFFFFF", 6: "010101122D482C5D967494C9B2BCCCFFFFFF", 7: "01010110263C1F4C7B507BBC89A0CABDC4CFFFFFFF", 8: "0101010F21331941693364A16B8EC897A9C9C7CCD3FFFFFF", 9: "0101010E1E2E15395B26578C507BBC7B98CAA2B0CACED1D7FFFFFF", 10: "0101010D1B291332511F4C7B3869A8658AC789A0CAAAB6CAD4D6DBFFFFFF", 11: "0101010D1927122D481A446D2C5D96507BBC7494C992A6C9B2BCCCD8DADEFFFFFF", 12: "0101010D1723102941183E642454883D6CAC6187C57F9BCA9AACC9B9C1CDDBDDE0FFFFFF", 13: "0101010C162010263C15395B1F4C7B30619C507BBC6F90C989A0CAA2B0CABDC4CFDEE0E2FFFFFF", 14: "0101010C151F0F23371434541B4670285990406EAF5E85C47997CA91A6C9A8B4CAC3C8D1E0E1E4FFFFFF", 15: "0101010B131D0F213313314E1941692352853364A1507BBC6B8EC8819CCA97A9C9ADB8CBC7CCD3E3E4E6FFFFFF", 16: "0101010B131C0E1F31122D48173C611F4C7B2C5D964170B15C84C37494C989A0CA9DADC9B2BCCCCACED5E5E6E7FFFFFF", 17: "0101010A121B0E1E2E112B4415395B1C487326578C3767A6507BBC678BC77B98CA8EA4C9A2B0CAB6BECDCED1D7E6E7E9FFFFFF", 18: "0101010911190E1C2C1028401435551A436C2251832F609B4371B25B83C37091C9839DCA94A8C9A7B4CABAC2CED1D3D9E8E9EAFFFFFF", 19: "0101010910180D1B2910263C133251183F661F4C7B295A913869A8507BBC658AC77896C989A0CA99ABC9AAB6CABDC4CFD4D6DBE9EAEBFFFFFF", 20: "010101080F170D1A280F243912304C173B601D487525558931629E4472B35982C26E90C87E9ACA8DA3C99EAEC9AEB9CBC2C7D1D5D8DCEBECEDFFFFFF" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Tokyo: { type: "sequential", values: { 3: "1A0E34908786FEFED8", 4: "1A0E34855E7897AE91FEFED8", 5: "1A0E3476466C908786A1C599FEFED8", 6: "1A0E346737628B6F7F949E8CAED6A2FEFED8", 7: "1A0E345A2D59855E7890878697AE91BAE1AAFEFED8", 8: "1A0E345127547E51728C768192988A9BBB95C7EAB2FEFED8", 9: "1A0E344B235076466C89697D90878695A48EA1C599CEEEB7FEFED8", 10: "1A0E3445204C6E3E67855E788D798292948997AE91A7CE9DD5F2BCFEFED8", 11: "1A0E34421E4A6737628054748B6F7F908786949E8C9AB693AED6A2DAF4BFFEFED8", 12: "1A0E343D1C4760315D7B4E7088667B8E7C8391918995A68F9DBE96B6DDA7DEF6C2FEFED8", 13: "1A0E343A1A465A2D5976466C855E788C7380908786939A8B97AE91A1C599BAE1AAE1F7C4FEFED8", 14: "1A0E34391A45562A57714068815775896B7D8E7E83918F8894A28D99B593A5CB9CC1E6AFE3F8C5FEFED8", 15: "1A0E343618435127546C3C657E517287647B8C768190878692988A96A88F9BBB95A9D09FC7EAB2E6F9C7FEFED8", 16: "1A0E343418424E25526737627A4B6F855E788B6F7F8E7F84918E88949E8C97AE919EC097AED6A2CAECB5E7F9C8FEFED8", 17: "1A0E343317414B235063335F76466C82597689697D8D788290878692958A95A48E99B392A1C599B2DAA5CEEEB7E9FAC9FEFED8", 18: "1A0E3431164048214E5F305C7242697F537387637A8B72808E8084918D88939B8B96A98F9AB894A4CA9BB7DEA8D2F0BAEAFACAFEFED8", 19: "1A0E3430163F45204C5A2D596E3E677C4F71855E788A6C7E8D798290878692948994A18D97AE919CBD95A7CE9DBAE1AAD5F2BCECFACBFEFED8", 20: "1A0E342E153F431F4B572B586B3A64794A6E835A7688677C8C74808E8184918D8793998B95A58E98B2929FC197AAD2A0C0E5AED7F3BDEDFBCCFEFED8" }, url: "http://www.fabiocrameri.ch/colourmaps.php" }, Turku: { type: "sequential", values: { 3: "000000938C5BFFE6E6", 4: "0000005F5F44CFA67CFFE6E6", 5: "00000049493A938C5BE4AA8FFFE6E6", 6: "0000003C3C3271704CB9A06EEFB1A1FFE6E6", 7: "00000033322B5F5F44938C5BCFA67CF5B8ADFFE6E6", 8: "0000002C2C2753523E797750AF9C68DBA886F9BFB7FFE6E6", 9: "00000028282349493A6B6A49938C5BC2A373E4AA8FFBC3BDFFE6E6", 10: "0000002424204242355F5F447E7C52A99965CFA67CEAAD98FCC7C3FFE6E6", 11: "00000022221F3C3C3256564071704C938C5BB9A06ED8A782EFB1A1FDCBC7FFE6E6", 12: "0000001F1F1C37372E504F3D676748827F53A49663C6A475DEA889F3B5A8FDCDCAFFE6E6", 13: "0000001D1D1A33322B49493A5F5F4476744E938C5BB39E6BCFA67CE4AA8FF5B8ADFECFCCFFE6E6", 14: "0000001C1C192F2F294444375858416D6C4A858154A19461BFA271D7A781E9AC95F7BCB3FED0CEFFE6E6", 15: "0000001A1A182C2C2740403453523E656547797750938C5BAF9C68C8A477DBA886ECAE9BF9BFB7FED2D0FFE6E6", 16: "0000001919172A2A253C3C324E4D3C5F5F4471704C8682559F9461B9A06ECFA67CE0A98BEFB1A1FAC1BAFED3D1FFE6E6", 17: "00000018181628282339393049493A5A5A426B6A497D7B51938C5BAA9A66C2A373D4A780E4AA8FF2B3A5FBC3BDFED4D3FFE6E6", 18: "00000017171526262236362D45453755543F64644775734E8783569D9360B59F6CC9A578DAA784E8AC94F4B6AAFBC5C0FED6D4FFE6E6", 19: "00000016161424242033322B42423551503D5F5F446E6D4B7E7C52938C5BA99965BEA270CFA67CDDA888EAAD98F5B8ADFCC7C3FED7D5FFE6E6", 20: "00000015151323231F30302A3F3F344D4C3B5B5B4268684877754F8984569C925FB29D6AC4A474D3A67FE1A98CEDAF9CF7BBB1FCC8C4FFD8D6FFE6E6" }, url: "http://www.fabiocrameri.ch/colourmaps.php" } }, tableau: { BlueRed: { type: "qualitative", values: { 6: "2C69B0F02720AC613C6BA3D6EA6B73E9C39B", 12: "2C69B0B5C8E2F02720FFB6B0AC613CE9C39B6BA3D6B5DFFDAC8763DDC9B4BD0A36F4737A" }, url: "http://www.tableausoftware.com" }, ColorBlind: { type: "qualitative", values: { 10: "006BA4FF800EABABAB5959595F9ED1C85200898989A2C8ECFFBC79CFCFCF" }, url: "http://www.tableausoftware.com" }, Gray: { type: "qualitative", values: { 5: "60636AA5ACAF4144518F8782CFCFCF" }, url: "http://www.tableausoftware.com" }, GreenOrange: { type: "qualitative", values: { 6: "32A251FF7F0F3CB7CCFFD94A39737CB85A0D", 12: "32A251ACD98DFF7F0FFFB9773CB7CC98D9E4B85A0DFFD94A39737C86B4A982853BCCC94D" }, url: "http://www.tableausoftware.com" }, PurpleGray: { type: "qualitative", values: { 6: "7B66D2DC5FBD94917B995688D098EED7D5C5", 12: "7B66D2A699E8DC5FBDFFC0DA5F5A41B4B19B995688D898BAAB6AD5D098EE8B7C6EDBD4C5" }, url: "http://www.tableausoftware.com" }, TableauLight: { type: "qualitative", values: { 10: "AEC7E8FFBB7898DF8AFF9896C5B0D5C49C94F7B6D2C7C7C7DBDB8D9EDAE5" }, url: "http://www.tableausoftware.com" }, TableauMedium: { type: "qualitative", values: { 10: "729ECEFF9E4A67BF5CED665DAD8BC9A8786EED97CAA2A2A2CDCC5D6DCCDA" }, url: "http://www.tableausoftware.com" }, Tableau: { type: "qualitative", values: { 10: "1F77B4FF7F0E2CA02CD627289467BD8C564BE377C27F7F7FBCBD2217BECF", 20: "1F77B4AEC7E8FF7F0EFFBB782CA02C98DF8AD62728FF98969467BDC5B0D58C564BC49C94E377C2F7B6D27F7F7FC7C7C7BCBD22DBDB8D17BECF9EDAE5" }, url: "http://www.tableausoftware.com" }, TrafficLight: { type: "qualitative", values: { 9: "B10318DBA13A309343D82526FFC15669B764F26C64FFDD719FCD99" }, url: "http://www.tableausoftware.com" } }, wesanderson: { Aquatic1: { type: "qualitative", values: { 5: "3424191C4027F1C90E665899B89382" }, url: "http://wesandersonpalettes.tumblr.com/post/109568074320/steve-zissou-the-deeper-you-go-the-weirder-life" }, Aquatic2: { type: "qualitative", values: { 5: "8B9CB8E9E541589FC2A08D5EBDB9CE" }, url: "http://wesandersonpalettes.tumblr.com/post/125170837755/steve-zissou-please-dont-make-fun-of-me-i-just" }, Aquatic3: { type: "qualitative", values: { 5: "D6A142C28072C8B7A1BD442D64543C" }, url: "http://wesandersonpalettes.tumblr.com/post/139482629630/ah-weve-never-made-great-husbands-have-we-of" }, Cavalcanti: { type: "qualitative", values: { 5: "D1AA000832139294606F9879842111" }, url: "http://wesandersonpalettes.tumblr.com/post/79348553036/castello-cavalcanti-how-can-i-help" }, Chevalier: { type: "qualitative", values: { 4: "355243FECA49C9D5D5BBA289" }, url: "http://wesandersonpalettes.tumblr.com/post/79263620764/hotel-chevalier" }, Darjeeling1: { type: "qualitative", values: { 4: "9E9797C28E008366599C5A33" }, url: "http://wesandersonpalettes.tumblr.com/post/80149649946/jack-i-wonder-if-the-three-of-us-wouldve-been" }, Darjeeling2: { type: "qualitative", values: { 5: "D5E3D8618A98F9DA95AE4B16787064" }, url: "http://wesandersonpalettes.tumblr.com/post/109980167015/peter-fuck-the-itinerary" }, Darjeeling3: { type: "qualitative", values: { 5: "A8AB50FFE83DA9D3D224477D5A917C" }, url: "http://wesandersonpalettes.tumblr.com/post/143938510215/the-chief-steward-welcome-aboard" }, Darjeeling4: { type: "qualitative", values: { 5: "746768684762800806BC840EAE595C" }, url: "http://wesandersonpalettes.tumblr.com/post/160334044570/i-wonder-if-the-three-of-us-wouldve-been-friends" }, FantasticFox1: { type: "qualitative", values: { 5: "F9DB20934B4E42170DC27922E2C8A7" }, url: "http://wesandersonpalettes.tumblr.com/post/80149872170/mrs-fox-you-know-you-really-are-fantastic-mr" }, FantasticFox2: { type: "qualitative", values: { 5: "E4BF44C657429AD0BB332737ABA18D" }, url: "http://wesandersonpalettes.tumblr.com/post/110716093015/ash-should-we-dance" }, GrandBudapest1: { type: "qualitative", values: { 4: "EEAE65FB4F55481313CC5F27" }, url: "http://wesandersonpalettes.tumblr.com/post/79784389334/the-grand-budapest-hotel" }, GrandBudapest2: { type: "qualitative", values: { 4: "FFA68EFBCCB78C1108290B04" }, url: "http://wesandersonpalettes.tumblr.com/post/109473911685/m-gustave-you-see-there-are-still-faint" }, GrandBudapest3: { type: "qualitative", values: { 6: "FFDCB6253845E7AD9D66756E8B3F31966D35" }, url: "http://wesandersonpalettes.tumblr.com/post/112305028860/m-gustave-mendls-is-the-best" }, GrandBudapest4: { type: "qualitative", values: { 5: "BA6E00502056FFF6BB9A7F191F121B" }, url: "http://wesandersonpalettes.tumblr.com/post/117849683385/concierge-and-how-long-will-you-be-staying-with" }, GrandBudapest5: { type: "qualitative", values: { 5: "E192838C1B4CD19336E7C7BE330C00" }, url: "http://wesandersonpalettes.tumblr.com/post/122169507295/m-gustave-its-quite-a-thing-winning-the-loyalty" }, IsleOfDogs1: { type: "qualitative", values: { 5: "FEC5AFAE7E71D26732322323181213" }, url: "http://wesandersonpalettes.tumblr.com/post/172304342835/were-a-pack-of-scary-indestructible-alpha-dogs" }, IsleOfDogs2: { type: "qualitative", values: { 6: "986C968A1F1FD5AB550E0C0CDCC2C982726C" }, url: "http://wesandersonpalettes.tumblr.com/post/172586941620/be-advised-that-small-dogs-still-pose-a-threat-to" }, IsleOfDogs3: { type: "qualitative", values: { 4: "E58EA7E0C1A01E1263D8B148" }, url: "http://wesandersonpalettes.tumblr.com/post/184134532240/tracy-walker-that-crook-hes-stealing-the" }, Margot1: { type: "qualitative", values: { 5: "897712F3C2A4F69F97FED68C629075" }, url: "http://wesandersonpalettes.tumblr.com/post/79348364517/margot-takes-a-bath" }, Margot2: { type: "qualitative", values: { 4: "768B93BC240FF9ECC5D47329" }, url: "http://wesandersonpalettes.tumblr.com/post/79641785036/margot-takes-a-break" }, Margot3: { type: "qualitative", values: { 4: "87A2A4CAA065D6CABFD6A0A0" }, url: "http://wesandersonpalettes.tumblr.com/post/109473707895/etheline-raleigh-says-youve-been-spending-six" }, Mendl: { type: "qualitative", values: { 4: "DE8DB9B8C0F6CF93875C80CC" }, url: "http://wesandersonpalettes.tumblr.com/post/79348206200/mendls-heaven" }, Moonrise1: { type: "qualitative", values: { 5: "72CADDF0A5B08C8536C3B477FAD063" }, url: "http://wesandersonpalettes.tumblr.com/post/79263667140/sam-i-love-you-but-you-dont-know-what-youre" }, Moonrise2: { type: "qualitative", values: { 4: "667C74B56A27C2BA7C1F1917" }, url: "http://wesandersonpalettes.tumblr.com/post/79641731527/sam-why-do-you-always-use-binoculars-suzy-it" }, Moonrise3: { type: "qualitative", values: { 4: "F2DA52C59D00CBCBC91B1E14" }, url: "http://wesandersonpalettes.tumblr.com/post/79783357790/suzy-ive-always-wanted-to-be-an-orphan-most-of" }, Moonrise4: { type: "qualitative", values: { 5: "7B8761C1A62E4F8F6B3B453C9F3208" }, url: "http://wesandersonpalettes.tumblr.com/post/79956897654/coming-soon" }, Moonrise5: { type: "qualitative", values: { 6: "DF8C90D8D28EF5BE253D4A1CD13060A86B4C" }, url: "http://wesandersonpalettes.tumblr.com/post/116909186645/walt-bishop-our-daughters-been-abducted-by-one" }, Moonrise6: { type: "qualitative", values: { 5: "BF513DC9A296C5C1887BB191D9AE30" }, url: "http://wesandersonpalettes.tumblr.com/post/118877161325/sam-im-not-that-strong-of-a-swimmer-so-i-wear-a" }, Moonrise7: { type: "qualitative", values: { 5: "232355616860A75B44912B29FFE38F" }, url: "http://wesandersonpalettes.tumblr.com/post/137096576550/social-services-access-denied" }, Royal1: { type: "qualitative", values: { 4: "79A43AF2D6AF5E4829181401" }, url: "http://wesandersonpalettes.tumblr.com/post/79957796915/royal-o-reilly-tenenbaum-1932-2001" }, Royal2: { type: "qualitative", values: { 5: "C2ABBA8C3B49B6ACA6212053D1D3D5" }, url: "http://wesandersonpalettes.tumblr.com/post/115124780615/royal-anybody-interested-in-grabbing-a-couple-of" }, Royal3: { type: "qualitative", values: { 5: "FC576CED7E53E2998B2E1718FBD6CA" }, url: "http://wesandersonpalettes.tumblr.com/post/129921576355/royal-ive-always-been-considered-an-asshole-for" }, Zissou: { type: "qualitative", values: { 5: "0099E612255AF23814DFB78BB6C3C5" }, url: "http://wesandersonpalettes.tumblr.com/post/79956949771/steve-zissou-dont-point-that-gun-at-him-hes-an" } }, okabeito: { Okabe_Ito_Categorigal: { type: "qualitative", values: { 8: "000000e69f0056b4e9009e73f0e4420072b2d55e00cc79a7" }, url: "https://jfly.uni-koeln.de/color/" } }, d3: { Observable10: { type: "qualitative", values: { 10: "4269d0efb118ff725c6cc5b03ca951ff8ab7a463f297bbf59c6b4e9498a0" }, url: "https://d3js.org/d3-scale-chromatic/categorical#schemeObservable10" } }, joshuastevens: { Carrots: { type: "sequential", url: "https://gist.github.com/jscarto/167b38829aa9eb3758a4f8b1bc3d723f", values: { 2: "372442f6f8be", 3: "372442e06131f6f8be", 4: "372442c0304ce49c45f6f8be", 5: "372442a62142e06131e2b83af6f8be", 6: "3724428f2747cd4643e4864bddc857f6f8be", 7: "3724427c2a4bc0304ce06131e49c45ded068f6f8be", 8: "372442712b4db8183ed34d3ee47a48e3ac3fe2d776f6f8be", 9: "372442662c4fa62142c83d47e06131e48d49e2b83ae5da7ef6f8be", 10: "372442622b4f982545c0304cd6523ce37443e49c45e0c145e7dd85f6f8be", 11: "37244260294c8f2747bb2042cd4643e06131e4864be4a641ddc857e8e08bf6f8be", 12: "3724425e2849842949b21b3fc53948d7543ae3723fe49248e3b03ddbce61e9e28ff6f8be", 13: "3724425d26477c2a4ba62142c0304cd14a40e06131e47d4ce49c45e2b83aded068eae492f6f8be", 14: "3724425c2545772b4c9d2444bc2344ca4045d95739e26f3ce48a4ae4a442e1bf41e0d36fece596f6f8be", 15: "3724425b2444712b4d952646b8183ec53749d34d3ee06131e47a48e49348e3ac3fdfc44ce2d776ece799f6f8be", 16: "3724425a23426e2b4e8f2747b01c40c0304ccd4643da5838e26f3ce4864be49c45e3b23cddc857e3d97bede89df6f8be", 17: "372442582241662c4f872949a62142bc2646c83d47d44f3de06131e37746e48d49e4a243e2b83adbcd5fe5da7eeeea9ff6f8be", 18: "372442582241642c50832949a02343ba1f41c43649cf4941db5937e26d3ae4814ce49547e3aa40e2bd3cddcf65e6dd83efeaa1f6f8be", 19: "37244258223f622b4f7c2a4b982545b31b3fc0304ccb4144d6523ce06131e37443e4874be49c45e3af3ee0c145ded068e7dd85efeaa1f6f8be", 20: "37244257213e602a4c7a2a4b932646ae1d40bd2747c63a48d14c3fdb5937e26b39e47c4be49048e4a143e3b23cdfc54edfd36de8e08aefeba3f6f8be" } }, BlueFluorite: { type: "sequential", url: "https://gist.github.com/jscarto/6cc7f547bb7d5d9acda51e5c15256b01", values: { 2: "291b32f1f3ee", 3: "291b329274b3f1f3ee", 4: "291b328f3b9c8da7cbf1f3ee", 5: "291b32792b889274b385c0d7f1f3ee", 6: "291b326e227d9154a69094c285cfddf1f3ee", 7: "291b3260226f8f3b9c9274b38da7cb97d5def1f3ee", 8: "291b32582265823191925da9918abd89b5d2a2dadff1f3ee", 9: "291b3252215e792b88914aa29274b38f9ac585c0d7acdde0f1f3ee", 10: "291b324e215a7226818f3b9c9263ac9285bb8da7cb82c8dbb3e0e0f1f3ee", 11: "291b324a20566e227d8634949154a69274b39094c28ab2d085cfddbae2e1f1f3ee", 12: "291b324720526622767f2f8d9046a09265ad9282ba8f9dc788bad48fd2debee3e2f1f3ee", 13: "291b3244204f60226f792b888f3b9c9259a89274b3918dbf8da7cb85c0d797d5dec1e5e3f1f3ee", 14: "291b3242204d5c226b742783893596914ea39268ae9280b99096c38baecf83c6da9dd7dfc6e6e4f1f3ee", 15: "291b32401f4c5822657024808231919044a0925da99274b3918abd8e9fc889b5d281cbdca2dadfc8e7e4f1f3ee", 16: "291b323f1f4a5522636e227d7e2e8d8f3b9c9154a6926aaf927fb89094c28da7cb87bbd585cfddaadcdfcde8e5f1f3ee", 17: "291b323c1f4652215e672277792b888a3697914aa29260ab9274b39187bc8f9ac58badce85c0d78dd1deacdde0cee9e6f1f3ee", 18: "291b323c1f4650215d64227476298586339390439f9258a7926bb0927eb8918fc08ea2c98ab4d183c5d992d4deb1dfe0d2e9e7f1f3ee", 19: "291b323b1f454e215a60226f72268180308e8f3b9c9150a49263ac9274b39285bb9095c38da7cb88b8d382c8db97d5deb3e0e0d2e9e7f1f3ee", 20: "291b323a1e454a21575e226c6f247f7d2d8c8b37989047a1925aa8926bb0927cb7918cbf8f9cc68bacce87bbd580ccdd9bd7deb7e2e0d3eae7f1f3ee" } }, AridElevation: { type: "sequential", url: "https://gist.github.com/jscarto/392c7854cdb73aa82b416bfaf53efcc9", values: { 2: "999188ffffff", 3: "999188d3c4b5ffffff", 4: "999188bfb4a4e0d9d4ffffff", 5: "999188b5aa9dd3c4b5e6e2dfffffff", 6: "999188afa699c7bbabdbd1c9ebe8e5ffffff", 7: "999188aca296bfb4a4d3c4b5e0d9d4eeeceaffffff", 8: "999188a99f94b9afa0cabdaed8ccc4e3dddaf1eeedffffff", 9: "999188a79e92b5aa9dc4b7a8d3c4b5dcd3cde6e2dff2f1efffffff", 10: "999188a69d91b2a89abfb4a4ccbfafd8cac1e0d9d4e9e5e3f3f2f1ffffff", 11: "999188a49c90afa699bbb0a1c7bbabd3c4b5dbd1c9e2dcd7ebe8e5f5f3f3ffffff", 12: "999188a39b90ada497b8ad9fc2b6a7cec0b0d7cac0ddd5cfe5dfdcece9e8f6f4f4ffffff", 13: "999188a29a8faca296b5aa9dbfb4a4c9bcadd3c4b5d9cec7e0d9d4e6e2dfeeeceaf6f5f4ffffff", 14: "999188a1998eaaa094b3a99bbcb0a2c5b9aacec0b1d7c8bedbd2cbe1dbd7e8e4e2efecebf7f6f5ffffff", 15: "999188a1998ea99f94b1a799b9afa0c2b7a7cabdaed3c4b5d8ccc4ded5d0e3dddaeae6e4f1eeedf7f6f6ffffff", 16: "999188a0988da89e93afa699b7ac9ebfb4a4c7bbabcfc2b2d7c9bedbd1c9e0d9d4e5e1ddebe8e5f1efeef8f7f7ffffff", 17: "999188a0978da79e92aea497b5aa9dbdb1a3c4b7a8ccbfafd3c4b5d8ccc2dcd3cde1dbd6e6e2dfeceae8f2f1eff8f7f7ffffff", 18: "999188a0978da79d92ada397b4a99cbbafa1c1b6a6c8bcaccfc2b2d6c8bddacfc7ded6d0e3ddd9e8e4e1edebe9f3f2f1f9f8f8ffffff", 19: "9991889f978ca69d91aca296b2a89ab8ad9fbfb4a4c6b9aaccbfafd3c4b5d8cac1dbd2cbe0d9d4e4dfdbe9e5e3eeeceaf3f2f1f9f8f8ffffff", 20: "9991889f968ca49b90aba295b1a699b7ac9ebdb2a3c3b7a7c9bdadcfc2b2d6c7bcd9cdc5ddd4cfe1dad6e5e1ddeae7e4efecebf4f3f2f9f9f8ffffff" } }, Florida: { type: "sequential", url: "https://gist.github.com/jscarto/218474b4962a022644c3b05af193a4b3", values: { 2: "060910fff724", 3: "060910b45b2efff724", 4: "060910604b2aef7d14fff724", 5: "060910403b3bb45b2eff9805fff724", 6: "0609102f323c83522bd77022ffad0bfff724", 7: "060910272c37604b2ab45b2eef7d14ffb80ffff724", 8: "0609102126334e423593532ecb6927ff8701ffc212fff724", 9: "0609101e2330403b3b744f29b45b2ee0741fff9805ffc915fff724", 10: "0609101a212e333740604b2a9a542fc66629ef7d14ffa208ffce16fff724", 11: "060910181f2c2f323c54443183522bb45b2ed77022fb8307ffad0bffd217fff724", 12: "060910161d2b2a2f394940376e4f28a05430c4642ae4761cff8c02ffb30dffd518fff724", 13: "060910141b2a272c37403b3b604b2a8c532db45b2ed06b25ef7d14ff9805ffb80fffd719fff724", 14: "060910131b2924293536383f5645307b502aa35530c1632bdb7221f8820cffa007ffbd11ffda1afff724", 15: "06091011192821263331343e4e42356b4e2893532eb45b2ecb6927e5771bff8701ffa609ffc212ffdc1bfff724", 16: "0609101019272025322f323c473f38604b2a83522ba85531c0622bd77022ef7d14ff9103ffad0bffc714ffde1cfff724", 17: "0609100f17261e23302c303a403b3b58472f744f2996542eb45b2ec96828e0741ff6810dff9805ffb00cffc915ffe01cfff724", 18: "0609100f17261c222f292d383b393e524433684e288a522da95631be612bd26d24e8791afd8503ff9e06ffb60effcc15ffe21dfff724", 19: "0609100e17251a212e272c373337404a4036604b2a7c502a9a542fb45b2ec66629d97121ef7d14ff8c02ffa208ffb80fffce16ffe21dfff724", 20: "0609100e1625191f2d25293531343e453e395a472e704f298e532da95631bd602ccf6b26e2751df5800eff9103ffa709ffbc10ffd117ffe41dfff724" } } } }, $T = ["RdPu_6", "Bilbao_7", "RdBu_5", "BuPu_7", "PiYG_6", "Bilbao_3", "YlGn_9", "Broc_4", "PuBu_3", "RdBu_3", "Set2_3", "PuBu_6", "Acton_8", "Acton_6", "BrBG_8", "Greys_5", "PiYG_10", "PuBuGn_6", "PuBuGn_7", "Purples_3", "Reds_6", "GnBu_3", "PRGn_7", "PiYG_8", "Broc_11", "PuOr_8", "Greys_8", "GnBu_9", "OrRd_8", "YlOrBr_7", "GnBu_6", "YlOrBr_3", "PiYG_7", "Blues_9", "Broc_10", "BrBG_9", "BuGn_4", "Okabe_Ito_Categorigal_8", "PuBu_4", "Blues_4", "PRGn_10", "RdYlBu_10", "Paired_3", "PuRd_4", "BrBG_7", "YlOrRd_8", "Greys_4", "RdPu_9", "YlGnBu_4", "Blues_7", "BrBG_4", "Greens_4", "RdYlBu_5", "Oranges_5", "Oranges_6", "Broc_7", "PRGn_8", "Purples_4", "OrRd_4", "YlGn_6", "RdBu_10", "YlGnBu_9", "Purples_6", "BuGn_8", "PuOr_9", "BuPu_5", "YlOrBr_4", "BuPu_9", "PiYG_5", "Greens_7", "Bilbao_4", "Bilbao_8", "PuBu_7", "YlGnBu_8", "Acton_9", "PuBuGn_3", "BuPu_8", "Greens_3", "Broc_9", "Oranges_8", "PuOr_3", "RdYlBu_7", "BrBG_6", "PiYG_4", "Broc_8", "PuRd_6", "PuBuGn_9", "Broc_3", "Greys_7", "RdYlBu_11", "BuGn_3", "Reds_3", "RdPu_8", "Oranges_9", "PRGn_11", "BuPu_4", "OrRd_7", "BuGn_5", "GnBu_5", "GnBu_8", "YlGnBu_7", "OrRd_6", "YlOrRd_3", "Reds_9", "PuOr_10", "BuPu_3", "RdBu_11", "RdBu_8", "PuOr_4", "Blues_8", "PRGn_9", "RdYlBu_3", "GreenMagenta_16", "PuRd_8", "Blues_3", "Broc_6", "Purples_5", "Purples_7", "Greys_3", "RdBu_9", "RdYlBu_9", "BuGn_6", "Greens_8", "PiYG_3", "Blues_6", "YlOrBr_8", "YlGn_7", "RdPu_3", "BuGn_9", "OrRd_3", "RdPu_7", "PRGn_4", "PuBuGn_4", "GnBu_4", "PRGn_5", "PuRd_5", "PuOr_7", "BrBG_11", "RdYlBu_6", "YlGnBu_5", "YlGn_5", "PuBu_8", "Greys_6", "Acton_3", "Acton_4", "BrBG_5", "Bilbao_5", "Bilbao_9", "Oranges_7", "Oranges_3", "RdBu_4", "Reds_5", "Reds_8", "RdYlBu_4", "PuBuGn_8", "PiYG_9", "BrBG_3", "PuOr_5", "Reds_7", "YlOrBr_5", "YlOrBr_9", "YlOrRd_4", "Greens_9", "YlGnBu_6", "Greens_6", "BuGn_7", "YlOrRd_5", "RdBu_7", "Reds_4", "PuRd_7", "PuBuGn_5", "Purples_9", "BrBG_10", "PRGn_6", "PuRd_3", "YlGn_3", "RdPu_4", "YlOrRd_7", "OrRd_5", "RdYlBu_8", "BuPu_6", "Dark2_3", "Acton_7", "PuRd_9", "Bilbao_6", "PiYG_11", "Oranges_4", "PuOr_11", "RdPu_5", "PuBu_5", "YlGnBu_3", "YlOrBr_6", "Purples_8", "Greens_5", "PRGn_3", "RdBu_6", "Paired_4", "YlGn_4", "YlGn_8", "PuBu_9", "YlOrRd_6", "Broc_5", "Greys_9", "Blues_5", "PuOr_6", "GnBu_7", "OrRd_9", "Acton_5", "Safe_2", "Safe_3", "Safe_4", "Safe_5", "Safe_6", "Safe_7", "Safe_8", "Safe_9", "Safe_10"];
 (function(t) {
   t.SEQUENTIAL = "sequential", t.DIVERGING = "diverging", t.QUALITATIVE = "qualitative";
 })(Am || (Am = {})), (function(t) {
   t.CARTOCOLORS = "cartocolors", t.CMOCEAN = "cmocean", t.COLORBREWER = "colorbrewer", t.LIGHTBARTLEIN = "lightbartlein", t.MATPLOTLIB = "matplotlib", t.MYCARTA = "mycarta", t.SCIENTIFIC = "scientific", t.TABLEAU = "tableau", t.WESANDERSON = "wesanderson", t.OKABEITO = "okabeito", t.JOSHUASTEVENS = "joshuastevens", t.D3 = "d3";
 })(zx || (zx = {}));
-const jl = (Object.keys(nf).forEach(((t) => {
-  Object.keys(nf[t]).forEach(((e) => {
-    Object.keys(nf[t][e].values).forEach(((n) => {
-      nf[t][e].values[n] = ((r) => {
+const jl = (Object.keys(rf).forEach(((t) => {
+  Object.keys(rf[t]).forEach(((e) => {
+    Object.keys(rf[t][e].values).forEach(((n) => {
+      rf[t][e].values[n] = ((r) => {
         const i = [];
         for (let s = 0; s < r.length; s += 6) i.push(`#${r.slice(s, s + 6)}`);
         return i;
-      })(nf[t][e].values[n]);
+      })(rf[t][e].values[n]);
     }));
   }));
-})), nf), JF = Object.keys(jl);
+})), rf), JF = Object.keys(jl);
 Object.keys(Am).map(((t) => Am[t]));
 const zW = (t, e) => {
   var n;
@@ -20133,7 +20133,7 @@ const zW = (t, e) => {
   const o = e ? e.toLowerCase() : void 0, a = r ? r.toLowerCase() : void 0, u = i ? i.toLowerCase() : void 0;
   return s.filter(((d) => (!e || d.type === o) && (!n || d.number === n) && (!r || d.provider === a) && (!i || d.name.toLowerCase() === u)));
 };
-function kg(t, e = 255) {
+function Mg(t, e = 255) {
   const n = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(t);
   return n ? [
     parseInt(n[1], 16),
@@ -20142,7 +20142,7 @@ function kg(t, e = 255) {
     e
   ] : [0, 0, 0, e];
 }
-const Mg = {
+const Pg = {
   // RPRlab palette - reordered to maximize visual difference between consecutive colors
   RPRlab: [
     "#F17C75",
@@ -20178,10 +20178,10 @@ const Mg = {
   ]
 };
 function UW(t) {
-  return t in Mg;
+  return t in Pg;
 }
 function $W(t = "qualitative") {
-  return Object.entries(Mg).map(([e, n]) => ({
+  return Object.entries(Pg).map(([e, n]) => ({
     name: e,
     number: n.length,
     type: t,
@@ -20189,7 +20189,7 @@ function $W(t = "qualitative") {
     colors: n
   }));
 }
-function Pg(t = 3, e = 20) {
+function Ig(t = 3, e = 20) {
   const n = Ad({
     type: "qualitative"
   }).filter(
@@ -20214,7 +20214,7 @@ function v1(t = 3, e = 12) {
   ).sort((n, r) => n.provider !== r.provider ? n.provider.localeCompare(r.provider) : n.name !== r.name ? n.name.localeCompare(r.name) : n.number - r.number);
 }
 function HW(t, e, n = !1) {
-  const r = Mg[t];
+  const r = Pg[t];
   if (!r) {
     console.warn(`Custom palette ${t} not found`);
     const o = [];
@@ -20226,44 +20226,44 @@ function HW(t, e, n = !1) {
   }
   let i = [...r];
   if (n && (i = i.reverse()), e <= i.length)
-    return i.slice(0, e).map((o) => kg(o));
+    return i.slice(0, e).map((o) => Mg(o));
   const s = [];
   for (let o = 0; o < e; o++)
-    s.push(kg(i[o % i.length]));
+    s.push(Mg(i[o % i.length]));
   return s;
 }
-function Pf(t, e, n = !1, r = "qualitative") {
+function If(t, e, n = !1, r = "qualitative") {
   try {
     if (UW(t))
       return HW(t, e, n);
     const i = Ad({ name: t });
     if (!i || i.length === 0)
-      return console.warn(`Palette ${t} not found, using fallback`), r === "qualitative" ? kh(t, e, n) : Mh(t, e, n);
+      return console.warn(`Palette ${t} not found, using fallback`), r === "qualitative" ? Mh(t, e, n) : Ph(t, e, n);
     const s = Math.max(...i.map((u) => u.number));
     if (e > s)
-      return r === "qualitative" ? (console.info(`Palette ${t} supports max ${s} colors, but ${e} requested. Cycling colors.`), kh(t, e, n)) : (console.info(`Palette ${t} supports max ${s} colors, but ${e} requested. Using interpolated colors.`), Mh(t, e, n));
+      return r === "qualitative" ? (console.info(`Palette ${t} supports max ${s} colors, but ${e} requested. Cycling colors.`), Mh(t, e, n)) : (console.info(`Palette ${t} supports max ${s} colors, but ${e} requested. Using interpolated colors.`), Ph(t, e, n));
     const o = Av(t, e, n);
     if (!o || !Array.isArray(o) || o.length === 0)
-      return console.warn(`Failed to get palette ${t} with ${e} colors: palette not found or invalid`), r === "qualitative" ? kh(t, e, n) : Mh(t, e, n);
+      return console.warn(`Failed to get palette ${t} with ${e} colors: palette not found or invalid`), r === "qualitative" ? Mh(t, e, n) : Ph(t, e, n);
     const a = o.filter((u) => u != null && typeof u == "string");
-    return a.length === 0 ? (console.warn(`All colors in palette ${t} are invalid`), r === "qualitative" ? kh(t, e, n) : Mh(t, e, n)) : a.map((u) => kg(u));
+    return a.length === 0 ? (console.warn(`All colors in palette ${t} are invalid`), r === "qualitative" ? Mh(t, e, n) : Ph(t, e, n)) : a.map((u) => Mg(u));
   } catch (i) {
-    return console.warn(`Failed to get palette ${t} with ${e} colors:`, i), r === "qualitative" ? kh(t, e, n) : Mh(t, e, n);
+    return console.warn(`Failed to get palette ${t} with ${e} colors:`, i), r === "qualitative" ? Mh(t, e, n) : Ph(t, e, n);
   }
 }
-function kh(t, e, n = !1) {
+function Mh(t, e, n = !1) {
   try {
     const r = Ad({ name: t });
     if (!r || r.length === 0)
-      return Df(e);
+      return Bf(e);
     const i = r.reduce(
       (u, d) => d.number > u.number ? d : u
     );
     let s = Av(t, i.number, !1);
     if (!s || s.length === 0)
-      return Df(e);
+      return Bf(e);
     n && (s = [...s].reverse());
-    const o = s.map((u) => kg(u));
+    const o = s.map((u) => Mg(u));
     if (e <= o.length)
       return o.slice(0, e);
     const a = [];
@@ -20271,21 +20271,21 @@ function kh(t, e, n = !1) {
       a.push([...o[u % o.length]]);
     return a;
   } catch (r) {
-    return console.warn(`Failed to get cycled colors for palette ${t}:`, r), Df(e);
+    return console.warn(`Failed to get cycled colors for palette ${t}:`, r), Bf(e);
   }
 }
-function Mh(t, e, n = !1) {
+function Ph(t, e, n = !1) {
   try {
     e > 500 && (console.warn(`🚨 PERFORMANCE: Capping color generation from ${e} to 500 colors to prevent main thread blocking`), e = 500);
     const r = performance.now(), i = Ad({ name: t });
     if (!i || i.length === 0)
-      return Df(e);
+      return Bf(e);
     const s = i.reduce(
       (h, g) => g.number > h.number ? g : h
     ), o = Av(t, s.number, n);
     if (!o || o.length === 0)
-      return Df(e);
-    const a = o.map((h) => kg(h));
+      return Bf(e);
+    const a = o.map((h) => Mg(h));
     if (e <= a.length)
       return a.slice(0, e);
     const u = [];
@@ -20306,10 +20306,10 @@ function Mh(t, e, n = !1) {
     const d = performance.now();
     return u;
   } catch (r) {
-    return console.warn(`Failed to generate sequential colors for palette ${t}:`, r), Df(e);
+    return console.warn(`Failed to generate sequential colors for palette ${t}:`, r), Bf(e);
   }
 }
-function Df(t) {
+function Bf(t) {
   const e = [];
   for (let n = 0; n < t; n++) {
     const r = n * 360 / t, [i, s, o] = HT(r / 360, 0.7, 0.5);
@@ -20326,8 +20326,8 @@ function HT(t, e, n) {
   return [Math.round(r * 255), Math.round(i * 255), Math.round(s * 255)];
 }
 function VT(t) {
-  if (t in Mg)
-    return [Mg[t].length];
+  if (t in Pg)
+    return [Pg[t].length];
   const e = Ad({ name: t });
   return [...new Set(e.map((n) => n.number))].sort((n, r) => n - r);
 }
@@ -20345,11 +20345,11 @@ const VW = () => {
         r = v1();
         break;
       default:
-        r = Pg();
+        r = Ig();
     }
     [...new Set(r.map((s) => s.name))].forEach((s) => {
       try {
-        const o = r.filter((u) => u.name === s).reduce((u, d) => d.number > u.number ? d : u), a = Pf(s, o.number, !1);
+        const o = r.filter((u) => u.name === s).reduce((u, d) => d.number > u.number ? d : u), a = If(s, o.number, !1);
         t[`${n}-${s}`] = a.slice(0, 4);
       } catch {
       }
@@ -20419,7 +20419,7 @@ const VW = () => {
       case "diverging":
         return v1();
       default:
-        return Pg();
+        return Ig();
     }
   }, k = (U) => {
     D(U === null ? null : {
@@ -20611,11 +20611,11 @@ const VW = () => {
       n = v1();
       break;
     default:
-      n = Pg();
+      n = Ig();
   }
   return [...new Set(n.map((i) => i.name))].sort().forEach((i) => {
     try {
-      const s = n.filter((a) => a.name === i).reduce((a, u) => u.number > a.number ? u : a), o = Pf(i, s.number, !1);
+      const s = n.filter((a) => a.name === i).reduce((a, u) => u.number > a.number ? u : a), o = If(i, s.number, !1);
       e[i] = o.slice(0, 4);
     } catch {
       e[i] = [];
@@ -20638,13 +20638,13 @@ const VW = () => {
   const m = Ti(() => {
     switch (g.type) {
       case "qualitative":
-        return Pg();
+        return Ig();
       case "sequential":
         return A1();
       case "diverging":
         return v1();
       default:
-        return Pg();
+        return Ig();
     }
   }, [g.type]), y = Ti(() => [...new Set(m.map((x) => x.name))].sort(), [m]), C = Ti(() => g.name ? VT(g.name) : [], [g.name]), b = it.useRef(!1);
   it.useEffect(() => {
@@ -20656,7 +20656,7 @@ const VW = () => {
   const E = Ti(() => {
     if (g.name && g.numColors)
       try {
-        return Pf(g.name, g.numColors, g.reverse);
+        return If(g.name, g.numColors, g.reverse);
       } catch (x) {
         return console.warn("Failed to load palette preview:", x), [];
       }
@@ -20758,7 +20758,7 @@ const VW = () => {
       )) })
     ] })
   ] }) });
-}, Ph = (t, e) => {
+}, Ih = (t, e) => {
   const n = $n(null), r = $n(t);
   Gn(() => {
     r.current = t;
@@ -20836,12 +20836,12 @@ const VW = () => {
     useAlpha: !1,
     minAlpha: 0.3,
     maxAlpha: 1
-  }, m = t || h, y = e || g, { debounced: C } = Ph((D) => {
+  }, m = t || h, y = e || g, { debounced: C } = Ih((D) => {
     n({
       ...m,
       ...D
     });
-  }, 100), { debounced: b } = Ph((D) => {
+  }, 100), { debounced: b } = Ih((D) => {
     r({
       ...y,
       ...D
@@ -20857,7 +20857,7 @@ const VW = () => {
       ...D
     });
   }, [y, r]), _ = ({ label: D, color: S, onChange: k, alpha: $ = !0 }) => {
-    const [L, N] = bt(S.length > 3 ? S[3] : 255), [P, U] = bt([S[0], S[1], S[2]]), [M, j] = bt(!1), { debounced: W, flush: Y } = Ph((Z) => {
+    const [L, N] = bt(S.length > 3 ? S[3] : 255), [P, U] = bt([S[0], S[1], S[2]]), [M, j] = bt(!1), { debounced: W, flush: Y } = Ih((Z) => {
       k([P[0], P[1], P[2], Z]);
     }, 100);
     Gn(() => {
@@ -20967,9 +20967,9 @@ const VW = () => {
       ] })
     ] }) });
   }, x = ({ config: D, onChange: S }) => {
-    const [k, $] = bt(D.minAlpha), [L, N] = bt(D.maxAlpha), { debounced: P, flush: U } = Ph((I) => {
+    const [k, $] = bt(D.minAlpha), [L, N] = bt(D.maxAlpha), { debounced: P, flush: U } = Ih((I) => {
       S({ ...D, minAlpha: I });
-    }, 100), { debounced: M, flush: j } = Ph((I) => {
+    }, 100), { debounced: M, flush: j } = Ih((I) => {
       S({ ...D, maxAlpha: I });
     }, 100);
     Gn(() => {
@@ -21060,7 +21060,7 @@ const VW = () => {
         children: [
           /* @__PURE__ */ B(LF, { asChild: !0, children: /* @__PURE__ */ le(Co, { variant: "outline", className: "w-full justify-between h-8 text-xs", children: [
             "🔗 Protein Links",
-            s === "protein" ? /* @__PURE__ */ B(Bg, { className: "h-3 w-3" }) : /* @__PURE__ */ B(BF, { className: "h-3 w-3" })
+            s === "protein" ? /* @__PURE__ */ B(Sg, { className: "h-3 w-3" }) : /* @__PURE__ */ B(BF, { className: "h-3 w-3" })
           ] }) }),
           /* @__PURE__ */ le(zF, { className: "space-y-3 mt-2", children: [
             /* @__PURE__ */ le("div", { className: "space-y-2", children: [
@@ -21154,7 +21154,7 @@ const VW = () => {
         children: [
           /* @__PURE__ */ B(LF, { asChild: !0, children: /* @__PURE__ */ le(Co, { variant: "outline", className: "w-full justify-between h-8 text-xs", children: [
             "🧬 Nucleotide Links",
-            s === "nucleotide" ? /* @__PURE__ */ B(Bg, { className: "h-3 w-3" }) : /* @__PURE__ */ B(BF, { className: "h-3 w-3" })
+            s === "nucleotide" ? /* @__PURE__ */ B(Sg, { className: "h-3 w-3" }) : /* @__PURE__ */ B(BF, { className: "h-3 w-3" })
           ] }) }),
           /* @__PURE__ */ le(zF, { className: "space-y-3 mt-2", children: [
             /* @__PURE__ */ le("div", { className: "space-y-2", children: [
@@ -21306,14 +21306,14 @@ const VW = () => {
       }
     )
   ] }) });
-}, Ih = ({ items: t = [], renderItem: e, cellWidth: n = 2040, cellHeight: r = 28, gap: i = 6, containerHeight: s = void 0, className: o = "", minContentWidth: a = 80, getItemLabel: u = null, charWidthEstimate: d = 7, labelPadding: h = 36, columns: g = void 0 }) => {
+}, Nh = ({ items: t = [], renderItem: e, cellWidth: n = 2040, cellHeight: r = 28, gap: i = 6, containerHeight: s = void 0, className: o = "", minContentWidth: a = 80, getItemLabel: u = null, charWidthEstimate: d = 7, labelPadding: h = 36, columns: g = void 0 }) => {
   const m = $n(null), [y, C] = bt(0), [b, E] = bt(0), [w, _] = bt(0), x = $n(!1), D = $n(0), S = $n(0);
   Gn(() => {
     const Ce = m.current;
     if (!Ce) return;
     const Xe = new ResizeObserver((ot) => {
-      const { width: _t, height: ze } = ot[0].contentRect;
-      C(Math.floor(_t)), E(Math.floor(ze));
+      const { width: _t, height: Ue } = ot[0].contentRect;
+      C(Math.floor(_t)), E(Math.floor(Ue));
     });
     return Xe.observe(Ce), setTimeout(() => {
       C(Ce.clientWidth || 0), E(Ce.clientHeight || 0);
@@ -21346,7 +21346,7 @@ const VW = () => {
     const Xe = (ot) => {
       ot.preventDefault(), ot.stopPropagation();
       const _t = ot.deltaY;
-      _((ze) => Math.max(0, Math.min(Z, ze + _t)));
+      _((Ue) => Math.max(0, Math.min(Z, Ue + _t)));
     };
     return Ce.addEventListener("wheel", Xe, { passive: !1 }), () => {
       Ce.removeEventListener("wheel", Xe);
@@ -21356,7 +21356,7 @@ const VW = () => {
   Gn(() => {
     const Ce = (ot) => {
       if (!x.current) return;
-      const ze = (ot && ot.clientY || ot.touches && ot.touches[0] && ot.touches[0].clientY || 0) - D.current, Mt = Ae > 0 ? ze / Ae : 0, an = Math.max(0, Math.min(Z, Math.round(S.current + Mt * Z)));
+      const Ue = (ot && ot.clientY || ot.touches && ot.touches[0] && ot.touches[0].clientY || 0) - D.current, Mt = Ae > 0 ? Ue / Ae : 0, an = Math.max(0, Math.min(Z, Math.round(S.current + Mt * Z)));
       _(an);
     }, Xe = () => {
       x.current = !1;
@@ -21368,8 +21368,8 @@ const VW = () => {
   const lt = (Ce) => {
     Ce.preventDefault(), x.current = !0, D.current = Ce && Ce.clientY || Ce.touches && Ce.touches[0] && Ce.touches[0].clientY || 0, S.current = w;
   }, Ee = (Ce) => {
-    const Xe = Ce.currentTarget.getBoundingClientRect(), ot = (Ce.clientY || Ce.touches && Ce.touches[0] && Ce.touches[0].clientY || 0) - Xe.top, _t = Ae > 0 ? (ot - Math.round(ge / 2)) / Ae : 0, ze = Math.max(0, Math.min(Z, Math.round(_t * Z)));
-    _(ze);
+    const Xe = Ce.currentTarget.getBoundingClientRect(), ot = (Ce.clientY || Ce.touches && Ce.touches[0] && Ce.touches[0].clientY || 0) - Xe.top, _t = Ae > 0 ? (ot - Math.round(ge / 2)) / Ae : 0, Ue = Math.max(0, Math.min(Z, Math.round(_t * Z)));
+    _(Ue);
   };
   return /* @__PURE__ */ le("div", { ref: m, className: o, style: { width: "100%", height: q, overflow: "hidden", position: "relative", boxSizing: "border-box" }, children: [
     /* @__PURE__ */ B("div", { style: { height: Y, position: "relative" }, children: fe.map((Ce) => {
@@ -21427,15 +21427,15 @@ const VW = () => {
   }, $ = (O, q = "rect", Z = 18, ce = 12, oe = null) => {
     const fe = D(O), be = oe ? D(oe) : "#555";
     if (q === "arrow") {
-      const Ce = e?.gene?.tipWidthFactor ?? 0.1, Xe = e?.gene?.height ?? 60, ot = e?.gene?.arrowheadHeight ?? 0, _t = Xe / 2, ze = _t + ot / 2, Mt = Math.max(2, Math.round(Z * Ce)), an = 1.5;
+      const Ce = e?.gene?.tipWidthFactor ?? 0.1, Xe = e?.gene?.height ?? 60, ot = e?.gene?.arrowheadHeight ?? 0, _t = Xe / 2, Ue = _t + ot / 2, Mt = Math.max(2, Math.round(Z * Ce)), an = 1.5;
       let sn = Z - 1.5, Ct = sn - Mt;
       const wt = (ce - 2 * 1.5) / Xe, At = 1.5 + (ce - 2 * 1.5) / 2, Vt = (Ke) => At + Ke * wt;
       let Ut = [
         [an, Vt(-_t)],
         [Ct, Vt(-_t)],
-        [Ct, Vt(-ze)],
+        [Ct, Vt(-Ue)],
         [sn, Vt(0)],
-        [Ct, Vt(ze)],
+        [Ct, Vt(Ue)],
         [Ct, Vt(_t)],
         [an, Vt(_t)]
       ], Qt = 1 / 0, qe = -1 / 0;
@@ -21447,22 +21447,22 @@ const VW = () => {
       let xt = 1 / 0, Tt = -1 / 0;
       for (const [Ke] of Ut)
         Ke < xt && (xt = Ke), Ke > Tt && (Tt = Ke);
-      const zt = Z - 1, ht = Math.max(0, Math.ceil(Tt - zt)), _e = Z + ht, ve = Math.max(0, 1 - xt);
-      if (ht || ve) {
+      const zt = Z - 1, gt = Math.max(0, Math.ceil(Tt - zt)), _e = Z + gt, ve = Math.max(0, 1 - xt);
+      if (gt || ve) {
         const Ke = ve;
-        Ke && (Ut = Ut.map(([vt, $e]) => [vt + Ke, $e]));
+        Ke && (Ut = Ut.map(([vt, ze]) => [vt + Ke, ze]));
       }
-      const rt = Ut.map(([Ke, vt]) => `${Math.round(Ke)},${Math.round(vt)}`).join(" ");
-      return /* @__PURE__ */ B("svg", { width: _e, height: ft, viewBox: `0 0 ${_e} ${ft}`, xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ B("polygon", { points: rt, fill: fe, stroke: be, strokeWidth: 1, strokeLinejoin: "miter", strokeMiterlimit: 10, strokeLinecap: "butt" }) });
+      const tt = Ut.map(([Ke, vt]) => `${Math.round(Ke)},${Math.round(vt)}`).join(" ");
+      return /* @__PURE__ */ B("svg", { width: _e, height: ft, viewBox: `0 0 ${_e} ${ft}`, xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ B("polygon", { points: tt, fill: fe, stroke: be, strokeWidth: 1, strokeLinejoin: "miter", strokeMiterlimit: 10, strokeLinecap: "butt" }) });
     }
     if (q === "half-arrow") {
-      const Ce = e?.gene?.tipWidthFactor ?? 0.1, Xe = e?.gene?.height ?? 60, ot = e?.gene?.arrowheadHeight ?? 0, _t = Xe / 2, ze = _t + ot / 2, Mt = Math.max(2, Math.round(Z * Ce)), an = 1.5;
+      const Ce = e?.gene?.tipWidthFactor ?? 0.1, Xe = e?.gene?.height ?? 60, ot = e?.gene?.arrowheadHeight ?? 0, _t = Xe / 2, Ue = _t + ot / 2, Mt = Math.max(2, Math.round(Z * Ce)), an = 1.5;
       let sn = Z - 1.5, Ct = sn - Mt;
       const wt = (ce - 2 * 1.5) / Xe, At = 1.5 + (ce - 2 * 1.5) / 2, Vt = (Ke) => At + Ke * wt;
       let Ut = [
         [an, Vt(-_t)],
         [Ct, Vt(-_t)],
-        [Ct, Vt(-ze)],
+        [Ct, Vt(-Ue)],
         [sn, Vt(0)],
         [Ct, At],
         [an, At]
@@ -21475,15 +21475,15 @@ const VW = () => {
       let xt = 1 / 0, Tt = -1 / 0;
       for (const [Ke] of Ut)
         Ke < xt && (xt = Ke), Ke > Tt && (Tt = Ke);
-      const zt = Z - 1, ht = Math.max(0, Math.ceil(Tt - zt)), _e = Z + ht, ve = Math.max(0, 1 - xt);
-      if (ht || ve) {
+      const zt = Z - 1, gt = Math.max(0, Math.ceil(Tt - zt)), _e = Z + gt, ve = Math.max(0, 1 - xt);
+      if (gt || ve) {
         const Ke = ve;
-        Ke && (Ut = Ut.map(([vt, $e]) => [vt + Ke, $e]));
+        Ke && (Ut = Ut.map(([vt, ze]) => [vt + Ke, ze]));
       }
-      const rt = Ut.map(([Ke, vt]) => `${Math.round(Ke)},${Math.round(vt)}`).join(" ");
+      const tt = Ut.map(([Ke, vt]) => `${Math.round(Ke)},${Math.round(vt)}`).join(" ");
       return /* @__PURE__ */ le("svg", { width: _e, height: ft, viewBox: `0 0 ${_e} ${ft}`, xmlns: "http://www.w3.org/2000/svg", children: [
-        /* @__PURE__ */ B("polygon", { points: rt, fill: fe, stroke: "none" }),
-        /* @__PURE__ */ B("polygon", { points: rt, fill: "none", stroke: be, strokeWidth: 1, strokeLinejoin: "miter", strokeMiterlimit: 10, strokeLinecap: "butt" })
+        /* @__PURE__ */ B("polygon", { points: tt, fill: fe, stroke: "none" }),
+        /* @__PURE__ */ B("polygon", { points: tt, fill: "none", stroke: be, strokeWidth: 1, strokeLinejoin: "miter", strokeMiterlimit: 10, strokeLinecap: "butt" })
       ] });
     }
     if (q === "region") {
@@ -21556,7 +21556,7 @@ const VW = () => {
       /* @__PURE__ */ le("div", { style: { marginBottom: "8px", width: "100%" }, children: [
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: /* @__PURE__ */ B(un, { className: "text-xs font-medium", style: x, children: "Tree leaves" }) }),
         /* @__PURE__ */ B("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px", justifyContent: "flex-start", width: "100%" }, children: /* @__PURE__ */ B(
-          Ih,
+          Nh,
           {
             items: O,
             cellWidth: 140,
@@ -21590,7 +21590,7 @@ const VW = () => {
           overflow: "hidden"
           // Ensure extra content doesn't spill
         }, children: /* @__PURE__ */ B(
-          Ih,
+          Nh,
           {
             items: O,
             cellWidth: 140,
@@ -21637,7 +21637,7 @@ const VW = () => {
           overflow: "hidden"
           // Ensure extra content doesn't spill
         }, children: /* @__PURE__ */ B(
-          Ih,
+          Nh,
           {
             items: O,
             cellWidth: 140,
@@ -21673,7 +21673,7 @@ const VW = () => {
       /* @__PURE__ */ le("div", { style: { marginBottom: "8px" }, children: [
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: /* @__PURE__ */ B(un, { className: "text-xs font-medium", children: "ncRNAs" }) }),
         /* @__PURE__ */ B("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px", justifyContent: "flex-start", width: "100%" }, children: /* @__PURE__ */ B(
-          Ih,
+          Nh,
           {
             items: q,
             cellWidth: 140,
@@ -21694,7 +21694,7 @@ const VW = () => {
       /* @__PURE__ */ le("div", { style: { marginBottom: "8px" }, children: [
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: /* @__PURE__ */ B(un, { className: "text-xs font-medium", children: "Regions" }) }),
         /* @__PURE__ */ B("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "6px", justifyContent: "flex-start", width: "100%" }, children: /* @__PURE__ */ B(
-          Ih,
+          Nh,
           {
             items: O.sort((q, Z) => S(q[0], Z[0])),
             cellWidth: 160,
@@ -21734,7 +21734,7 @@ const VW = () => {
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: H(q, "prot") }, "prot-gene-pal")
       );
     } else if (O.colorBy === "identity_gradient" && O.palette && O.palette.enabled) {
-      const q = O.palette ? Pf(O.palette.name, O.palette.numColors || 8, O.palette.reverse || !1) : [];
+      const q = O.palette ? If(O.palette.name, O.palette.numColors || 8, O.palette.reverse || !1) : [];
       Y.push(
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: N(q, t && t.proteinLinks ? t.proteinLinks.minSim : "", t && t.proteinLinks ? t.proteinLinks.maxSim : "", "AA align") }, "prot-grad")
       );
@@ -21780,7 +21780,7 @@ const VW = () => {
   if (o) {
     const O = o;
     if (O.colorBy === "identity_gradient" && O.palette && O.palette.enabled) {
-      const q = O.palette ? Pf(O.palette.name, O.palette.numColors || 8, O.palette.reverse || !1) : [];
+      const q = O.palette ? If(O.palette.name, O.palette.numColors || 8, O.palette.reverse || !1) : [];
       R.push(
         /* @__PURE__ */ B("div", { style: { width: "100%" }, children: N(q, t && t.nucleotideLinks ? t.nucleotideLinks.minSim : "", t && t.nucleotideLinks ? t.nucleotideLinks.maxSim : "", "NT align") }, "nuc-grad")
       );
@@ -22199,7 +22199,7 @@ const VW = () => {
           m(!0), C(null);
           const q = O.trim().startsWith("data_") || O.includes("_entry.id"), Z = q ? "cif" : "pdb";
           console.log("[ProteinViewer] Detected format:", Z, "- isMMCIF:", q), await (async (Xe, ot = 30, _t = 100) => {
-            for (let ze = 0; ze < ot; ze++) {
+            for (let Ue = 0; Ue < ot; Ue++) {
               const Mt = Xe.clientWidth || 0, an = Xe.clientHeight || 0;
               if (Mt > 1 && an > 1) return !0;
               await new Promise((sn) => setTimeout(sn, _t));
@@ -22208,7 +22208,7 @@ const VW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-Cbt2auYq.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-BcLolrkt.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -22778,8 +22778,8 @@ const aq = ({
     const oe = ce.getBoundingClientRect(), fe = oe.width / oe.height, be = q / Z;
     let ge;
     fe > be ? ge = oe.height / Z : ge = oe.width / q;
-    const Ae = (O.clientX - oe.left - oe.width / 2) / ge + q / 2, ke = (O.clientY - oe.top - oe.height / 2) / ge + Z / 2, Ee = -O.deltaY * 2e-3, Ce = Math.exp(Ee), Xe = Math.min(Math.max(a * Ce, 0.2), 20), ot = (Ae - d.x) / a, _t = (ke - d.y) / a, ze = Ae - ot * Xe, Mt = ke - _t * Xe;
-    u(Xe), h({ x: ze, y: Mt });
+    const Ae = (O.clientX - oe.left - oe.width / 2) / ge + q / 2, ke = (O.clientY - oe.top - oe.height / 2) / ge + Z / 2, Ee = -O.deltaY * 2e-3, Ce = Math.exp(Ee), Xe = Math.min(Math.max(a * Ce, 0.2), 20), ot = (Ae - d.x) / a, _t = (ke - d.y) / a, Ue = Ae - ot * Xe, Mt = ke - _t * Xe;
+    u(Xe), h({ x: Ue, y: Mt });
   }, [a, d]), N = Ri((O) => {
     O.button === 0 && (O.preventDefault(), m(!0), C({ x: O.clientX, y: O.clientY }), E(d));
   }, [d]), P = Ri((O, q, Z) => {
@@ -22813,26 +22813,26 @@ const aq = ({
       const O = t.replace(/\s/g, "").toUpperCase(), q = e.replace(/\s/g, "");
       if (O.length !== q.length)
         return o(`Length mismatch: sequence (${O.length}) vs structure (${q.length})`), null;
-      const Z = oq(q), ce = sq(Z), oe = Math.min(...ce.x), fe = Math.max(...ce.x), be = Math.min(...ce.y), ge = Math.max(...ce.y), Ae = 30, ke = fe - oe + Ae * 2, lt = ge - be + Ae * 2, Ee = ce.x.map((ze) => ze - oe + Ae), Ce = ce.y.map((ze) => ze - be + Ae), Xe = [], ot = [];
-      for (let ze = 0; ze < O.length - 1; ze++)
+      const Z = oq(q), ce = sq(Z), oe = Math.min(...ce.x), fe = Math.max(...ce.x), be = Math.min(...ce.y), ge = Math.max(...ce.y), Ae = 30, ke = fe - oe + Ae * 2, lt = ge - be + Ae * 2, Ee = ce.x.map((Ue) => Ue - oe + Ae), Ce = ce.y.map((Ue) => Ue - be + Ae), Xe = [], ot = [];
+      for (let Ue = 0; Ue < O.length - 1; Ue++)
         Xe.push({
-          x1: Ee[ze],
-          y1: Ce[ze],
-          x2: Ee[ze + 1],
-          y2: Ce[ze + 1]
+          x1: Ee[Ue],
+          y1: Ce[Ue],
+          x2: Ee[Ue + 1],
+          y2: Ce[Ue + 1]
         });
-      for (let ze = 1; ze <= Z[0]; ze++)
-        Z[ze] > ze && ot.push({
-          x1: Ee[ze - 1],
-          y1: Ce[ze - 1],
-          x2: Ee[Z[ze] - 1],
-          y2: Ce[Z[ze] - 1]
+      for (let Ue = 1; Ue <= Z[0]; Ue++)
+        Z[Ue] > Ue && ot.push({
+          x1: Ee[Ue - 1],
+          y1: Ce[Ue - 1],
+          x2: Ee[Z[Ue] - 1],
+          y2: Ce[Z[Ue] - 1]
         });
-      const _t = O.split("").map((ze, Mt) => ({
+      const _t = O.split("").map((Ue, Mt) => ({
         x: Ee[Mt],
         y: Ce[Mt],
-        name: ze,
-        color: D[ze] || "#888888",
+        name: Ue,
+        color: D[Ue] || "#888888",
         index: Mt + 1
       }));
       return o(null), { nodes: _t, backboneLinks: Xe, basepairLinks: ot, width: ke, height: lt };
@@ -23126,7 +23126,7 @@ function uq({
   setViewerLegend: Xe,
   styleConfig: ot,
   setStyleConfig: _t,
-  phyloTreeViewerRef: ze,
+  phyloTreeViewerRef: Ue,
   geneMetadataColumns: Mt,
   setGeneMetadataColumns: an,
   treeMetadataColumns: sn,
@@ -23144,13 +23144,13 @@ function uq({
   tipWidthFactor: xt,
   setTipWidthFactor: Tt,
   tipWidthFixed: zt,
-  setTipWidthFixed: ht,
+  setTipWidthFixed: gt,
   showTreeLayer: _e,
   setShowTreeLayer: ve,
-  showGeneLayer: rt,
+  showGeneLayer: tt,
   setShowGeneLayer: Ke,
   showDomainLayer: vt,
-  setShowDomainLayer: $e,
+  setShowDomainLayer: ze,
   showProteinLinkLayer: ct,
   setShowProteinLinkLayer: It,
   showNucleotideLinkLayer: Xt,
@@ -23198,58 +23198,58 @@ function uq({
   geneHeight: sr,
   ...Qs
 }) {
-  const { resolvedTheme: ni, getThemeColors: yi } = zc(), ci = A.useMemo(() => yi(ni), [ni]), [Hr, wi] = bt("info"), [Ua, Js] = bt(!1), eo = typeof e < "u" ? e : Ua, dr = typeof n == "function" ? n : Js, [No, fo] = bt(!1), Oo = typeof r < "u" ? r : No, Ci = typeof i == "function" ? i : fo, [Hi, ho] = bt(!1), cs = typeof s < "u" ? s : Hi, Zo = typeof o == "function" ? o : ho, [Vi, $a] = bt(!1), Qo = typeof a < "u" ? a : Vi, Sn = typeof u == "function" ? u : $a, [Ha, Kn] = bt(null), Wi = typeof d < "u" ? d : Ha, Lo = typeof h == "function" ? h : Kn, [ws, Us] = bt(!1), Ao = typeof g < "u" ? g : ws, zo = typeof m == "function" ? m : Us, [sl, Va] = bt("start"), Dr = typeof y < "u" ? y : sl, qi = typeof C == "function" ? C : Va, [us, tt] = bt("after-tree"), qn = typeof b < "u" ? b : us, $s = typeof E == "function" ? E : tt, [Zr, go] = bt(Kt.gene.arrowheadHeight), [vo, Eo] = bt(Kt.gene.height), [Pn, ut] = bt(Kt.gene.tipWidthMode), ne = Lt ?? Pn, Bt = ft ?? ut, [fn, vn] = bt(xt ?? Kt.gene.tipWidthFactor), [Wt, Gt] = bt(zt ?? Kt.gene.tipWidthFixed), [wn, gn] = bt("bottom"), In = typeof w < "u" ? w : wn, Qn = typeof _ == "function" ? _ : gn, [xi, Vr] = bt(""), Nn = typeof x < "u" ? x : xi, nn = typeof D == "function" ? D : Vr, [pn, Yn] = bt(""), _r = typeof S < "u" ? S : pn, xs = typeof k == "function" ? k : Yn, [ns, bi] = bt("domainName"), Di = typeof $ < "u" ? $ : ns, Br = typeof L == "function" ? L : bi, [to, ji] = bt(""), fa = typeof N < "u" ? N : to, _o = typeof P == "function" ? P : ji, [jn, Fi] = bt(""), rs = typeof U < "u" ? U : jn, Jo = typeof M == "function" ? M : Fi, [Pr, or] = bt({ enabled: !1 }), ds = typeof j < "u" ? j : Pr, Wa = typeof W == "function" ? W : or, [fs, St] = bt({ enabled: !1 }), Jn = typeof Y < "u" ? Y : fs, cn = typeof R == "function" ? R : St, [hs, Xi] = bt({ enabled: !1 }), ha = typeof H < "u" ? H : hs, Rl = typeof I == "function" ? I : Xi, [Uo, ga] = bt("all"), cc = typeof O < "u" ? O : Uo, ea = typeof q == "function" ? q : ga, [gs, uc] = bt({ enabled: !1 }), Tn = typeof Z < "u" ? Z : gs, pa = typeof ce == "function" ? ce : uc, [dc, kr] = bt({ enabled: !1 }), $o = typeof oe < "u" ? oe : dc, ol = typeof fe == "function" ? fe : kr, [ma, kl] = bt(null), Hs = typeof be < "u" ? be : ma, ya = typeof ge == "function" ? ge : kl, [Wr, is] = bt(null), Ho = typeof Ae < "u" ? Ae : Wr, Ca = typeof ke == "function" ? ke : is, [ta, po] = bt(Kt.tree.xScalePercent), [Pe, ba] = bt(null), Qr = typeof Ce < "u" ? Ce : Pe, [Bi, Ds] = bt(null), fc = typeof ot < "u" ? ot : Bi, [Ml, wo] = bt(!1), al = typeof kn < "u" ? kn : Ml, xo = typeof Vn == "function" ? Vn : wo, [qa, Fa] = bt(null), ll = typeof Mi < "u" ? Mi : qa, Si = typeof $i == "function" ? $i : Fa, [wr, T] = bt(!1), Q = typeof Zn < "u" ? Zn : wr, re = typeof Gr == "function" ? Gr : T, [te, X] = bt(!0), G = typeof mi < "u" ? mi : te, K = typeof Ji == "function" ? Ji : X, [ae, he] = bt(!0), me = typeof _i < "u" ? _i : ae, ye = typeof Kr == "function" ? Kr : he, [Me, Ue] = bt(Kt.tree.ySpacing), [Be, Ye] = bt(Kt.tree.ySpacing), He = typeof Wn == "function" ? Wn : Ye, [Ze, Ge] = bt(Kt.text.phyloLabelSize), [at, Nt] = bt(Kt.text.phyloLabelSize), Jt = typeof uo == "function" ? uo : Nt, [hn, On] = bt(Kt.text.geneLabelSize), [_n, Zt] = bt(Kt.text.geneLabelSize), Yt = typeof es == "function" ? es : Zt, [jt, mr] = bt(Kt.gene.edgeWidth), [Cr, ps] = bt(Kt.gene.edgeWidth), Yi = typeof tn == "function" ? tn : ps, [Jr, Vs] = bt(Kt.genome?.xScalePercent || 30), [Bs, ja] = bt(Kt.genome?.xScalePercent || 30), no = typeof Ar == "function" ? Ar : ja, na = ze || $n(null), [Ws, ss] = bt(!0), [ro, Pi] = bt(!0), [Gi, ra] = bt(!0), [qs, Fs] = bt(!0), [Do, Bo] = bt(!0), [So, Vo] = bt(!0), [Uc, J] = bt(!0), [Te, Se] = bt(!0), [Ie, je] = bt(!0), [V, ee] = bt(!0), ie = _e !== void 0 ? _e : Ws, ue = ve || ss, Fe = rt !== void 0 ? rt : ro, De = Ke || Pi, gt = vt !== void 0 ? vt : Gi, nt = $e || ra, yt = ct !== void 0 ? ct : qs, Ot = It || Fs, en = Xt !== void 0 ? Xt : Do, Cn = ln || Bo, Bn = Ln !== void 0 ? Ln : So, xr = mn || Vo, fr = mt !== void 0 ? mt : Uc, hr = on || J, er = $t !== void 0 ? $t : Te, Ir = En || Se, Ii = yn !== void 0 ? yn : Ie, Ni = li || je, os = $r !== void 0 ? $r : V, Mr = Yr || ee, [As, Xa] = bt(null), [Nr, To] = bt("idle"), [Ki, qr] = bt(null), [cl, hc] = bt(null), ul = 400, Ru = "hoodini_nvidia_api_key", [Wo, Pl] = bt(""), [ip, Td] = bt(!1), [sp, rh] = bt(null);
+  const { resolvedTheme: ni, getThemeColors: yi } = zc(), ci = A.useMemo(() => yi(ni), [ni]), [Hr, wi] = bt("info"), [Ua, Js] = bt(!1), eo = typeof e < "u" ? e : Ua, dr = typeof n == "function" ? n : Js, [No, fo] = bt(!1), Oo = typeof r < "u" ? r : No, Ci = typeof i == "function" ? i : fo, [Hi, ho] = bt(!1), cs = typeof s < "u" ? s : Hi, Zo = typeof o == "function" ? o : ho, [Vi, $a] = bt(!1), Qo = typeof a < "u" ? a : Vi, Sn = typeof u == "function" ? u : $a, [Ha, Kn] = bt(null), Wi = typeof d < "u" ? d : Ha, Lo = typeof h == "function" ? h : Kn, [ws, Us] = bt(!1), Ao = typeof g < "u" ? g : ws, zo = typeof m == "function" ? m : Us, [sl, Va] = bt("start"), Dr = typeof y < "u" ? y : sl, qi = typeof C == "function" ? C : Va, [us, nt] = bt("after-tree"), qn = typeof b < "u" ? b : us, $s = typeof E == "function" ? E : nt, [Zr, go] = bt(Kt.gene.arrowheadHeight), [vo, Eo] = bt(Kt.gene.height), [Pn, ut] = bt(Kt.gene.tipWidthMode), ne = Lt ?? Pn, Bt = ft ?? ut, [fn, vn] = bt(xt ?? Kt.gene.tipWidthFactor), [Wt, Gt] = bt(zt ?? Kt.gene.tipWidthFixed), [wn, gn] = bt("bottom"), In = typeof w < "u" ? w : wn, Qn = typeof _ == "function" ? _ : gn, [xi, Vr] = bt(""), Nn = typeof x < "u" ? x : xi, nn = typeof D == "function" ? D : Vr, [pn, Yn] = bt(""), _r = typeof S < "u" ? S : pn, xs = typeof k == "function" ? k : Yn, [ns, bi] = bt("domainName"), Di = typeof $ < "u" ? $ : ns, Br = typeof L == "function" ? L : bi, [to, ji] = bt(""), fa = typeof N < "u" ? N : to, _o = typeof P == "function" ? P : ji, [jn, Fi] = bt(""), rs = typeof U < "u" ? U : jn, Jo = typeof M == "function" ? M : Fi, [Pr, or] = bt({ enabled: !1 }), ds = typeof j < "u" ? j : Pr, Wa = typeof W == "function" ? W : or, [fs, St] = bt({ enabled: !1 }), Jn = typeof Y < "u" ? Y : fs, cn = typeof R == "function" ? R : St, [hs, Xi] = bt({ enabled: !1 }), ha = typeof H < "u" ? H : hs, Rl = typeof I == "function" ? I : Xi, [Uo, ga] = bt("all"), cc = typeof O < "u" ? O : Uo, ea = typeof q == "function" ? q : ga, [gs, uc] = bt({ enabled: !1 }), Tn = typeof Z < "u" ? Z : gs, pa = typeof ce == "function" ? ce : uc, [dc, kr] = bt({ enabled: !1 }), $o = typeof oe < "u" ? oe : dc, ol = typeof fe == "function" ? fe : kr, [ma, kl] = bt(null), Hs = typeof be < "u" ? be : ma, ya = typeof ge == "function" ? ge : kl, [Wr, is] = bt(null), Ho = typeof Ae < "u" ? Ae : Wr, Ca = typeof ke == "function" ? ke : is, [ta, po] = bt(Kt.tree.xScalePercent), [Pe, ba] = bt(null), Qr = typeof Ce < "u" ? Ce : Pe, [Bi, Ds] = bt(null), fc = typeof ot < "u" ? ot : Bi, [Ml, wo] = bt(!1), al = typeof kn < "u" ? kn : Ml, xo = typeof Vn == "function" ? Vn : wo, [qa, Fa] = bt(null), ll = typeof Mi < "u" ? Mi : qa, Si = typeof $i == "function" ? $i : Fa, [wr, T] = bt(!1), Q = typeof Zn < "u" ? Zn : wr, re = typeof Gr == "function" ? Gr : T, [te, X] = bt(!0), G = typeof mi < "u" ? mi : te, K = typeof Ji == "function" ? Ji : X, [ae, he] = bt(!0), me = typeof _i < "u" ? _i : ae, ye = typeof Kr == "function" ? Kr : he, [Me, $e] = bt(Kt.tree.ySpacing), [Be, Ye] = bt(Kt.tree.ySpacing), He = typeof Wn == "function" ? Wn : Ye, [Ze, Ge] = bt(Kt.text.phyloLabelSize), [at, Nt] = bt(Kt.text.phyloLabelSize), Jt = typeof uo == "function" ? uo : Nt, [hn, On] = bt(Kt.text.geneLabelSize), [_n, Zt] = bt(Kt.text.geneLabelSize), Yt = typeof es == "function" ? es : Zt, [jt, mr] = bt(Kt.gene.edgeWidth), [Cr, ps] = bt(Kt.gene.edgeWidth), Yi = typeof tn == "function" ? tn : ps, [Jr, Vs] = bt(Kt.genome?.xScalePercent || 30), [Bs, ja] = bt(Kt.genome?.xScalePercent || 30), no = typeof Ar == "function" ? Ar : ja, na = Ue || $n(null), [Ws, ss] = bt(!0), [ro, Pi] = bt(!0), [Gi, ra] = bt(!0), [qs, Fs] = bt(!0), [Do, Bo] = bt(!0), [So, Vo] = bt(!0), [Uc, J] = bt(!0), [Te, Se] = bt(!0), [Ie, je] = bt(!0), [V, ee] = bt(!0), ie = _e !== void 0 ? _e : Ws, ue = ve || ss, Fe = tt !== void 0 ? tt : ro, De = Ke || Pi, pt = vt !== void 0 ? vt : Gi, rt = ze || ra, yt = ct !== void 0 ? ct : qs, Ot = It || Fs, en = Xt !== void 0 ? Xt : Do, Cn = ln || Bo, Bn = Ln !== void 0 ? Ln : So, xr = mn || Vo, fr = mt !== void 0 ? mt : Uc, hr = on || J, er = $t !== void 0 ? $t : Te, Ir = En || Se, Ii = yn !== void 0 ? yn : Ie, Ni = li || je, os = $r !== void 0 ? $r : V, Mr = Yr || ee, [As, Xa] = bt(null), [Nr, To] = bt("idle"), [Ki, qr] = bt(null), [cl, hc] = bt(null), ul = 400, Ru = "hoodini_nvidia_api_key", [Wo, Pl] = bt(""), [sp, Td] = bt(!1), [op, ih] = bt(null);
   Gn(() => {
-    const pt = localStorage.getItem(Ru);
-    pt && Pl(pt);
+    const ht = localStorage.getItem(Ru);
+    ht && Pl(ht);
   }, []);
   const [Ss, $c] = bt([]), [Hc, ku] = bt([]), qo = A.useCallback(() => {
     try {
-      const pt = ze && ze.current ? ze.current.genomeView : null;
-      if (!pt) {
+      const ht = Ue && Ue.current ? Ue.current.genomeView : null;
+      if (!ht) {
         ku([]), $c([]);
         return;
       }
-      const yr = typeof pt.getClusterSummary == "function" ? pt.getClusterSummary() : null;
+      const yr = typeof ht.getClusterSummary == "function" ? ht.getClusterSummary() : null;
       yr && Array.isArray(yr.items) && yr.items.length > 0 ? ($c([...yr.items]), ku([...yr.ids || []])) : ($c([]), ku([]));
     } catch {
       ku([]), $c([]);
     }
-  }, [ze]);
+  }, [Ue]);
   Gn(() => {
     qo();
   }, []), Gn(() => {
-    ze?.current?.genomeView && setTimeout(() => {
+    Ue?.current?.genomeView && setTimeout(() => {
       qo();
     }, 100);
-  }, [ze?.current?.genomeView, pi]), Gn(() => {
-    const pt = ze?.current?.genomeView;
-    pt && pt.proteinClusters && Object.keys(pt.proteinClusters).length > 0 && qo();
-  }, [ze?.current?.genomeView?.proteinClusters]), Gn(() => {
-    const pt = window;
-    return pt.__hoodini_refreshClusters = () => (qo(), { availableClusters: Ss, liveClusters: Hc }), pt.__hoodini_clusterState = () => ({ availableClusters: Ss, liveClusters: Hc }), pt.__hoodini_getGenomeView = () => ze && ze.current ? ze.current.genomeView : null, () => {
-      delete pt.__hoodini_refreshClusters, delete pt.__hoodini_clusterState, delete pt.__hoodini_getGenomeView;
+  }, [Ue?.current?.genomeView, pi]), Gn(() => {
+    const ht = Ue?.current?.genomeView;
+    ht && ht.proteinClusters && Object.keys(ht.proteinClusters).length > 0 && qo();
+  }, [Ue?.current?.genomeView?.proteinClusters]), Gn(() => {
+    const ht = window;
+    return ht.__hoodini_refreshClusters = () => (qo(), { availableClusters: Ss, liveClusters: Hc }), ht.__hoodini_clusterState = () => ({ availableClusters: Ss, liveClusters: Hc }), ht.__hoodini_getGenomeView = () => Ue && Ue.current ? Ue.current.genomeView : null, () => {
+      delete ht.__hoodini_refreshClusters, delete ht.__hoodini_clusterState, delete ht.__hoodini_getGenomeView;
     };
   }, [Ss, Hc, qo]), Gn(() => {
     if (Hr !== "settings" || Ss.length > 0) return;
-    const pt = setInterval(() => {
+    const ht = setInterval(() => {
       qo();
     }, 5e3);
-    return () => clearInterval(pt);
+    return () => clearInterval(ht);
   }, [Hr, Ss.length, qo]);
-  const gc = 50, Mu = A.useMemo(() => Ss.slice(0, gc), [Ss]), Rd = A.useMemo(() => Mu.map((yr) => /* @__PURE__ */ B(pr, { value: String(yr.id), children: yr.label }, yr.id)), [Mu]), ih = Mt && Mt.length > 0 ? Mt : ["cluster", "species", "geneType"], sh = sn && sn.length > 0 ? sn : ["species", "branchLength", "support"], pc = ("".trim().split(/\r?\n/)[0] || "").split(/\t/).map((pt) => (pt || "").trim()).filter((pt) => pt !== "" && pt.toLowerCase() !== "domain_id"), op = ["domainName", "start", "end", "evalue", "coverage"], ap = Array.isArray(wt) && wt.length > 0 ? wt.map((pt) => (pt || "").toString().trim()).filter((pt) => pt !== "" && pt.toLowerCase() !== "domain_id") : [...op, ...pc], Dn = Vt;
+  const gc = 50, Mu = A.useMemo(() => Ss.slice(0, gc), [Ss]), Rd = A.useMemo(() => Mu.map((yr) => /* @__PURE__ */ B(pr, { value: String(yr.id), children: yr.label }, yr.id)), [Mu]), sh = Mt && Mt.length > 0 ? Mt : ["cluster", "species", "geneType"], oh = sn && sn.length > 0 ? sn : ["species", "branchLength", "support"], pc = ("".trim().split(/\r?\n/)[0] || "").split(/\t/).map((ht) => (ht || "").trim()).filter((ht) => ht !== "" && ht.toLowerCase() !== "domain_id"), kd = ["domainName", "start", "end", "evalue", "coverage"], ap = Array.isArray(wt) && wt.length > 0 ? [...kd, ...wt.map((ht) => (ht || "").toString().trim()).filter((ht) => ht !== "" && ht.toLowerCase() !== "domain_id" && !kd.includes(ht))] : [...kd, ...pc], Dn = Vt;
   Gn(() => {
-    Xa(null), To("idle"), qr(null), Md(null), Iu(null), hc(null);
+    Xa(null), To("idle"), qr(null), Pd(null), Iu(null), hc(null);
   }, [Dn]);
-  const Wc = async (pt, yr) => {
-    if (!pt) return;
-    const Oi = yr || (pt.length <= ul ? "esmfold" : "boltz2");
+  const Wc = async (ht, yr) => {
+    if (!ht) return;
+    const Oi = yr || (ht.length <= ul ? "esmfold" : "boltz2");
     if (Oi === "boltz2" && !Wo) {
-      To("needsApiKey"), Td(!0), Xa(pt);
+      To("needsApiKey"), Td(!0), Xa(ht);
       return;
     }
-    if (!(As === pt && Nr === "folding") && !(Ki && As === pt && Nr === "success")) {
-      Xa(pt), To("folding"), rh(Oi), qr(null);
+    if (!(As === ht && Nr === "folding") && !(Ki && As === ht && Nr === "success")) {
+      Xa(ht), To("folding"), ih(Oi), qr(null);
       try {
         const Rn = Dn && Dn.id || Dn && Dn.geneId || null;
         hc(Rn);
@@ -23257,21 +23257,21 @@ function uq({
         hc(null);
       }
       try {
-        Md(pt);
+        Pd(ht);
       } catch {
         To("error");
       }
     }
-  }, kd = () => {
+  }, Md = () => {
     Wo.trim() && (localStorage.setItem(Ru, Wo.trim()), Td(!1), As && Nr === "needsApiKey" && Wc(As, "boltz2"));
   }, Pu = () => {
     localStorage.removeItem(Ru), Pl("");
-  }, [mc, Md] = bt(null), [dl, Iu] = bt(null), Il = ({ pdb: pt, sequenceLength: yr, confidence: Oi }) => {
-    qr({ pdb: pt, sequenceLength: yr, confidence: Oi }), To("success"), Iu(null), Xa(null), Md(null);
-  }, Pd = Dn && Dn.id || Dn && Dn.geneId || null;
+  }, [mc, Pd] = bt(null), [dl, Iu] = bt(null), Il = ({ pdb: ht, sequenceLength: yr, confidence: Oi }) => {
+    qr({ pdb: ht, sequenceLength: yr, confidence: Oi }), To("success"), Iu(null), Xa(null), Pd(null);
+  }, Id = Dn && Dn.id || Dn && Dn.geneId || null;
   Dn?.metadata?.sequence && Dn.metadata.sequence.length > 0;
-  const oh = !!(Pd && cl && Pd === cl && (mc || Nr === "success" && Ki)), Nl = (pt) => {
-    To("error"), Iu(pt || "Unknown viewer error");
+  const ah = !!(Id && cl && Id === cl && (mc || Nr === "success" && Ki)), Nl = (ht) => {
+    To("error"), Iu(ht || "Unknown viewer error");
   };
   return Gn(() => {
   }, [mc, Nr, Ki, dl]), /* @__PURE__ */ le(m$, { collapsible: "offcanvas", variant: t, ...Qs, children: [
@@ -23369,13 +23369,13 @@ function uq({
               /* @__PURE__ */ B("div", { className: "flex items-center gap-2 mb-2", children: /* @__PURE__ */ B(zr, { variant: "info", className: "text-xs", children: Dn.type === "ncRNA" || Dn.type === "ncRNA_gene" ? "ncRNA Details" : Dn.type === "region" ? "Region Details" : "Gene Details" }) }),
               /* @__PURE__ */ B("div", { className: "space-y-3", children: Dn.metadata && Object.keys(Dn.metadata).length > 0 ? /* @__PURE__ */ le(ao, { children: [
                 (() => {
-                  const pt = (Rn) => {
+                  const ht = (Rn) => {
                     const ei = {};
                     return !Rn || typeof Rn != "string" || Rn.split(";").filter((Li) => Li.trim()).forEach((Li) => {
                       const [Aa, ...fl] = Li.split("=");
                       Aa && fl.length > 0 && (ei[Aa.trim()] = fl.join("=").trim());
                     }), ei;
-                  }, yr = Dn.metadata.attributes && typeof Dn.metadata.attributes == "string" ? pt(Dn.metadata.attributes) : typeof Dn.metadata.attributes == "object" ? Dn.metadata.attributes : {}, Oi = { ...Dn.metadata };
+                  }, yr = Dn.metadata.attributes && typeof Dn.metadata.attributes == "string" ? ht(Dn.metadata.attributes) : typeof Dn.metadata.attributes == "object" ? Dn.metadata.attributes : {}, Oi = { ...Dn.metadata };
                   return yr && Object.keys(yr).length > 0 && Object.entries(yr).forEach(([Rn, ei]) => {
                     (!Oi[Rn] || Oi[Rn] === Oi.attributes) && (Oi[Rn] = ei);
                   }), delete Oi.attributes, Dn._mergedMeta = Oi, null;
@@ -23391,8 +23391,8 @@ function uq({
                           if (Aa && typeof Aa.get == "function") {
                             const fl = Aa.get(Fl(Li));
                             if (fl && Array.isArray(fl)) {
-                              const [hl, Id, lp, Nd] = fl;
-                              return `rgba(${hl}, ${Id}, ${lp}, ${Nd !== void 0 ? Nd / 255 : 1})`;
+                              const [hl, Nd, lp, Od] = fl;
+                              return `rgba(${hl}, ${Nd}, ${lp}, ${Od !== void 0 ? Od / 255 : 1})`;
                             }
                           }
                         }
@@ -23501,19 +23501,19 @@ function uq({
                               variant: Nr === "folding" || Nr === "success" ? "default" : Nr === "error" ? "destructive" : Nr === "needsApiKey" ? "outline" : "secondary",
                               className: `text-xs ${Nr === "folding" ? "animate-pulse" : Nr === "idle" || Nr === "needsApiKey" ? "cursor-pointer hover:bg-secondary/80" : ""} ${ei ? "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200" : ""}`,
                               onClick: () => {
-                                Nr === "idle" || Nr === "needsApiKey" ? (Iu(null), Wc(Rn)) : (Nr === "success" || Nr === "error") && (To("idle"), qr(null), Xa(null), rh(null));
+                                Nr === "idle" || Nr === "needsApiKey" ? (Iu(null), Wc(Rn)) : (Nr === "success" || Nr === "error") && (To("idle"), qr(null), Xa(null), ih(null));
                               },
                               children: [
                                 Nr === "idle" && (ei ? "Fold with Boltz2" : "Fold Sequence"),
                                 Nr === "needsApiKey" && "🔑 Enter API Key",
-                                Nr === "folding" && (sp === "boltz2" ? "Boltz2..." : "Folding..."),
+                                Nr === "folding" && (op === "boltz2" ? "Boltz2..." : "Folding..."),
                                 Nr === "success" && "View Structure",
                                 Nr === "error" && "Retry Folding"
                               ]
                             }
                           );
                         })(),
-                        Dn.metadata.sequence.replace(/\*+$/, "").length > ul && Wo && !ip && Nr !== "needsApiKey" ? /* @__PURE__ */ B(
+                        Dn.metadata.sequence.replace(/\*+$/, "").length > ul && Wo && !sp && Nr !== "needsApiKey" ? /* @__PURE__ */ B(
                           zr,
                           {
                             variant: "secondary",
@@ -23524,7 +23524,7 @@ function uq({
                           }
                         ) : null
                       ] }),
-                      (ip || Nr === "needsApiKey") && /* @__PURE__ */ le("div", { className: "p-3 bg-purple-50 dark:bg-purple-950/30 rounded-md border border-purple-200 dark:border-purple-800 space-y-2", children: [
+                      (sp || Nr === "needsApiKey") && /* @__PURE__ */ le("div", { className: "p-3 bg-purple-50 dark:bg-purple-950/30 rounded-md border border-purple-200 dark:border-purple-800 space-y-2", children: [
                         /* @__PURE__ */ le("div", { className: "flex items-center justify-between", children: [
                           /* @__PURE__ */ B("span", { className: "text-xs font-medium text-purple-800 dark:text-purple-200", children: "NVIDIA API Key (for Boltz2)" }),
                           Wo && /* @__PURE__ */ B(zr, { variant: "outline", className: "text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", children: "✓ Saved" })
@@ -23540,7 +23540,7 @@ function uq({
                               className: "flex-1 font-mono text-xs h-8"
                             }
                           ),
-                          /* @__PURE__ */ B(Co, { size: "sm", onClick: kd, disabled: !Wo.trim(), className: "h-8 text-xs rounded-full px-4", children: "Save & Fold" })
+                          /* @__PURE__ */ B(Co, { size: "sm", onClick: Md, disabled: !Wo.trim(), className: "h-8 text-xs rounded-full px-4", children: "Save & Fold" })
                         ] }),
                         /* @__PURE__ */ le("p", { className: "text-xs text-muted-foreground", children: [
                           "Get your key at",
@@ -23570,7 +23570,7 @@ function uq({
                           ei ? ` (requires Boltz2, >${ul} aa)` : " (ESMFold compatible)"
                         ] });
                       })(),
-                      oh && /* @__PURE__ */ le("div", { className: "mt-2 p-3 bg-accent/10 rounded-md border", children: [
+                      ah && /* @__PURE__ */ le("div", { className: "mt-2 p-3 bg-accent/10 rounded-md border", children: [
                         /* @__PURE__ */ le("div", { className: "flex items-center justify-between mb-2", children: [
                           /* @__PURE__ */ B("h5", { className: "font-title text-xs font-medium", children: "3D Structure" }),
                           (() => {
@@ -23607,7 +23607,7 @@ function uq({
                           /* @__PURE__ */ B("div", { className: "text-xs mt-1", children: String(dl) })
                         ] }) : /* @__PURE__ */ le("p", { className: "text-xs text-muted-foreground mt-2", children: [
                           "Structure predicted using ",
-                          sp === "boltz2" ? "Boltz2" : "ESMFold",
+                          op === "boltz2" ? "Boltz2" : "ESMFold",
                           " • ",
                           Ki?.sequenceLength || mc?.length || "...",
                           " residues"
@@ -23713,8 +23713,8 @@ function uq({
                     vi,
                     {
                       id: "domain-layer",
-                      checked: gt,
-                      onCheckedChange: nt
+                      checked: pt,
+                      onCheckedChange: rt
                     }
                   )
                 ] }),
@@ -23779,11 +23779,11 @@ function uq({
                       min: 0,
                       max: 100,
                       value: [Zr],
-                      onValueChange: (pt) => {
-                        go(pt[0]);
+                      onValueChange: (ht) => {
+                        go(ht[0]);
                       },
-                      onValueCommit: (pt) => {
-                        typeof xe == "function" && xe(pt[0]);
+                      onValueCommit: (ht) => {
+                        typeof xe == "function" && xe(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -23801,11 +23801,11 @@ function uq({
                       min: 10,
                       max: 200,
                       value: [vo],
-                      onValueChange: (pt) => {
-                        Eo(pt[0]);
+                      onValueChange: (ht) => {
+                        Eo(ht[0]);
                       },
-                      onValueCommit: (pt) => {
-                        typeof Rt == "function" && Rt(pt[0]);
+                      onValueCommit: (ht) => {
+                        typeof Rt == "function" && Rt(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -23813,7 +23813,7 @@ function uq({
                 ] }),
                 /* @__PURE__ */ le("div", { className: "mt-2", children: [
                   /* @__PURE__ */ B(un, { htmlFor: "tip-width-mode", className: "text-xs mb-1 block", children: "Arrow Tip Width Mode:" }),
-                  /* @__PURE__ */ le(Is, { value: ne, onValueChange: (pt) => Bt(pt), children: [
+                  /* @__PURE__ */ le(Is, { value: ne, onValueChange: (ht) => Bt(ht), children: [
                     /* @__PURE__ */ B(Os, { id: "tip-width-mode", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
                     /* @__PURE__ */ le(Ls, { children: [
                       /* @__PURE__ */ B(pr, { value: "factor", children: "Proportional" }),
@@ -23834,9 +23834,9 @@ function uq({
                       min: 1,
                       max: 50,
                       value: [fn * 100],
-                      onValueChange: (pt) => vn(pt[0] / 100),
-                      onValueCommit: (pt) => {
-                        typeof Tt == "function" && Tt(pt[0] / 100);
+                      onValueChange: (ht) => vn(ht[0] / 100),
+                      onValueCommit: (ht) => {
+                        typeof Tt == "function" && Tt(ht[0] / 100);
                       },
                       className: "w-full"
                     }
@@ -23858,9 +23858,9 @@ function uq({
                       max: 1e3,
                       step: 10,
                       value: [Wt],
-                      onValueChange: (pt) => Gt(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof ht == "function" && ht(pt[0]);
+                      onValueChange: (ht) => Gt(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof gt == "function" && gt(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -23890,9 +23890,9 @@ function uq({
                       min: 6,
                       max: 30,
                       value: [hn],
-                      onValueChange: (pt) => On(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof Yt == "function" && Yt(pt[0]);
+                      onValueChange: (ht) => On(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof Yt == "function" && Yt(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -23903,9 +23903,9 @@ function uq({
                   /* @__PURE__ */ B(
                     jF,
                     {
-                      options: ["gene_id", ...ih].map((pt) => ({ label: pt, value: pt })),
+                      options: ["gene_id", ...sh].map((ht) => ({ label: ht, value: ht })),
                       value: rs ? rs.split(",").filter(Boolean) : [],
-                      onValueChange: (pt) => Jo(pt.length > 0 ? pt.join(",") : ""),
+                      onValueChange: (ht) => Jo(ht.length > 0 ? ht.join(",") : ""),
                       placeholder: "Select columns...",
                       maxCount: 2,
                       className: "text-xs"
@@ -23925,9 +23925,9 @@ function uq({
                       max: 3,
                       step: 0.1,
                       value: [jt],
-                      onValueChange: (pt) => mr(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof Yi == "function" && Yi(pt[0]);
+                      onValueChange: (ht) => mr(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof Yi == "function" && Yi(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -23946,9 +23946,9 @@ function uq({
                       min: 1,
                       max: 100,
                       value: [Jr],
-                      onValueChange: (pt) => Vs(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof no == "function" && no(pt[0]);
+                      onValueChange: (ht) => Vs(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof no == "function" && no(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -24026,11 +24026,11 @@ function uq({
                       min: 10,
                       max: 300,
                       value: [ta],
-                      onValueChange: (pt) => {
-                        po(pt[0]);
+                      onValueChange: (ht) => {
+                        po(ht[0]);
                       },
-                      onValueCommit: (pt) => {
-                        typeof Ee == "function" && Ee(pt[0]);
+                      onValueCommit: (ht) => {
+                        typeof Ee == "function" && Ee(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -24050,9 +24050,9 @@ function uq({
                       max: 500,
                       step: 10,
                       value: [Me],
-                      onValueChange: (pt) => Ue(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof He == "function" && He(pt[0]);
+                      onValueChange: (ht) => $e(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof He == "function" && He(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -24071,9 +24071,9 @@ function uq({
                       min: 8,
                       max: 40,
                       value: [Ze],
-                      onValueChange: (pt) => Ge(pt[0]),
-                      onValueCommit: (pt) => {
-                        typeof Jt == "function" && Jt(pt[0]);
+                      onValueChange: (ht) => Ge(ht[0]),
+                      onValueCommit: (ht) => {
+                        typeof Jt == "function" && Jt(ht[0]);
                       },
                       className: "w-full"
                     }
@@ -24084,9 +24084,9 @@ function uq({
                   /* @__PURE__ */ B(
                     jF,
                     {
-                      options: ["name", ...sh].map((pt) => ({ label: pt, value: pt })),
+                      options: ["name", ...oh].map((ht) => ({ label: ht, value: ht })),
                       value: fa ? fa.split(",").filter(Boolean) : [],
-                      onValueChange: (pt) => _o(pt.length > 0 ? pt.join(",") : ""),
+                      onValueChange: (ht) => _o(ht.length > 0 ? ht.join(",") : ""),
                       placeholder: "Select columns...",
                       maxCount: 2,
                       className: "text-xs"
@@ -24104,8 +24104,8 @@ function uq({
                     Is,
                     {
                       value: Ao ? "default" : Dr,
-                      onValueChange: (pt) => {
-                        pt === "default" ? (zo(!0), Lo(null)) : (zo(!1), qi(pt), Lo(null));
+                      onValueChange: (ht) => {
+                        ht === "default" ? (zo(!0), Lo(null)) : (zo(!1), qi(ht), Lo(null));
                       },
                       children: [
                         /* @__PURE__ */ B(Os, { id: "hoods-alignment", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
@@ -24131,8 +24131,8 @@ function uq({
                     Is,
                     {
                       value: Wi != null ? String(Wi) : "none",
-                      onValueChange: (pt) => {
-                        const yr = pt === "none" || pt === "__more__" ? null : String(pt), Oi = window;
+                      onValueChange: (ht) => {
+                        const yr = ht === "none" || ht === "__more__" ? null : String(ht), Oi = window;
                         if (typeof Oi.__hoodini_alignCluster == "function")
                           yr !== null && Oi.__hoodini_alignCluster(yr);
                         else {
@@ -24174,21 +24174,21 @@ function uq({
                   /* @__PURE__ */ B(un, { htmlFor: "gene-colors", className: "text-xs mb-1 block", children: "Gene Colors:" }),
                   /* @__PURE__ */ le(Is, { value: Nn, onValueChange: nn, children: [
                     /* @__PURE__ */ B(Os, { id: "gene-colors", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
-                    /* @__PURE__ */ B(Ls, { children: ih.map((pt) => /* @__PURE__ */ B(pr, { value: pt, children: pt }, pt)) })
+                    /* @__PURE__ */ B(Ls, { children: sh.map((ht) => /* @__PURE__ */ B(pr, { value: ht, children: ht }, ht)) })
                   ] })
                 ] }),
                 /* @__PURE__ */ le("div", { children: [
                   /* @__PURE__ */ B(un, { htmlFor: "tree-colors", className: "text-xs mb-1 block", children: "Tree Colors:" }),
                   /* @__PURE__ */ le(Is, { value: _r, onValueChange: xs, children: [
                     /* @__PURE__ */ B(Os, { id: "tree-colors", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
-                    /* @__PURE__ */ B(Ls, { children: sh.map((pt) => /* @__PURE__ */ B(pr, { value: pt, children: pt }, pt)) })
+                    /* @__PURE__ */ B(Ls, { children: oh.map((ht) => /* @__PURE__ */ B(pr, { value: ht, children: ht }, ht)) })
                   ] })
                 ] }),
                 /* @__PURE__ */ le("div", { children: [
                   /* @__PURE__ */ B(un, { htmlFor: "domain-colors", className: "text-xs mb-1 block", children: "Domain Colors:" }),
                   /* @__PURE__ */ le(Is, { value: Di, onValueChange: Br, children: [
                     /* @__PURE__ */ B(Os, { id: "domain-colors", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
-                    /* @__PURE__ */ B(Ls, { children: ap.map((pt) => /* @__PURE__ */ B(pr, { value: pt, children: pt }, pt)) })
+                    /* @__PURE__ */ B(Ls, { children: ap.map((ht) => /* @__PURE__ */ B(pr, { value: ht, children: ht }, ht)) })
                   ] })
                 ] }),
                 /* @__PURE__ */ le("div", { children: [
@@ -24197,9 +24197,9 @@ function uq({
                     Is,
                     {
                       value: cc || "all",
-                      onValueChange: (pt) => {
+                      onValueChange: (ht) => {
                         try {
-                          typeof ea == "function" ? ea(pt) : Qs && typeof Qs.setDomainSource == "function" && Qs.setDomainSource(pt);
+                          typeof ea == "function" ? ea(ht) : Qs && typeof Qs.setDomainSource == "function" && Qs.setDomainSource(ht);
                         } catch {
                         }
                       },
@@ -24209,9 +24209,9 @@ function uq({
                           /* @__PURE__ */ B(pr, { value: "all", children: "all" }),
                           (() => {
                             try {
-                              const pt = ze && ze.current ? ze.current.genomeView : null;
-                              if (!pt) return null;
-                              const yr = pt.getAllDomains ? pt.getAllDomains() : [];
+                              const ht = Ue && Ue.current ? Ue.current.genomeView : null;
+                              if (!ht) return null;
+                              const yr = ht.getAllDomains ? ht.getAllDomains() : [];
                               return Array.from(new Set(yr.map((Rn) => String(Rn && (Rn.source || Rn.metadata && Rn.metadata.source) || "unknown")))).sort().map((Rn) => /* @__PURE__ */ B(pr, { value: String(Rn), children: String(Rn) }, String(Rn)));
                             } catch {
                               return null;
@@ -24717,46 +24717,36 @@ class pq {
     if (!this.parentGene || !this.parentGene.polygon) return;
     const e = this.parentGene, n = this.createDomainPolygon(e, this.origStart, this.origEnd);
     if (n && e.polygon) {
-      const r = this.getGeneClipRect(e);
+      const r = this.getConvexGenePolygon(e);
       this.polygon = gq(n, r);
     } else
       this.polygon = n;
   }
-  // Get a simple rectangular clipping region that covers the entire gene
-  getGeneClipRect(e) {
-    const r = (e.geneHeight || e.config?.gene?.height || 60) / 2, i = e.trackY, s = Math.min(e.start, e.end), o = Math.max(e.start, e.end);
-    return [
+  // Build a convex 5-vertex arrow polygon for clipping
+  // This covers the full gene area (body + tip) and works with Sutherland-Hodgman
+  getConvexGenePolygon(e) {
+    const r = (e.geneHeight || e.config?.gene?.height || 60) / 2, i = e.trackY;
+    let s = Math.min(e.start, e.end), o = Math.max(e.start, e.end);
+    const a = o - s, u = Ku(a, e.config?.gene), d = e.strand === "+";
+    return u < 1 ? [
       [s, i - r],
       [o, i - r],
       [o, i + r],
       [s, i + r]
-    ];
-  }
-  // Build a convex 5-vertex arrow polygon for clipping
-  // This covers the full gene area (body + tip) and works with Sutherland-Hodgman
-  getConvexGenePolygon(e) {
-    const n = e.geneHeight || e.config?.gene?.height || 60, r = e.config?.gene?.arrowheadHeight || 0, i = n / 2, s = i + r / 2, o = e.trackY;
-    let a = Math.min(e.start, e.end), u = Math.max(e.start, e.end);
-    const d = u - a, h = Ku(d, e.config?.gene), g = e.strand === "+";
-    return h < 1 ? [
-      [a, o - i],
-      [u, o - i],
-      [u, o + i],
-      [a, o + i]
-    ] : g ? [
-      [a, o - i],
-      [u - h, o - s],
-      [u, o],
+    ] : d ? [
+      [s, i - r],
+      [o - u, i - r],
+      [o, i],
       // tip
-      [u - h, o + s],
-      [a, o + i]
+      [o - u, i + r],
+      [s, i + r]
     ] : [
-      [u, o - i],
-      [a + h, o - s],
-      [a, o],
+      [o, i - r],
+      [s + u, i - r],
+      [s, i],
       // tip
-      [a + h, o + s],
-      [u, o + i]
+      [s + u, i + r],
+      [o, i + r]
     ];
   }
   createDomainPolygon(e, n, r) {
@@ -25070,7 +25060,7 @@ function ju(t, e, n = !1, r = "qualitative") {
   if (Iy.has(i)) return Iy.get(i);
   let s = [];
   try {
-    s = Pf(t, e, n, r);
+    s = If(t, e, n, r);
   } catch {
     s = [];
   }
@@ -26116,7 +26106,7 @@ function Ev(t, e) {
   if (!t)
     throw new Error("Assertion failed");
 }
-function rf() {
+function sf() {
   let t;
   if (vd() && jx.performance)
     t = jx?.performance?.now?.();
@@ -26127,7 +26117,7 @@ function rf() {
     t = Date.now();
   return t;
 }
-const sf = {
+const of = {
   debug: vd() && console.debug || console.log,
   log: console.log,
   info: console.info,
@@ -26137,12 +26127,12 @@ const sf = {
   enabled: !0,
   level: 0
 };
-function of() {
+function af() {
 }
 const Gx = {}, Kx = { once: !0 };
-class Xg {
+class Yg {
   constructor({ id: e } = { id: "" }) {
-    this.VERSION = XT, this._startTs = rf(), this._deltaTs = rf(), this.userData = {}, this.LOG_THROTTLE_TIMEOUT = 0, this.id = e, this.userData = {}, this._storage = new wq(`__probe-${this.id}__`, Rq), this.timeStamp(`${this.id} started`), Tq(this), Object.seal(this);
+    this.VERSION = XT, this._startTs = sf(), this._deltaTs = sf(), this.userData = {}, this.LOG_THROTTLE_TIMEOUT = 0, this.id = e, this.userData = {}, this._storage = new wq(`__probe-${this.id}__`, Rq), this.timeStamp(`${this.id} started`), Tq(this), Object.seal(this);
   }
   set level(e) {
     this.setLevel(e);
@@ -26158,11 +26148,11 @@ class Xg {
   }
   /** @return milliseconds, with fractions */
   getTotal() {
-    return Number((rf() - this._startTs).toPrecision(10));
+    return Number((sf() - this._startTs).toPrecision(10));
   }
   /** @return milliseconds, with fractions */
   getDelta() {
-    return Number((rf() - this._deltaTs).toPrecision(10));
+    return Number((sf() - this._deltaTs).toPrecision(10));
   }
   /** @deprecated use logLevel */
   set priority(e) {
@@ -26201,10 +26191,10 @@ class Xg {
       throw new Error(n || "Assertion failed");
   }
   warn(e) {
-    return this._getLogFunction(0, e, sf.warn, arguments, Kx);
+    return this._getLogFunction(0, e, of.warn, arguments, Kx);
   }
   error(e) {
-    return this._getLogFunction(0, e, sf.error, arguments);
+    return this._getLogFunction(0, e, of.error, arguments);
   }
   /** Print a deprecation warning */
   deprecated(e, n) {
@@ -26215,25 +26205,25 @@ class Xg {
     return this.error(`\`${e}\` has been removed. Use \`${n}\` instead`);
   }
   probe(e, n) {
-    return this._getLogFunction(e, n, sf.log, arguments, {
+    return this._getLogFunction(e, n, of.log, arguments, {
       time: !0,
       once: !0
     });
   }
   log(e, n) {
-    return this._getLogFunction(e, n, sf.debug, arguments);
+    return this._getLogFunction(e, n, of.debug, arguments);
   }
   info(e, n) {
     return this._getLogFunction(e, n, console.info, arguments);
   }
   once(e, n) {
-    return this._getLogFunction(e, n, sf.debug || sf.info, arguments, Kx);
+    return this._getLogFunction(e, n, of.debug || of.info, arguments, Kx);
   }
   /** Logs an object as a table */
   table(e, n, r) {
-    return n ? this._getLogFunction(e, n, console.table || of, r && [r], {
+    return n ? this._getLogFunction(e, n, console.table || af, r && [r], {
       tag: Mq(n)
-    }) : of;
+    }) : af;
   }
   time(e, n) {
     return this._getLogFunction(e, n, console.time ? console.time : console.info);
@@ -26242,7 +26232,7 @@ class Xg {
     return this._getLogFunction(e, n, console.timeEnd ? console.timeEnd : console.info);
   }
   timeStamp(e, n) {
-    return this._getLogFunction(e, n, console.timeStamp || of);
+    return this._getLogFunction(e, n, console.timeStamp || af);
   }
   group(e, n, r = { collapsed: !1 }) {
     const i = Zx({ logLevel: e, message: n, opts: r }), { collapsed: s } = r;
@@ -26252,7 +26242,7 @@ class Xg {
     return this.group(e, n, Object.assign({}, r, { collapsed: !0 }));
   }
   groupEnd(e) {
-    return this._getLogFunction(e, "", console.groupEnd || of);
+    return this._getLogFunction(e, "", console.groupEnd || af);
   }
   // EXPERIMENTAL
   withGroup(e, n, r) {
@@ -26273,19 +26263,19 @@ class Xg {
   }
   _getLogFunction(e, n, r, i, s) {
     if (this._shouldLog(e)) {
-      s = Zx({ logLevel: e, message: n, args: i, opts: s }), r = r || s.method, Ev(r), s.total = this.getTotal(), s.delta = this.getDelta(), this._deltaTs = rf();
+      s = Zx({ logLevel: e, message: n, args: i, opts: s }), r = r || s.method, Ev(r), s.total = this.getTotal(), s.delta = this.getDelta(), this._deltaTs = sf();
       const o = s.tag || s.message;
       if (s.once && o)
         if (!Gx[o])
-          Gx[o] = rf();
+          Gx[o] = sf();
         else
-          return of;
+          return af;
       return n = kq(this.id, s.message, s), r.bind(console, n, ...s.args);
     }
-    return of;
+    return af;
   }
 }
-Xg.VERSION = XT;
+Yg.VERSION = XT;
 function YT(t) {
   if (!t)
     return 0;
@@ -26336,7 +26326,7 @@ function Mq(t) {
 }
 const Oy = "4.3.3", Pq = Oy[0] >= "0" && Oy[0] <= "9" ? `v${Oy}` : "";
 function Iq() {
-  const t = new Xg({ id: "loaders.gl" });
+  const t = new Yg({ id: "loaders.gl" });
   return globalThis.loaders = globalThis.loaders || {}, globalThis.loaders.log = t, globalThis.loaders.version = Pq, globalThis.probe = globalThis.probe || {}, globalThis.probe.loaders = t, t;
 }
 const Nq = Iq();
@@ -26936,7 +26926,7 @@ function oj(t) {
   const e = t ? t.lastIndexOf("/") : -1;
   return e >= 0 ? t.substr(0, e) : "";
 }
-const aj = (t) => typeof t == "boolean", gg = (t) => typeof t == "function", Yg = (t) => t !== null && typeof t == "object", r6 = (t) => Yg(t) && t.constructor === {}.constructor, lj = (t) => !!t && typeof t[Symbol.iterator] == "function", cj = (t) => t && typeof t[Symbol.asyncIterator] == "function", Ed = (t) => typeof Response < "u" && t instanceof Response || t && t.arrayBuffer && t.text && t.json, _d = (t) => typeof Blob < "u" && t instanceof Blob, uj = (t) => t && typeof t == "object" && t.isBuffer, dj = (t) => typeof ReadableStream < "u" && t instanceof ReadableStream || Yg(t) && gg(t.tee) && gg(t.cancel) && gg(t.getReader), fj = (t) => Yg(t) && gg(t.read) && gg(t.pipe) && aj(t.readable), eR = (t) => dj(t) || fj(t);
+const aj = (t) => typeof t == "boolean", pg = (t) => typeof t == "function", Gg = (t) => t !== null && typeof t == "object", r6 = (t) => Gg(t) && t.constructor === {}.constructor, lj = (t) => !!t && typeof t[Symbol.iterator] == "function", cj = (t) => t && typeof t[Symbol.asyncIterator] == "function", Ed = (t) => typeof Response < "u" && t instanceof Response || t && t.arrayBuffer && t.text && t.json, _d = (t) => typeof Blob < "u" && t instanceof Blob, uj = (t) => t && typeof t == "object" && t.isBuffer, dj = (t) => typeof ReadableStream < "u" && t instanceof ReadableStream || Gg(t) && pg(t.tee) && pg(t.cancel) && pg(t.getReader), fj = (t) => Gg(t) && pg(t.read) && pg(t.pipe) && aj(t.readable), eR = (t) => dj(t) || fj(t);
 class hj extends Error {
   constructor(e, n) {
     super(e), this.reason = n.reason, this.url = n.url, this.response = n.response;
@@ -27058,7 +27048,7 @@ async function o6(t, e) {
   }
   return await nR(t);
 }
-const a6 = new Xg({ id: "loaders.gl" });
+const a6 = new Yg({ id: "loaders.gl" });
 class Dj {
   log() {
     return () => {
@@ -27163,7 +27153,7 @@ function Rj(t, e) {
 function l6(t, e, n, r, i) {
   const s = e || "Top level", o = e ? `${e}.` : "";
   for (const a in t) {
-    const u = !e && Yg(t[a]), d = a === "baseUri" && !e, h = a === "workerUrl" && e;
+    const u = !e && Gg(t[a]), d = a === "baseUri" && !e, h = a === "workerUrl" && e;
     if (!(a in n) && !d && !h) {
       if (a in r)
         a6.warn(`${s} loader option '${o}${a}' no longer supported, use '${r[a]}'`)();
@@ -27429,7 +27419,7 @@ async function nX(t, e, n) {
 }
 function dR(t, e) {
   const n = sR(), r = t || n;
-  return typeof r.fetch == "function" ? r.fetch : Yg(r.fetch) ? (i) => o6(i, r.fetch) : e?.fetch ? e?.fetch : o6;
+  return typeof r.fetch == "function" ? r.fetch : Gg(r.fetch) ? (i) => o6(i, r.fetch) : e?.fetch ? e?.fetch : o6;
 }
 function rX(t, e, n) {
   if (n)
@@ -27624,9 +27614,9 @@ function xX(t, e, n = 0) {
       return !1;
   return !0;
 }
-const Xl = !1, pg = !0;
+const Xl = !1, mg = !0;
 function gR(t) {
-  const e = Gg(t);
+  const e = Kg(t);
   return BX(e) || RX(e) || SX(e) || TX(e) || DX(e);
 }
 function DX(t) {
@@ -27639,7 +27629,7 @@ function DX(t) {
   } : null;
 }
 function BX(t) {
-  const e = Gg(t);
+  const e = Kg(t);
   return e.byteLength >= 24 && e.getUint32(0, Xl) === 2303741511 ? {
     mimeType: "image/png",
     width: e.getUint32(16, Xl),
@@ -27647,23 +27637,23 @@ function BX(t) {
   } : null;
 }
 function SX(t) {
-  const e = Gg(t);
+  const e = Kg(t);
   return e.byteLength >= 10 && e.getUint32(0, Xl) === 1195984440 ? {
     mimeType: "image/gif",
-    width: e.getUint16(6, pg),
-    height: e.getUint16(8, pg)
+    width: e.getUint16(6, mg),
+    height: e.getUint16(8, mg)
   } : null;
 }
 function TX(t) {
-  const e = Gg(t);
-  return e.byteLength >= 14 && e.getUint16(0, Xl) === 16973 && e.getUint32(2, pg) === e.byteLength ? {
+  const e = Kg(t);
+  return e.byteLength >= 14 && e.getUint16(0, Xl) === 16973 && e.getUint32(2, mg) === e.byteLength ? {
     mimeType: "image/bmp",
-    width: e.getUint32(18, pg),
-    height: e.getUint32(22, pg)
+    width: e.getUint32(18, mg),
+    height: e.getUint32(22, mg)
   } : null;
 }
 function RX(t) {
-  const e = Gg(t);
+  const e = Kg(t);
   if (!(e.byteLength >= 3 && e.getUint16(0, Xl) === 65496 && e.getUint8(2) === 255))
     return null;
   const { tableMarkers: r, sofMarkers: i } = kX();
@@ -27705,7 +27695,7 @@ function kX() {
     65502
   ]) };
 }
-function Gg(t) {
+function Kg(t) {
   if (t instanceof DataView)
     return t;
   if (ArrayBuffer.isView(t))
@@ -27775,7 +27765,7 @@ const NX = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "ico", "svg", "avif"], O
   // TODO: byteOffset, byteLength;
   tests: [(t) => !!gR(new DataView(t))],
   options: LX
-}, Tr = new Xg({ id: "deck" });
+}, Tr = new Yg({ id: "deck" });
 let sA = {};
 function UX(t) {
   sA = t;
@@ -28483,7 +28473,7 @@ class FY {
     return this.stats.has(e) || this.stats.set(e, new _1({ id: e })), this.stats.get(e);
   }
 }
-const ER = new FY(), Pt = new Xg({ id: "luma.gl" }), Wy = {};
+const ER = new FY(), Pt = new Yg({ id: "luma.gl" }), Wy = {};
 function x1(t = "id") {
   Wy[t] = Wy[t] || 1;
   const e = Wy[t]++;
@@ -28776,7 +28766,7 @@ function xY(t) {
   }
   return t.components === 1 ? e : `${e}x${t.components}`;
 }
-const Ro = "texture-compression-bc", hi = "texture-compression-astc", zl = "texture-compression-etc2", DY = "texture-compression-etc1-webgl", d0 = "texture-compression-pvrtc-webgl", qy = "texture-compression-atc-webgl", f0 = "float32-renderable-webgl", jy = "float16-renderable-webgl", BY = "rgb9e5ufloat-renderable-webgl", Xy = "snorm8-renderable-webgl", Nh = "norm16-renderable-webgl", Yy = "snorm16-renderable-webgl", h0 = "float32-filterable", b6 = "float16-filterable-webgl";
+const Ro = "texture-compression-bc", hi = "texture-compression-astc", zl = "texture-compression-etc2", DY = "texture-compression-etc1-webgl", d0 = "texture-compression-pvrtc-webgl", qy = "texture-compression-atc-webgl", f0 = "float32-renderable-webgl", jy = "float16-renderable-webgl", BY = "rgb9e5ufloat-renderable-webgl", Xy = "snorm8-renderable-webgl", Oh = "norm16-renderable-webgl", Yy = "snorm16-renderable-webgl", h0 = "float32-filterable", b6 = "float16-filterable-webgl";
 function wR(t) {
   const e = RY[t];
   if (!e)
@@ -28802,14 +28792,14 @@ const SY = {
   rgba8sint: {},
   bgra8unorm: {},
   "bgra8unorm-srgb": {},
-  r16unorm: { f: Nh },
-  rg16unorm: { render: Nh },
-  "rgb16unorm-webgl": { f: Nh },
+  r16unorm: { f: Oh },
+  rg16unorm: { render: Oh },
+  "rgb16unorm-webgl": { f: Oh },
   // rgb not renderable
-  rgba16unorm: { render: Nh },
+  rgba16unorm: { render: Oh },
   r16snorm: { f: Yy },
   rg16snorm: { render: Yy },
-  "rgb16snorm-webgl": { f: Nh },
+  "rgb16snorm-webgl": { f: Oh },
   // rgb not renderable
   rgba16snorm: { render: Yy },
   r16uint: {},
@@ -28972,10 +28962,10 @@ class PY {
     return r.render &&= !o, r.filter &&= !s && !o && !a && !u, r;
   }
 }
-const Bf = new PY();
+const Sf = new PY();
 function F6(t) {
   let e = IY(t);
-  if (Bf.isCompressed(t)) {
+  if (Sf.isCompressed(t)) {
     e.channels = "rgb", e.components = 3, e.bytesPerPixel = 1, e.srgb = !1, e.compressed = !0;
     const r = NY(t);
     r && (e.blockWidth = r.blockWidth, e.blockHeight = r.blockHeight);
@@ -29139,7 +29129,7 @@ class fd {
   }
   /** Returns information about a texture format, such as data type, channels, bits per channel, compression etc */
   getTextureFormatInfo(e) {
-    return Bf.getInfo(e);
+    return Sf.getInfo(e);
   }
   /** Determines what operations are supported on a texture format on this particular device (checks against supported device features) */
   getTextureFormatCapabilities(e) {
@@ -29177,7 +29167,7 @@ class fd {
   }
   /** Check if a specific texture format is GPU compressed */
   isTextureFormatCompressed(e) {
-    return Bf.isCompressed(e);
+    return Sf.isCompressed(e);
   }
   // DEBUG METHODS
   pushDebugGroup(e) {
@@ -29285,7 +29275,7 @@ or create a device with the 'debug: true' prop.`)();
     return e.createCanvasContext === !0 ? {} : e.createCanvasContext;
   }
   _getDeviceTextureFormatCapabilities(e) {
-    const n = Bf.getCapabilities(e), r = (s) => (typeof s == "string" ? this.features.has(s) : s) ?? !0, i = r(n.create);
+    const n = Sf.getCapabilities(e), r = (s) => (typeof s == "string" ? this.features.has(s) : s) ?? !0, i = r(n.create);
     return {
       format: e,
       create: i,
@@ -31107,7 +31097,7 @@ let Qi = class extends il {
   constructor() {
     super();
   }
-}, Ig = class extends Qi {
+}, Ng = class extends Qi {
   constructor(e, n, r, i, s, o) {
     super(), this.calls = /* @__PURE__ */ new Set(), this.name = e, this.args = n, this.returnType = r, this.body = i, this.startLine = s, this.endLine = o;
   }
@@ -31185,7 +31175,7 @@ let PR = class extends Qi {
     var n;
     (n = this.value) === null || n === void 0 || n.search(e);
   }
-}, mg = class extends Qi {
+}, yg = class extends Qi {
   constructor(e, n, r, i, s) {
     super(), this.attributes = null, this.name = e, this.type = n, this.storage = r, this.access = i, this.value = s;
   }
@@ -31211,16 +31201,16 @@ let PR = class extends Qi {
     e(this), (n = this.value) === null || n === void 0 || n.search(e);
   }
 };
-var pf, tg, Qe, Ne;
+var mf, ng, Qe, Ne;
 ((t) => {
   t.increment = "++", t.decrement = "--";
-})(pf || (pf = {})), ((t) => {
+})(mf || (mf = {})), ((t) => {
   t.parse = function(e) {
     const n = e;
     if (n == "parse") throw new Error("Invalid value for IncrementOperator");
     return t[n];
   };
-})(pf || (pf = {}));
+})(mf || (mf = {}));
 let IR = class extends Qi {
   constructor(e, n) {
     super(), this.operator = e, this.variable = n;
@@ -31234,13 +31224,13 @@ let IR = class extends Qi {
 };
 ((t) => {
   t.assign = "=", t.addAssign = "+=", t.subtractAssin = "-=", t.multiplyAssign = "*=", t.divideAssign = "/=", t.moduloAssign = "%=", t.andAssign = "&=", t.orAssign = "|=", t.xorAssign = "^=", t.shiftLeftAssign = "<<=", t.shiftRightAssign = ">>=";
-})(tg || (tg = {})), ((t) => {
+})(ng || (ng = {})), ((t) => {
   t.parse = function(e) {
     const n = e;
     if (n == "parse") throw new Error("Invalid value for AssignOperator");
     return n;
   };
-})(tg || (tg = {}));
+})(ng || (ng = {}));
 let NR = class extends Qi {
   constructor(e, n, r) {
     super(), this.operator = e, this.variable = n, this.value = r;
@@ -31443,7 +31433,7 @@ let Z0 = class extends kt {
   get astNodeType() {
     return "pointer";
   }
-}, yg = class extends kt {
+}, Cg = class extends kt {
   constructor(e, n, r, i) {
     super(e), this.attributes = n, this.format = r, this.count = i;
   }
@@ -31453,7 +31443,7 @@ let Z0 = class extends kt {
   get isArray() {
     return !0;
   }
-}, ng = class extends kt {
+}, rg = class extends kt {
   constructor(e, n, r) {
     super(e), this.format = n, this.access = r;
   }
@@ -31574,7 +31564,7 @@ let qR = class extends Tl {
   search(e) {
     this.value.search(e);
   }
-}, If = class extends Tl {
+}, Nf = class extends Tl {
   constructor(e) {
     super(), this.index = e;
   }
@@ -31706,7 +31696,7 @@ let uA = class extends tc {
   }
 };
 uA.void = new uA();
-let af = class extends tc {
+let lf = class extends tc {
   constructor(e) {
     super(new lA("pointer", e.typeInfo, null), null), this.reference = e;
   }
@@ -31722,14 +31712,14 @@ let af = class extends tc {
   toString() {
     return `&${this.reference.toString()}`;
   }
-}, Le = class rg extends tc {
+}, Le = class ig extends tc {
   constructor(e, n, r = null) {
     super(n, r), e instanceof Int32Array || e instanceof Uint32Array || e instanceof Float32Array ? this.data = e : this.typeInfo.name === "x32" ? e - Math.floor(e) !== 0 ? this.data = new Float32Array([e]) : this.data = e >= 0 ? new Uint32Array([e]) : new Int32Array([e]) : this.typeInfo.name === "i32" || this.typeInfo.name === "bool" ? this.data = new Int32Array([e]) : this.typeInfo.name === "u32" ? this.data = new Uint32Array([e]) : this.typeInfo.name === "f32" || this.typeInfo.name === "f16" ? this.data = new Float32Array([e]) : console.error("ScalarData2: Invalid type", n);
   }
   clone() {
-    if (this.data instanceof Float32Array) return new rg(new Float32Array(this.data), this.typeInfo, null);
-    if (this.data instanceof Int32Array) return new rg(new Int32Array(this.data), this.typeInfo, null);
-    if (this.data instanceof Uint32Array) return new rg(new Uint32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Float32Array) return new ig(new Float32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Int32Array) return new ig(new Int32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Uint32Array) return new ig(new Uint32Array(this.data), this.typeInfo, null);
     throw "ScalarData: Invalid data type";
   }
   get value() {
@@ -31740,7 +31730,7 @@ let af = class extends tc {
   }
   setDataValue(e, n, r, i) {
     if (r) return void console.error("SetDataValue: Scalar data does not support postfix", r);
-    if (!(n instanceof rg)) return void console.error("SetDataValue: Invalid value", n);
+    if (!(n instanceof ig)) return void console.error("SetDataValue: Invalid value", n);
     let s = n.data[0];
     this.typeInfo.name === "i32" || this.typeInfo.name === "u32" ? s = Math.floor(s) : this.typeInfo.name === "bool" && (s = s ? 1 : 0), this.data[0] = s;
   }
@@ -31755,7 +31745,7 @@ function LG(t, e, n) {
   const r = e.length;
   return r === 2 ? n === "f32" ? new pe(new Float32Array(e), t.getTypeInfo("vec2f")) : n === "i32" || n === "bool" ? new pe(new Int32Array(e), t.getTypeInfo("vec2i")) : n === "u32" ? new pe(new Uint32Array(e), t.getTypeInfo("vec2u")) : n === "f16" ? new pe(new Float32Array(e), t.getTypeInfo("vec2h")) : (console.error(`getSubData: Unknown format ${n}`), null) : r === 3 ? n === "f32" ? new pe(new Float32Array(e), t.getTypeInfo("vec3f")) : n === "i32" || n === "bool" ? new pe(new Int32Array(e), t.getTypeInfo("vec3i")) : n === "u32" ? new pe(new Uint32Array(e), t.getTypeInfo("vec3u")) : n === "f16" ? new pe(new Float32Array(e), t.getTypeInfo("vec3h")) : (console.error(`getSubData: Unknown format ${n}`), null) : r === 4 ? n === "f32" ? new pe(new Float32Array(e), t.getTypeInfo("vec4f")) : n === "i32" || n === "bool" ? new pe(new Int32Array(e), t.getTypeInfo("vec4i")) : n === "u32" ? new pe(new Uint32Array(e), t.getTypeInfo("vec4u")) : n === "f16" ? new pe(new Float32Array(e), t.getTypeInfo("vec4h")) : (console.error(`getSubData: Unknown format ${n}`), null) : (console.error(`getSubData: Invalid vector size ${e.length}`), null);
 }
-let pe = class ig extends tc {
+let pe = class sg extends tc {
   constructor(e, n, r = null) {
     if (super(n, r), e instanceof Float32Array || e instanceof Uint32Array || e instanceof Int32Array) this.data = e;
     else {
@@ -31764,13 +31754,13 @@ let pe = class ig extends tc {
     }
   }
   clone() {
-    if (this.data instanceof Float32Array) return new ig(new Float32Array(this.data), this.typeInfo, null);
-    if (this.data instanceof Int32Array) return new ig(new Int32Array(this.data), this.typeInfo, null);
-    if (this.data instanceof Uint32Array) return new ig(new Uint32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Float32Array) return new sg(new Float32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Int32Array) return new sg(new Int32Array(this.data), this.typeInfo, null);
+    if (this.data instanceof Uint32Array) return new sg(new Uint32Array(this.data), this.typeInfo, null);
     throw "VectorData: Invalid data type";
   }
   setDataValue(e, n, r, i) {
-    r instanceof pd ? console.error("TODO: Set vector postfix") : n instanceof ig ? this.data = n.data : console.error("SetDataValue: Invalid value", n);
+    r instanceof pd ? console.error("TODO: Set vector postfix") : n instanceof sg ? this.data = n.data : console.error("SetDataValue: Invalid value", n);
   }
   getSubData(e, n, r) {
     if (n === null) return this;
@@ -31782,7 +31772,7 @@ let pe = class ig extends tc {
     }
     let s = this;
     for (; n !== null && s !== null; ) {
-      if (n instanceof If) {
+      if (n instanceof Nf) {
         const o = n.index;
         let a = -1;
         if (o instanceof Ys) {
@@ -31867,7 +31857,7 @@ let pe = class ig extends tc {
       if (!i.endsWith("h")) return console.error(`GetDataValue: Unknown type ${i}`), null;
       e.getTypeInfo("f16");
     }
-    if (n instanceof If) {
+    if (n instanceof Nf) {
       const s = n.index;
       let o = -1;
       if (s instanceof Ys) {
@@ -31908,7 +31898,7 @@ let pe = class ig extends tc {
     if (n === null) return void console.log("setDataValue: NULL data.");
     let s = this.offset, o = this.typeInfo;
     for (; r; ) {
-      if (r instanceof If) if (o instanceof vu) {
+      if (r instanceof Nf) if (o instanceof vu) {
         const a = r.index;
         if (a instanceof Ys) {
           if (!(a.value instanceof Le)) return void console.error(`SetDataValue: Invalid index type ${a.value}`);
@@ -32053,7 +32043,7 @@ let pe = class ig extends tc {
     if (n === null) return this;
     let a = this.offset, u = this.typeInfo;
     for (; n; ) {
-      if (n instanceof If) {
+      if (n instanceof Nf) {
         const h = n.index, g = h instanceof Tl ? e.evalExpression(h, r) : h;
         let m = 0;
         if (g instanceof Le ? m = g.value : typeof g == "number" ? m = g : console.error("GetDataValue: Invalid index type", h), u instanceof vu) a += m * u.stride, u = u.format;
@@ -32482,7 +32472,7 @@ class Gl {
     return e.name == "texture_storage_1d" || e.name == "texture_storage_2d" || e.name == "texture_storage_2d_array" || e.name == "texture_storage_3d";
   }
   updateAST(e) {
-    for (const n of e) n instanceof Ig && this._functions.set(n.name, new jG(n));
+    for (const n of e) n instanceof Ng && this._functions.set(n.name, new jG(n));
     for (const n of e) if (n instanceof Rc) {
       const r = this.getTypeInfo(n, null);
       r instanceof Cu && this.structs.push(r);
@@ -32515,7 +32505,7 @@ class Gl {
         continue;
       }
     }
-    for (const n of e) if (n instanceof Ig) {
+    for (const n of e) if (n instanceof Ng) {
       const r = this._getAttribute(n, "vertex"), i = this._getAttribute(n, "fragment"), s = this._getAttribute(n, "compute"), o = r || i || s, a = new DG(n.name, o?.name, n.attributes);
       a.attributes = n.attributes, a.startLine = n.startLine, a.endLine = n.endLine, this.functions.push(a), this._functions.get(n.name).info = a, o && (this._functions.get(n.name).inUse = !0, a.inUse = !0, a.resources = this._findResources(n, !!o), a.inputs = this._getInputs(n.args), a.outputs = this._getOutputs(n.returnType), this.entry[o.name].push(a)), a.arguments = n.args.map((u) => new xG(u.name, this.getTypeInfo(u.type, u.attributes), u.attributes)), a.returnType = n.returnType ? this.getTypeInfo(n.returnType, n.attributes) : null;
       continue;
@@ -32600,7 +32590,7 @@ class Gl {
       } else if (o instanceof Wl) {
         const a = o;
         n && a.type !== null && this._markStructsFromAST(a.type);
-      } else if (o instanceof mg) {
+      } else if (o instanceof yg) {
         const a = o;
         n && a.type !== null && this._markStructsFromAST(a.type), s.length > 0 && (s[s.length - 1][a.name] = a);
       } else if (o instanceof ka) {
@@ -32709,7 +32699,7 @@ class Gl {
       const i = e.type ? this.getTypeInfo(e.type, e.attributes) : null, s = new lA(e.name, i, n);
       return this._types.set(e, s), this._updateTypeInfo(s), s;
     }
-    if (e instanceof yg) {
+    if (e instanceof Cg) {
       const i = e, s = i.format ? this.getTypeInfo(i.format, i.attributes) : null, o = new vu(i.name, n);
       return o.format = s, o.count = i.count, this._types.set(e, o), this._updateTypeInfo(o), o;
     }
@@ -32722,7 +32712,7 @@ class Gl {
       }
       return this._types.set(e, s), this._updateTypeInfo(s), s;
     }
-    if (e instanceof ng) {
+    if (e instanceof rg) {
       const i = e, s = i.format instanceof kt, o = i.format ? s ? this.getTypeInfo(i.format, null) : new el(i.format, null) : null, a = new gd(i.name, o, n, i.access);
       return this._types.set(e, a), this._updateTypeInfo(a), a;
     }
@@ -33777,10 +33767,10 @@ class Mo extends XG {
       return Mo._breakObj;
     }
     if (e instanceof VR) return Mo._continueObj;
-    if (e instanceof mg) this._let(e, n);
+    if (e instanceof yg) this._let(e, n);
     else if (e instanceof kc) this._var(e, n);
     else if (e instanceof G0) this._const(e, n);
-    else if (e instanceof Ig) this._function(e, n);
+    else if (e instanceof Ng) this._function(e, n);
     else {
       if (e instanceof zR) return this._if(e, n);
       if (e instanceof LR) return this._switch(e, n);
@@ -33896,11 +33886,11 @@ class Mo extends XG {
     if (e instanceof Ps) {
       if (e.operator === "*") {
         const r = this._getVariableData(e.right, n);
-        return r instanceof af ? r.reference.getSubData(this, e.postfix, n) : (console.error(`Variable ${e.right} is not a pointer. Line ${e.line}`), null);
+        return r instanceof lf ? r.reference.getSubData(this, e.postfix, n) : (console.error(`Variable ${e.right} is not a pointer. Line ${e.line}`), null);
       }
       if (e.operator === "&") {
         const r = this._getVariableData(e.right, n);
-        return new af(r);
+        return new lf(r);
       }
     }
     return null;
@@ -33923,7 +33913,7 @@ class Mo extends XG {
       if (e.variable.operator === "*") {
         i = this.getVariableName(e.variable.right, n);
         const u = n.getVariable(i);
-        if (!(u && u.value instanceof af)) return void console.error(`Variable ${i} is not a pointer. Line ${e.line}`);
+        if (!(u && u.value instanceof lf)) return void console.error(`Variable ${i} is not a pointer. Line ${e.line}`);
         r = u.value.reference;
         let d = e.variable.postfix;
         if (!d) {
@@ -33944,7 +33934,7 @@ class Mo extends XG {
       if (u === null) return void console.error(`Variable ${i} not found. Line ${e.line}`);
       r = u.value;
     }
-    if (r instanceof af && (r = r.reference), r === null) return void console.error(`Variable ${i} not found. Line ${e.line}`);
+    if (r instanceof lf && (r = r.reference), r === null) return void console.error(`Variable ${i} not found. Line ${e.line}`);
     const o = this.evalExpression(e.value, n), a = e.operator;
     if (a !== "=") {
       const u = r.getSubData(this, s, n);
@@ -33984,7 +33974,7 @@ class Mo extends XG {
     if (r instanceof oo) r.setDataValue(this, o, s, n);
     else if (s) {
       if (!(r instanceof pe || r instanceof Xn)) return void console.error(`Variable ${i} is not a vector or matrix. Line ${e.line}`);
-      if (s instanceof If) {
+      if (s instanceof Nf) {
         const u = this.evalExpression(s.index, n).value;
         if (r instanceof pe) {
           if (!(o instanceof Le)) return void console.error(`Invalid assignment to ${i}. Line ${e.line}`);
@@ -34097,7 +34087,7 @@ class Mo extends XG {
     } else {
       if (e.type === null) return void console.error(`Variable ${e.name} has no type. Line ${e.line}`);
       const i = e.type.name;
-      if (i === "f32" || i === "i32" || i === "u32" || i === "bool" || i === "f16" || i === "vec2" || i === "vec3" || i === "vec4" || i === "vec2f" || i === "vec3f" || i === "vec4f" || i === "vec2i" || i === "vec3i" || i === "vec4i" || i === "vec2u" || i === "vec3u" || i === "vec4u" || i === "vec2h" || i === "vec3h" || i === "vec4h" || i === "vec2b" || i === "vec3b" || i === "vec4b" || i === "mat2x2" || i === "mat2x3" || i === "mat2x4" || i === "mat3x2" || i === "mat3x3" || i === "mat3x4" || i === "mat4x2" || i === "mat4x3" || i === "mat4x4" || i === "mat2x2f" || i === "mat2x3f" || i === "mat2x4f" || i === "mat3x2f" || i === "mat3x3f" || i === "mat3x4f" || i === "mat4x2f" || i === "mat4x3f" || i === "mat4x4f" || i === "mat2x2h" || i === "mat2x3h" || i === "mat2x4h" || i === "mat3x2h" || i === "mat3x3h" || i === "mat3x4h" || i === "mat4x2h" || i === "mat4x3h" || i === "mat4x4h" || e.type instanceof yg || e.type instanceof Rc || e.type instanceof We) {
+      if (i === "f32" || i === "i32" || i === "u32" || i === "bool" || i === "f16" || i === "vec2" || i === "vec3" || i === "vec4" || i === "vec2f" || i === "vec3f" || i === "vec4f" || i === "vec2i" || i === "vec3i" || i === "vec4i" || i === "vec2u" || i === "vec3u" || i === "vec4u" || i === "vec2h" || i === "vec3h" || i === "vec4h" || i === "vec2b" || i === "vec3b" || i === "vec4b" || i === "mat2x2" || i === "mat2x3" || i === "mat2x4" || i === "mat3x2" || i === "mat3x3" || i === "mat3x4" || i === "mat4x2" || i === "mat4x3" || i === "mat4x4" || i === "mat2x2f" || i === "mat2x3f" || i === "mat2x4f" || i === "mat3x2f" || i === "mat3x3f" || i === "mat3x4f" || i === "mat4x2f" || i === "mat4x3f" || i === "mat4x4f" || i === "mat2x2h" || i === "mat2x3h" || i === "mat2x4h" || i === "mat3x2h" || i === "mat3x3h" || i === "mat3x4h" || i === "mat4x2h" || i === "mat4x3h" || i === "mat4x4h" || e.type instanceof Cg || e.type instanceof Rc || e.type instanceof We) {
         const s = new Wl(e.type, []);
         r = this._evalCreate(s, n);
       }
@@ -34301,8 +34291,8 @@ class Mo extends XG {
   }
   _evalUnaryOp(e, n) {
     const r = this.evalExpression(e.right, n);
-    if (e.operator === "&") return new af(r);
-    if (e.operator === "*") return r instanceof af ? r.reference.getSubData(this, e.postfix, n) : (console.error(`Invalid dereference. Line ${e.line}`), null);
+    if (e.operator === "&") return new lf(r);
+    if (e.operator === "*") return r instanceof lf ? r.reference.getSubData(this, e.postfix, n) : (console.error(`Invalid dereference. Line ${e.line}`), null);
     const i = r instanceof Le ? r.value : r instanceof pe ? Array.from(r.data) : null;
     switch (e.operator) {
       case "+": {
@@ -35105,7 +35095,7 @@ class KG {
       this._deferArrayCountEval.length = 0;
     }
     if (this._forwardTypeCount > 0) for (const r of n) r.search((i) => {
-      i instanceof S6 || i instanceof Z0 ? i.type = this._forwardType(i.type) : i instanceof yg ? i.format = this._forwardType(i.format) : i instanceof kc || i instanceof mg || i instanceof G0 ? i.type = this._forwardType(i.type) : i instanceof Ig ? i.returnType = this._forwardType(i.returnType) : i instanceof B6 && (i.type = this._forwardType(i.type));
+      i instanceof S6 || i instanceof Z0 ? i.type = this._forwardType(i.type) : i instanceof Cg ? i.format = this._forwardType(i.format) : i instanceof kc || i instanceof yg || i instanceof G0 ? i.type = this._forwardType(i.type) : i instanceof Ng ? i.returnType = this._forwardType(i.returnType) : i instanceof B6 && (i.type = this._forwardType(i.type));
     });
     return n;
   }
@@ -35113,7 +35103,7 @@ class KG {
     if (e instanceof D6) {
       const n = this._getType(e.name);
       if (n) return n;
-    } else e instanceof Z0 ? e.type = this._forwardType(e.type) : e instanceof yg && (e.format = this._forwardType(e.format));
+    } else e instanceof Z0 ? e.type = this._forwardType(e.type) : e instanceof Cg && (e.format = this._forwardType(e.format));
     return e;
   }
   _initialize(e) {
@@ -35242,7 +35232,7 @@ class KG {
       i = this._type_decl(), i != null && (i.attributes = a);
     }
     const s = this._compound_statement(), o = this._currentLine;
-    return this._updateNode(new Ig(n, r, i, s, e, o), e);
+    return this._updateNode(new Ng(n, r, i, s, e, o), e);
   }
   _compound_statement() {
     const e = [];
@@ -35328,7 +35318,7 @@ class KG {
       }
       this._consume(de.tokens.equal, "Expected '=' for let.");
       const i = this._short_circuit_or_expression();
-      return this._updateNode(new mg(n, r, null, null, i), e);
+      return this._updateNode(new yg(n, r, null, null, i), e);
     }
     if (this._match(de.keywords.const)) {
       const e = this._currentLine, n = this._consume(de.tokens.name, "Expected name for const.").toString();
@@ -35348,7 +35338,7 @@ class KG {
     if (n == null) return null;
     if (!this._check(de.increment_operators)) return this._current = e, null;
     const r = this._consume(de.increment_operators, "Expected increment operator");
-    return this._updateNode(new IR(r.type === de.tokens.plus_plus ? pf.increment : pf.decrement, n));
+    return this._updateNode(new IR(r.type === de.tokens.plus_plus ? mf.increment : mf.decrement, n));
   }
   _assignment_statement() {
     let e = null;
@@ -35357,7 +35347,7 @@ class KG {
     let r = this._match(de.tokens.underscore);
     if (r || (e = this._unary_expression()), !r && e == null) return null;
     const i = this._consume(de.assignment_operators, "Expected assignment operator."), s = this._short_circuit_or_expression();
-    return this._updateNode(new NR(tg.parse(i.lexeme), e, s), n);
+    return this._updateNode(new NR(ng.parse(i.lexeme), e, s), n);
   }
   _func_call_statement() {
     if (!this._check(de.tokens.ident)) return null;
@@ -35506,7 +35496,7 @@ class KG {
     if (this._match(de.tokens.bracket_left)) {
       const e = this._short_circuit_or_expression();
       this._consume(de.tokens.bracket_right, "Expected ']'.");
-      const n = this._updateNode(new If(e)), r = this._postfix_expression();
+      const n = this._updateNode(new Nf(e)), r = this._postfix_expression();
       return r && (n.postfix = r), n;
     }
     if (this._match(de.tokens.period)) {
@@ -35777,7 +35767,7 @@ class KG {
         throw this._error(this._peek(), `Invalid cast from ${i.type.name} to ${r.name}. Line:${this._currentLine}`);
       i.type = r;
     } else r === null && i instanceof Ys && (r = i.type.name === "x32" ? kt.i32 : i.type);
-    return i instanceof Ys && i.isScalar && this._validateTypeRange(i.scalarValue, r), this._updateNode(new mg(n.toString(), r, "", "", i), e);
+    return i instanceof Ys && i.isScalar && this._validateTypeRange(i.scalarValue, r), this._updateNode(new yg(n.toString(), r, "", "", i), e);
   }
   _const_expression() {
     return this._short_circuit_or_expression();
@@ -35877,19 +35867,19 @@ class KG {
         }
         this._consume(de.tokens.greater_than, "Expected '>' for array."), i = u ? parseInt(u) : 0;
       }
-      const a = this._updateNode(new yg(s.toString(), n, r, i));
+      const a = this._updateNode(new Cg(s.toString(), n, r, i));
       return o && this._deferArrayCountEval.push({ arrayType: a, countNode: o }), a;
     }
     return null;
   }
   _texture_sampler_types() {
-    if (this._match(de.sampler_type)) return this._updateNode(new ng(this._previous().toString(), null, null));
-    if (this._match(de.depth_texture_type)) return this._updateNode(new ng(this._previous().toString(), null, null));
+    if (this._match(de.sampler_type)) return this._updateNode(new rg(this._previous().toString(), null, null));
+    if (this._match(de.depth_texture_type)) return this._updateNode(new rg(this._previous().toString(), null, null));
     if (this._match(de.sampled_texture_type) || this._match(de.multisampled_texture_type)) {
       const e = this._previous();
       this._consume(de.tokens.less_than, "Expected '<' for sampler type.");
       const n = this._type_decl();
-      return this._consume(de.tokens.greater_than, "Expected '>' for sampler type."), this._updateNode(new ng(e.toString(), n, null));
+      return this._consume(de.tokens.greater_than, "Expected '>' for sampler type."), this._updateNode(new rg(e.toString(), n, null));
     }
     if (this._match(de.storage_texture_type)) {
       const e = this._previous();
@@ -35897,7 +35887,7 @@ class KG {
       const n = this._consume(de.texel_format, "Invalid texel format.").toString();
       this._consume(de.tokens.comma, "Expected ',' after texel format.");
       const r = this._consume(de.access_mode, "Expected access mode for storage texture type.").toString();
-      return this._consume(de.tokens.greater_than, "Expected '>' for sampler type."), this._updateNode(new ng(e.toString(), n, r));
+      return this._consume(de.tokens.greater_than, "Expected '>' for sampler type."), this._updateNode(new rg(e.toString(), n, r));
     }
     return null;
   }
@@ -36008,25 +35998,25 @@ const tl = globalThis.mathgl.config;
 function tK(t, { precision: e = tl.precision } = {}) {
   return t = nK(t), `${parseFloat(t.toPrecision(e))}`;
 }
-function Nf(t) {
+function Of(t) {
   return Array.isArray(t) || ArrayBuffer.isView(t) && !(t instanceof DataView);
 }
 function lo(t, e, n) {
   return iK(t, (r) => Math.max(e, Math.min(n, r)));
 }
 function Om(t, e, n) {
-  return Nf(t) ? t.map((r, i) => Om(r, e[i], n)) : n * e + (1 - n) * t;
+  return Of(t) ? t.map((r, i) => Om(r, e[i], n)) : n * e + (1 - n) * t;
 }
-function Ng(t, e, n) {
+function Og(t, e, n) {
   const r = tl.EPSILON;
   try {
     if (t === e)
       return !0;
-    if (Nf(t) && Nf(e)) {
+    if (Of(t) && Of(e)) {
       if (t.length !== e.length)
         return !1;
       for (let i = 0; i < t.length; ++i)
-        if (!Ng(t[i], e[i]))
+        if (!Og(t[i], e[i]))
           return !1;
       return !0;
     }
@@ -36042,7 +36032,7 @@ function rK(t) {
   return t.clone ? t.clone() : new Array(t.length);
 }
 function iK(t, e, n) {
-  if (Nf(t)) {
+  if (Of(t)) {
     const r = t;
     n = n || rK(r);
     for (let i = 0; i < n.length && i < r.length; ++i) {
@@ -36082,7 +36072,7 @@ class JR extends Array {
     );
   }
   to(e) {
-    return e === this ? this : Nf(e) ? this.toArray(e) : this.toObject(e);
+    return e === this ? this : Of(e) ? this.toArray(e) : this.toObject(e);
   }
   toTarget(e) {
     return e ? this.to(e) : this;
@@ -36105,7 +36095,7 @@ class JR extends Array {
     if (!e || this.length !== e.length)
       return !1;
     for (let n = 0; n < this.ELEMENTS; ++n)
-      if (!Ng(this[n], e[n]))
+      if (!Og(this[n], e[n]))
         return !1;
     return !0;
   }
@@ -36369,10 +36359,10 @@ class oK extends JR {
   }
 }
 const em = 1e-6;
-let Of = typeof Float32Array < "u" ? Float32Array : Array;
+let Lf = typeof Float32Array < "u" ? Float32Array : Array;
 function aK() {
-  const t = new Of(2);
-  return Of != Float32Array && (t[0] = 0, t[1] = 0), t;
+  const t = new Lf(2);
+  return Lf != Float32Array && (t[0] = 0, t[1] = 0), t;
 }
 function Lm(t, e, n) {
   return t[0] = e[0] + n[0], t[1] = e[1] + n[1], t;
@@ -36410,8 +36400,8 @@ function uK(t, e, n) {
   return t[0] = n[0] * r + n[2] * i, t[1] = n[1] * r + n[3] * i, t[2] = e[2], t;
 }
 function dK() {
-  const t = new Of(3);
-  return Of != Float32Array && (t[0] = 0, t[1] = 0, t[2] = 0), t;
+  const t = new Lf(3);
+  return Lf != Float32Array && (t[0] = 0, t[1] = 0, t[2] = 0), t;
 }
 function fK(t) {
   const e = t[0], n = t[1], r = t[2];
@@ -36492,7 +36482,7 @@ class nc extends oK {
    * @param z
    */
   constructor(e = 0, n = 0, r = 0) {
-    super(-0, -0, -0), arguments.length === 1 && Nf(e) ? this.copy(e) : (tl.debug && (Ta(e), Ta(n), Ta(r)), this[0] = e, this[1] = n, this[2] = r);
+    super(-0, -0, -0), arguments.length === 1 && Of(e) ? this.copy(e) : (tl.debug && (Ta(e), Ta(n), Ta(r)), this[0] = e, this[1] = n, this[2] = r);
   }
   set(e, n, r) {
     return this[0] = e, this[1] = n, this[2] = r, this.check();
@@ -36684,13 +36674,13 @@ function LK(t, e, n, r) {
   return Math.abs(C - D) < em && Math.abs(b - S) < em && Math.abs(E - k) < em ? DK(t) : (g = C - D, m = b - S, y = E - k, i = 1 / Math.sqrt(g * g + m * m + y * y), g *= i, m *= i, y *= i, s = _ * y - x * m, o = x * g - w * y, a = w * m - _ * g, i = Math.sqrt(s * s + o * o + a * a), i ? (i = 1 / i, s *= i, o *= i, a *= i) : (s = 0, o = 0, a = 0), u = m * a - y * o, d = y * s - g * a, h = g * o - m * s, i = Math.sqrt(u * u + d * d + h * h), i ? (i = 1 / i, u *= i, d *= i, h *= i) : (u = 0, d = 0, h = 0), t[0] = s, t[1] = u, t[2] = g, t[3] = 0, t[4] = o, t[5] = d, t[6] = m, t[7] = 0, t[8] = a, t[9] = h, t[10] = y, t[11] = 0, t[12] = -(s * C + o * b + a * E), t[13] = -(u * C + d * b + h * E), t[14] = -(g * C + m * b + y * E), t[15] = 1, t);
 }
 function zK() {
-  const t = new Of(4);
-  return Of != Float32Array && (t[0] = 0, t[1] = 0, t[2] = 0, t[3] = 0), t;
+  const t = new Lf(4);
+  return Lf != Float32Array && (t[0] = 0, t[1] = 0, t[2] = 0, t[3] = 0), t;
 }
 function ak(t, e, n) {
   return t[0] = e[0] * n, t[1] = e[1] * n, t[2] = e[2] * n, t[3] = e[3] * n, t;
 }
-function Qf(t, e, n) {
+function Jf(t, e, n) {
   const r = e[0], i = e[1], s = e[2], o = e[3];
   return t[0] = n[0] * r + n[4] * i + n[8] * s + n[12] * o, t[1] = n[1] * r + n[5] * i + n[9] * s + n[13] * o, t[2] = n[2] * r + n[6] * i + n[10] * s + n[14] * o, t[3] = n[3] * r + n[7] * i + n[11] * s + n[15] * o, t;
 }
@@ -36954,7 +36944,7 @@ class Oa extends xK {
    * @returns self
    */
   transform(e, n) {
-    return e.length === 4 ? (n = Qf(n || [-0, -0, -0, -0], e, this), Qy(n, 4), n) : this.transformAsPoint(e, n);
+    return e.length === 4 ? (n = Jf(n || [-0, -0, -0, -0], e, this), Qy(n, 4), n) : this.transformAsPoint(e, n);
   }
   /**
    * Transforms any 2 or 3 element array as point (w implicitly 1)
@@ -37691,10 +37681,10 @@ fn getPointLightAttenuation(pointLight: PointLight, distance: f32) -> f32 {
 }
 `
 ), iZ = 5, sZ = 255;
-var Og;
+var Lg;
 (function(t) {
   t[t.POINT = 0] = "POINT", t[t.DIRECTIONAL = 1] = "DIRECTIONAL";
-})(Og || (Og = {}));
+})(Lg || (Lg = {}));
 const tm = {
   props: {},
   uniforms: {},
@@ -37725,7 +37715,7 @@ const tm = {
   },
   defaultUniforms: {
     enabled: 1,
-    lightType: Og.POINT,
+    lightType: Lg.POINT,
     directionalLightCount: 0,
     pointLightCount: 0,
     ambientColor: [0.1, 0.1, 0.1],
@@ -37767,12 +37757,12 @@ function aZ({ ambientLight: t, pointLights: e = [], directionalLights: n = [] })
   r.ambientColor = rC(t);
   let i = 0;
   for (const s of e) {
-    r.lightType = Og.POINT;
+    r.lightType = Lg.POINT;
     const o = i;
     r[`lightColor${o}`] = rC(s), r[`lightPosition${o}`] = s.position, r[`lightAttenuation${o}`] = s.attenuation || [1, 0, 0], i++;
   }
   for (const s of n) {
-    r.lightType = Og.DIRECTIONAL;
+    r.lightType = Lg.DIRECTIONAL;
     const o = i;
     r[`lightColor${o}`] = rC(s), r[`lightDirection${o}`] = s.direction, i++;
   }
@@ -39250,7 +39240,7 @@ function dQ(t, e) {
   }
   return !1;
 }
-function Kg(t) {
+function Zg(t) {
   let e = {}, n;
   return (r) => {
     for (const i in r)
@@ -39261,7 +39251,7 @@ function Kg(t) {
     return n;
   };
 }
-const J6 = [0, 0, 0, 0], fQ = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], bk = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], hQ = [0, 0, 0], Fk = [0, 0, 0], gQ = Kg(yQ);
+const J6 = [0, 0, 0, 0], fQ = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0], bk = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], hQ = [0, 0, 0], Fk = [0, 0, 0], gQ = Zg(yQ);
 function Ak(t, e, n = Fk) {
   n.length < 3 && (n = [n[0], n[1], 0]);
   let r = n, i, s = !0;
@@ -39298,7 +39288,7 @@ function pQ(t, e, n) {
     d[0] - u[0],
     d[1] - u[1],
     d[2] - u[2]
-  ], u[3] = 1, a = Qf([], u, o), s = r || s, o = id([], i, s), o = id([], o, fQ)), {
+  ], u[3] = 1, a = Jf([], u, o), s = r || s, o = id([], i, s), o = id([], o, fQ)), {
     viewMatrix: s,
     viewProjectionMatrix: o,
     projectionCenter: a,
@@ -39330,7 +39320,7 @@ function yQ({ viewport: t, devicePixelRatio: e, coordinateSystem: n, coordinateO
   const { projectionCenter: i, viewProjectionMatrix: s, originCommon: o, cameraPosCommon: a, shaderCoordinateOrigin: u, geospatialOrigin: d } = pQ(t, n, r), h = t.getDistanceScales(), g = [
     t.width * e,
     t.height * e
-  ], m = Qf([], [0, 0, -t.focalDistance, 1], t.projectionMatrix)[3] || 1, y = {
+  ], m = Jf([], [0, 0, -t.focalDistance, 1], t.projectionMatrix)[3] || 1, y = {
     // Projection mode values
     coordinateSystem: n,
     projectionMode: t.projectionMode,
@@ -39956,7 +39946,7 @@ vec4 project_position_to_clipspace(
   return project_position_to_clipspace(position, position64Low, offset, commonPosition);
 }
 `
-), Jf = {
+), eh = {
   name: "project32",
   dependencies: [Kv],
   source: SQ,
@@ -39965,8 +39955,8 @@ vec4 project_position_to_clipspace(
 function RQ() {
   return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 }
-function Sf(t, e) {
-  const n = Qf([], e, t);
+function Tf(t, e) {
+  const n = Jf([], e, t);
   return ak(n, n, 1 / n[3]), n;
 }
 function eD(t, e) {
@@ -39984,18 +39974,18 @@ function Lc(t, e) {
   if (!t)
     throw new Error(e || "@math.gl/web-mercator: assertion failed.");
 }
-const xl = Math.PI, vk = xl / 4, nl = xl / 180, FA = 180 / xl, Lf = 512, $m = 4003e4, bu = 85.051129, MQ = 1.5;
+const xl = Math.PI, vk = xl / 4, nl = xl / 180, FA = 180 / xl, zf = 512, $m = 4003e4, bu = 85.051129, MQ = 1.5;
 function PQ(t) {
   return Zv(t);
 }
 function Hm(t) {
   const [e, n] = t;
   Lc(Number.isFinite(e)), Lc(Number.isFinite(n) && n >= -90 && n <= 90, "invalid latitude");
-  const r = e * nl, i = n * nl, s = Lf * (r + xl) / (2 * xl), o = Lf * (xl + Math.log(Math.tan(vk + i * 0.5))) / (2 * xl);
+  const r = e * nl, i = n * nl, s = zf * (r + xl) / (2 * xl), o = zf * (xl + Math.log(Math.tan(vk + i * 0.5))) / (2 * xl);
   return [s, o];
 }
-function zf(t) {
-  const [e, n] = t, r = e / Lf * (2 * xl) - xl, i = 2 * (Math.atan(Math.exp(n / Lf * (2 * xl) - xl)) - vk);
+function Uf(t) {
+  const [e, n] = t, r = e / zf * (2 * xl) - xl, i = 2 * (Math.atan(Math.exp(n / zf * (2 * xl) - xl)) - vk);
   return [r * FA, i * FA];
 }
 function IQ(t) {
@@ -40006,12 +39996,12 @@ function IQ(t) {
 }
 function oC(t) {
   const e = Math.cos(t * nl);
-  return Lf / $m / e;
+  return zf / $m / e;
 }
 function AA(t) {
   const { latitude: e, longitude: n, highPrecision: r = !1 } = t;
   Lc(Number.isFinite(e) && Number.isFinite(n));
-  const i = Lf, s = Math.cos(e * nl), o = i / 360, a = o / s, u = i / $m / s, d = {
+  const i = zf, s = Math.cos(e * nl), o = i / 360, a = o / s, u = i / $m / s, d = {
     unitsPerMeter: [u, u, u],
     metersPerUnit: [1 / u, 1 / u, 1 / u],
     unitsPerDegree: [o, a, u],
@@ -40030,7 +40020,7 @@ function Ek(t, e) {
     highPrecision: !0
   }), h = Hm(t);
   h[0] += s * (u[0] + d[0] * o), h[1] += o * (u[1] + d[1] * o);
-  const g = zf(h), m = (i || 0) + (a || 0);
+  const g = Uf(h), m = (i || 0) + (a || 0);
   return Number.isFinite(i) || Number.isFinite(a) ? [g[0], g[1], m] : g;
 }
 function NQ(t) {
@@ -40050,8 +40040,8 @@ function NQ(t) {
 }
 function OQ(t) {
   const { width: e, height: n, altitude: r, pitch: i = 0, offset: s, center: o, scale: a, nearZMultiplier: u = 1, farZMultiplier: d = 1 } = t;
-  let { fovy: h = Lg(MQ) } = t;
-  r !== void 0 && (h = Lg(r));
+  let { fovy: h = zg(MQ) } = t;
+  r !== void 0 && (h = zg(r));
   const g = h * nl, m = i * nl, y = Qv(h);
   let C = y;
   o && (C += o[2] * a / Math.cos(m) / n);
@@ -40064,7 +40054,7 @@ function OQ(t) {
     far: x
   };
 }
-function Lg(t) {
+function zg(t) {
   return 2 * Math.atan(0.5 / t) * FA;
 }
 function Qv(t) {
@@ -40072,13 +40062,13 @@ function Qv(t) {
 }
 function _k(t, e) {
   const [n, r, i = 0] = t;
-  return Lc(Number.isFinite(n) && Number.isFinite(r) && Number.isFinite(i)), Sf(e, [n, r, i, 1]);
+  return Lc(Number.isFinite(n) && Number.isFinite(r) && Number.isFinite(i)), Tf(e, [n, r, i, 1]);
 }
 function R1(t, e, n = 0) {
   const [r, i, s] = t;
   if (Lc(Number.isFinite(r) && Number.isFinite(i), "invalid pixel coordinate"), Number.isFinite(s))
-    return Sf(e, [r, i, s, 1]);
-  const o = Sf(e, [r, i, 0, 1]), a = Sf(e, [r, i, 1, 1]), u = o[2], d = a[2], h = u === d ? 0 : ((n || 0) - u) / (d - u);
+    return Tf(e, [r, i, s, 1]);
+  const o = Tf(e, [r, i, 0, 1]), a = Tf(e, [r, i, 1, 1]), u = o[2], d = a[2], h = u === d ? 0 : ((n || 0) - u) / (d - u);
   return tk([], o, a, h);
 }
 function LQ(t) {
@@ -40099,7 +40089,7 @@ function LQ(t) {
     n - g.top - g.bottom - Math.abs(o[1]) * 2
   ];
   Lc(b[0] > 0 && b[1] > 0);
-  const E = b[0] / C[0], w = b[1] / C[1], _ = (g.right - g.left) / 2 / E, x = (g.top - g.bottom) / 2 / w, D = [(y[0] + m[0]) / 2 + _, (y[1] + m[1]) / 2 + x], S = zf(D), k = Math.min(s, Zv(Math.abs(Math.min(E, w))));
+  const E = b[0] / C[0], w = b[1] / C[1], _ = (g.right - g.left) / 2 / E, x = (g.top - g.bottom) / 2 / w, D = [(y[0] + m[0]) / 2 + _, (y[1] + m[1]) / 2 + x], S = Uf(D), k = Math.min(s, Zv(Math.abs(Math.min(E, w))));
   return Lc(Number.isFinite(k)), {
     longitude: S[0],
     latitude: S[1],
@@ -40122,7 +40112,7 @@ function UQ(t, e = 0) {
   return h > g - 0.01 ? (u = nD(t, 0, e), d = nD(t, n, e)) : (u = i([0, 0], s), d = i([n, 0], s)), [o, a, d, u];
 }
 function nD(t, e, n) {
-  const { pixelUnprojectionMatrix: r } = t, i = Sf(r, [e, 0, 1, 1]), s = Sf(r, [e, t.height, 1, 1]), a = (n * t.distanceScales.unitsPerMeter[2] - i[2]) / (s[2] - i[2]), u = tk([], i, s, a), d = zf(u);
+  const { pixelUnprojectionMatrix: r } = t, i = Tf(r, [e, 0, 1, 1]), s = Tf(r, [e, t.height, 1, 1]), a = (n * t.distanceScales.unitsPerMeter[2] - i[2]) / (s[2] - i[2]), u = tk([], i, s, a), d = Uf(u);
   return d.push(n), d;
 }
 const rD = 512;
@@ -40134,11 +40124,11 @@ function $Q(t) {
   if (o <= u)
     o = u, s = 0;
   else {
-    const d = n / 2 / Math.pow(2, o), h = zf([0, d])[1];
+    const d = n / 2 / Math.pow(2, o), h = Uf([0, d])[1];
     if (s < h)
       s = h;
     else {
-      const g = zf([0, rD - d])[1];
+      const g = Uf([0, rD - d])[1];
       s > g && (s = g);
     }
   }
@@ -40237,7 +40227,7 @@ vec4 shadow_filterShadowColor(vec4 color) {
 ), qQ = `
 ${wk}
 ${WQ}
-`, jQ = Kg(ZQ), XQ = Kg(QQ), YQ = [0, 0, 0, 1], GQ = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0];
+`, jQ = Zg(ZQ), XQ = Zg(QQ), YQ = [0, 0, 0, 1], GQ = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0];
 function KQ(t, e) {
   const [n, r, i] = t, s = R1([n, r, i], e);
   return Number.isFinite(i) ? s : [s[0], s[1], 0];
@@ -40340,7 +40330,7 @@ const iD = {
     projectCenter0: "vec4<f32>",
     projectCenter1: "vec4<f32>"
   }
-}, eh = {
+}, th = {
   ...I6,
   defaultUniforms: { ...I6.defaultUniforms, useFloatColors: !1 },
   inject: {
@@ -40817,8 +40807,8 @@ class yJ {
     s < 0 ? n.push(r) : (s > 0 || n.length < this.opts.poolSize) && n.splice(s, 0, r), n.length > this.opts.poolSize && n.shift();
   }
 }
-const Uf = new yJ();
-function sg() {
+const $f = new yJ();
+function og() {
   return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 }
 function CJ(t, e) {
@@ -40830,16 +40820,16 @@ function bJ(t) {
 }
 function FJ(t) {
   return {
-    left: lf(t[3] + t[0], t[7] + t[4], t[11] + t[8], t[15] + t[12]),
-    right: lf(t[3] - t[0], t[7] - t[4], t[11] - t[8], t[15] - t[12]),
-    bottom: lf(t[3] + t[1], t[7] + t[5], t[11] + t[9], t[15] + t[13]),
-    top: lf(t[3] - t[1], t[7] - t[5], t[11] - t[9], t[15] - t[13]),
-    near: lf(t[3] + t[2], t[7] + t[6], t[11] + t[10], t[15] + t[14]),
-    far: lf(t[3] - t[2], t[7] - t[6], t[11] - t[10], t[15] - t[14])
+    left: cf(t[3] + t[0], t[7] + t[4], t[11] + t[8], t[15] + t[12]),
+    right: cf(t[3] - t[0], t[7] - t[4], t[11] - t[8], t[15] - t[12]),
+    bottom: cf(t[3] + t[1], t[7] + t[5], t[11] + t[9], t[15] + t[13]),
+    top: cf(t[3] - t[1], t[7] - t[5], t[11] - t[9], t[15] - t[13]),
+    near: cf(t[3] + t[2], t[7] + t[6], t[11] + t[10], t[15] + t[14]),
+    far: cf(t[3] - t[2], t[7] - t[6], t[11] - t[10], t[15] - t[14])
   };
 }
 const lD = new nc();
-function lf(t, e, n, r) {
+function cf(t, e, n, r) {
   lD.set(t, e, n);
   const i = lD.len();
   return { distance: r / i, normal: new nc(-t / i, -e / i, -n / i) };
@@ -40847,10 +40837,10 @@ function lf(t, e, n, r) {
 function AJ(t) {
   return t - Math.fround(t);
 }
-let Oh;
+let Lh;
 function aC(t, e) {
   const { size: n = 1, startIndex: r = 0 } = e, i = e.endIndex !== void 0 ? e.endIndex : t.length, s = (i - r) / n;
-  Oh = Uf.allocate(Oh, s, {
+  Lh = $f.allocate(Lh, s, {
     type: Float32Array,
     size: n * 2
   });
@@ -40858,11 +40848,11 @@ function aC(t, e) {
   for (; o < i; ) {
     for (let u = 0; u < n; u++) {
       const d = t[o++];
-      Oh[a + u] = d, Oh[a + u + n] = AJ(d);
+      Lh[a + u] = d, Lh[a + u + n] = AJ(d);
     }
     a += n * 2;
   }
-  return Oh.subarray(0, s * n * 2);
+  return Lh.subarray(0, s * n * 2);
 }
 function vJ(t) {
   let e = null, n = !1;
@@ -40873,7 +40863,7 @@ function vJ(t) {
     ], n = !0), e[0][0] = Math.min(e[0][0], r[0][0]), e[0][1] = Math.min(e[0][1], r[0][1]), e[1][0] = Math.max(e[1][0], r[1][0]), e[1][1] = Math.max(e[1][1], r[1][1])) : e = r);
   return e;
 }
-const EJ = Math.PI / 180, _J = sg(), cD = [0, 0, 0], wJ = {
+const EJ = Math.PI / 180, _J = og(), cD = [0, 0, 0], wJ = {
   unitsPerMeter: [1, 1, 1],
   metersPerUnit: [1, 1, 1]
 };
@@ -40904,7 +40894,7 @@ class wd {
   // Two viewports are equal if width and height are identical, and if
   // their view and projection matrices are (approximately) equal.
   equals(e) {
-    return e instanceof wd ? this === e ? !0 : e.width === this.width && e.height === this.height && e.scale === this.scale && Ng(e.projectionMatrix, this.projectionMatrix) && Ng(e.viewMatrix, this.viewMatrix) : !1;
+    return e instanceof wd ? this === e ? !0 : e.width === this.width && e.height === this.height && e.scale === this.scale && Og(e.projectionMatrix, this.projectionMatrix) && Og(e.viewMatrix, this.viewMatrix) : !1;
   }
   /**
    * Projects xyz (possibly latitude and longitude) to pixel coordinates in window
@@ -40971,7 +40961,7 @@ class wd {
    *   Per cartographic tradition, lat and lon are specified as degrees.
    */
   unprojectFlat(e) {
-    return this.isGeospatial ? zf(e) : e;
+    return this.isGeospatial ? Uf(e) : e;
   }
   /**
    * Get bounds of the current viewport
@@ -41057,14 +41047,14 @@ class wd {
       near: a,
       far: u
     });
-    const g = sg();
+    const g = og();
     id(g, g, this.projectionMatrix), id(g, g, this.viewMatrix), this.viewProjectionMatrix = g, this.viewMatrixInverse = fA([], this.viewMatrix) || this.viewMatrix, this.cameraPosition = bJ(this.viewMatrixInverse);
-    const m = sg(), y = sg();
-    Gv(m, m, [this.width / 2, -this.height / 2, 1]), zm(m, m, [1, -1, 0]), id(y, m, this.viewProjectionMatrix), this.pixelProjectionMatrix = y, this.pixelUnprojectionMatrix = fA(sg(), this.pixelProjectionMatrix), this.pixelUnprojectionMatrix || Tr.warn("Pixel project matrix not invertible")();
+    const m = og(), y = og();
+    Gv(m, m, [this.width / 2, -this.height / 2, 1]), zm(m, m, [1, -1, 0]), id(y, m, this.viewProjectionMatrix), this.pixelProjectionMatrix = y, this.pixelUnprojectionMatrix = fA(og(), this.pixelProjectionMatrix), this.pixelUnprojectionMatrix || Tr.warn("Pixel project matrix not invertible")();
   }
 }
 wd.displayName = "Viewport";
-class $f extends wd {
+class Hf extends wd {
   /* eslint-disable complexity, max-statements */
   constructor(e = {}) {
     const {
@@ -41092,9 +41082,9 @@ class $f extends wd {
     _ = _ || 1, x = x || 1;
     let k, $ = null;
     if (m)
-      D = m[5] / 2, k = Lg(D);
+      D = m[5] / 2, k = zg(D);
     else {
-      e.fovy ? (k = e.fovy, D = Qv(k)) : k = Lg(D);
+      e.fovy ? (k = e.fovy, D = Qv(k)) : k = zg(D);
       let N;
       if (E) {
         const { top: P = 0, bottom: U = 0 } = E;
@@ -41140,7 +41130,7 @@ class $f extends wd {
     if (this._subViewports && !this._subViewports.length) {
       const e = this.getBounds(), n = Math.floor((e[0] + 180) / 360), r = Math.ceil((e[2] - 180) / 360);
       for (let i = n; i <= r; i++) {
-        const s = i ? new $f({
+        const s = i ? new Hf({
           ...this,
           worldOffset: i
         }) : this;
@@ -41193,14 +41183,14 @@ class $f extends wd {
    */
   fitBounds(e, n = {}) {
     const { width: r, height: i } = this, { longitude: s, latitude: o, zoom: a } = LQ({ width: r, height: i, bounds: e, ...n });
-    return new $f({ width: r, height: i, longitude: s, latitude: o, zoom: a });
+    return new Hf({ width: r, height: i, longitude: s, latitude: o, zoom: a });
   }
 }
-$f.displayName = "WebMercatorViewport";
+Hf.displayName = "WebMercatorViewport";
 const uD = [0, 0, 0];
 function lC(t, e, n = !1) {
   const r = e.projectPosition(t);
-  if (n && e instanceof $f) {
+  if (n && e instanceof Hf) {
     const [i, s, o = 0] = t, a = e.getDistanceScales([i, s]);
     r[2] = o * a.unitsPerMeter[2];
   }
@@ -41220,7 +41210,7 @@ function DJ(t) {
 }
 function Bk(t, { viewport: e, modelMatrix: n, coordinateSystem: r, coordinateOrigin: i, offsetMode: s }) {
   let [o, a, u = 0] = t;
-  switch (n && ([o, a, u] = Qf([], [o, a, u, 1], n)), r) {
+  switch (n && ([o, a, u] = Jf([], [o, a, u, 1], n)), r) {
     case Rr.LNGLAT:
       return lC([o, a, u], e, s);
     case Rr.LNGLAT_OFFSETS:
@@ -41551,7 +41541,7 @@ class eE {
   }
 }
 const cC = {};
-function Zg(t = "id") {
+function Qg(t = "id") {
   cC[t] = cC[t] || 1;
   const e = cC[t]++;
   return `${t}-${e}`;
@@ -41566,7 +41556,7 @@ class dD {
   indices;
   attributes;
   constructor(e) {
-    if (this.id = e.id || Zg("geometry"), this.topology = e.topology, this.indices = e.indices || null, this.attributes = e.attributes, this.vertexCount = e.vertexCount, this.bufferLayout = e.bufferLayout || [], this.indices && !(this.indices.usage & Ei.INDEX))
+    if (this.id = e.id || Qg("geometry"), this.topology = e.topology, this.indices = e.indices || null, this.attributes = e.attributes, this.vertexCount = e.vertexCount, this.bufferLayout = e.bufferLayout || [], this.indices && !(this.indices.usage & Ei.INDEX))
       throw new Error("Index buffer must have INDEX usage");
   }
   destroy() {
@@ -41666,7 +41656,7 @@ class tE {
     let s = r[i]?.pipeline;
     return s ? (r[i].useCount++, this.debug && Pt.log(3, `${this}: ${r[i].pipeline} reused, count=${r[i].useCount}, (id=${e.id})`)()) : (s = this.device.createRenderPipeline({
       ...n,
-      id: n.id ? `${n.id}-cached` : Zg("unnamed-cached")
+      id: n.id ? `${n.id}-cached` : Qg("unnamed-cached")
     }), s.hash = i, r[i] = { pipeline: s, useCount: 1 }, this.debug && Pt.log(3, `${this}: ${s} created, count=${r[i].useCount}`)()), s;
   }
   /** Return a ComputePipeline matching supplied props. Reuses an equivalent pipeline if already created. */
@@ -41975,7 +41965,7 @@ async function XJ(t, e) {
   return n.crossOrigin = "anonymous", n.src = t.startsWith("http") ? t : jJ + t, await n.decode(), e ? await createImageBitmap(n, e) : await createImageBitmap(n);
 }
 const YJ = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"], GJ = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"];
-class Cg {
+class bg {
   device;
   id;
   props;
@@ -42001,8 +41991,8 @@ class Cg {
   }
   constructor(e, n) {
     this.device = e;
-    const r = Zg("async-texture");
-    this.props = { ...Cg.defaultProps, id: r, ...n }, this.id = this.props.id, n = { ...n }, typeof n?.data == "string" && n.dimension === "2d" && (n.data = XJ(n.data)), n.mipmaps && (n.mipLevels = "auto"), this.ready = new Promise((i, s) => {
+    const r = Qg("async-texture");
+    this.props = { ...bg.defaultProps, id: r, ...n }, this.id = this.props.id, n = { ...n }, typeof n?.data == "string" && n.dimension === "2d" && (n.data = XJ(n.data)), n.mipmaps && (n.mipLevels = "auto"), this.ready = new Promise((i, s) => {
       this.resolveReady = () => {
         this.isReady = !0, i();
       }, this.rejectReady = s;
@@ -42297,7 +42287,7 @@ class rl {
     return `Model(${this.id})`;
   }
   constructor(e, n) {
-    this.props = { ...rl.defaultProps, ...n }, n = this.props, this.id = n.id || Zg("model"), this.device = e, Object.assign(this.userData, n.userData);
+    this.props = { ...rl.defaultProps, ...n }, n = this.props, this.id = n.id || Qg("model"), this.device = e, Object.assign(this.userData, n.userData);
     const r = Object.fromEntries(this.props.modules?.map((u) => [u.name, u]) || []), i = n.shaderInputs || new qJ(r, { disableWarnings: this.props.disableWarnings });
     this.setShaderInputs(i);
     const s = QJ(e), o = (
@@ -42513,7 +42503,7 @@ class rl {
   /** Check that bindings are loaded. Returns id of first binding that is still loading. */
   _areBindingsLoading() {
     for (const e of Object.values(this.bindings))
-      if (e instanceof Cg && !e.isReady)
+      if (e instanceof bg && !e.isReady)
         return e.id;
     return !1;
   }
@@ -42521,14 +42511,14 @@ class rl {
   _getBindings() {
     const e = {};
     for (const [n, r] of Object.entries(this.bindings))
-      r instanceof Cg ? r.isReady && (e[n] = r.texture) : e[n] = r;
+      r instanceof bg ? r.isReady && (e[n] = r.texture) : e[n] = r;
     return e;
   }
   /** Get the timestamp of the latest updated bound GPU memory resource (buffer/texture). */
   _getBindingsUpdateTimestamp() {
     let e = 0;
     for (const n of Object.values(this.bindings))
-      n instanceof D1 ? e = Math.max(e, n.texture.updateTimestamp) : n instanceof Ei || n instanceof Ks ? e = Math.max(e, n.updateTimestamp) : n instanceof Cg ? e = n.texture ? Math.max(e, n.texture.updateTimestamp) : (
+      n instanceof D1 ? e = Math.max(e, n.texture.updateTimestamp) : n instanceof Ei || n instanceof Ks ? e = Math.max(e, n.updateTimestamp) : n instanceof bg ? e = n.texture ? Math.max(e, n.texture.updateTimestamp) : (
         // The texture will become available in the future
         1 / 0
       ) : n instanceof hd || (e = Math.max(e, n.buffer.updateTimestamp));
@@ -42649,7 +42639,7 @@ function JJ(t) {
     return !1;
   return !0;
 }
-class Hf {
+class Vf {
   device;
   model;
   transformFeedback;
@@ -42661,8 +42651,8 @@ class Hf {
   static isSupported(e) {
     return e?.info?.type === "webgl";
   }
-  constructor(e, n = Hf.defaultProps) {
-    if (!Hf.isSupported(e))
+  constructor(e, n = Vf.defaultProps) {
+    if (!Vf.isSupported(e))
       throw new Error("BufferTransform not yet implemented on WebGPU");
     this.device = e, this.model = new rl(this.device, {
       id: n.id || "buffer-transform-model",
@@ -42716,7 +42706,7 @@ class md {
   userData = {};
   constructor(e) {
     const { attributes: n = {}, indices: r = null, vertexCount: i = null } = e;
-    this.id = e.id || Zg("geometry"), this.topology = e.topology, r && (this.indices = ArrayBuffer.isView(r) ? { value: r, size: 1 } : r), this.attributes = {};
+    this.id = e.id || Qg("geometry"), this.topology = e.topology, r && (this.indices = ArrayBuffer.isView(r) ? { value: r, size: 1 } : r), this.attributes = {};
     for (const [s, o] of Object.entries(n)) {
       const a = ArrayBuffer.isView(o) ? { value: o } : o;
       if (!ArrayBuffer.isView(a.value))
@@ -42846,14 +42836,14 @@ function nee(t, e) {
     pickedObjectIndex: n.layer.decodePickingColor(e)
   };
 }
-const df = {
+const ff = {
   NO_STATE: "Awaiting state",
   MATCHED: "Matched. State transferred from previous layer",
   INITIALIZED: "Initialized",
   AWAITING_GC: "Discarded. Awaiting garbage collection",
   AWAITING_FINALIZATION: "No longer matched. Awaiting garbage collection",
   FINALIZED: "Finalized! Awaiting garbage collection"
-}, Vm = /* @__PURE__ */ Symbol.for("component"), Eu = /* @__PURE__ */ Symbol.for("propTypes"), fC = /* @__PURE__ */ Symbol.for("deprecatedProps"), Tf = /* @__PURE__ */ Symbol.for("asyncPropDefaults"), yd = /* @__PURE__ */ Symbol.for("asyncPropOriginal"), Fu = /* @__PURE__ */ Symbol.for("asyncPropResolved");
+}, Vm = /* @__PURE__ */ Symbol.for("component"), Eu = /* @__PURE__ */ Symbol.for("propTypes"), fC = /* @__PURE__ */ Symbol.for("deprecatedProps"), Rf = /* @__PURE__ */ Symbol.for("asyncPropDefaults"), yd = /* @__PURE__ */ Symbol.for("asyncPropOriginal"), Fu = /* @__PURE__ */ Symbol.for("asyncPropResolved");
 function rE(t, e = () => !0) {
   return Array.isArray(t) ? kk(t, e, []) : e(t) ? [t] : [];
 }
@@ -43114,14 +43104,14 @@ class lee {
   /** Safely initializes a single layer, calling layer methods */
   _initializeLayer(e) {
     try {
-      e._initialize(), e.lifecycle = df.INITIALIZED;
+      e._initialize(), e.lifecycle = ff.INITIALIZED;
     } catch (n) {
       this._handleError("initialization", n, e);
     }
   }
   /** Transfer state from one layer to a newer version */
   _transferLayerState(e, n) {
-    n._transferState(e), n.lifecycle = df.MATCHED, n !== e && (e.lifecycle = df.AWAITING_GC);
+    n._transferState(e), n.lifecycle = ff.MATCHED, n !== e && (e.lifecycle = ff.AWAITING_GC);
   }
   /** Safely updates a single layer, cleaning all flags */
   _updateLayer(e) {
@@ -43133,9 +43123,9 @@ class lee {
   }
   /** Safely finalizes a single layer, removing all resources */
   _finalizeLayer(e) {
-    this._needsRedraw = this._needsRedraw || `finalized ${e}`, e.lifecycle = df.AWAITING_FINALIZATION;
+    this._needsRedraw = this._needsRedraw || `finalized ${e}`, e.lifecycle = ff.AWAITING_FINALIZATION;
     try {
-      e._finalize(), e.lifecycle = df.FINALIZED;
+      e._finalize(), e.lifecycle = ff.FINALIZED;
     } catch (n) {
       this._handleError("finalization", n, e);
     }
@@ -43589,7 +43579,7 @@ class gee {
    */
   arePropsEqual(e, n) {
     for (const r of this._propsToCompare)
-      if (!(r in e) || !(r in n) || !Ng(e[r], n[r]))
+      if (!(r in e) || !(r in n) || !Og(e[r], n[r]))
         return !1;
     return !0;
   }
@@ -43622,9 +43612,9 @@ class gee {
     });
   }
 }
-const A0 = Math.PI / 180, hD = 180 / Math.PI, rm = 6370972, mf = 256;
+const A0 = Math.PI / 180, hD = 180 / Math.PI, rm = 6370972, yf = 256;
 function pee() {
-  const t = mf / rm, e = Math.PI / 180 * mf;
+  const t = yf / rm, e = Math.PI / 180 * yf;
   return {
     unitsPerMeter: [t, t, t],
     unitsPerMeter2: [0, 0, 0],
@@ -43646,8 +43636,8 @@ class Mk extends wd {
       resolution: o = 10
     } = e;
     let { latitude: a = 0, height: u, altitude: d = 1.5, fovy: h } = e;
-    a = Math.max(Math.min(a, bu), -bu), u = u || 1, h ? d = Qv(h) : h = Lg(d);
-    const g = Math.pow(2, r - v0(a)), m = e.nearZ ?? i, y = e.farZ ?? (d + mf * 2 * g / u) * s, C = new Oa().lookAt({ eye: [0, -d, 0], up: [0, 0, 1] });
+    a = Math.max(Math.min(a, bu), -bu), u = u || 1, h ? d = Qv(h) : h = zg(d);
+    const g = Math.pow(2, r - v0(a)), m = e.nearZ ?? i, y = e.farZ ?? (d + yf * 2 * g / u) * s, C = new Oa().lookAt({ eye: [0, -d, 0], up: [0, 0, 1] });
     C.rotateX(a * A0), C.rotateZ(-n * A0), C.scale(g / u), super({
       ...e,
       // x, y, width,
@@ -43686,18 +43676,18 @@ class Mk extends wd {
     if (Number.isFinite(o))
       d = hC(u, [i, a, o, 1]);
     else {
-      const y = hC(u, [i, a, -1, 1]), C = hC(u, [i, a, 1, 1]), b = ((r || 0) / rm + 1) * mf, E = Jy(ik([], y, C)), w = Jy(y), _ = Jy(C), D = 4 * ((4 * w * _ - (E - w - _) ** 2) / 16) / E, S = Math.sqrt(w - D), k = Math.sqrt(Math.max(0, b * b - D)), $ = (S - k) / Math.sqrt(E);
+      const y = hC(u, [i, a, -1, 1]), C = hC(u, [i, a, 1, 1]), b = ((r || 0) / rm + 1) * yf, E = Jy(ik([], y, C)), w = Jy(y), _ = Jy(C), D = 4 * ((4 * w * _ - (E - w - _) ** 2) / 16) / E, S = Math.sqrt(w - D), k = Math.sqrt(Math.max(0, b * b - D)), $ = (S - k) / Math.sqrt(E);
       d = CK([], y, C, $);
     }
     const [h, g, m] = this.unprojectPosition(d);
     return Number.isFinite(o) ? [h, g, m] : Number.isFinite(r) ? [h, g, r] : [h, g];
   }
   projectPosition(e) {
-    const [n, r, i = 0] = e, s = n * A0, o = r * A0, a = Math.cos(o), u = (i / rm + 1) * mf;
+    const [n, r, i = 0] = e, s = n * A0, o = r * A0, a = Math.cos(o), u = (i / rm + 1) * yf;
     return [Math.sin(s) * a * u, -Math.cos(s) * a * u, Math.sin(o) * u];
   }
   unprojectPosition(e) {
-    const [n, r, i] = e, s = wK(e), o = Math.asin(i / s), u = Math.atan2(n, -r) * hD, d = o * hD, h = (s / mf - 1) * rm;
+    const [n, r, i] = e, s = wK(e), o = Math.asin(i / s), u = Math.atan2(n, -r) * hD, d = o * hD, h = (s / yf - 1) * rm;
     return [u, d, h];
   }
   projectFlat(e) {
@@ -43727,7 +43717,7 @@ function v0(t) {
   return Math.log2(e);
 }
 function hC(t, e) {
-  const n = Qf([], e, t);
+  const n = Jf([], e, t);
   return ak(n, n, 1 / n[3]), n;
 }
 const mee = ["longitude", "latitude", "zoom", "bearing", "pitch"], yee = ["longitude", "latitude", "zoom"];
@@ -43781,7 +43771,7 @@ class iE extends gee {
 }
 const Sc = {
   transitionDuration: 0
-}, Cee = 300, E0 = (t) => 1 - (1 - t) * (1 - t), cf = {
+}, Cee = 300, E0 = (t) => 1 - (1 - t) * (1 - t), uf = {
   WHEEL: ["wheel"],
   PAN: ["panstart", "panmove", "panend"],
   PINCH: ["pinchstart", "pinchmove", "pinchend"],
@@ -43889,7 +43879,7 @@ class Pk {
     const { inertia: n } = e;
     this.inertia = Number.isFinite(n) ? n : n === !0 ? Cee : 0;
     const { scrollZoom: r = !0, dragPan: i = !0, dragRotate: s = !0, doubleClickZoom: o = !0, touchZoom: a = !0, touchRotate: u = !1, keyboard: d = !0 } = e, h = !!this.onViewStateChange;
-    this.toggleEvents(cf.WHEEL, h && r), this.toggleEvents(cf.PAN, h), this.toggleEvents(cf.PINCH, h && (a || u)), this.toggleEvents(cf.MULTI_PAN, h && u), this.toggleEvents(cf.DOUBLE_CLICK, h && o), this.toggleEvents(cf.KEYBOARD, h && d), this.scrollZoom = r, this.dragPan = i, this.dragRotate = s, this.doubleClickZoom = o, this.touchZoom = a, this.touchRotate = u, this.keyboard = d;
+    this.toggleEvents(uf.WHEEL, h && r), this.toggleEvents(uf.PAN, h), this.toggleEvents(uf.PINCH, h && (a || u)), this.toggleEvents(uf.MULTI_PAN, h && u), this.toggleEvents(uf.DOUBLE_CLICK, h && o), this.toggleEvents(uf.KEYBOARD, h && d), this.scrollZoom = r, this.dragPan = i, this.dragRotate = s, this.doubleClickZoom = o, this.touchZoom = a, this.touchRotate = u, this.keyboard = d;
   }
   updateTransition() {
     this.transitionManager.updateTransition();
@@ -44485,7 +44475,7 @@ class Nk extends Cd {
     super(e);
   }
   getViewportType() {
-    return $f;
+    return Hf;
   }
   get ControllerType() {
     return Aee;
@@ -45389,10 +45379,10 @@ class Ok extends sE {
 Ok.defaultProps = {
   ...sE.defaultProps
 };
-var yf;
+var Cf;
 (function(t) {
   t[t.DEPTH_BUFFER_BIT = 256] = "DEPTH_BUFFER_BIT", t[t.STENCIL_BUFFER_BIT = 1024] = "STENCIL_BUFFER_BIT", t[t.COLOR_BUFFER_BIT = 16384] = "COLOR_BUFFER_BIT", t[t.POINTS = 0] = "POINTS", t[t.LINES = 1] = "LINES", t[t.LINE_LOOP = 2] = "LINE_LOOP", t[t.LINE_STRIP = 3] = "LINE_STRIP", t[t.TRIANGLES = 4] = "TRIANGLES", t[t.TRIANGLE_STRIP = 5] = "TRIANGLE_STRIP", t[t.TRIANGLE_FAN = 6] = "TRIANGLE_FAN", t[t.ZERO = 0] = "ZERO", t[t.ONE = 1] = "ONE", t[t.SRC_COLOR = 768] = "SRC_COLOR", t[t.ONE_MINUS_SRC_COLOR = 769] = "ONE_MINUS_SRC_COLOR", t[t.SRC_ALPHA = 770] = "SRC_ALPHA", t[t.ONE_MINUS_SRC_ALPHA = 771] = "ONE_MINUS_SRC_ALPHA", t[t.DST_ALPHA = 772] = "DST_ALPHA", t[t.ONE_MINUS_DST_ALPHA = 773] = "ONE_MINUS_DST_ALPHA", t[t.DST_COLOR = 774] = "DST_COLOR", t[t.ONE_MINUS_DST_COLOR = 775] = "ONE_MINUS_DST_COLOR", t[t.SRC_ALPHA_SATURATE = 776] = "SRC_ALPHA_SATURATE", t[t.CONSTANT_COLOR = 32769] = "CONSTANT_COLOR", t[t.ONE_MINUS_CONSTANT_COLOR = 32770] = "ONE_MINUS_CONSTANT_COLOR", t[t.CONSTANT_ALPHA = 32771] = "CONSTANT_ALPHA", t[t.ONE_MINUS_CONSTANT_ALPHA = 32772] = "ONE_MINUS_CONSTANT_ALPHA", t[t.FUNC_ADD = 32774] = "FUNC_ADD", t[t.FUNC_SUBTRACT = 32778] = "FUNC_SUBTRACT", t[t.FUNC_REVERSE_SUBTRACT = 32779] = "FUNC_REVERSE_SUBTRACT", t[t.BLEND_EQUATION = 32777] = "BLEND_EQUATION", t[t.BLEND_EQUATION_RGB = 32777] = "BLEND_EQUATION_RGB", t[t.BLEND_EQUATION_ALPHA = 34877] = "BLEND_EQUATION_ALPHA", t[t.BLEND_DST_RGB = 32968] = "BLEND_DST_RGB", t[t.BLEND_SRC_RGB = 32969] = "BLEND_SRC_RGB", t[t.BLEND_DST_ALPHA = 32970] = "BLEND_DST_ALPHA", t[t.BLEND_SRC_ALPHA = 32971] = "BLEND_SRC_ALPHA", t[t.BLEND_COLOR = 32773] = "BLEND_COLOR", t[t.ARRAY_BUFFER_BINDING = 34964] = "ARRAY_BUFFER_BINDING", t[t.ELEMENT_ARRAY_BUFFER_BINDING = 34965] = "ELEMENT_ARRAY_BUFFER_BINDING", t[t.LINE_WIDTH = 2849] = "LINE_WIDTH", t[t.ALIASED_POINT_SIZE_RANGE = 33901] = "ALIASED_POINT_SIZE_RANGE", t[t.ALIASED_LINE_WIDTH_RANGE = 33902] = "ALIASED_LINE_WIDTH_RANGE", t[t.CULL_FACE_MODE = 2885] = "CULL_FACE_MODE", t[t.FRONT_FACE = 2886] = "FRONT_FACE", t[t.DEPTH_RANGE = 2928] = "DEPTH_RANGE", t[t.DEPTH_WRITEMASK = 2930] = "DEPTH_WRITEMASK", t[t.DEPTH_CLEAR_VALUE = 2931] = "DEPTH_CLEAR_VALUE", t[t.DEPTH_FUNC = 2932] = "DEPTH_FUNC", t[t.STENCIL_CLEAR_VALUE = 2961] = "STENCIL_CLEAR_VALUE", t[t.STENCIL_FUNC = 2962] = "STENCIL_FUNC", t[t.STENCIL_FAIL = 2964] = "STENCIL_FAIL", t[t.STENCIL_PASS_DEPTH_FAIL = 2965] = "STENCIL_PASS_DEPTH_FAIL", t[t.STENCIL_PASS_DEPTH_PASS = 2966] = "STENCIL_PASS_DEPTH_PASS", t[t.STENCIL_REF = 2967] = "STENCIL_REF", t[t.STENCIL_VALUE_MASK = 2963] = "STENCIL_VALUE_MASK", t[t.STENCIL_WRITEMASK = 2968] = "STENCIL_WRITEMASK", t[t.STENCIL_BACK_FUNC = 34816] = "STENCIL_BACK_FUNC", t[t.STENCIL_BACK_FAIL = 34817] = "STENCIL_BACK_FAIL", t[t.STENCIL_BACK_PASS_DEPTH_FAIL = 34818] = "STENCIL_BACK_PASS_DEPTH_FAIL", t[t.STENCIL_BACK_PASS_DEPTH_PASS = 34819] = "STENCIL_BACK_PASS_DEPTH_PASS", t[t.STENCIL_BACK_REF = 36003] = "STENCIL_BACK_REF", t[t.STENCIL_BACK_VALUE_MASK = 36004] = "STENCIL_BACK_VALUE_MASK", t[t.STENCIL_BACK_WRITEMASK = 36005] = "STENCIL_BACK_WRITEMASK", t[t.VIEWPORT = 2978] = "VIEWPORT", t[t.SCISSOR_BOX = 3088] = "SCISSOR_BOX", t[t.COLOR_CLEAR_VALUE = 3106] = "COLOR_CLEAR_VALUE", t[t.COLOR_WRITEMASK = 3107] = "COLOR_WRITEMASK", t[t.UNPACK_ALIGNMENT = 3317] = "UNPACK_ALIGNMENT", t[t.PACK_ALIGNMENT = 3333] = "PACK_ALIGNMENT", t[t.MAX_TEXTURE_SIZE = 3379] = "MAX_TEXTURE_SIZE", t[t.MAX_VIEWPORT_DIMS = 3386] = "MAX_VIEWPORT_DIMS", t[t.SUBPIXEL_BITS = 3408] = "SUBPIXEL_BITS", t[t.RED_BITS = 3410] = "RED_BITS", t[t.GREEN_BITS = 3411] = "GREEN_BITS", t[t.BLUE_BITS = 3412] = "BLUE_BITS", t[t.ALPHA_BITS = 3413] = "ALPHA_BITS", t[t.DEPTH_BITS = 3414] = "DEPTH_BITS", t[t.STENCIL_BITS = 3415] = "STENCIL_BITS", t[t.POLYGON_OFFSET_UNITS = 10752] = "POLYGON_OFFSET_UNITS", t[t.POLYGON_OFFSET_FACTOR = 32824] = "POLYGON_OFFSET_FACTOR", t[t.TEXTURE_BINDING_2D = 32873] = "TEXTURE_BINDING_2D", t[t.SAMPLE_BUFFERS = 32936] = "SAMPLE_BUFFERS", t[t.SAMPLES = 32937] = "SAMPLES", t[t.SAMPLE_COVERAGE_VALUE = 32938] = "SAMPLE_COVERAGE_VALUE", t[t.SAMPLE_COVERAGE_INVERT = 32939] = "SAMPLE_COVERAGE_INVERT", t[t.COMPRESSED_TEXTURE_FORMATS = 34467] = "COMPRESSED_TEXTURE_FORMATS", t[t.VENDOR = 7936] = "VENDOR", t[t.RENDERER = 7937] = "RENDERER", t[t.VERSION = 7938] = "VERSION", t[t.IMPLEMENTATION_COLOR_READ_TYPE = 35738] = "IMPLEMENTATION_COLOR_READ_TYPE", t[t.IMPLEMENTATION_COLOR_READ_FORMAT = 35739] = "IMPLEMENTATION_COLOR_READ_FORMAT", t[t.BROWSER_DEFAULT_WEBGL = 37444] = "BROWSER_DEFAULT_WEBGL", t[t.STATIC_DRAW = 35044] = "STATIC_DRAW", t[t.STREAM_DRAW = 35040] = "STREAM_DRAW", t[t.DYNAMIC_DRAW = 35048] = "DYNAMIC_DRAW", t[t.ARRAY_BUFFER = 34962] = "ARRAY_BUFFER", t[t.ELEMENT_ARRAY_BUFFER = 34963] = "ELEMENT_ARRAY_BUFFER", t[t.BUFFER_SIZE = 34660] = "BUFFER_SIZE", t[t.BUFFER_USAGE = 34661] = "BUFFER_USAGE", t[t.CURRENT_VERTEX_ATTRIB = 34342] = "CURRENT_VERTEX_ATTRIB", t[t.VERTEX_ATTRIB_ARRAY_ENABLED = 34338] = "VERTEX_ATTRIB_ARRAY_ENABLED", t[t.VERTEX_ATTRIB_ARRAY_SIZE = 34339] = "VERTEX_ATTRIB_ARRAY_SIZE", t[t.VERTEX_ATTRIB_ARRAY_STRIDE = 34340] = "VERTEX_ATTRIB_ARRAY_STRIDE", t[t.VERTEX_ATTRIB_ARRAY_TYPE = 34341] = "VERTEX_ATTRIB_ARRAY_TYPE", t[t.VERTEX_ATTRIB_ARRAY_NORMALIZED = 34922] = "VERTEX_ATTRIB_ARRAY_NORMALIZED", t[t.VERTEX_ATTRIB_ARRAY_POINTER = 34373] = "VERTEX_ATTRIB_ARRAY_POINTER", t[t.VERTEX_ATTRIB_ARRAY_BUFFER_BINDING = 34975] = "VERTEX_ATTRIB_ARRAY_BUFFER_BINDING", t[t.CULL_FACE = 2884] = "CULL_FACE", t[t.FRONT = 1028] = "FRONT", t[t.BACK = 1029] = "BACK", t[t.FRONT_AND_BACK = 1032] = "FRONT_AND_BACK", t[t.BLEND = 3042] = "BLEND", t[t.DEPTH_TEST = 2929] = "DEPTH_TEST", t[t.DITHER = 3024] = "DITHER", t[t.POLYGON_OFFSET_FILL = 32823] = "POLYGON_OFFSET_FILL", t[t.SAMPLE_ALPHA_TO_COVERAGE = 32926] = "SAMPLE_ALPHA_TO_COVERAGE", t[t.SAMPLE_COVERAGE = 32928] = "SAMPLE_COVERAGE", t[t.SCISSOR_TEST = 3089] = "SCISSOR_TEST", t[t.STENCIL_TEST = 2960] = "STENCIL_TEST", t[t.NO_ERROR = 0] = "NO_ERROR", t[t.INVALID_ENUM = 1280] = "INVALID_ENUM", t[t.INVALID_VALUE = 1281] = "INVALID_VALUE", t[t.INVALID_OPERATION = 1282] = "INVALID_OPERATION", t[t.OUT_OF_MEMORY = 1285] = "OUT_OF_MEMORY", t[t.CONTEXT_LOST_WEBGL = 37442] = "CONTEXT_LOST_WEBGL", t[t.CW = 2304] = "CW", t[t.CCW = 2305] = "CCW", t[t.DONT_CARE = 4352] = "DONT_CARE", t[t.FASTEST = 4353] = "FASTEST", t[t.NICEST = 4354] = "NICEST", t[t.GENERATE_MIPMAP_HINT = 33170] = "GENERATE_MIPMAP_HINT", t[t.BYTE = 5120] = "BYTE", t[t.UNSIGNED_BYTE = 5121] = "UNSIGNED_BYTE", t[t.SHORT = 5122] = "SHORT", t[t.UNSIGNED_SHORT = 5123] = "UNSIGNED_SHORT", t[t.INT = 5124] = "INT", t[t.UNSIGNED_INT = 5125] = "UNSIGNED_INT", t[t.FLOAT = 5126] = "FLOAT", t[t.DOUBLE = 5130] = "DOUBLE", t[t.DEPTH_COMPONENT = 6402] = "DEPTH_COMPONENT", t[t.ALPHA = 6406] = "ALPHA", t[t.RGB = 6407] = "RGB", t[t.RGBA = 6408] = "RGBA", t[t.LUMINANCE = 6409] = "LUMINANCE", t[t.LUMINANCE_ALPHA = 6410] = "LUMINANCE_ALPHA", t[t.UNSIGNED_SHORT_4_4_4_4 = 32819] = "UNSIGNED_SHORT_4_4_4_4", t[t.UNSIGNED_SHORT_5_5_5_1 = 32820] = "UNSIGNED_SHORT_5_5_5_1", t[t.UNSIGNED_SHORT_5_6_5 = 33635] = "UNSIGNED_SHORT_5_6_5", t[t.FRAGMENT_SHADER = 35632] = "FRAGMENT_SHADER", t[t.VERTEX_SHADER = 35633] = "VERTEX_SHADER", t[t.COMPILE_STATUS = 35713] = "COMPILE_STATUS", t[t.DELETE_STATUS = 35712] = "DELETE_STATUS", t[t.LINK_STATUS = 35714] = "LINK_STATUS", t[t.VALIDATE_STATUS = 35715] = "VALIDATE_STATUS", t[t.ATTACHED_SHADERS = 35717] = "ATTACHED_SHADERS", t[t.ACTIVE_ATTRIBUTES = 35721] = "ACTIVE_ATTRIBUTES", t[t.ACTIVE_UNIFORMS = 35718] = "ACTIVE_UNIFORMS", t[t.MAX_VERTEX_ATTRIBS = 34921] = "MAX_VERTEX_ATTRIBS", t[t.MAX_VERTEX_UNIFORM_VECTORS = 36347] = "MAX_VERTEX_UNIFORM_VECTORS", t[t.MAX_VARYING_VECTORS = 36348] = "MAX_VARYING_VECTORS", t[t.MAX_COMBINED_TEXTURE_IMAGE_UNITS = 35661] = "MAX_COMBINED_TEXTURE_IMAGE_UNITS", t[t.MAX_VERTEX_TEXTURE_IMAGE_UNITS = 35660] = "MAX_VERTEX_TEXTURE_IMAGE_UNITS", t[t.MAX_TEXTURE_IMAGE_UNITS = 34930] = "MAX_TEXTURE_IMAGE_UNITS", t[t.MAX_FRAGMENT_UNIFORM_VECTORS = 36349] = "MAX_FRAGMENT_UNIFORM_VECTORS", t[t.SHADER_TYPE = 35663] = "SHADER_TYPE", t[t.SHADING_LANGUAGE_VERSION = 35724] = "SHADING_LANGUAGE_VERSION", t[t.CURRENT_PROGRAM = 35725] = "CURRENT_PROGRAM", t[t.NEVER = 512] = "NEVER", t[t.LESS = 513] = "LESS", t[t.EQUAL = 514] = "EQUAL", t[t.LEQUAL = 515] = "LEQUAL", t[t.GREATER = 516] = "GREATER", t[t.NOTEQUAL = 517] = "NOTEQUAL", t[t.GEQUAL = 518] = "GEQUAL", t[t.ALWAYS = 519] = "ALWAYS", t[t.KEEP = 7680] = "KEEP", t[t.REPLACE = 7681] = "REPLACE", t[t.INCR = 7682] = "INCR", t[t.DECR = 7683] = "DECR", t[t.INVERT = 5386] = "INVERT", t[t.INCR_WRAP = 34055] = "INCR_WRAP", t[t.DECR_WRAP = 34056] = "DECR_WRAP", t[t.NEAREST = 9728] = "NEAREST", t[t.LINEAR = 9729] = "LINEAR", t[t.NEAREST_MIPMAP_NEAREST = 9984] = "NEAREST_MIPMAP_NEAREST", t[t.LINEAR_MIPMAP_NEAREST = 9985] = "LINEAR_MIPMAP_NEAREST", t[t.NEAREST_MIPMAP_LINEAR = 9986] = "NEAREST_MIPMAP_LINEAR", t[t.LINEAR_MIPMAP_LINEAR = 9987] = "LINEAR_MIPMAP_LINEAR", t[t.TEXTURE_MAG_FILTER = 10240] = "TEXTURE_MAG_FILTER", t[t.TEXTURE_MIN_FILTER = 10241] = "TEXTURE_MIN_FILTER", t[t.TEXTURE_WRAP_S = 10242] = "TEXTURE_WRAP_S", t[t.TEXTURE_WRAP_T = 10243] = "TEXTURE_WRAP_T", t[t.TEXTURE_2D = 3553] = "TEXTURE_2D", t[t.TEXTURE = 5890] = "TEXTURE", t[t.TEXTURE_CUBE_MAP = 34067] = "TEXTURE_CUBE_MAP", t[t.TEXTURE_BINDING_CUBE_MAP = 34068] = "TEXTURE_BINDING_CUBE_MAP", t[t.TEXTURE_CUBE_MAP_POSITIVE_X = 34069] = "TEXTURE_CUBE_MAP_POSITIVE_X", t[t.TEXTURE_CUBE_MAP_NEGATIVE_X = 34070] = "TEXTURE_CUBE_MAP_NEGATIVE_X", t[t.TEXTURE_CUBE_MAP_POSITIVE_Y = 34071] = "TEXTURE_CUBE_MAP_POSITIVE_Y", t[t.TEXTURE_CUBE_MAP_NEGATIVE_Y = 34072] = "TEXTURE_CUBE_MAP_NEGATIVE_Y", t[t.TEXTURE_CUBE_MAP_POSITIVE_Z = 34073] = "TEXTURE_CUBE_MAP_POSITIVE_Z", t[t.TEXTURE_CUBE_MAP_NEGATIVE_Z = 34074] = "TEXTURE_CUBE_MAP_NEGATIVE_Z", t[t.MAX_CUBE_MAP_TEXTURE_SIZE = 34076] = "MAX_CUBE_MAP_TEXTURE_SIZE", t[t.TEXTURE0 = 33984] = "TEXTURE0", t[t.ACTIVE_TEXTURE = 34016] = "ACTIVE_TEXTURE", t[t.REPEAT = 10497] = "REPEAT", t[t.CLAMP_TO_EDGE = 33071] = "CLAMP_TO_EDGE", t[t.MIRRORED_REPEAT = 33648] = "MIRRORED_REPEAT", t[t.TEXTURE_WIDTH = 4096] = "TEXTURE_WIDTH", t[t.TEXTURE_HEIGHT = 4097] = "TEXTURE_HEIGHT", t[t.FLOAT_VEC2 = 35664] = "FLOAT_VEC2", t[t.FLOAT_VEC3 = 35665] = "FLOAT_VEC3", t[t.FLOAT_VEC4 = 35666] = "FLOAT_VEC4", t[t.INT_VEC2 = 35667] = "INT_VEC2", t[t.INT_VEC3 = 35668] = "INT_VEC3", t[t.INT_VEC4 = 35669] = "INT_VEC4", t[t.BOOL = 35670] = "BOOL", t[t.BOOL_VEC2 = 35671] = "BOOL_VEC2", t[t.BOOL_VEC3 = 35672] = "BOOL_VEC3", t[t.BOOL_VEC4 = 35673] = "BOOL_VEC4", t[t.FLOAT_MAT2 = 35674] = "FLOAT_MAT2", t[t.FLOAT_MAT3 = 35675] = "FLOAT_MAT3", t[t.FLOAT_MAT4 = 35676] = "FLOAT_MAT4", t[t.SAMPLER_2D = 35678] = "SAMPLER_2D", t[t.SAMPLER_CUBE = 35680] = "SAMPLER_CUBE", t[t.LOW_FLOAT = 36336] = "LOW_FLOAT", t[t.MEDIUM_FLOAT = 36337] = "MEDIUM_FLOAT", t[t.HIGH_FLOAT = 36338] = "HIGH_FLOAT", t[t.LOW_INT = 36339] = "LOW_INT", t[t.MEDIUM_INT = 36340] = "MEDIUM_INT", t[t.HIGH_INT = 36341] = "HIGH_INT", t[t.FRAMEBUFFER = 36160] = "FRAMEBUFFER", t[t.RENDERBUFFER = 36161] = "RENDERBUFFER", t[t.RGBA4 = 32854] = "RGBA4", t[t.RGB5_A1 = 32855] = "RGB5_A1", t[t.RGB565 = 36194] = "RGB565", t[t.DEPTH_COMPONENT16 = 33189] = "DEPTH_COMPONENT16", t[t.STENCIL_INDEX = 6401] = "STENCIL_INDEX", t[t.STENCIL_INDEX8 = 36168] = "STENCIL_INDEX8", t[t.DEPTH_STENCIL = 34041] = "DEPTH_STENCIL", t[t.RENDERBUFFER_WIDTH = 36162] = "RENDERBUFFER_WIDTH", t[t.RENDERBUFFER_HEIGHT = 36163] = "RENDERBUFFER_HEIGHT", t[t.RENDERBUFFER_INTERNAL_FORMAT = 36164] = "RENDERBUFFER_INTERNAL_FORMAT", t[t.RENDERBUFFER_RED_SIZE = 36176] = "RENDERBUFFER_RED_SIZE", t[t.RENDERBUFFER_GREEN_SIZE = 36177] = "RENDERBUFFER_GREEN_SIZE", t[t.RENDERBUFFER_BLUE_SIZE = 36178] = "RENDERBUFFER_BLUE_SIZE", t[t.RENDERBUFFER_ALPHA_SIZE = 36179] = "RENDERBUFFER_ALPHA_SIZE", t[t.RENDERBUFFER_DEPTH_SIZE = 36180] = "RENDERBUFFER_DEPTH_SIZE", t[t.RENDERBUFFER_STENCIL_SIZE = 36181] = "RENDERBUFFER_STENCIL_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE = 36048] = "FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE", t[t.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME = 36049] = "FRAMEBUFFER_ATTACHMENT_OBJECT_NAME", t[t.FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL = 36050] = "FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL", t[t.FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE = 36051] = "FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE", t[t.COLOR_ATTACHMENT0 = 36064] = "COLOR_ATTACHMENT0", t[t.DEPTH_ATTACHMENT = 36096] = "DEPTH_ATTACHMENT", t[t.STENCIL_ATTACHMENT = 36128] = "STENCIL_ATTACHMENT", t[t.DEPTH_STENCIL_ATTACHMENT = 33306] = "DEPTH_STENCIL_ATTACHMENT", t[t.NONE = 0] = "NONE", t[t.FRAMEBUFFER_COMPLETE = 36053] = "FRAMEBUFFER_COMPLETE", t[t.FRAMEBUFFER_INCOMPLETE_ATTACHMENT = 36054] = "FRAMEBUFFER_INCOMPLETE_ATTACHMENT", t[t.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = 36055] = "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT", t[t.FRAMEBUFFER_INCOMPLETE_DIMENSIONS = 36057] = "FRAMEBUFFER_INCOMPLETE_DIMENSIONS", t[t.FRAMEBUFFER_UNSUPPORTED = 36061] = "FRAMEBUFFER_UNSUPPORTED", t[t.FRAMEBUFFER_BINDING = 36006] = "FRAMEBUFFER_BINDING", t[t.RENDERBUFFER_BINDING = 36007] = "RENDERBUFFER_BINDING", t[t.READ_FRAMEBUFFER = 36008] = "READ_FRAMEBUFFER", t[t.DRAW_FRAMEBUFFER = 36009] = "DRAW_FRAMEBUFFER", t[t.MAX_RENDERBUFFER_SIZE = 34024] = "MAX_RENDERBUFFER_SIZE", t[t.INVALID_FRAMEBUFFER_OPERATION = 1286] = "INVALID_FRAMEBUFFER_OPERATION", t[t.UNPACK_FLIP_Y_WEBGL = 37440] = "UNPACK_FLIP_Y_WEBGL", t[t.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 37441] = "UNPACK_PREMULTIPLY_ALPHA_WEBGL", t[t.UNPACK_COLORSPACE_CONVERSION_WEBGL = 37443] = "UNPACK_COLORSPACE_CONVERSION_WEBGL", t[t.READ_BUFFER = 3074] = "READ_BUFFER", t[t.UNPACK_ROW_LENGTH = 3314] = "UNPACK_ROW_LENGTH", t[t.UNPACK_SKIP_ROWS = 3315] = "UNPACK_SKIP_ROWS", t[t.UNPACK_SKIP_PIXELS = 3316] = "UNPACK_SKIP_PIXELS", t[t.PACK_ROW_LENGTH = 3330] = "PACK_ROW_LENGTH", t[t.PACK_SKIP_ROWS = 3331] = "PACK_SKIP_ROWS", t[t.PACK_SKIP_PIXELS = 3332] = "PACK_SKIP_PIXELS", t[t.TEXTURE_BINDING_3D = 32874] = "TEXTURE_BINDING_3D", t[t.UNPACK_SKIP_IMAGES = 32877] = "UNPACK_SKIP_IMAGES", t[t.UNPACK_IMAGE_HEIGHT = 32878] = "UNPACK_IMAGE_HEIGHT", t[t.MAX_3D_TEXTURE_SIZE = 32883] = "MAX_3D_TEXTURE_SIZE", t[t.MAX_ELEMENTS_VERTICES = 33e3] = "MAX_ELEMENTS_VERTICES", t[t.MAX_ELEMENTS_INDICES = 33001] = "MAX_ELEMENTS_INDICES", t[t.MAX_TEXTURE_LOD_BIAS = 34045] = "MAX_TEXTURE_LOD_BIAS", t[t.MAX_FRAGMENT_UNIFORM_COMPONENTS = 35657] = "MAX_FRAGMENT_UNIFORM_COMPONENTS", t[t.MAX_VERTEX_UNIFORM_COMPONENTS = 35658] = "MAX_VERTEX_UNIFORM_COMPONENTS", t[t.MAX_ARRAY_TEXTURE_LAYERS = 35071] = "MAX_ARRAY_TEXTURE_LAYERS", t[t.MIN_PROGRAM_TEXEL_OFFSET = 35076] = "MIN_PROGRAM_TEXEL_OFFSET", t[t.MAX_PROGRAM_TEXEL_OFFSET = 35077] = "MAX_PROGRAM_TEXEL_OFFSET", t[t.MAX_VARYING_COMPONENTS = 35659] = "MAX_VARYING_COMPONENTS", t[t.FRAGMENT_SHADER_DERIVATIVE_HINT = 35723] = "FRAGMENT_SHADER_DERIVATIVE_HINT", t[t.RASTERIZER_DISCARD = 35977] = "RASTERIZER_DISCARD", t[t.VERTEX_ARRAY_BINDING = 34229] = "VERTEX_ARRAY_BINDING", t[t.MAX_VERTEX_OUTPUT_COMPONENTS = 37154] = "MAX_VERTEX_OUTPUT_COMPONENTS", t[t.MAX_FRAGMENT_INPUT_COMPONENTS = 37157] = "MAX_FRAGMENT_INPUT_COMPONENTS", t[t.MAX_SERVER_WAIT_TIMEOUT = 37137] = "MAX_SERVER_WAIT_TIMEOUT", t[t.MAX_ELEMENT_INDEX = 36203] = "MAX_ELEMENT_INDEX", t[t.RED = 6403] = "RED", t[t.RGB8 = 32849] = "RGB8", t[t.RGBA8 = 32856] = "RGBA8", t[t.RGB10_A2 = 32857] = "RGB10_A2", t[t.TEXTURE_3D = 32879] = "TEXTURE_3D", t[t.TEXTURE_WRAP_R = 32882] = "TEXTURE_WRAP_R", t[t.TEXTURE_MIN_LOD = 33082] = "TEXTURE_MIN_LOD", t[t.TEXTURE_MAX_LOD = 33083] = "TEXTURE_MAX_LOD", t[t.TEXTURE_BASE_LEVEL = 33084] = "TEXTURE_BASE_LEVEL", t[t.TEXTURE_MAX_LEVEL = 33085] = "TEXTURE_MAX_LEVEL", t[t.TEXTURE_COMPARE_MODE = 34892] = "TEXTURE_COMPARE_MODE", t[t.TEXTURE_COMPARE_FUNC = 34893] = "TEXTURE_COMPARE_FUNC", t[t.SRGB = 35904] = "SRGB", t[t.SRGB8 = 35905] = "SRGB8", t[t.SRGB8_ALPHA8 = 35907] = "SRGB8_ALPHA8", t[t.COMPARE_REF_TO_TEXTURE = 34894] = "COMPARE_REF_TO_TEXTURE", t[t.RGBA32F = 34836] = "RGBA32F", t[t.RGB32F = 34837] = "RGB32F", t[t.RGBA16F = 34842] = "RGBA16F", t[t.RGB16F = 34843] = "RGB16F", t[t.TEXTURE_2D_ARRAY = 35866] = "TEXTURE_2D_ARRAY", t[t.TEXTURE_BINDING_2D_ARRAY = 35869] = "TEXTURE_BINDING_2D_ARRAY", t[t.R11F_G11F_B10F = 35898] = "R11F_G11F_B10F", t[t.RGB9_E5 = 35901] = "RGB9_E5", t[t.RGBA32UI = 36208] = "RGBA32UI", t[t.RGB32UI = 36209] = "RGB32UI", t[t.RGBA16UI = 36214] = "RGBA16UI", t[t.RGB16UI = 36215] = "RGB16UI", t[t.RGBA8UI = 36220] = "RGBA8UI", t[t.RGB8UI = 36221] = "RGB8UI", t[t.RGBA32I = 36226] = "RGBA32I", t[t.RGB32I = 36227] = "RGB32I", t[t.RGBA16I = 36232] = "RGBA16I", t[t.RGB16I = 36233] = "RGB16I", t[t.RGBA8I = 36238] = "RGBA8I", t[t.RGB8I = 36239] = "RGB8I", t[t.RED_INTEGER = 36244] = "RED_INTEGER", t[t.RGB_INTEGER = 36248] = "RGB_INTEGER", t[t.RGBA_INTEGER = 36249] = "RGBA_INTEGER", t[t.R8 = 33321] = "R8", t[t.RG8 = 33323] = "RG8", t[t.R16F = 33325] = "R16F", t[t.R32F = 33326] = "R32F", t[t.RG16F = 33327] = "RG16F", t[t.RG32F = 33328] = "RG32F", t[t.R8I = 33329] = "R8I", t[t.R8UI = 33330] = "R8UI", t[t.R16I = 33331] = "R16I", t[t.R16UI = 33332] = "R16UI", t[t.R32I = 33333] = "R32I", t[t.R32UI = 33334] = "R32UI", t[t.RG8I = 33335] = "RG8I", t[t.RG8UI = 33336] = "RG8UI", t[t.RG16I = 33337] = "RG16I", t[t.RG16UI = 33338] = "RG16UI", t[t.RG32I = 33339] = "RG32I", t[t.RG32UI = 33340] = "RG32UI", t[t.R8_SNORM = 36756] = "R8_SNORM", t[t.RG8_SNORM = 36757] = "RG8_SNORM", t[t.RGB8_SNORM = 36758] = "RGB8_SNORM", t[t.RGBA8_SNORM = 36759] = "RGBA8_SNORM", t[t.RGB10_A2UI = 36975] = "RGB10_A2UI", t[t.TEXTURE_IMMUTABLE_FORMAT = 37167] = "TEXTURE_IMMUTABLE_FORMAT", t[t.TEXTURE_IMMUTABLE_LEVELS = 33503] = "TEXTURE_IMMUTABLE_LEVELS", t[t.UNSIGNED_INT_2_10_10_10_REV = 33640] = "UNSIGNED_INT_2_10_10_10_REV", t[t.UNSIGNED_INT_10F_11F_11F_REV = 35899] = "UNSIGNED_INT_10F_11F_11F_REV", t[t.UNSIGNED_INT_5_9_9_9_REV = 35902] = "UNSIGNED_INT_5_9_9_9_REV", t[t.FLOAT_32_UNSIGNED_INT_24_8_REV = 36269] = "FLOAT_32_UNSIGNED_INT_24_8_REV", t[t.UNSIGNED_INT_24_8 = 34042] = "UNSIGNED_INT_24_8", t[t.HALF_FLOAT = 5131] = "HALF_FLOAT", t[t.RG = 33319] = "RG", t[t.RG_INTEGER = 33320] = "RG_INTEGER", t[t.INT_2_10_10_10_REV = 36255] = "INT_2_10_10_10_REV", t[t.CURRENT_QUERY = 34917] = "CURRENT_QUERY", t[t.QUERY_RESULT = 34918] = "QUERY_RESULT", t[t.QUERY_RESULT_AVAILABLE = 34919] = "QUERY_RESULT_AVAILABLE", t[t.ANY_SAMPLES_PASSED = 35887] = "ANY_SAMPLES_PASSED", t[t.ANY_SAMPLES_PASSED_CONSERVATIVE = 36202] = "ANY_SAMPLES_PASSED_CONSERVATIVE", t[t.MAX_DRAW_BUFFERS = 34852] = "MAX_DRAW_BUFFERS", t[t.DRAW_BUFFER0 = 34853] = "DRAW_BUFFER0", t[t.DRAW_BUFFER1 = 34854] = "DRAW_BUFFER1", t[t.DRAW_BUFFER2 = 34855] = "DRAW_BUFFER2", t[t.DRAW_BUFFER3 = 34856] = "DRAW_BUFFER3", t[t.DRAW_BUFFER4 = 34857] = "DRAW_BUFFER4", t[t.DRAW_BUFFER5 = 34858] = "DRAW_BUFFER5", t[t.DRAW_BUFFER6 = 34859] = "DRAW_BUFFER6", t[t.DRAW_BUFFER7 = 34860] = "DRAW_BUFFER7", t[t.DRAW_BUFFER8 = 34861] = "DRAW_BUFFER8", t[t.DRAW_BUFFER9 = 34862] = "DRAW_BUFFER9", t[t.DRAW_BUFFER10 = 34863] = "DRAW_BUFFER10", t[t.DRAW_BUFFER11 = 34864] = "DRAW_BUFFER11", t[t.DRAW_BUFFER12 = 34865] = "DRAW_BUFFER12", t[t.DRAW_BUFFER13 = 34866] = "DRAW_BUFFER13", t[t.DRAW_BUFFER14 = 34867] = "DRAW_BUFFER14", t[t.DRAW_BUFFER15 = 34868] = "DRAW_BUFFER15", t[t.MAX_COLOR_ATTACHMENTS = 36063] = "MAX_COLOR_ATTACHMENTS", t[t.COLOR_ATTACHMENT1 = 36065] = "COLOR_ATTACHMENT1", t[t.COLOR_ATTACHMENT2 = 36066] = "COLOR_ATTACHMENT2", t[t.COLOR_ATTACHMENT3 = 36067] = "COLOR_ATTACHMENT3", t[t.COLOR_ATTACHMENT4 = 36068] = "COLOR_ATTACHMENT4", t[t.COLOR_ATTACHMENT5 = 36069] = "COLOR_ATTACHMENT5", t[t.COLOR_ATTACHMENT6 = 36070] = "COLOR_ATTACHMENT6", t[t.COLOR_ATTACHMENT7 = 36071] = "COLOR_ATTACHMENT7", t[t.COLOR_ATTACHMENT8 = 36072] = "COLOR_ATTACHMENT8", t[t.COLOR_ATTACHMENT9 = 36073] = "COLOR_ATTACHMENT9", t[t.COLOR_ATTACHMENT10 = 36074] = "COLOR_ATTACHMENT10", t[t.COLOR_ATTACHMENT11 = 36075] = "COLOR_ATTACHMENT11", t[t.COLOR_ATTACHMENT12 = 36076] = "COLOR_ATTACHMENT12", t[t.COLOR_ATTACHMENT13 = 36077] = "COLOR_ATTACHMENT13", t[t.COLOR_ATTACHMENT14 = 36078] = "COLOR_ATTACHMENT14", t[t.COLOR_ATTACHMENT15 = 36079] = "COLOR_ATTACHMENT15", t[t.SAMPLER_3D = 35679] = "SAMPLER_3D", t[t.SAMPLER_2D_SHADOW = 35682] = "SAMPLER_2D_SHADOW", t[t.SAMPLER_2D_ARRAY = 36289] = "SAMPLER_2D_ARRAY", t[t.SAMPLER_2D_ARRAY_SHADOW = 36292] = "SAMPLER_2D_ARRAY_SHADOW", t[t.SAMPLER_CUBE_SHADOW = 36293] = "SAMPLER_CUBE_SHADOW", t[t.INT_SAMPLER_2D = 36298] = "INT_SAMPLER_2D", t[t.INT_SAMPLER_3D = 36299] = "INT_SAMPLER_3D", t[t.INT_SAMPLER_CUBE = 36300] = "INT_SAMPLER_CUBE", t[t.INT_SAMPLER_2D_ARRAY = 36303] = "INT_SAMPLER_2D_ARRAY", t[t.UNSIGNED_INT_SAMPLER_2D = 36306] = "UNSIGNED_INT_SAMPLER_2D", t[t.UNSIGNED_INT_SAMPLER_3D = 36307] = "UNSIGNED_INT_SAMPLER_3D", t[t.UNSIGNED_INT_SAMPLER_CUBE = 36308] = "UNSIGNED_INT_SAMPLER_CUBE", t[t.UNSIGNED_INT_SAMPLER_2D_ARRAY = 36311] = "UNSIGNED_INT_SAMPLER_2D_ARRAY", t[t.MAX_SAMPLES = 36183] = "MAX_SAMPLES", t[t.SAMPLER_BINDING = 35097] = "SAMPLER_BINDING", t[t.PIXEL_PACK_BUFFER = 35051] = "PIXEL_PACK_BUFFER", t[t.PIXEL_UNPACK_BUFFER = 35052] = "PIXEL_UNPACK_BUFFER", t[t.PIXEL_PACK_BUFFER_BINDING = 35053] = "PIXEL_PACK_BUFFER_BINDING", t[t.PIXEL_UNPACK_BUFFER_BINDING = 35055] = "PIXEL_UNPACK_BUFFER_BINDING", t[t.COPY_READ_BUFFER = 36662] = "COPY_READ_BUFFER", t[t.COPY_WRITE_BUFFER = 36663] = "COPY_WRITE_BUFFER", t[t.COPY_READ_BUFFER_BINDING = 36662] = "COPY_READ_BUFFER_BINDING", t[t.COPY_WRITE_BUFFER_BINDING = 36663] = "COPY_WRITE_BUFFER_BINDING", t[t.FLOAT_MAT2x3 = 35685] = "FLOAT_MAT2x3", t[t.FLOAT_MAT2x4 = 35686] = "FLOAT_MAT2x4", t[t.FLOAT_MAT3x2 = 35687] = "FLOAT_MAT3x2", t[t.FLOAT_MAT3x4 = 35688] = "FLOAT_MAT3x4", t[t.FLOAT_MAT4x2 = 35689] = "FLOAT_MAT4x2", t[t.FLOAT_MAT4x3 = 35690] = "FLOAT_MAT4x3", t[t.UNSIGNED_INT_VEC2 = 36294] = "UNSIGNED_INT_VEC2", t[t.UNSIGNED_INT_VEC3 = 36295] = "UNSIGNED_INT_VEC3", t[t.UNSIGNED_INT_VEC4 = 36296] = "UNSIGNED_INT_VEC4", t[t.UNSIGNED_NORMALIZED = 35863] = "UNSIGNED_NORMALIZED", t[t.SIGNED_NORMALIZED = 36764] = "SIGNED_NORMALIZED", t[t.VERTEX_ATTRIB_ARRAY_INTEGER = 35069] = "VERTEX_ATTRIB_ARRAY_INTEGER", t[t.VERTEX_ATTRIB_ARRAY_DIVISOR = 35070] = "VERTEX_ATTRIB_ARRAY_DIVISOR", t[t.TRANSFORM_FEEDBACK_BUFFER_MODE = 35967] = "TRANSFORM_FEEDBACK_BUFFER_MODE", t[t.MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS = 35968] = "MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS", t[t.TRANSFORM_FEEDBACK_VARYINGS = 35971] = "TRANSFORM_FEEDBACK_VARYINGS", t[t.TRANSFORM_FEEDBACK_BUFFER_START = 35972] = "TRANSFORM_FEEDBACK_BUFFER_START", t[t.TRANSFORM_FEEDBACK_BUFFER_SIZE = 35973] = "TRANSFORM_FEEDBACK_BUFFER_SIZE", t[t.TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = 35976] = "TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN", t[t.MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS = 35978] = "MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS", t[t.MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS = 35979] = "MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS", t[t.INTERLEAVED_ATTRIBS = 35980] = "INTERLEAVED_ATTRIBS", t[t.SEPARATE_ATTRIBS = 35981] = "SEPARATE_ATTRIBS", t[t.TRANSFORM_FEEDBACK_BUFFER = 35982] = "TRANSFORM_FEEDBACK_BUFFER", t[t.TRANSFORM_FEEDBACK_BUFFER_BINDING = 35983] = "TRANSFORM_FEEDBACK_BUFFER_BINDING", t[t.TRANSFORM_FEEDBACK = 36386] = "TRANSFORM_FEEDBACK", t[t.TRANSFORM_FEEDBACK_PAUSED = 36387] = "TRANSFORM_FEEDBACK_PAUSED", t[t.TRANSFORM_FEEDBACK_ACTIVE = 36388] = "TRANSFORM_FEEDBACK_ACTIVE", t[t.TRANSFORM_FEEDBACK_BINDING = 36389] = "TRANSFORM_FEEDBACK_BINDING", t[t.FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING = 33296] = "FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING", t[t.FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE = 33297] = "FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE", t[t.FRAMEBUFFER_ATTACHMENT_RED_SIZE = 33298] = "FRAMEBUFFER_ATTACHMENT_RED_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_GREEN_SIZE = 33299] = "FRAMEBUFFER_ATTACHMENT_GREEN_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_BLUE_SIZE = 33300] = "FRAMEBUFFER_ATTACHMENT_BLUE_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE = 33301] = "FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE = 33302] = "FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE", t[t.FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE = 33303] = "FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE", t[t.FRAMEBUFFER_DEFAULT = 33304] = "FRAMEBUFFER_DEFAULT", t[t.DEPTH24_STENCIL8 = 35056] = "DEPTH24_STENCIL8", t[t.DRAW_FRAMEBUFFER_BINDING = 36006] = "DRAW_FRAMEBUFFER_BINDING", t[t.READ_FRAMEBUFFER_BINDING = 36010] = "READ_FRAMEBUFFER_BINDING", t[t.RENDERBUFFER_SAMPLES = 36011] = "RENDERBUFFER_SAMPLES", t[t.FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER = 36052] = "FRAMEBUFFER_ATTACHMENT_TEXTURE_LAYER", t[t.FRAMEBUFFER_INCOMPLETE_MULTISAMPLE = 36182] = "FRAMEBUFFER_INCOMPLETE_MULTISAMPLE", t[t.UNIFORM_BUFFER = 35345] = "UNIFORM_BUFFER", t[t.UNIFORM_BUFFER_BINDING = 35368] = "UNIFORM_BUFFER_BINDING", t[t.UNIFORM_BUFFER_START = 35369] = "UNIFORM_BUFFER_START", t[t.UNIFORM_BUFFER_SIZE = 35370] = "UNIFORM_BUFFER_SIZE", t[t.MAX_VERTEX_UNIFORM_BLOCKS = 35371] = "MAX_VERTEX_UNIFORM_BLOCKS", t[t.MAX_FRAGMENT_UNIFORM_BLOCKS = 35373] = "MAX_FRAGMENT_UNIFORM_BLOCKS", t[t.MAX_COMBINED_UNIFORM_BLOCKS = 35374] = "MAX_COMBINED_UNIFORM_BLOCKS", t[t.MAX_UNIFORM_BUFFER_BINDINGS = 35375] = "MAX_UNIFORM_BUFFER_BINDINGS", t[t.MAX_UNIFORM_BLOCK_SIZE = 35376] = "MAX_UNIFORM_BLOCK_SIZE", t[t.MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS = 35377] = "MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS", t[t.MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS = 35379] = "MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS", t[t.UNIFORM_BUFFER_OFFSET_ALIGNMENT = 35380] = "UNIFORM_BUFFER_OFFSET_ALIGNMENT", t[t.ACTIVE_UNIFORM_BLOCKS = 35382] = "ACTIVE_UNIFORM_BLOCKS", t[t.UNIFORM_TYPE = 35383] = "UNIFORM_TYPE", t[t.UNIFORM_SIZE = 35384] = "UNIFORM_SIZE", t[t.UNIFORM_BLOCK_INDEX = 35386] = "UNIFORM_BLOCK_INDEX", t[t.UNIFORM_OFFSET = 35387] = "UNIFORM_OFFSET", t[t.UNIFORM_ARRAY_STRIDE = 35388] = "UNIFORM_ARRAY_STRIDE", t[t.UNIFORM_MATRIX_STRIDE = 35389] = "UNIFORM_MATRIX_STRIDE", t[t.UNIFORM_IS_ROW_MAJOR = 35390] = "UNIFORM_IS_ROW_MAJOR", t[t.UNIFORM_BLOCK_BINDING = 35391] = "UNIFORM_BLOCK_BINDING", t[t.UNIFORM_BLOCK_DATA_SIZE = 35392] = "UNIFORM_BLOCK_DATA_SIZE", t[t.UNIFORM_BLOCK_ACTIVE_UNIFORMS = 35394] = "UNIFORM_BLOCK_ACTIVE_UNIFORMS", t[t.UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES = 35395] = "UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES", t[t.UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER = 35396] = "UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER", t[t.UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 35398] = "UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER", t[t.OBJECT_TYPE = 37138] = "OBJECT_TYPE", t[t.SYNC_CONDITION = 37139] = "SYNC_CONDITION", t[t.SYNC_STATUS = 37140] = "SYNC_STATUS", t[t.SYNC_FLAGS = 37141] = "SYNC_FLAGS", t[t.SYNC_FENCE = 37142] = "SYNC_FENCE", t[t.SYNC_GPU_COMMANDS_COMPLETE = 37143] = "SYNC_GPU_COMMANDS_COMPLETE", t[t.UNSIGNALED = 37144] = "UNSIGNALED", t[t.SIGNALED = 37145] = "SIGNALED", t[t.ALREADY_SIGNALED = 37146] = "ALREADY_SIGNALED", t[t.TIMEOUT_EXPIRED = 37147] = "TIMEOUT_EXPIRED", t[t.CONDITION_SATISFIED = 37148] = "CONDITION_SATISFIED", t[t.WAIT_FAILED = 37149] = "WAIT_FAILED", t[t.SYNC_FLUSH_COMMANDS_BIT = 1] = "SYNC_FLUSH_COMMANDS_BIT", t[t.COLOR = 6144] = "COLOR", t[t.DEPTH = 6145] = "DEPTH", t[t.STENCIL = 6146] = "STENCIL", t[t.MIN = 32775] = "MIN", t[t.MAX = 32776] = "MAX", t[t.DEPTH_COMPONENT24 = 33190] = "DEPTH_COMPONENT24", t[t.STREAM_READ = 35041] = "STREAM_READ", t[t.STREAM_COPY = 35042] = "STREAM_COPY", t[t.STATIC_READ = 35045] = "STATIC_READ", t[t.STATIC_COPY = 35046] = "STATIC_COPY", t[t.DYNAMIC_READ = 35049] = "DYNAMIC_READ", t[t.DYNAMIC_COPY = 35050] = "DYNAMIC_COPY", t[t.DEPTH_COMPONENT32F = 36012] = "DEPTH_COMPONENT32F", t[t.DEPTH32F_STENCIL8 = 36013] = "DEPTH32F_STENCIL8", t[t.INVALID_INDEX = 4294967295] = "INVALID_INDEX", t[t.TIMEOUT_IGNORED = -1] = "TIMEOUT_IGNORED", t[t.MAX_CLIENT_WAIT_TIMEOUT_WEBGL = 37447] = "MAX_CLIENT_WAIT_TIMEOUT_WEBGL", t[t.UNMASKED_VENDOR_WEBGL = 37445] = "UNMASKED_VENDOR_WEBGL", t[t.UNMASKED_RENDERER_WEBGL = 37446] = "UNMASKED_RENDERER_WEBGL", t[t.MAX_TEXTURE_MAX_ANISOTROPY_EXT = 34047] = "MAX_TEXTURE_MAX_ANISOTROPY_EXT", t[t.TEXTURE_MAX_ANISOTROPY_EXT = 34046] = "TEXTURE_MAX_ANISOTROPY_EXT", t[t.R16_EXT = 33322] = "R16_EXT", t[t.RG16_EXT = 33324] = "RG16_EXT", t[t.RGB16_EXT = 32852] = "RGB16_EXT", t[t.RGBA16_EXT = 32859] = "RGBA16_EXT", t[t.R16_SNORM_EXT = 36760] = "R16_SNORM_EXT", t[t.RG16_SNORM_EXT = 36761] = "RG16_SNORM_EXT", t[t.RGB16_SNORM_EXT = 36762] = "RGB16_SNORM_EXT", t[t.RGBA16_SNORM_EXT = 36763] = "RGBA16_SNORM_EXT", t[t.COMPRESSED_RGB_S3TC_DXT1_EXT = 33776] = "COMPRESSED_RGB_S3TC_DXT1_EXT", t[t.COMPRESSED_RGBA_S3TC_DXT1_EXT = 33777] = "COMPRESSED_RGBA_S3TC_DXT1_EXT", t[t.COMPRESSED_RGBA_S3TC_DXT3_EXT = 33778] = "COMPRESSED_RGBA_S3TC_DXT3_EXT", t[t.COMPRESSED_RGBA_S3TC_DXT5_EXT = 33779] = "COMPRESSED_RGBA_S3TC_DXT5_EXT", t[t.COMPRESSED_SRGB_S3TC_DXT1_EXT = 35916] = "COMPRESSED_SRGB_S3TC_DXT1_EXT", t[t.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT = 35917] = "COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT", t[t.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT = 35918] = "COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT", t[t.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT = 35919] = "COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT", t[t.COMPRESSED_RED_RGTC1_EXT = 36283] = "COMPRESSED_RED_RGTC1_EXT", t[t.COMPRESSED_SIGNED_RED_RGTC1_EXT = 36284] = "COMPRESSED_SIGNED_RED_RGTC1_EXT", t[t.COMPRESSED_RED_GREEN_RGTC2_EXT = 36285] = "COMPRESSED_RED_GREEN_RGTC2_EXT", t[t.COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT = 36286] = "COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT", t[t.COMPRESSED_RGBA_BPTC_UNORM_EXT = 36492] = "COMPRESSED_RGBA_BPTC_UNORM_EXT", t[t.COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT = 36493] = "COMPRESSED_SRGB_ALPHA_BPTC_UNORM_EXT", t[t.COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT = 36494] = "COMPRESSED_RGB_BPTC_SIGNED_FLOAT_EXT", t[t.COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT = 36495] = "COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_EXT", t[t.COMPRESSED_R11_EAC = 37488] = "COMPRESSED_R11_EAC", t[t.COMPRESSED_SIGNED_R11_EAC = 37489] = "COMPRESSED_SIGNED_R11_EAC", t[t.COMPRESSED_RG11_EAC = 37490] = "COMPRESSED_RG11_EAC", t[t.COMPRESSED_SIGNED_RG11_EAC = 37491] = "COMPRESSED_SIGNED_RG11_EAC", t[t.COMPRESSED_RGB8_ETC2 = 37492] = "COMPRESSED_RGB8_ETC2", t[t.COMPRESSED_RGBA8_ETC2_EAC = 37493] = "COMPRESSED_RGBA8_ETC2_EAC", t[t.COMPRESSED_SRGB8_ETC2 = 37494] = "COMPRESSED_SRGB8_ETC2", t[t.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC = 37495] = "COMPRESSED_SRGB8_ALPHA8_ETC2_EAC", t[t.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 37496] = "COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2", t[t.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 37497] = "COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2", t[t.COMPRESSED_RGB_PVRTC_4BPPV1_IMG = 35840] = "COMPRESSED_RGB_PVRTC_4BPPV1_IMG", t[t.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG = 35842] = "COMPRESSED_RGBA_PVRTC_4BPPV1_IMG", t[t.COMPRESSED_RGB_PVRTC_2BPPV1_IMG = 35841] = "COMPRESSED_RGB_PVRTC_2BPPV1_IMG", t[t.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG = 35843] = "COMPRESSED_RGBA_PVRTC_2BPPV1_IMG", t[t.COMPRESSED_RGB_ETC1_WEBGL = 36196] = "COMPRESSED_RGB_ETC1_WEBGL", t[t.COMPRESSED_RGB_ATC_WEBGL = 35986] = "COMPRESSED_RGB_ATC_WEBGL", t[t.COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL = 35986] = "COMPRESSED_RGBA_ATC_EXPLICIT_ALPHA_WEBGL", t[t.COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL = 34798] = "COMPRESSED_RGBA_ATC_INTERPOLATED_ALPHA_WEBGL", t[t.COMPRESSED_RGBA_ASTC_4x4_KHR = 37808] = "COMPRESSED_RGBA_ASTC_4x4_KHR", t[t.COMPRESSED_RGBA_ASTC_5x4_KHR = 37809] = "COMPRESSED_RGBA_ASTC_5x4_KHR", t[t.COMPRESSED_RGBA_ASTC_5x5_KHR = 37810] = "COMPRESSED_RGBA_ASTC_5x5_KHR", t[t.COMPRESSED_RGBA_ASTC_6x5_KHR = 37811] = "COMPRESSED_RGBA_ASTC_6x5_KHR", t[t.COMPRESSED_RGBA_ASTC_6x6_KHR = 37812] = "COMPRESSED_RGBA_ASTC_6x6_KHR", t[t.COMPRESSED_RGBA_ASTC_8x5_KHR = 37813] = "COMPRESSED_RGBA_ASTC_8x5_KHR", t[t.COMPRESSED_RGBA_ASTC_8x6_KHR = 37814] = "COMPRESSED_RGBA_ASTC_8x6_KHR", t[t.COMPRESSED_RGBA_ASTC_8x8_KHR = 37815] = "COMPRESSED_RGBA_ASTC_8x8_KHR", t[t.COMPRESSED_RGBA_ASTC_10x5_KHR = 37816] = "COMPRESSED_RGBA_ASTC_10x5_KHR", t[t.COMPRESSED_RGBA_ASTC_10x6_KHR = 37817] = "COMPRESSED_RGBA_ASTC_10x6_KHR", t[t.COMPRESSED_RGBA_ASTC_10x8_KHR = 37818] = "COMPRESSED_RGBA_ASTC_10x8_KHR", t[t.COMPRESSED_RGBA_ASTC_10x10_KHR = 37819] = "COMPRESSED_RGBA_ASTC_10x10_KHR", t[t.COMPRESSED_RGBA_ASTC_12x10_KHR = 37820] = "COMPRESSED_RGBA_ASTC_12x10_KHR", t[t.COMPRESSED_RGBA_ASTC_12x12_KHR = 37821] = "COMPRESSED_RGBA_ASTC_12x12_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR = 37840] = "COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR = 37841] = "COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR = 37842] = "COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR = 37843] = "COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR = 37844] = "COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR = 37845] = "COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR = 37846] = "COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR = 37847] = "COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR = 37848] = "COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR = 37849] = "COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR = 37850] = "COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR = 37851] = "COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR = 37852] = "COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR", t[t.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR = 37853] = "COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR", t[t.QUERY_COUNTER_BITS_EXT = 34916] = "QUERY_COUNTER_BITS_EXT", t[t.CURRENT_QUERY_EXT = 34917] = "CURRENT_QUERY_EXT", t[t.QUERY_RESULT_EXT = 34918] = "QUERY_RESULT_EXT", t[t.QUERY_RESULT_AVAILABLE_EXT = 34919] = "QUERY_RESULT_AVAILABLE_EXT", t[t.TIME_ELAPSED_EXT = 35007] = "TIME_ELAPSED_EXT", t[t.TIMESTAMP_EXT = 36392] = "TIMESTAMP_EXT", t[t.GPU_DISJOINT_EXT = 36795] = "GPU_DISJOINT_EXT", t[t.COMPLETION_STATUS_KHR = 37297] = "COMPLETION_STATUS_KHR", t[t.DEPTH_CLAMP_EXT = 34383] = "DEPTH_CLAMP_EXT", t[t.FIRST_VERTEX_CONVENTION_WEBGL = 36429] = "FIRST_VERTEX_CONVENTION_WEBGL", t[t.LAST_VERTEX_CONVENTION_WEBGL = 36430] = "LAST_VERTEX_CONVENTION_WEBGL", t[t.PROVOKING_VERTEX_WEBL = 36431] = "PROVOKING_VERTEX_WEBL", t[t.POLYGON_MODE_WEBGL = 2880] = "POLYGON_MODE_WEBGL", t[t.POLYGON_OFFSET_LINE_WEBGL = 10754] = "POLYGON_OFFSET_LINE_WEBGL", t[t.LINE_WEBGL = 6913] = "LINE_WEBGL", t[t.FILL_WEBGL = 6914] = "FILL_WEBGL", t[t.MAX_CLIP_DISTANCES_WEBGL = 3378] = "MAX_CLIP_DISTANCES_WEBGL", t[t.MAX_CULL_DISTANCES_WEBGL = 33529] = "MAX_CULL_DISTANCES_WEBGL", t[t.MAX_COMBINED_CLIP_AND_CULL_DISTANCES_WEBGL = 33530] = "MAX_COMBINED_CLIP_AND_CULL_DISTANCES_WEBGL", t[t.CLIP_DISTANCE0_WEBGL = 12288] = "CLIP_DISTANCE0_WEBGL", t[t.CLIP_DISTANCE1_WEBGL = 12289] = "CLIP_DISTANCE1_WEBGL", t[t.CLIP_DISTANCE2_WEBGL = 12290] = "CLIP_DISTANCE2_WEBGL", t[t.CLIP_DISTANCE3_WEBGL = 12291] = "CLIP_DISTANCE3_WEBGL", t[t.CLIP_DISTANCE4_WEBGL = 12292] = "CLIP_DISTANCE4_WEBGL", t[t.CLIP_DISTANCE5_WEBGL = 12293] = "CLIP_DISTANCE5_WEBGL", t[t.CLIP_DISTANCE6_WEBGL = 12294] = "CLIP_DISTANCE6_WEBGL", t[t.CLIP_DISTANCE7_WEBGL = 12295] = "CLIP_DISTANCE7_WEBGL", t[t.POLYGON_OFFSET_CLAMP_EXT = 36379] = "POLYGON_OFFSET_CLAMP_EXT", t[t.LOWER_LEFT_EXT = 36001] = "LOWER_LEFT_EXT", t[t.UPPER_LEFT_EXT = 36002] = "UPPER_LEFT_EXT", t[t.NEGATIVE_ONE_TO_ONE_EXT = 37726] = "NEGATIVE_ONE_TO_ONE_EXT", t[t.ZERO_TO_ONE_EXT = 37727] = "ZERO_TO_ONE_EXT", t[t.CLIP_ORIGIN_EXT = 37724] = "CLIP_ORIGIN_EXT", t[t.CLIP_DEPTH_MODE_EXT = 37725] = "CLIP_DEPTH_MODE_EXT", t[t.SRC1_COLOR_WEBGL = 35065] = "SRC1_COLOR_WEBGL", t[t.SRC1_ALPHA_WEBGL = 34185] = "SRC1_ALPHA_WEBGL", t[t.ONE_MINUS_SRC1_COLOR_WEBGL = 35066] = "ONE_MINUS_SRC1_COLOR_WEBGL", t[t.ONE_MINUS_SRC1_ALPHA_WEBGL = 35067] = "ONE_MINUS_SRC1_ALPHA_WEBGL", t[t.MAX_DUAL_SOURCE_DRAW_BUFFERS_WEBGL = 35068] = "MAX_DUAL_SOURCE_DRAW_BUFFERS_WEBGL", t[t.MIRROR_CLAMP_TO_EDGE_EXT = 34627] = "MIRROR_CLAMP_TO_EDGE_EXT";
-})(yf || (yf = {}));
+})(Cf || (Cf = {}));
 const Nee = {
   WEBGL_depth_texture: {
     UNSIGNED_INT_24_8_WEBGL: 34042
@@ -45546,10 +45536,10 @@ function Gee(t, e) {
   const n = zk(t);
   if (n.debugContext)
     return n.debugContext;
-  globalThis.WebGLDebugUtils.init({ ...yf, ...t });
+  globalThis.WebGLDebugUtils.init({ ...Cf, ...t });
   const r = globalThis.WebGLDebugUtils.makeDebugContext(t, Kee.bind(null, e), Zee.bind(null, e));
-  for (const o in yf)
-    !(o in r) && typeof yf[o] == "number" && (r[o] = yf[o]);
+  for (const o in Cf)
+    !(o in r) && typeof Cf[o] == "number" && (r[o] = Cf[o]);
   class i {
   }
   Object.setPrototypeOf(r, Object.getPrototypeOf(t)), Object.setPrototypeOf(i, r);
@@ -45717,7 +45707,7 @@ const gC = new Qee(), aE = {
 }, Ms = (t, e, n) => e ? t.enable(n) : t.disable(n), vD = (t, e, n) => t.hint(n, e), Ba = (t, e, n) => t.pixelStorei(n, e), ED = (t, e, n) => {
   const r = n === 36006 ? 36009 : 36008;
   return t.bindFramebuffer(r, e);
-}, Lh = (t, e, n) => {
+}, zh = (t, e, n) => {
   const i = {
     34964: 34962,
     36662: 36662,
@@ -45758,11 +45748,11 @@ const ete = {
   36006: ED,
   36010: ED,
   // Buffers
-  34964: Lh,
-  36662: Lh,
-  36663: Lh,
-  35053: Lh,
-  35055: Lh,
+  34964: zh,
+  36662: zh,
+  36663: zh,
+  35053: zh,
+  35055: zh,
   2886: (t, e) => t.frontFace(e),
   33170: vD,
   2849: (t, e) => t.lineWidth(e),
@@ -46086,7 +46076,7 @@ const tte = {
   32874,
   34068
 ]);
-function th(t, e) {
+function nh(t, e) {
   if (ite(e))
     return;
   const n = {};
@@ -46114,7 +46104,7 @@ function Uk(t, e = aE) {
   return r;
 }
 function rte(t) {
-  th(t, aE);
+  nh(t, aE);
 }
 function ite(t) {
   for (const e in t)
@@ -46155,7 +46145,7 @@ class sd {
   }
   pop() {
     const e = this.stateStack[this.stateStack.length - 1];
-    th(this.gl, e), this.stateStack.pop();
+    nh(this.gl, e), this.stateStack.pop();
   }
   /**
    * Initialize WebGL state caching on a context
@@ -46241,12 +46231,12 @@ function lte(t, e, n) {
   const { onContextLost: o, onContextRestored: a } = e;
   return t.addEventListener("webglcontextlost", (u) => o(u), !1), t.addEventListener("webglcontextrestored", (u) => a(u), !1), s.luma ||= {}, s;
 }
-function Vf(t, e, n) {
+function Wf(t, e, n) {
   return n[e] === void 0 && (n[e] = t.getExtension(e) || null), n[e];
 }
 function cte(t, e) {
   const n = t.getParameter(7936), r = t.getParameter(7937);
-  Vf(t, "WEBGL_debug_renderer_info", e);
+  Wf(t, "WEBGL_debug_renderer_info", e);
   const i = e.WEBGL_debug_renderer_info, s = t.getParameter(i ? i.UNMASKED_VENDOR_WEBGL : 7936), o = t.getParameter(i ? i.UNMASKED_RENDERER_WEBGL : 7937), a = s || n, u = o || r, d = t.getParameter(7938), h = $k(a, u), g = ute(a, u), m = dte(a, u);
   return {
     type: "webgl",
@@ -46312,7 +46302,7 @@ function Hk(t) {
   }
   throw new Error(String(t));
 }
-const og = "WEBGL_compressed_texture_s3tc", ag = "WEBGL_compressed_texture_s3tc_srgb", Cf = "EXT_texture_compression_rgtc", bf = "EXT_texture_compression_bptc", fte = "WEBGL_compressed_texture_etc", hte = "WEBGL_compressed_texture_astc", gte = "WEBGL_compressed_texture_etc1", pte = "WEBGL_compressed_texture_pvrtc", mte = "WEBGL_compressed_texture_atc", BD = "EXT_texture_norm16", SD = "EXT_render_snorm", yte = "EXT_color_buffer_float", lE = {
+const ag = "WEBGL_compressed_texture_s3tc", lg = "WEBGL_compressed_texture_s3tc_srgb", bf = "EXT_texture_compression_rgtc", Ff = "EXT_texture_compression_bptc", fte = "WEBGL_compressed_texture_etc", hte = "WEBGL_compressed_texture_astc", gte = "WEBGL_compressed_texture_etc1", pte = "WEBGL_compressed_texture_pvrtc", mte = "WEBGL_compressed_texture_atc", BD = "EXT_texture_norm16", SD = "EXT_render_snorm", yte = "EXT_color_buffer_float", lE = {
   "float32-renderable-webgl": ["EXT_color_buffer_float"],
   "float16-renderable-webgl": ["EXT_color_buffer_half_float"],
   "rgb9e5ufloat-renderable-webgl": ["WEBGL_render_shared_exponent"],
@@ -46323,11 +46313,11 @@ const og = "WEBGL_compressed_texture_s3tc", ag = "WEBGL_compressed_texture_s3tc_
   "float16-filterable-webgl": ["OES_texture_half_float_linear"],
   "texture-filterable-anisotropic-webgl": ["EXT_texture_filter_anisotropic"],
   "texture-blend-float-webgl": ["EXT_float_blend"],
-  "texture-compression-bc": [og, ag, Cf, bf],
+  "texture-compression-bc": [ag, lg, bf, Ff],
   // 'texture-compression-bc3-srgb-webgl': [X_S3TC_SRGB],
   // 'texture-compression-bc3-webgl': [X_S3TC],
-  "texture-compression-bc5-webgl": [Cf],
-  "texture-compression-bc7-webgl": [bf],
+  "texture-compression-bc5-webgl": [bf],
+  "texture-compression-bc7-webgl": [Ff],
   "texture-compression-etc2": [fte],
   "texture-compression-astc": [hte],
   "texture-compression-etc1-webgl": [gte],
@@ -46338,7 +46328,7 @@ function Cte(t) {
   return t in lE;
 }
 function bte(t, e, n) {
-  return (lE[e] || []).every((i) => Vf(t, i, n));
+  return (lE[e] || []).every((i) => Wf(t, i, n));
 }
 const cE = {
   // 8-bit formats
@@ -46418,22 +46408,22 @@ const cE = {
   // "depth32float-stencil8" feature - TODO below is render buffer only?
   "depth32float-stencil8": { gl: 36013, dataFormat: 34041, types: [36269], rb: !0 },
   // BC compressed formats: check device.features.has("texture-compression-bc");
-  "bc1-rgb-unorm-webgl": { gl: 33776, x: og },
-  "bc1-rgb-unorm-srgb-webgl": { gl: 35916, x: ag },
-  "bc1-rgba-unorm": { gl: 33777, x: og },
-  "bc1-rgba-unorm-srgb": { gl: 35916, x: ag },
-  "bc2-rgba-unorm": { gl: 33778, x: og },
-  "bc2-rgba-unorm-srgb": { gl: 35918, x: ag },
-  "bc3-rgba-unorm": { gl: 33779, x: og },
-  "bc3-rgba-unorm-srgb": { gl: 35919, x: ag },
-  "bc4-r-unorm": { gl: 36283, x: Cf },
-  "bc4-r-snorm": { gl: 36284, x: Cf },
-  "bc5-rg-unorm": { gl: 36285, x: Cf },
-  "bc5-rg-snorm": { gl: 36286, x: Cf },
-  "bc6h-rgb-ufloat": { gl: 36495, x: bf },
-  "bc6h-rgb-float": { gl: 36494, x: bf },
-  "bc7-rgba-unorm": { gl: 36492, x: bf },
-  "bc7-rgba-unorm-srgb": { gl: 36493, x: bf },
+  "bc1-rgb-unorm-webgl": { gl: 33776, x: ag },
+  "bc1-rgb-unorm-srgb-webgl": { gl: 35916, x: lg },
+  "bc1-rgba-unorm": { gl: 33777, x: ag },
+  "bc1-rgba-unorm-srgb": { gl: 35916, x: lg },
+  "bc2-rgba-unorm": { gl: 33778, x: ag },
+  "bc2-rgba-unorm-srgb": { gl: 35918, x: lg },
+  "bc3-rgba-unorm": { gl: 33779, x: ag },
+  "bc3-rgba-unorm-srgb": { gl: 35919, x: lg },
+  "bc4-r-unorm": { gl: 36283, x: bf },
+  "bc4-r-snorm": { gl: 36284, x: bf },
+  "bc5-rg-unorm": { gl: 36285, x: bf },
+  "bc5-rg-snorm": { gl: 36286, x: bf },
+  "bc6h-rgb-ufloat": { gl: 36495, x: Ff },
+  "bc6h-rgb-float": { gl: 36494, x: Ff },
+  "bc7-rgba-unorm": { gl: 36492, x: Ff },
+  "bc7-rgba-unorm-srgb": { gl: 36493, x: Ff },
   // WEBGL_compressed_texture_etc: device.features.has("texture-compression-etc2")
   // Note: Supposedly guaranteed availability compressed formats in WebGL2, but through CPU decompression
   "etc2-rgb8unorm": { gl: 37492 },
@@ -46490,7 +46480,7 @@ const cE = {
 function Fte(t, e, n) {
   let r = e.create;
   const i = cE[e.format];
-  return i?.gl === void 0 && (r = !1), i?.x && (r = r && !!Vf(t, i.x, n)), {
+  return i?.gl === void 0 && (r = !1), i?.x && (r = r && !!Wf(t, i.x, n)), {
     format: e.format,
     // @ts-ignore
     create: r && e.create,
@@ -46505,7 +46495,7 @@ function Fte(t, e, n) {
   };
 }
 function Vk(t) {
-  const e = cE[t], n = Ete(t), r = Bf.getInfo(t);
+  const e = cE[t], n = Ete(t), r = Sf.getInfo(t);
   return r.compressed && (e.dataFormat = n), {
     internalFormat: n,
     format: e?.dataFormat || vte(r.channels, r.integer, r.normalized, n),
@@ -46515,7 +46505,7 @@ function Vk(t) {
   };
 }
 function Ate(t) {
-  switch (Bf.getInfo(t).attachment) {
+  switch (Sf.getInfo(t).attachment) {
     case "depth":
       return 36096;
     case "stencil":
@@ -46573,7 +46563,7 @@ class _te extends UY {
   extensions;
   testedFeatures = /* @__PURE__ */ new Set();
   constructor(e, n, r) {
-    super([], r), this.gl = e, this.extensions = n, Vf(e, "EXT_color_buffer_float", n);
+    super([], r), this.gl = e, this.extensions = n, Wf(e, "EXT_color_buffer_float", n);
   }
   *[Symbol.iterator]() {
     const e = this.getFeatures();
@@ -46597,7 +46587,7 @@ class _te extends UY {
   /** Extract all WebGL features */
   getWebGLFeature(e) {
     const n = TD[e];
-    return typeof n == "string" ? !!Vf(this.gl, n, this.extensions) : !!n;
+    return typeof n == "string" ? !!Wf(this.gl, n, this.extensions) : !!n;
   }
 }
 class wte extends zY {
@@ -46703,7 +46693,7 @@ class wte extends zY {
     return this.limits[e] === void 0 && (this.limits[e] = this.gl.getParameter(e)), this.limits[e] || 0;
   }
 }
-class bg extends S1 {
+class Fg extends S1 {
   device;
   gl;
   handle;
@@ -46811,7 +46801,7 @@ class Bte extends Ju {
     super(n), this.device = e, this._setAutoCreatedCanvasId(`${this.device.id}-canvas`), this._updateDevice();
   }
   getCurrentFramebuffer() {
-    return this._framebuffer = this._framebuffer || new bg(this.device, { handle: null }), this._framebuffer;
+    return this._framebuffer = this._framebuffer || new Fg(this.device, { handle: null }), this._framebuffer;
   }
   // IMPLEMENTATION OF ABSTRACT METHODS
   _updateDevice() {
@@ -46823,7 +46813,7 @@ function Ste(t = "id") {
   const e = mC[t]++;
   return `${t}-${e}`;
 }
-class Fg extends Ei {
+class Ag extends Ei {
   device;
   gl;
   handle;
@@ -46998,7 +46988,7 @@ function Pte(t, e, n, r) {
   const i = t;
   i.pushState();
   try {
-    return Ite(t, e), th(i.gl, n), r(t);
+    return Ite(t, e), nh(i.gl, n), r(t);
   } finally {
     i.popState();
   }
@@ -47214,11 +47204,11 @@ class Ute extends hd {
     }
   }
 }
-function zg(t, e, n) {
+function Ug(t, e, n) {
   if ($te(e))
     return n(t);
   const { nocatch: r = !0 } = e, i = sd.get(t);
-  i.push(), th(t, e);
+  i.push(), nh(t, e);
   let s;
   if (r)
     s = n(t), i.pop();
@@ -47235,7 +47225,7 @@ function $te(t) {
     return !1;
   return !0;
 }
-class Ff extends D1 {
+class Af extends D1 {
   device;
   gl;
   handle;
@@ -47245,7 +47235,7 @@ class Ff extends D1 {
     super(e, { ...Ks.defaultProps, ...n }), this.device = e, this.gl = this.device.gl, this.handle = null, this.texture = n.texture;
   }
 }
-class Ag extends Ks {
+class vg extends Ks {
   // readonly MAX_ATTRIBUTES: number;
   device;
   gl;
@@ -47291,13 +47281,13 @@ class Ag extends Ks {
       default:
         throw new Error(i);
     }
-    this.gl.bindTexture(this.glTarget, null), this._initializeData(n.data), this.setSampler(this.props.sampler), this.view = new Ff(this.device, { ...this.props, texture: this }), Object.seal(this);
+    this.gl.bindTexture(this.glTarget, null), this._initializeData(n.data), this.setSampler(this.props.sampler), this.view = new Af(this.device, { ...this.props, texture: this }), Object.seal(this);
   }
   destroy() {
     this.handle && (this.gl.deleteTexture(this.handle), this.removeStats(), this.trackDeallocatedMemory("Texture"), this.destroyed = !0);
   }
   createView(e) {
-    return new Ff(this.device, { ...e, texture: this });
+    return new Af(this.device, { ...e, texture: this });
   }
   setSampler(e = {}) {
     super.setSampler(e);
@@ -47319,7 +47309,7 @@ class Ag extends Ks {
       ...E !== void 0 ? { 3314: E } : {},
       32878: n.rowsPerImage
     };
-    this.gl.bindTexture(b, this.handle), zg(this.gl, w, () => {
+    this.gl.bindTexture(b, this.handle), Ug(this.gl, w, () => {
       switch (this.dimension) {
         case "2d":
         case "cube":
@@ -47338,7 +47328,7 @@ class Ag extends Ks {
     if (n.sourceX || n.sourceY)
       throw new Error("WebGL does not support sourceX/sourceY)");
     const { glFormat: r, glType: i } = this, { image: s, depth: o, mipLevel: a, x: u, y: d, z: h, width: g, height: m } = n, y = MD(this.glTarget, this.dimension, o), C = n.flipY ? { 37440: !0 } : {};
-    return this.gl.bindTexture(this.glTarget, this.handle), zg(this.gl, C, () => {
+    return this.gl.bindTexture(this.glTarget, this.handle), Ug(this.gl, C, () => {
       switch (this.dimension) {
         case "2d":
         case "cube":
@@ -47817,11 +47807,11 @@ class rne extends rd {
       }
       switch (i || Pt.warn(`Unsetting binding "${r}" in render pipeline "${this.id}"`)(), s.type) {
         case "uniform":
-          if (!(i instanceof Fg) && !(i.buffer instanceof Fg))
+          if (!(i instanceof Ag) && !(i.buffer instanceof Ag))
             throw new Error("buffer value");
           break;
         case "texture":
-          if (!(i instanceof Ff || i instanceof Ag || i instanceof bg))
+          if (!(i instanceof Af || i instanceof vg || i instanceof Fg))
             throw new Error(`${this} Bad texture binding for ${r}`);
           break;
         case "sampler":
@@ -47959,7 +47949,7 @@ class rne extends rd {
           const { name: o } = i, a = e.getUniformBlockIndex(this.handle, o);
           if (a === 4294967295)
             throw new Error(`Invalid uniform block name ${o}`);
-          e.uniformBlockBinding(this.handle, r, a), s instanceof Fg ? e.bindBufferBase(35345, r, s.handle) : e.bindBufferRange(
+          e.uniformBlockBinding(this.handle, r, a), s instanceof Ag ? e.bindBufferBase(35345, r, s.handle) : e.bindBufferRange(
             35345,
             r,
             // @ts-expect-error
@@ -47971,14 +47961,14 @@ class rne extends rd {
           ), r += 1;
           break;
         case "texture":
-          if (!(s instanceof Ff || s instanceof Ag || s instanceof bg))
+          if (!(s instanceof Af || s instanceof vg || s instanceof Fg))
             throw new Error("texture");
           let u;
-          if (s instanceof Ff)
+          if (s instanceof Af)
             u = s.texture;
-          else if (s instanceof Ag)
+          else if (s instanceof vg)
             u = s;
-          else if (s instanceof bg && s.colorAttachments[0] instanceof Ff)
+          else if (s instanceof Fg && s.colorAttachments[0] instanceof Af)
             Pt.warn("Passing framebuffer in texture binding may be deprecated. Use fbo.colorAttachments[0] instead")(), u = s.colorAttachments[0].texture;
           else
             throw new Error("No texture");
@@ -48123,7 +48113,7 @@ function cne(t, e) {
   } = e;
   const { framebuffer: d, destroyFramebuffer: h } = jk(n), [g, m] = i, [y, C, b] = s, E = t.gl.bindFramebuffer(36160, d.handle);
   let w, _;
-  if (o instanceof Ag)
+  if (o instanceof vg)
     w = o, a = Number.isFinite(a) ? a : w.width, u = Number.isFinite(u) ? u : w.height, w._bind(0), _ = w.glTarget;
   else
     throw new Error("invalid destination");
@@ -48197,7 +48187,7 @@ class dne extends Yu {
     n.framebuffer = this.props.framebuffer || null, this.props.depthReadOnly && (n.depthMask = !this.props.depthReadOnly), n.stencilMask = this.props.stencilReadOnly ? 0 : 1, n[35977] = this.props.discard, e.viewport && (e.viewport.length >= 6 ? (n.viewport = e.viewport.slice(0, 4), n.depthRange = [
       e.viewport[4],
       e.viewport[5]
-    ]) : n.viewport = e.viewport), e.scissorRect && (n.scissorTest = !0, n.scissor = e.scissorRect), e.blendConstant && (n.blendColor = e.blendConstant), e.stencilReference && (console.warn("RenderPassParameters.stencilReference not yet implemented in WebGL"), n[2967] = e.stencilReference), "colorMask" in e && (n.colorMask = une.map((r) => !!(r & e.colorMask))), this.glParameters = n, th(this.device.gl, n);
+    ]) : n.viewport = e.viewport), e.scissorRect && (n.scissorTest = !0, n.scissor = e.scissorRect), e.blendConstant && (n.blendColor = e.blendConstant), e.stencilReference && (console.warn("RenderPassParameters.stencilReference not yet implemented in WebGL"), n[2967] = e.stencilReference), "colorMask" in e && (n.colorMask = une.map((r) => !!(r & e.colorMask))), this.glParameters = n, nh(this.device.gl, n);
   }
   beginOcclusionQuery(e) {
     this.props.occlusionQuerySet?.beginOcclusionQuery();
@@ -48214,7 +48204,7 @@ class dne extends Yu {
     let n = 0;
     this.props.clearColors && this.props.clearColors.forEach((r, i) => {
       r && this.clearColorBuffer(i, r);
-    }), this.props.clearColor !== !1 && this.props.clearColors === void 0 && (n |= 16384, e.clearColor = this.props.clearColor), this.props.clearDepth !== !1 && (n |= 256, e.clearDepth = this.props.clearDepth), this.props.clearStencil !== !1 && (n |= 1024, e.clearStencil = this.props.clearStencil), n !== 0 && zg(this.device.gl, e, () => {
+    }), this.props.clearColor !== !1 && this.props.clearColors === void 0 && (n |= 16384, e.clearColor = this.props.clearColor), this.props.clearDepth !== !1 && (n |= 256, e.clearDepth = this.props.clearDepth), this.props.clearStencil !== !1 && (n |= 1024, e.clearStencil = this.props.clearStencil), n !== 0 && Ug(this.device.gl, e, () => {
       this.device.gl.clear(n);
     });
   }
@@ -48222,7 +48212,7 @@ class dne extends Yu {
    * WebGL2 - clear a specific color buffer
    */
   clearColorBuffer(e = 0, n = [0, 0, 0, 0]) {
-    zg(this.device.gl, { framebuffer: this.props.framebuffer }, () => {
+    Ug(this.device.gl, { framebuffer: this.props.framebuffer }, () => {
       switch (n.constructor) {
         case Int8Array:
         case Int16Array:
@@ -48497,7 +48487,7 @@ class pne extends Lv {
   // PRIVATE METHODS
   /** Extract offsets for bindBufferRange */
   _getBufferRange(e) {
-    if (e instanceof Fg)
+    if (e instanceof Ag)
       return { buffer: e, byteOffset: 0, byteLength: e.byteLength };
     const { buffer: n, byteOffset: r = 0, byteLength: i = e.buffer.byteLength } = e;
     return { buffer: n, byteOffset: r, byteLength: i };
@@ -48857,10 +48847,10 @@ class BA extends fd {
   }
   createBuffer(e) {
     const n = this._normalizeBufferProps(e);
-    return new Fg(this, n);
+    return new Ag(this, n);
   }
   createTexture(e) {
-    return new Ag(this, e);
+    return new vg(this, e);
   }
   createExternalTexture(e) {
     throw new Error("createExternalTexture() not implemented");
@@ -48872,7 +48862,7 @@ class BA extends fd {
     return new Mte(this, e);
   }
   createFramebuffer(e) {
-    return new bg(this, e);
+    return new Fg(this, e);
   }
   createVertexArray(e) {
     return new dE(this, e);
@@ -48912,13 +48902,13 @@ class BA extends fd {
     return Ane(e, n);
   }
   setParametersWebGL(e) {
-    th(this.gl, e);
+    nh(this.gl, e);
   }
   getParametersWebGL(e) {
     return Uk(this.gl, e);
   }
   withParametersWebGL(e, n) {
-    return zg(this.gl, e, n);
+    return Ug(this.gl, e, n);
   }
   resetWebGL() {
     Pt.warn("WebGLDevice.resetWebGL is deprecated, use only for debugging")(), rte(this.gl);
@@ -48994,7 +48984,7 @@ class BA extends fd {
   }
   /** Ensure extensions are only requested once */
   getExtension(e) {
-    return Vf(this.gl, e, this._extensions), this._extensions;
+    return Wf(this.gl, e, this._extensions), this._extensions;
   }
   // INTERNAL SUPPORT METHODS FOR WEBGL RESOURCES
   /**
@@ -49167,7 +49157,7 @@ class fE {
         }
       });
     }
-    n || (n = this._createDevice(e)), this.animationLoop = this._createAnimationLoop(n, e), this.setProps(e), e._typedArrayManagerProps && Uf.setOptions(e._typedArrayManagerProps), this.animationLoop.start();
+    n || (n = this._createDevice(e)), this.animationLoop = this._createAnimationLoop(n, e), this.setProps(e), e._typedArrayManagerProps && $f.setOptions(e._typedArrayManagerProps), this.animationLoop.start();
   }
   /** Stop rendering and dispose all resources */
   finalize() {
@@ -49601,7 +49591,7 @@ class Mne {
     this.state.numInstances = e;
   }
   delete() {
-    this._buffer && (this._buffer.delete(), this._buffer = null), Uf.release(this.state.allocatedValue);
+    this._buffer && (this._buffer.delete(), this._buffer = null), $f.release(this.state.allocatedValue);
   }
   getBuffer() {
     return this.state.constant ? null : this.state.externalBuffer || this._buffer;
@@ -49717,7 +49707,7 @@ class Mne {
     }) : n.subarray(r, i), r * n.BYTES_PER_ELEMENT + this.byteOffset);
   }
   allocate(e, n = !1) {
-    const { state: r } = this, i = r.allocatedValue, s = Uf.allocate(i, e + 1, {
+    const { state: r } = this, i = r.allocatedValue, s = $f.allocate(i, e + 1, {
       size: this.size,
       type: this.settings.defaultType,
       copy: n
@@ -49804,7 +49794,7 @@ class Mne {
   }
 }
 const LD = [], zD = [];
-function Qg(t, e = 0, n = 1 / 0) {
+function Jg(t, e = 0, n = 1 / 0) {
   let r = LD;
   const i = {
     index: -1,
@@ -50058,7 +50048,7 @@ class Jk extends Mne {
     (typeof m == "function" ? m : s[m]);
     typeof C != "function" && typeof m == "string" && (C = () => s[m]), bo(typeof C == "function", `accessor "${m}" is not a function`);
     let b = e.getVertexOffset(r);
-    const { iterable: E, objectInfo: w } = Qg(n, r, i);
+    const { iterable: E, objectInfo: w } = Jg(n, r, i);
     for (const _ of E) {
       w.index++;
       let x = C(_, w);
@@ -50356,7 +50346,7 @@ function oM(t) {
 }
 function Wne(t, e) {
   const n = e.size, r = eM(n), i = tM(n), s = e.getBufferLayout();
-  return oM(e) ? new Hf(t, {
+  return oM(e) ? new Vf(t, {
     vs: Vne,
     bufferLayout: [
       {
@@ -50389,7 +50379,7 @@ function Wne(t, e) {
     varyings: ["vCurrent", "vCurrent64Low"],
     bufferMode: 35980,
     disableWarnings: !0
-  }) : new Hf(t, {
+  }) : new Vf(t, {
     vs: Hne,
     bufferLayout: [
       { name: "aFrom", format: i },
@@ -50505,7 +50495,7 @@ void main(void) {
 }`;
 function Kne(t, e) {
   const n = eM(e.size), r = tM(e.size);
-  return new Hf(t, {
+  return new Vf(t, {
     vs: Yne,
     fs: Gne,
     bufferLayout: [
@@ -50622,7 +50612,7 @@ class ere {
 const $D = "attributeManager.invalidate", tre = "attributeManager.updateStart", nre = "attributeManager.updateEnd", rre = "attribute.updateStart", ire = "attribute.allocate", sre = "attribute.updateEnd";
 class ore {
   constructor(e, { id: n = "attribute-manager", stats: r, timeline: i } = {}) {
-    this.mergeBoundsMemoized = Kg(vJ), this.id = n, this.device = e, this.attributes = {}, this.updateTriggers = {}, this.needsRedraw = !0, this.userData = {}, this.stats = r, this.attributeTransitionManager = new ere(e, {
+    this.mergeBoundsMemoized = Zg(vJ), this.id = n, this.device = e, this.attributes = {}, this.updateTriggers = {}, this.needsRedraw = !0, this.userData = {}, this.stats = r, this.attributeTransitionManager = new ere(e, {
       id: `${n}-transitions`,
       timeline: i
     }), Object.seal(this);
@@ -51137,20 +51127,20 @@ function Dre(t) {
 function Bre(t, e) {
   switch (Wm(e)) {
     case "object":
-      return zh(t, e);
+      return Uh(t, e);
     case "array":
-      return zh(t, { type: "array", value: e, compare: !1 });
+      return Uh(t, { type: "array", value: e, compare: !1 });
     case "boolean":
-      return zh(t, { type: "boolean", value: e });
+      return Uh(t, { type: "boolean", value: e });
     case "number":
-      return zh(t, { type: "number", value: e });
+      return Uh(t, { type: "number", value: e });
     case "function":
-      return zh(t, { type: "function", value: e, compare: !0 });
+      return Uh(t, { type: "function", value: e, compare: !0 });
     default:
       return { name: t, type: "unknown", value: e };
   }
 }
-function zh(t, e) {
+function Uh(t, e) {
   return "type" in e ? { name: t, ...xre[e.type], ...e } : "value" in e ? { name: t, type: Wm(e.value), ...e } : { name: t, type: "object", value: e };
 }
 function kA(t) {
@@ -51225,7 +51215,7 @@ function Pre(t, e) {
     const s = e[i], { name: o, value: a } = s;
     s.async && (n[o] = a, r[o] = Ire(o));
   }
-  t[Tf] = n, t[yd] = {}, Object.defineProperties(t, r);
+  t[Rf] = n, t[yd] = {}, Object.defineProperties(t, r);
 }
 function Ire(t) {
   return {
@@ -51238,14 +51228,14 @@ function Ire(t) {
     get() {
       if (this[Fu]) {
         if (t in this[Fu])
-          return this[Fu][t] || this[Tf][t];
+          return this[Fu][t] || this[Rf][t];
         if (t in this[yd]) {
           const e = this[Vm] && this[Vm].internalState;
           if (e && e.hasAsyncProp(t))
-            return e.getAsyncProp(t) || this[Tf][t];
+            return e.getAsyncProp(t) || this[Rf][t];
         }
       }
-      return this[Tf][t];
+      return this[Rf][t];
     }
   };
 }
@@ -51267,7 +51257,7 @@ class M1 {
   // clone this layer with modified props
   clone(e) {
     const { props: n } = this, r = {};
-    for (const i in n[Tf])
+    for (const i in n[Rf])
       i in n[Fu] ? r[i] = n[Fu][i] : i in n[yd] && (r[i] = n[yd][i]);
     return new this.constructor({ ...n, ...r, ...e });
   }
@@ -51321,7 +51311,7 @@ class zre {
   // Checks if urls have changed, starts loading, or removes override
   setAsyncProps(e) {
     this.component = e[Vm] || this.component;
-    const n = e[Fu] || {}, r = e[yd] || e, i = e[Tf] || {};
+    const n = e[Fu] || {}, r = e[yd] || e, i = e[Rf] || {};
     for (const s in n) {
       const o = n[s];
       this._createAsyncPropData(s, i[s]), this._updateAsyncProp(s, o), n[s] = this.getAsyncProp(s);
@@ -51462,7 +51452,7 @@ class Ure extends zre {
     r && r.raiseError(n, `loading ${e} of ${this.layer}`);
   }
 }
-const $re = "layer.changeFlag", Hre = "layer.initialize", Vre = "layer.update", Wre = "layer.finalize", qre = "layer.matched", XD = 2 ** 24 - 1, jre = Object.freeze([]), Xre = Kg(({ oldViewport: t, viewport: e }) => t.equals(e));
+const $re = "layer.changeFlag", Hre = "layer.initialize", Vre = "layer.update", Wre = "layer.finalize", qre = "layer.matched", XD = 2 ** 24 - 1, jre = Object.freeze([]), Xre = Zg(({ oldViewport: t, viewport: e }) => t.equals(e));
 let ml = new Uint8ClampedArray(0);
 const Yre = {
   // data: Special handling for null, see below
@@ -51533,7 +51523,7 @@ const Yre = {
 };
 class oc extends M1 {
   constructor() {
-    super(...arguments), this.internalState = null, this.lifecycle = df.NO_STATE, this.parent = null;
+    super(...arguments), this.internalState = null, this.lifecycle = ff.NO_STATE, this.parent = null;
   }
   static get componentName() {
     return Object.prototype.hasOwnProperty.call(this, "layerName") ? this.layerName : "";
@@ -51810,7 +51800,7 @@ class oc extends M1 {
       return;
     const r = Math.floor(ml.length / 4);
     if (this.internalState.usesPickingColorCache = !0, r < n) {
-      n > XD && Tr.warn("Layer has too many data objects. Picking might not be able to distinguish all objects.")(), ml = Uf.allocate(ml, n, {
+      n > XD && Tr.warn("Layer has too many data objects. Picking might not be able to distinguish all objects.")(), ml = $f.allocate(ml, n, {
         size: 4,
         copy: !0,
         maxCount: Math.max(n, XD)
@@ -52588,7 +52578,7 @@ class dM {
   constructor(e) {
     this.indexStarts = [0], this.vertexStarts = [0], this.vertexCount = 0, this.instanceCount = 0;
     const { attributes: n = {} } = e;
-    this.typedArrayManager = Uf, this.attributes = {}, this._attributeDefs = n, this.opts = e, this.updateGeometry(e);
+    this.typedArrayManager = $f, this.attributes = {}, this._attributeDefs = n, this.opts = e, this.updateGeometry(e);
   }
   /* Public methods */
   updateGeometry(e) {
@@ -52629,7 +52619,7 @@ class dM {
    * `data` is expected to be an iterable consistent with the base Layer expectation
    */
   _forEachGeometry(e, n, r) {
-    const { data: i, getGeometry: s } = this, { iterable: o, objectInfo: a } = Qg(i, n, r);
+    const { data: i, getGeometry: s } = this, { iterable: o, objectInfo: a } = Jg(i, n, r);
     for (const u of o) {
       a.index++;
       const d = s ? s(u, a) : null;
@@ -53023,7 +53013,7 @@ function vie(t, e, n, r) {
   const i = Math.min(n / e.width, r / e.height), s = Math.floor(e.width * i), o = Math.floor(e.height * i);
   return i === 1 ? { image: e, width: s, height: o } : (t.canvas.height = o, t.canvas.width = s, t.clearRect(0, 0, s, o), t.drawImage(e, 0, 0, e.width, e.height, 0, 0, s, o), { image: t.canvas, width: s, height: o });
 }
-function Ug(t) {
+function $g(t) {
   return t && (t.id || t.url);
 }
 function Eie(t, e, n, r) {
@@ -53043,7 +53033,7 @@ function Eie(t, e, n, r) {
 }
 function ZD(t, e, n) {
   for (let r = 0; r < e.length; r++) {
-    const { icon: i, xOffset: s } = e[r], o = Ug(i);
+    const { icon: i, xOffset: s } = e[r], o = $g(i);
     t[o] = {
       ...i,
       x: s,
@@ -53054,7 +53044,7 @@ function ZD(t, e, n) {
 function _ie({ icons: t, buffer: e, mapping: n = {}, xOffset: r = 0, yOffset: i = 0, rowHeight: s = 0, canvasWidth: o }) {
   let a = [];
   for (let u = 0; u < t.length; u++) {
-    const d = t[u], h = Ug(d);
+    const d = t[u], h = $g(d);
     if (!n[h]) {
       const { height: g, width: m } = d;
       r + m + e > o && (ZD(n, a, i), r = 0, i = s + i + e, s = 0, a = []), a.push({
@@ -53076,10 +53066,10 @@ function wie(t, e, n) {
   if (!t || !e)
     return null;
   n = n || {};
-  const r = {}, { iterable: i, objectInfo: s } = Qg(t);
+  const r = {}, { iterable: i, objectInfo: s } = Jg(t);
   for (const o of i) {
     s.index++;
-    const a = e(o, s), u = Ug(a);
+    const a = e(o, s), u = $g(a);
     if (!a)
       throw new Error("Icon is missing.");
     if (!a.url)
@@ -53099,7 +53089,7 @@ class xie {
     return this._texture || this._externalTexture;
   }
   getIconMapping(e) {
-    const n = this._autoPacking ? Ug(e) : e;
+    const n = this._autoPacking ? $g(e) : e;
     return this._mapping[n] || Fie;
   }
   setProps({ loadOptions: e, autoPacking: n, iconAtlas: r, iconMapping: i, textureParameters: s }) {
@@ -53138,7 +53128,7 @@ class xie {
     });
     for (const r of e)
       this._pendingCount++, xm(r.url, this._loadOptions).then((i) => {
-        const s = Ug(r), o = this._mapping[s], { x: a, y: u, width: d, height: h } = o, { image: g, width: m, height: y } = vie(n, i, d, h), C = a + (d - m) / 2, b = u + (h - y) / 2;
+        const s = $g(r), o = this._mapping[s], { x: a, y: u, width: d, height: h } = o, { image: g, width: m, height: y } = vie(n, i, d, h), C = a + (d - m) / 2, b = u + (h - y) / 2;
         this._texture?.copyExternalImage({
           image: g,
           x: C,
@@ -53182,7 +53172,7 @@ const gM = [0, 0, 0, 255], Die = {
 };
 class pE extends oc {
   getShaders() {
-    return super.getShaders({ vs: mie, fs: yie, modules: [Jf, eh, pie] });
+    return super.getShaders({ vs: mie, fs: yie, modules: [eh, th, pie] });
   }
   initializeState() {
     this.state = {
@@ -53627,7 +53617,7 @@ class mu extends oc {
     ]);
   }
   getShaders() {
-    return super.getShaders({ vs: Rie, fs: kie, source: Tie, modules: [Jf, uk, eh, Sie] });
+    return super.getShaders({ vs: Rie, fs: kie, source: Tie, modules: [eh, uk, th, Sie] });
   }
   // This layer has its own wrapLongitude logic
   get wrapLongitude() {
@@ -54051,7 +54041,7 @@ class ca extends oc {
       vs: Nie,
       fs: Oie,
       source: Lie,
-      modules: [Jf, uk, eh, Iie]
+      modules: [eh, uk, th, Iie]
     });
   }
   initializeState() {
@@ -54187,7 +54177,7 @@ function IA(t, e) {
   for (let r = 0; r < n; r++)
     t[r] = e[r];
 }
-function $g(t, e, n, r, i = []) {
+function Hg(t, e, n, r, i = []) {
   const s = r + e * n;
   for (let o = 0; o < n; o++)
     i[o] = t[s + o];
@@ -54216,12 +54206,12 @@ function sm(t, e) {
 function yM(t, e) {
   const { size: n = 2, broken: r = !1, gridResolution: i = 10, gridOffset: s = [0, 0], startIndex: o = 0, endIndex: a = t.length } = e || {}, u = (a - o) / n;
   let d = [];
-  const h = [d], g = $g(t, 0, n, o);
+  const h = [d], g = Hg(t, 0, n, o);
   let m, y;
   const C = bM(g, i, s, []), b = [];
   Dl(d, g);
   for (let E = 1; E < u; E++) {
-    for (m = $g(t, E, n, o, m), y = sm(m, C); y; ) {
+    for (m = Hg(t, E, n, o, m), y = sm(m, C); y; ) {
       NA(g, m, y, C, b);
       const w = sm(b, C);
       w && (NA(g, b, w, C, b), y = w), Dl(d, b), IA(g, b), Wie(C, i, y), r && d.length > n && (d = [], h.push(d), Dl(d, g)), y = sm(m, C);
@@ -54262,10 +54252,10 @@ function CM(t, e = null, n) {
 function r5(t, e, n, r, i, s, o) {
   const a = (i - r) / n, u = [], d = [], h = [], g = [], m = [];
   let y, C, b;
-  const E = $g(t, a - 1, n, r);
+  const E = Hg(t, a - 1, n, r);
   let w = Math.sign(o & 8 ? E[1] - s[3] : E[0] - s[2]), _ = e && e[a - 1], x = 0, D = 0;
   for (let S = 0; S < a; S++)
-    y = $g(t, S, n, r, y), C = Math.sign(o & 8 ? y[1] - s[3] : y[0] - s[2]), b = e && e[r / n + S], C && w && w !== C && (NA(E, y, o, s, m), Dl(u, m) && h.push(_), Dl(d, m) && g.push(_)), C <= 0 ? (Dl(u, y) && h.push(b), x -= C) : h.length && (h[h.length - 1] = n5), C >= 0 ? (Dl(d, y) && g.push(b), D += C) : g.length && (g[g.length - 1] = n5), IA(E, y), w = C, _ = b;
+    y = Hg(t, S, n, r, y), C = Math.sign(o & 8 ? y[1] - s[3] : y[0] - s[2]), b = e && e[r / n + S], C && w && w !== C && (NA(E, y, o, s, m), Dl(u, m) && h.push(_), Dl(d, m) && g.push(_)), C <= 0 ? (Dl(u, y) && h.push(b), x -= C) : h.length && (h[h.length - 1] = n5), C >= 0 ? (Dl(d, y) && g.push(b), D += C) : g.length && (g[g.length - 1] = n5), IA(E, y), w = C, _ = b;
   return [
     x ? { pos: u, types: e && h } : null,
     D ? { pos: d, types: e && g } : null
@@ -54342,7 +54332,7 @@ function Gie(t, e, n, r) {
 function Kie(t, e, n, r, i = jie) {
   const s = t[n], o = t[r - e];
   if (Math.abs(s - o) > 180) {
-    const a = $g(t, 0, e, n);
+    const a = Hg(t, 0, e, n);
     a[0] += Math.round((o - s) / 360) * 360, Dl(t, a), a[1] = Math.sign(a[1]) * i, Dl(t, a), a[0] = s, Dl(t, a);
   }
 }
@@ -54675,7 +54665,7 @@ DECKGL_FILTER_COLOR(fragColor, geometry);
 };
 class I1 extends oc {
   getShaders() {
-    return super.getShaders({ vs: nse, fs: rse, modules: [Jf, eh, tse] });
+    return super.getShaders({ vs: nse, fs: rse, modules: [eh, th, tse] });
   }
   get wrapLongitude() {
     return !1;
@@ -54919,13 +54909,13 @@ function sse() {
   function s(R, H, I, O) {
     var q = R.prev, Z = R, ce = R.next;
     if (x(q, Z, ce) >= 0) return !1;
-    for (var oe = q.x, fe = Z.x, be = ce.x, ge = q.y, Ae = Z.y, ke = ce.y, lt = oe < fe ? oe < be ? oe : be : fe < be ? fe : be, Ee = ge < Ae ? ge < ke ? ge : ke : Ae < ke ? Ae : ke, Ce = oe > fe ? oe > be ? oe : be : fe > be ? fe : be, Xe = ge > Ae ? ge > ke ? ge : ke : Ae > ke ? Ae : ke, ot = b(lt, Ee, H, I, O), _t = b(Ce, Xe, H, I, O), ze = R.prevZ, Mt = R.nextZ; ze && ze.z >= ot && Mt && Mt.z <= _t; ) {
-      if (ze.x >= lt && ze.x <= Ce && ze.y >= Ee && ze.y <= Xe && ze !== q && ze !== ce && w(oe, ge, fe, Ae, be, ke, ze.x, ze.y) && x(ze.prev, ze, ze.next) >= 0 || (ze = ze.prevZ, Mt.x >= lt && Mt.x <= Ce && Mt.y >= Ee && Mt.y <= Xe && Mt !== q && Mt !== ce && w(oe, ge, fe, Ae, be, ke, Mt.x, Mt.y) && x(Mt.prev, Mt, Mt.next) >= 0)) return !1;
+    for (var oe = q.x, fe = Z.x, be = ce.x, ge = q.y, Ae = Z.y, ke = ce.y, lt = oe < fe ? oe < be ? oe : be : fe < be ? fe : be, Ee = ge < Ae ? ge < ke ? ge : ke : Ae < ke ? Ae : ke, Ce = oe > fe ? oe > be ? oe : be : fe > be ? fe : be, Xe = ge > Ae ? ge > ke ? ge : ke : Ae > ke ? Ae : ke, ot = b(lt, Ee, H, I, O), _t = b(Ce, Xe, H, I, O), Ue = R.prevZ, Mt = R.nextZ; Ue && Ue.z >= ot && Mt && Mt.z <= _t; ) {
+      if (Ue.x >= lt && Ue.x <= Ce && Ue.y >= Ee && Ue.y <= Xe && Ue !== q && Ue !== ce && w(oe, ge, fe, Ae, be, ke, Ue.x, Ue.y) && x(Ue.prev, Ue, Ue.next) >= 0 || (Ue = Ue.prevZ, Mt.x >= lt && Mt.x <= Ce && Mt.y >= Ee && Mt.y <= Xe && Mt !== q && Mt !== ce && w(oe, ge, fe, Ae, be, ke, Mt.x, Mt.y) && x(Mt.prev, Mt, Mt.next) >= 0)) return !1;
       Mt = Mt.nextZ;
     }
-    for (; ze && ze.z >= ot; ) {
-      if (ze.x >= lt && ze.x <= Ce && ze.y >= Ee && ze.y <= Xe && ze !== q && ze !== ce && w(oe, ge, fe, Ae, be, ke, ze.x, ze.y) && x(ze.prev, ze, ze.next) >= 0) return !1;
-      ze = ze.prevZ;
+    for (; Ue && Ue.z >= ot; ) {
+      if (Ue.x >= lt && Ue.x <= Ce && Ue.y >= Ee && Ue.y <= Xe && Ue !== q && Ue !== ce && w(oe, ge, fe, Ae, be, ke, Ue.x, Ue.y) && x(Ue.prev, Ue, Ue.next) >= 0) return !1;
+      Ue = Ue.prevZ;
     }
     for (; Mt && Mt.z <= _t; ) {
       if (Mt.x >= lt && Mt.x <= Ce && Mt.y >= Ee && Mt.y <= Xe && Mt !== q && Mt !== ce && w(oe, ge, fe, Ae, be, ke, Mt.x, Mt.y) && x(Mt.prev, Mt, Mt.next) >= 0) return !1;
@@ -55118,7 +55108,7 @@ function lse(t) {
   if (t = t && t.positions || t, !Array.isArray(t) && !ArrayBuffer.isView(t))
     throw new Error("invalid polygon");
 }
-function lg(t) {
+function cg(t) {
   return "positions" in t ? t.positions : t;
 }
 function om(t) {
@@ -55206,7 +55196,7 @@ function u5(t, e, n, r) {
 function hse(t, e, n, r) {
   let i = om(t);
   i && (i = i.map((a) => a / e));
-  let s = lg(t);
+  let s = cg(t);
   const o = r && e === 3;
   if (n) {
     const a = s.length;
@@ -55256,11 +55246,11 @@ class gse extends dM {
   normalizeGeometry(e) {
     if (this.normalize) {
       const n = EM(e, this.positionSize);
-      return this.opts.resolution ? CM(lg(n), om(n), {
+      return this.opts.resolution ? CM(cg(n), om(n), {
         size: this.positionSize,
         gridResolution: this.opts.resolution,
         edgeTypes: !0
-      }) : this.opts.wrapLongitude ? Yie(lg(n), om(n), {
+      }) : this.opts.wrapLongitude ? Yie(cg(n), om(n), {
         size: this.positionSize,
         maxLatitude: 86,
         edgeTypes: !0
@@ -55276,7 +55266,7 @@ class gse extends dM {
         n += this.getGeometrySize(r);
       return n;
     }
-    return lg(e).length / this.positionSize;
+    return cg(e).length / this.positionSize;
   }
   /** Override base Tesselator method */
   getGeometryFromBuffer(e) {
@@ -55314,7 +55304,7 @@ class gse extends dM {
     const { attributes: { positions: i }, positionSize: s } = this;
     if (!i || !e)
       return;
-    const o = lg(e);
+    const o = cg(e);
     for (let a = n, u = 0; u < r; a++, u++) {
       const d = o[u * s], h = o[u * s + 1], g = s > 2 ? o[u * s + 2] : 0;
       i[a * 3] = d, i[a * 3 + 1] = h, i[a * 3 + 2] = g;
@@ -55477,7 +55467,7 @@ class mE extends oc {
       defines: {
         RING_WINDING_ORDER_CW: !this.props._normalize && this.props._windingOrder === "CCW" ? 0 : 1
       },
-      modules: [Jf, ck, eh, pse]
+      modules: [eh, ck, th, pse]
     });
   }
   get wrapLongitude() {
@@ -55764,7 +55754,7 @@ class ls extends gE {
     });
   }
   _getPaths(e = {}) {
-    const { data: n, getPolygon: r, positionFormat: i, _normalize: s } = this.props, o = [], a = i === "XY" ? 2 : 3, { startRow: u, endRow: d } = e, { iterable: h, objectInfo: g } = Qg(n, u, d);
+    const { data: n, getPolygon: r, positionFormat: i, _normalize: s } = this.props, o = [], a = i === "XY" ? 2 : 3, { startRow: u, endRow: d } = e, { iterable: h, objectInfo: g } = Jg(n, u, d);
     for (const m of h) {
       g.index++;
       let y = r(m, g);
@@ -55959,7 +55949,7 @@ class yE extends pE {
 }
 yE.defaultProps = wse;
 yE.layerName = "MultiIconLayer";
-const vg = 1e20;
+const Eg = 1e20;
 class xse {
   constructor({
     fontSize: e = 24,
@@ -55991,14 +55981,14 @@ class xse {
     const { ctx: E, buffer: w, gridInner: _, gridOuter: x } = this;
     this.lang && (E.lang = this.lang), E.clearRect(w, w, d, h), E.fillText(e, w, w + a);
     const D = E.getImageData(w, w, d, h);
-    x.fill(vg, 0, y), _.fill(0, 0, y);
+    x.fill(Eg, 0, y), _.fill(0, 0, y);
     for (let S = 0; S < h; S++)
       for (let k = 0; k < d; k++) {
         const $ = D.data[4 * (S * d + k) + 3] / 255;
         if ($ === 0) continue;
         const L = (S + w) * g + k + w;
         if ($ === 1)
-          x[L] = 0, _[L] = vg;
+          x[L] = 0, _[L] = Eg;
         else {
           const N = 0.5 - $;
           x[L] = N > 0 ? N * N : 0, _[L] = N < 0 ? N * N : 0;
@@ -56017,7 +56007,7 @@ function p5(t, e, n, r, i, s, o, a, u) {
   for (let d = n; d < n + i; d++) m5(t, d * s + e, 1, r, o, a, u);
 }
 function m5(t, e, n, r, i, s, o) {
-  s[0] = 0, o[0] = -vg, o[1] = vg, i[0] = t[e];
+  s[0] = 0, o[0] = -Eg, o[1] = Eg, i[0] = t[e];
   for (let a = 1, u = 0, d = 0; a < r; a++) {
     i[a] = t[e + a * n];
     const h = a * a;
@@ -56025,7 +56015,7 @@ function m5(t, e, n, r, i, s, o) {
       const g = s[u];
       d = (i[a] - i[g] + h - g * g) / (a - g) / 2;
     } while (d <= o[u] && --u > -1);
-    u++, s[u] = a, o[u] = d, o[u + 1] = vg;
+    u++, s[u] = a, o[u] = d, o[u + 1] = Eg;
   }
   for (let a = 0, u = 0; a < r; a++) {
     for (; o[u + 1] < a; ) u++;
@@ -56167,7 +56157,7 @@ function Nse() {
     t.push(String.fromCharCode(e));
   return t;
 }
-const Rf = {
+const kf = {
   fontFamily: "Monaco, monospace",
   fontWeight: "normal",
   characterSet: Nse(),
@@ -56201,7 +56191,7 @@ function zse(t) {
 }
 class Use {
   constructor() {
-    this.props = { ...Rf };
+    this.props = { ...kf };
   }
   get atlas() {
     return this._atlas;
@@ -56432,7 +56422,7 @@ DECKGL_FILTER_COLOR(fragColor, geometry);
 };
 class CE extends oc {
   getShaders() {
-    return super.getShaders({ vs: Hse, fs: Vse, modules: [Jf, eh, $se] });
+    return super.getShaders({ vs: Hse, fs: Vse, modules: [eh, th, $se] });
   }
   initializeState() {
     this.getAttributeManager().addInstanced({
@@ -56545,9 +56535,9 @@ const v5 = {
   getBorderWidth: { type: "accessor", value: 0 },
   backgroundBorderRadius: { type: "object", value: 0 },
   backgroundPadding: { type: "array", value: [0, 0, 0, 0] },
-  characterSet: { type: "object", value: Rf.characterSet },
-  fontFamily: Rf.fontFamily,
-  fontWeight: Rf.fontWeight,
+  characterSet: { type: "object", value: kf.characterSet },
+  fontFamily: kf.fontFamily,
+  fontWeight: kf.fontWeight,
   lineHeight: qse,
   outlineWidth: { type: "number", value: 0, min: 0 },
   outlineColor: { type: "color", value: _C },
@@ -56631,7 +56621,7 @@ class Ym extends gE {
       });
       o = d, i = (h, { index: g }) => u[g];
     } else {
-      const { iterable: u, objectInfo: d } = Qg(e);
+      const { iterable: u, objectInfo: d } = Jg(e);
       s = [0], o = 0;
       for (const h of u) {
         d.index++;
@@ -56724,8 +56714,8 @@ class Ym extends gE {
       }),
       new Y({
         sdf: k.sdf,
-        smoothing: Number.isFinite(k.smoothing) ? k.smoothing : Rf.smoothing,
-        outlineWidth: $ / (k.radius || Rf.radius),
+        smoothing: Number.isFinite(k.smoothing) ? k.smoothing : kf.smoothing,
+        outlineWidth: $ / (k.radius || kf.radius),
         outlineColor: L,
         iconAtlas: s,
         iconMapping: o,
@@ -57011,7 +57001,7 @@ const Yse = ({
     if (Object.values(a.nucleotidesBySeqid).forEach((Ce) => {
       Ce.hood && (Ee = Math.min(Ee, Math.min(Ce.hood.start, Ce.hood.end)));
     }), isFinite(Ee) && (w = Ee), w !== null && w <= 50 && a.tree && h.treeOffset !== void 0) {
-      const Ce = h.treeOffset || 0, Xe = g.tree && typeof g.tree.xScalePercent == "number" ? g.tree.xScalePercent / 100 : 1, ot = a.tree.allNodes.map((ze) => ze.y * Xe + Ce), _t = Math.max(...ot);
+      const Ce = h.treeOffset || 0, Xe = g.tree && typeof g.tree.xScalePercent == "number" ? g.tree.xScalePercent / 100 : 1, ot = a.tree.allNodes.map((Ue) => Ue.y * Xe + Ce), _t = Math.max(...ot);
       w = Math.max(_t + 100, 200);
     }
   }
@@ -57025,9 +57015,9 @@ const Yse = ({
       const At = Math.floor(i / 60), Vt = Math.min(g.ruler.targetTicks, At), Ut = Math.max(3, Math.min(Vt, 8)), Qt = Ct / Ut, qe = Math.pow(10, Math.floor(Math.log10(Qt))), xe = Qt / qe;
       let Rt;
       return xe <= 1 ? Rt = 1 : xe <= 2 ? Rt = 2 : xe <= 5 ? Rt = 5 : Rt = 10, Rt * qe;
-    }, ot = Xe(Ce - Ee), _t = Math.floor(Ee / ot), ze = Math.ceil(Ce / ot);
+    }, ot = Xe(Ce - Ee), _t = Math.floor(Ee / ot), Ue = Math.ceil(Ce / ot);
     let Mt = [];
-    for (let Ct = _t; Ct <= ze; Ct++) {
+    for (let Ct = _t; Ct <= Ue; Ct++) {
       const wt = Ct * ot;
       if (wt < Ee - ot * 0.1 || wt > Ce + ot * 0.1) continue;
       const Vt = wt * x + (d || 0), Ut = (Vt - (S - L / 2)) / L * i;
@@ -57061,15 +57051,15 @@ const Yse = ({
     if (Xe < ot)
       return [];
     if (a && a.tree) {
-      const _t = h.treeOffset || 0, ze = g.tree && typeof g.tree.xScalePercent == "number" ? g.tree.xScalePercent / 100 : 1, Mt = a.tree.allNodes.map((zt) => zt.y * ze + _t), an = Math.min(...Mt), sn = Math.max(...Mt), Ct = a.tree.maxEvolutionaryDistance || 1, wt = Math.max(an, Ee), At = Math.min(sn, Ce);
+      const _t = h.treeOffset || 0, Ue = g.tree && typeof g.tree.xScalePercent == "number" ? g.tree.xScalePercent / 100 : 1, Mt = a.tree.allNodes.map((zt) => zt.y * Ue + _t), an = Math.min(...Mt), sn = Math.max(...Mt), Ct = a.tree.maxEvolutionaryDistance || 1, wt = Math.max(an, Ee), At = Math.min(sn, Ce);
       if (wt >= At)
         return [];
       const Vt = (zt) => (zt - Ee) / L * i, Ut = [], Qt = At - wt, Rt = Math.floor(Xe / 60), Lt = Math.min(4, Math.max(2, Math.floor(Qt / 100))), ft = Math.min(Lt, Rt, 6);
       for (let zt = 0; zt < ft; zt++) {
-        const ht = wt + zt / (ft - 1) * (At - wt), _e = Vt(ht), ve = g.tree?.fixedCoordinateWidth || 2e3, rt = (ht - _t) / ze * (Ct / ve);
+        const gt = wt + zt / (ft - 1) * (At - wt), _e = Vt(gt), ve = g.tree?.fixedCoordinateWidth || 2e3, tt = (gt - _t) / Ue * (Ct / ve);
         let Ke;
-        Ct < 1e-3 ? Ke = rt.toExponential(1) : Ct < 0.01 ? Ke = rt.toFixed(3) : Ct < 0.1 || Ct < 1 ? Ke = rt.toFixed(2) : Ke = rt.toFixed(1), _e >= 0 && _e <= Xe && Ut.push({
-          x: rt,
+        Ct < 1e-3 ? Ke = tt.toExponential(1) : Ct < 0.01 ? Ke = tt.toFixed(3) : Ct < 0.1 || Ct < 1 ? Ke = tt.toFixed(2) : Ke = tt.toFixed(1), _e >= 0 && _e <= Xe && Ut.push({
+          x: tt,
           screenX: _e,
           type: "tree",
           label: Ke,
@@ -57078,16 +57068,16 @@ const Yse = ({
       }
       const xt = 50, Tt = [];
       for (let zt = 0; zt < Ut.length; zt++) {
-        const ht = Ut[zt];
+        const gt = Ut[zt];
         let _e = !1;
         for (let ve = 0; ve < Tt.length; ve++) {
-          const rt = Tt[ve];
-          if (Math.abs(ht.screenX - rt.screenX) < xt) {
+          const tt = Tt[ve];
+          if (Math.abs(gt.screenX - tt.screenX) < xt) {
             _e = !0;
             break;
           }
         }
-        _e || Tt.push(ht);
+        _e || Tt.push(gt);
       }
       return Tt;
     }
@@ -57315,21 +57305,21 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
     }
     if (m && isFinite(m.minX) && isFinite(m.maxX)) {
       let ft = w, xt = m.maxX;
-      const Tt = t.find((ht) => ht.id === "phylo-labels");
+      const Tt = t.find((gt) => gt.id === "phylo-labels");
       if (Tt && Tt.props && Tt.props.data) {
-        const ht = Tt.props;
+        const gt = Tt.props;
         let _e = xt;
         const ve = r?.text?.scaleFactors?.phylo || Kt.text.scaleFactors.phylo;
-        for (const rt of ht.data) {
-          const Ke = rt.position || (ht.getPosition ? typeof ht.getPosition == "function" ? ht.getPosition(rt) : ht.getPosition : [0, 0]), vt = rt.text || (ht.getText ? typeof ht.getText == "function" ? ht.getText(rt) : ht.getText : ""), ct = (rt.size || (ht.getSize ? typeof ht.getSize == "function" ? ht.getSize(rt) : ht.getSize : 14)) * ve, It = vt.length * ct * 0.7 + ct * 2, Xt = Ke[0] + It;
+        for (const tt of gt.data) {
+          const Ke = tt.position || (gt.getPosition ? typeof gt.getPosition == "function" ? gt.getPosition(tt) : gt.getPosition : [0, 0]), vt = tt.text || (gt.getText ? typeof gt.getText == "function" ? gt.getText(tt) : gt.getText : ""), ct = (tt.size || (gt.getSize ? typeof gt.getSize == "function" ? gt.getSize(tt) : gt.getSize : 14)) * ve, It = vt.length * ct * 0.7 + ct * 2, Xt = Ke[0] + It;
           Xt > _e && (_e = Xt);
         }
         _e > xt && (xt = _e);
       }
       if ((i?.showTreeLayer === !0 || i?.showTreeTextLayer === !0) && i?.genomeView?.tree && i?.bounds) {
-        const ht = i.genomeView, ve = i.bounds.treeOffset || 0, rt = i.config?.tree?.xScalePercent ? i.config.tree.xScalePercent / 100 : 1;
-        if (ht.tree.allNodes && ht.tree.allNodes.length > 0) {
-          const Ke = ht.tree.allNodes.map(($e) => $e.y * rt + ve);
+        const gt = i.genomeView, ve = i.bounds.treeOffset || 0, tt = i.config?.tree?.xScalePercent ? i.config.tree.xScalePercent / 100 : 1;
+        if (gt.tree.allNodes && gt.tree.allNodes.length > 0) {
+          const Ke = gt.tree.allNodes.map((ze) => ze.y * tt + ve);
           ft = Math.min(...Ke);
         }
       }
@@ -57363,45 +57353,45 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
       xe = xe * Ae + (xt - Lt / 2), Rt = Rt * Ae + (zt - ft / 2);
     }
     return [xe, Rt];
-  }, Ce = Math.max(1e-9, _ - w), Xe = S / Ce, ot = typeof o == "number" && isFinite(o) && o > 0 ? o : 1, _t = typeof a == "number" && isFinite(a) && a > 0 ? a : 1, ze = Xe * ot * Ae, Mt = Xe * _t * Ae, an = (qe, xe, Rt, Lt, ft, xt, Tt, zt) => {
-    let ht = 0, _e = 1;
-    const ve = Rt - qe, rt = Lt - xe, Ke = [
+  }, Ce = Math.max(1e-9, _ - w), Xe = S / Ce, ot = typeof o == "number" && isFinite(o) && o > 0 ? o : 1, _t = typeof a == "number" && isFinite(a) && a > 0 ? a : 1, Ue = Xe * ot * Ae, Mt = Xe * _t * Ae, an = (qe, xe, Rt, Lt, ft, xt, Tt, zt) => {
+    let gt = 0, _e = 1;
+    const ve = Rt - qe, tt = Lt - xe, Ke = [
       { p: -ve, q: qe - ft },
       // left
       { p: ve, q: xt - qe },
       // right
-      { p: -rt, q: xe - Tt },
+      { p: -tt, q: xe - Tt },
       // bottom
-      { p: rt, q: zt - xe }
+      { p: tt, q: zt - xe }
       // top
     ];
     for (const vt of Ke) {
-      const { p: $e, q: ct } = vt;
-      if ($e === 0) {
+      const { p: ze, q: ct } = vt;
+      if (ze === 0) {
         if (ct < 0) return null;
       } else {
-        const It = ct / $e;
-        if ($e < 0) {
+        const It = ct / ze;
+        if (ze < 0) {
           if (It > _e) return null;
-          It > ht && (ht = It);
+          It > gt && (gt = It);
         } else {
-          if (It < ht) return null;
+          if (It < gt) return null;
           It < _e && (_e = It);
         }
       }
     }
-    return [qe + ve * ht, xe + rt * ht, qe + ve * _e, xe + rt * _e];
+    return [qe + ve * gt, xe + tt * gt, qe + ve * _e, xe + tt * _e];
   }, sn = (qe, xe, Rt, Lt, ft) => {
     const xt = [];
     for (let Tt = 0; Tt < qe.length - 1; Tt++) {
-      const zt = qe[Tt], ht = qe[Tt + 1], _e = an(zt[0], zt[1], ht[0], ht[1], xe, Rt, Lt, ft);
+      const zt = qe[Tt], gt = qe[Tt + 1], _e = an(zt[0], zt[1], gt[0], gt[1], xe, Rt, Lt, ft);
       if (_e) {
-        const [ve, rt, Ke, vt] = _e;
+        const [ve, tt, Ke, vt] = _e;
         if (xt.length === 0)
-          xt.push([ve, rt]);
+          xt.push([ve, tt]);
         else {
-          const $e = xt[xt.length - 1];
-          (Math.abs($e[0] - ve) > 1e-6 || Math.abs($e[1] - rt) > 1e-6) && xt.push([ve, rt]);
+          const ze = xt[xt.length - 1];
+          (Math.abs(ze[0] - ve) > 1e-6 || Math.abs(ze[1] - tt) > 1e-6) && xt.push([ve, tt]);
         }
         xt.push([Ke, vt]);
       }
@@ -57409,42 +57399,42 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
     return xt;
   }, Ct = (qe, xe, Rt, Lt, ft) => {
     const xt = (Ke, vt) => {
-      const $e = [];
+      const ze = [];
       for (let ct = 0; ct < Ke.length; ct++) {
         const It = Ke[ct], Xt = Ke[(ct + 1) % Ke.length], ln = vt(It), Ln = vt(Xt);
         if (ln && Ln)
-          $e.push(Xt);
+          ze.push(Xt);
         else if (ln && !Ln) {
           const mn = Tt(It, Xt, vt);
-          mn && $e.push(mn);
+          mn && ze.push(mn);
         } else if (!ln && Ln) {
           const mn = Tt(It, Xt, vt);
-          mn && $e.push(mn), $e.push(Xt);
+          mn && ze.push(mn), ze.push(Xt);
         }
       }
-      return $e;
-    }, Tt = (Ke, vt, $e) => {
+      return ze;
+    }, Tt = (Ke, vt, ze) => {
       const ct = Ke[0], It = Ke[1], Xt = vt[0], ln = vt[1], Ln = Xt - ct, mn = ln - It;
-      if ($e === zt) {
+      if (ze === zt) {
         const mt = xe, on = (mt - ct) / Ln;
         return [mt, It + mn * on];
       }
-      if ($e === ht) {
+      if (ze === gt) {
         const mt = Rt, on = (mt - ct) / Ln;
         return [mt, It + mn * on];
       }
-      if ($e === _e) {
+      if (ze === _e) {
         const mt = Lt, on = (mt - It) / mn;
         return [ct + Ln * on, mt];
       }
-      if ($e === ve) {
+      if (ze === ve) {
         const mt = ft, on = (mt - It) / mn;
         return [ct + Ln * on, mt];
       }
       return null;
-    }, zt = (Ke) => Ke[0] >= xe, ht = (Ke) => Ke[0] <= Rt, _e = (Ke) => Ke[1] >= Lt, ve = (Ke) => Ke[1] <= ft;
-    let rt = qe.slice();
-    return rt = xt(rt, zt), rt.length ? (rt = xt(rt, ht), rt.length ? (rt = xt(rt, _e), rt.length ? (rt = xt(rt, ve), rt) : []) : []) : [];
+    }, zt = (Ke) => Ke[0] >= xe, gt = (Ke) => Ke[0] <= Rt, _e = (Ke) => Ke[1] >= Lt, ve = (Ke) => Ke[1] <= ft;
+    let tt = qe.slice();
+    return tt = xt(tt, zt), tt.length ? (tt = xt(tt, gt), tt.length ? (tt = xt(tt, _e), tt.length ? (tt = xt(tt, ve), tt) : []) : []) : [];
   }, wt = (qe) => qe[0] >= -1 && qe[0] <= ce + 1 && qe[1] >= -1 && qe[1] <= oe + 1;
   let At;
   if (b && u?.formatPreset) {
@@ -57498,33 +57488,33 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
     if (qe.id === "genes" || qe.id === "protein-polygons" || qe.id === "nucleotide-polygons" || Rt || qe.id === "ncrna-features" || Lt)
       for (const ft of xe.data) {
         const xt = xe.getPolygon(ft), Tt = xe.getFillColor(ft);
-        let zt = [0, 0, 0, 255], ht = "none", _e = 1;
+        let zt = [0, 0, 0, 255], gt = "none", _e = 1;
         if (qe.id === "genes" || qe.id === "ncrna-features") {
           typeof xe.getLineColor == "function" ? zt = xe.getLineColor(ft) : Array.isArray(xe.getLineColor) && (zt = xe.getLineColor);
           const Xt = $l(zt);
-          ht = zt[3] === 0 || Xt === "none" ? "none" : Xt, _e = r?.gene?.edgeWidth || 1;
-        } else Rt ? (zt = s.text || r?.colors?.black || [0, 0, 0, 255], ht = $l(zt), _e = r?.domain?.edgeWidth || 1) : Lt && (typeof xe.getLineColor == "function" ? zt = xe.getLineColor(ft) : ft.strokeColor && (zt = ft.strokeColor), ht = $l(zt), typeof xe.getLineWidth == "function" ? _e = xe.getLineWidth(ft) : ft.strokeWidth ? _e = ft.strokeWidth : _e = 2);
-        const ve = $l(Tt), rt = R0(Tt), Ke = R0(zt), vt = Ct(xt, w, _, x, D);
+          gt = zt[3] === 0 || Xt === "none" ? "none" : Xt, _e = r?.gene?.edgeWidth || 1;
+        } else Rt ? (zt = s.text || r?.colors?.black || [0, 0, 0, 255], gt = $l(zt), _e = r?.domain?.edgeWidth || 1) : Lt && (typeof xe.getLineColor == "function" ? zt = xe.getLineColor(ft) : ft.strokeColor && (zt = ft.strokeColor), gt = $l(zt), typeof xe.getLineWidth == "function" ? _e = xe.getLineWidth(ft) : ft.strokeWidth ? _e = ft.strokeWidth : _e = 2);
+        const ve = $l(Tt), tt = R0(Tt), Ke = R0(zt), vt = Ct(xt, w, _, x, D);
         if (!vt || vt.length === 0) continue;
         let ct = vt.map((Xt) => Ee(Xt)).map((Xt, ln) => ln === 0 ? `M${Xt[0]},${Xt[1]}` : `L${Xt[0]},${Xt[1]}`).join(" ") + "Z", It = "";
-        rt < 1 && (It += ` fill-opacity='${rt}'`), Ke < 1 && (It += ` stroke-opacity='${Ke}'`), At += `<path d='${ct}' fill='${ve}' stroke='${ht}' stroke-width='${_e}'${It}/>`;
+        tt < 1 && (It += ` fill-opacity='${tt}'`), Ke < 1 && (It += ` stroke-opacity='${Ke}'`), At += `<path d='${ct}' fill='${ve}' stroke='${gt}' stroke-width='${_e}'${It}/>`;
       }
     if (qe.id === "region-outlines") {
       const ft = xe.getDashArray || [6, 4], xt = Array.isArray(ft) ? ft.join(",") : "6,4";
       for (const Tt of xe.data) {
         let zt = [];
         if (typeof xe.getPath == "function" ? zt = xe.getPath(Tt) : zt = Tt.polygon || Tt.path || [], !zt || zt.length < 2) continue;
-        let ht = [100, 100, 100, 255];
+        let gt = [100, 100, 100, 255];
         if (Tt.strokeColor)
-          ht = Tt.strokeColor;
+          gt = Tt.strokeColor;
         else if (xe.getColor)
           if (typeof xe.getColor == "function")
             try {
-              ht = xe.getColor(Tt);
+              gt = xe.getColor(Tt);
             } catch {
-              ht = [100, 100, 100, 255];
+              gt = [100, 100, 100, 255];
             }
-          else Array.isArray(xe.getColor) && (ht = xe.getColor);
+          else Array.isArray(xe.getColor) && (gt = xe.getColor);
         let _e = Tt.strokeWidth || 2;
         if (xe.getWidth)
           if (typeof xe.getWidth == "function")
@@ -57535,10 +57525,10 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
             }
           else
             _e = xe.getWidth;
-        const ve = $l(ht), rt = R0(ht), Ke = sn(zt, w, _, x, D);
+        const ve = $l(gt), tt = R0(gt), Ke = sn(zt, w, _, x, D);
         if (!Ke || Ke.length === 0) continue;
-        const $e = Ke.map((ct) => Ee(ct)).map((ct, It) => It === 0 ? `M${ct[0]},${ct[1]}` : `L${ct[0]},${ct[1]}`).join(" ") + " Z";
-        At += `<path d='${$e}' fill='none' stroke='${ve}' stroke-width='${_e}' stroke-dasharray='${xt}'${rt < 1 ? ` stroke-opacity='${rt}'` : ""}/>`;
+        const ze = Ke.map((ct) => Ee(ct)).map((ct, It) => It === 0 ? `M${ct[0]},${ct[1]}` : `L${ct[0]},${ct[1]}`).join(" ") + " Z";
+        At += `<path d='${ze}' fill='none' stroke='${ve}' stroke-width='${_e}' stroke-dasharray='${xt}'${tt < 1 ? ` stroke-opacity='${tt}'` : ""}/>`;
       }
     }
     if (qe.id === "phylo-tree")
@@ -57556,9 +57546,9 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
               Tt = xe.getColor();
             }
           else Array.isArray(xe.getColor) && (Tt = xe.getColor);
-        const zt = $l(Tt), ht = sn(xt, w, _, x, D);
-        if (!ht || ht.length === 0) continue;
-        const ve = ht.map((rt) => Ee(rt)).map((rt, Ke) => Ke === 0 ? `M${rt[0]},${rt[1]}` : `L${rt[0]},${rt[1]}`).join(" ");
+        const zt = $l(Tt), gt = sn(xt, w, _, x, D);
+        if (!gt || gt.length === 0) continue;
+        const ve = gt.map((tt) => Ee(tt)).map((tt, Ke) => Ke === 0 ? `M${tt[0]},${tt[1]}` : `L${tt[0]},${tt[1]}`).join(" ");
         At += `<path d='${ve}' fill='none' stroke='${zt}' stroke-width='1'/>`;
       }
     if (qe.id === "connecting-lines" || qe.id === "hoods")
@@ -57579,45 +57569,45 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
               }
             }
           else Array.isArray(xe.getColor) && (zt = xe.getColor);
-        let ht = 1;
+        let gt = 1;
         if (qe.id === "hoods")
-          ht = r?.stroke?.hoodWidth || r?.hood?.width || 0.25;
+          gt = r?.stroke?.hoodWidth || r?.hood?.width || 0.25;
         else if (ft.width)
-          ht = ft.width;
+          gt = ft.width;
         else if (xe.getWidth)
           if (typeof xe.getWidth == "function")
             try {
-              ht = xe.getWidth(ft);
+              gt = xe.getWidth(ft);
             } catch {
               try {
-                ht = xe.getWidth();
+                gt = xe.getWidth();
               } catch {
-                ht = 1;
+                gt = 1;
               }
             }
           else
-            ht = xe.getWidth;
+            gt = xe.getWidth;
         const _e = $l(zt), ve = an(xt[0], xt[1], Tt[0], Tt[1], w, _, x, D);
         if (!ve) continue;
-        const [rt, Ke, vt, $e] = ve, [ct, It] = Ee([rt, Ke]), [Xt, ln] = Ee([vt, $e]);
-        At += `<line x1="${ct}" y1="${It}" x2="${Xt}" y2="${ln}" stroke="${_e}" stroke-width="${ht}" />`;
+        const [tt, Ke, vt, ze] = ve, [ct, It] = Ee([tt, Ke]), [Xt, ln] = Ee([vt, ze]);
+        At += `<line x1="${ct}" y1="${It}" x2="${Xt}" y2="${ln}" stroke="${_e}" stroke-width="${gt}" />`;
       }
     if (qe.id === "nodes" || qe.id === "tree-nodes")
       for (const ft of xe.data) {
-        const xt = ft.position || (xe.getPosition ? xe.getPosition(ft) : [0, 0]), Tt = ft.color || (xe.getFillColor ? xe.getFillColor(ft) : [0, 0, 0, 255]), zt = ft.radius || (xe.getRadius ? xe.getRadius(ft) : 5), [ht, _e] = Ee(xt);
-        if (!wt([ht, _e])) continue;
-        const ve = $l(Tt), rt = (zt || 1) * Mt;
-        At += `<circle cx="${ht}" cy="${_e}" r="${rt}" fill="${ve}" />`;
+        const xt = ft.position || (xe.getPosition ? xe.getPosition(ft) : [0, 0]), Tt = ft.color || (xe.getFillColor ? xe.getFillColor(ft) : [0, 0, 0, 255]), zt = ft.radius || (xe.getRadius ? xe.getRadius(ft) : 5), [gt, _e] = Ee(xt);
+        if (!wt([gt, _e])) continue;
+        const ve = $l(Tt), tt = (zt || 1) * Mt;
+        At += `<circle cx="${gt}" cy="${_e}" r="${tt}" fill="${ve}" />`;
       }
     if (qe.id === "phylo-labels" || qe.id === "gene-labels" || qe.id === "scale-labels")
       for (const ft of xe.data) {
-        const xt = ft.position || (xe.getPosition ? typeof xe.getPosition == "function" ? xe.getPosition(ft) : xe.getPosition : [0, 0]), Tt = ft.text || (xe.getText ? typeof xe.getText == "function" ? xe.getText(ft) : xe.getText : ""), zt = ft.color || (xe.getColor ? typeof xe.getColor == "function" ? xe.getColor(ft) : xe.getColor : [0, 0, 0, 255]), ht = ft.size || (xe.getSize ? typeof xe.getSize == "function" ? xe.getSize(ft) : xe.getSize : 14), _e = $l(zt), ve = R0(zt);
-        let [rt, Ke] = Ee(xt);
-        if (!wt([rt, Ke])) continue;
+        const xt = ft.position || (xe.getPosition ? typeof xe.getPosition == "function" ? xe.getPosition(ft) : xe.getPosition : [0, 0]), Tt = ft.text || (xe.getText ? typeof xe.getText == "function" ? xe.getText(ft) : xe.getText : ""), zt = ft.color || (xe.getColor ? typeof xe.getColor == "function" ? xe.getColor(ft) : xe.getColor : [0, 0, 0, 255]), gt = ft.size || (xe.getSize ? typeof xe.getSize == "function" ? xe.getSize(ft) : xe.getSize : 14), _e = $l(zt), ve = R0(zt);
+        let [tt, Ke] = Ee(xt);
+        if (!wt([tt, Ke])) continue;
         const vt = ft.textAnchor || (xe.getTextAnchor ? typeof xe.getTextAnchor == "function" ? xe.getTextAnchor(ft) : xe.getTextAnchor : "start");
-        let $e = ft.pixelOffset;
-        $e === void 0 && xe.getPixelOffset && (typeof xe.getPixelOffset == "function" ? $e = xe.getPixelOffset(ft) : Array.isArray(xe.getPixelOffset) && ($e = xe.getPixelOffset)), Array.isArray($e) && $e.length === 2 && (rt += $e[0], Ke += $e[1]);
-        const ct = Math.max(0.1, (ht || 12) * ze);
+        let ze = ft.pixelOffset;
+        ze === void 0 && xe.getPixelOffset && (typeof xe.getPixelOffset == "function" ? ze = xe.getPixelOffset(ft) : Array.isArray(xe.getPixelOffset) && (ze = xe.getPixelOffset)), Array.isArray(ze) && ze.length === 2 && (tt += ze[0], Ke += ze[1]);
+        const ct = Math.max(0.1, (gt || 12) * Ue);
         let It = "alphabetic", Xt = 0;
         if (qe.id === "phylo-labels")
           It = "middle", Xt = 0;
@@ -57639,13 +57629,13 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
         if (qe.id === "phylo-labels" && xe.background) {
           let mt = [255, 255, 255, 255];
           xe.getBackgroundColor && (typeof xe.getBackgroundColor == "function" ? mt = xe.getBackgroundColor(ft) : Array.isArray(xe.getBackgroundColor) && (mt = xe.getBackgroundColor));
-          const on = xe.backgroundPadding || [2, 1, 2, 1], $t = $l(mt), En = Tt.length * ct * 0.6, yn = ct, li = rt - on[0] - (vt === "middle" ? En / 2 : vt === "end" ? En : 0), $r = Ke - yn / 2 - on[1], Yr = En + on[0] + on[2], pi = yn + on[1] + on[3];
+          const on = xe.backgroundPadding || [2, 1, 2, 1], $t = $l(mt), En = Tt.length * ct * 0.6, yn = ct, li = tt - on[0] - (vt === "middle" ? En / 2 : vt === "end" ? En : 0), $r = Ke - yn / 2 - on[1], Yr = En + on[0] + on[2], pi = yn + on[1] + on[3];
           At += `<rect x="${li}" y="${$r}" width="${Yr}" height="${pi}" fill="${$t}" />`;
         }
         let ln = 0;
         It === "hanging" ? ln = ct * 0.85 : It === "middle" ? ln = ct * 0.35 : (It === "alphabetic" || It === "baseline") && (ln = 0);
         const Ln = Ke + Xt + ln, mn = ve < 1 ? ` fill-opacity="${ve}"` : "";
-        At += `<text x="${rt}" y="${Ln}" fill="${_e}"${mn} font-size="${ct}px" font-family="sans-serif" text-anchor="${vt}">${Tt}</text>`;
+        At += `<text x="${tt}" y="${Ln}" fill="${_e}"${mn} font-size="${ct}px" font-family="sans-serif" text-anchor="${vt}">${Tt}</text>`;
       }
   }
   if (At += "</g>", console.log("🎯 Ruler section - checking conditions:", {
@@ -57658,13 +57648,13 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
   }), i && i.config && typeof i.width == "number" && typeof i.height == "number") {
     const { minX: qe, maxX: xe, config: Rt, viewState: Lt, alignmentReferencePoint: ft, bounds: xt, genomeView: Tt, precomputedTicks: zt } = i;
     i.width, i.height;
-    const ht = Rt || r;
+    const gt = Rt || r;
     if (console.log("🎯 Ruler section - inside condition, precomputedTicks:", zt?.length), zt && Array.isArray(zt)) {
       const Hn = s.text || (s.background === "#ffffff" ? "#666" : "#aaa"), Ht = s.text || (s.background === "#ffffff" ? "#333" : "#ccc"), zn = s.text || (s.background === "#ffffff" ? "#666" : "#aaa");
-      console.log("🎯 Ruler rendering with rulerScaleFactor:", lt, "base fontSize: 11 -> scaled:", 11 * lt), ht.ruler.height * lt;
-      const qt = Ut, kn = ht.ruler.tickHeight * lt, Vn = ht.ruler.labelOffset * lt, Mi = 11 * lt;
+      console.log("🎯 Ruler rendering with rulerScaleFactor:", lt, "base fontSize: 11 -> scaled:", 11 * lt), gt.ruler.height * lt;
+      const qt = Ut, kn = gt.ruler.tickHeight * lt, Vn = gt.ruler.labelOffset * lt, Mi = 11 * lt;
       At += "<g id='ruler'>";
-      const $i = ft || 0, Gr = (ht.genome && typeof ht.genome.xScalePercent == "number" ? ht.genome.xScalePercent : 100) / 100, mi = (tn) => tn * Gr + $i, Ji = (tn) => {
+      const $i = ft || 0, Gr = (gt.genome && typeof gt.genome.xScalePercent == "number" ? gt.genome.xScalePercent : 100) / 100, mi = (tn) => tn * Gr + $i, Ji = (tn) => {
         const Zs = mi(tn.x), [Ar] = Ee([Zs, 0]);
         return Ar;
       }, _i = zt.slice(0, 3);
@@ -57700,8 +57690,8 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
         }
       return At += "</g>", At += "</g>", At += "</svg>", At;
     }
-    (ht.ruler?.height || 36) * lt;
-    const _e = Ut, ve = (ht.ruler?.tickHeight || 8) * lt, rt = (ht.ruler?.labelOffset || 24) * lt, Ke = 11 * lt, vt = s.text || (s.background === "#ffffff" ? "#666" : "#aaa"), $e = s.text || (s.background === "#ffffff" ? "#333" : "#ccc"), ct = s.text || (s.background === "#ffffff" ? "#666" : "#aaa");
+    (gt.ruler?.height || 36) * lt;
+    const _e = Ut, ve = (gt.ruler?.tickHeight || 8) * lt, tt = (gt.ruler?.labelOffset || 24) * lt, Ke = 11 * lt, vt = s.text || (s.background === "#ffffff" ? "#666" : "#aaa"), ze = s.text || (s.background === "#ffffff" ? "#333" : "#ccc"), ct = s.text || (s.background === "#ffffff" ? "#666" : "#aaa");
     let It = null;
     if (Tt && Tt.nucleotidesBySeqid) {
       let Hn = 1 / 0;
@@ -57712,7 +57702,7 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
     const Xt = (Hn) => {
       const [Ht] = Ee([Hn, 0]);
       return Ht;
-    }, ln = It !== null ? Xt(It) : 0, Ln = [], mn = [], mt = [], on = xt?.minX ?? w, $t = xt?.maxX ?? _, En = ft || 0, yn = ht.genome && typeof ht.genome.xScalePercent == "number" ? ht.genome.xScalePercent / 100 : 1, li = Math.max(
+    }, ln = It !== null ? Xt(It) : 0, Ln = [], mn = [], mt = [], on = xt?.minX ?? w, $t = xt?.maxX ?? _, En = ft || 0, yn = gt.genome && typeof gt.genome.xScalePercent == "number" ? gt.genome.xScalePercent / 100 : 1, li = Math.max(
       It !== null ? It : w,
       w,
       on
@@ -57730,7 +57720,7 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
       }
     }
     if ((i.showTreeLayer === !0 || i.showTreeTextLayer === !0) && It !== null && ln > 30 && Tt && Tt.tree && xt) {
-      const Hn = xt.treeOffset || 0, Ht = ht.tree && typeof ht.tree.xScalePercent == "number" ? ht.tree.xScalePercent / 100 : 1, zn = Tt.tree.allNodes.map((Gr) => Gr.y * Ht + Hn), qt = Math.min(...zn), kn = Math.max(...zn), Vn = Tt.tree.maxEvolutionaryDistance || 1, Mi = ht.tree?.fixedCoordinateWidth || 2e3, $i = Math.max(qt, w), Zn = Math.min(kn, It);
+      const Hn = xt.treeOffset || 0, Ht = gt.tree && typeof gt.tree.xScalePercent == "number" ? gt.tree.xScalePercent / 100 : 1, zn = Tt.tree.allNodes.map((Gr) => Gr.y * Ht + Hn), qt = Math.min(...zn), kn = Math.max(...zn), Vn = Tt.tree.maxEvolutionaryDistance || 1, Mi = gt.tree?.fixedCoordinateWidth || 2e3, $i = Math.max(qt, w), Zn = Math.min(kn, It);
       if (Zn > $i) {
         const mi = Math.floor(ln / 60), Ji = Math.min(4, Math.max(2, mi));
         for (let _i = 0; _i < Ji; _i++) {
@@ -57746,10 +57736,10 @@ function Gse(t, e, n, r, i, s = {}, o = 5, a = 1, u) {
     }
     At += "<g id='ruler-tree'>";
     for (const Hn of mt)
-      At += `<line x1='${Hn.screenX}' y1='${_e}' x2='${Hn.screenX}' y2='${_e + ve / 2}' stroke='${ct}' stroke-width='1'/>`, At += `<text x='${Hn.screenX}' y='${_e + rt}' text-anchor='middle' font-size='${Ke}px' fill='${ct}' font-family='Helvetica, Arial, sans-serif' font-weight='bold'>${Hn.label}</text>`;
+      At += `<line x1='${Hn.screenX}' y1='${_e}' x2='${Hn.screenX}' y2='${_e + ve / 2}' stroke='${ct}' stroke-width='1'/>`, At += `<text x='${Hn.screenX}' y='${_e + tt}' text-anchor='middle' font-size='${Ke}px' fill='${ct}' font-family='Helvetica, Arial, sans-serif' font-weight='bold'>${Hn.label}</text>`;
     At += "</g>", At += "<g id='ruler-genes'>";
     for (const Hn of mn)
-      At += `<line x1='${Hn.screenX}' y1='${_e}' x2='${Hn.screenX}' y2='${_e + ve}' stroke='${vt}' stroke-width='1'/>`, At += `<text x='${Hn.screenX}' y='${_e + rt}' text-anchor='middle' font-size='${Ke}px' fill='${$e}' font-family='Helvetica, Arial, sans-serif'>${Hn.label}</text>`;
+      At += `<line x1='${Hn.screenX}' y1='${_e}' x2='${Hn.screenX}' y2='${_e + ve}' stroke='${vt}' stroke-width='1'/>`, At += `<text x='${Hn.screenX}' y='${_e + tt}' text-anchor='middle' font-size='${Ke}px' fill='${ze}' font-family='Helvetica, Arial, sans-serif'>${Hn.label}</text>`;
     At += "</g>", At += "</g>";
   }
   return At += "</svg>", At;
@@ -57817,7 +57807,7 @@ const as = !1, TM = it.forwardRef(({
   // external tree X-scale percent (optional)
   adjacencyN: _t = 1,
   // Layer visibility props
-  showTreeLayer: ze = !0,
+  showTreeLayer: Ue = !0,
   showGeneLayer: Mt = !0,
   showDomainLayer: an = !0,
   showProteinLinkLayer: sn = !0,
@@ -57841,15 +57831,15 @@ const as = !1, TM = it.forwardRef(({
   scaleExportToFormat: Tt = !1,
   cropToGuides: zt = !0,
   // Default to true when scale to format is enabled
-  scaleRulerWithCrop: ht = !0,
+  scaleRulerWithCrop: gt = !0,
   // Default to true - match viewport ruler appearance
   // Visual settings props (new sliders)
   ySpacing: _e,
   phyloLabelSize: ve,
-  geneLabelSize: rt,
+  geneLabelSize: tt,
   rulerLabelSize: Ke,
   strokeLineWidth: vt,
-  genomeXScale: $e
+  genomeXScale: ze
 }, ct) => {
   const It = $n(0), Xt = $n({});
   it.useEffect(() => {
@@ -57979,17 +57969,17 @@ const as = !1, TM = it.forwardRef(({
   }, [xe]);
   const Kn = $n(null), Wi = $n(null), Lo = $n(rr), ws = $n(null);
   $n(null), $n(null);
-  const Us = $n(null), Ao = $n(null), zo = $n([]), sl = $n(null), Va = $n(null), Dr = $n(null), qi = $n(null), us = $n(!1), tt = it.useMemo(() => _ ? Object.values(_) : [], [_]), qn = it.useMemo(() => {
-    if (!tt.length) return null;
+  const Us = $n(null), Ao = $n(null), zo = $n([]), sl = $n(null), Va = $n(null), Dr = $n(null), qi = $n(null), us = $n(!1), nt = it.useMemo(() => _ ? Object.values(_) : [], [_]), qn = it.useMemo(() => {
+    if (!nt.length) return null;
     const T = {};
-    for (const Q of tt) {
+    for (const Q of nt) {
       const re = Q?.id || Q?.gene_id || Q?.geneId;
       if (!re) continue;
       const te = Q?.cluster ?? Q?.clusterId ?? Q?.cluster_id;
       te == null || te === "" || (T[re] = te);
     }
     return Object.keys(T).length ? T : null;
-  }, [tt]), $s = it.useMemo(() => ({
+  }, [nt]), $s = it.useMemo(() => ({
     // NO CONFIG PROPERTIES HERE - they're all visual-only!
     // The data structure (genes, proteins, links, domains) only depends on the actual data,
     // not on how it's displayed (tip width, bezier segments, heights, spacing, etc.)
@@ -58012,7 +58002,7 @@ const as = !1, TM = it.forwardRef(({
       }
     };
   }, [P, _e]), Eo = it.useMemo(() => {
-    const T = typeof _e == "number" ? _e : P?.tree?.ySpacing || Kt.tree.ySpacing, Q = typeof $e == "number" ? $e : P?.genome?.xScalePercent || Kt.genome.xScalePercent;
+    const T = typeof _e == "number" ? _e : P?.tree?.ySpacing || Kt.tree.ySpacing, Q = typeof ze == "number" ? ze : P?.genome?.xScalePercent || Kt.genome.xScalePercent;
     return {
       ...P,
       tree: {
@@ -58024,7 +58014,7 @@ const as = !1, TM = it.forwardRef(({
         xScalePercent: Q
       }
     };
-  }, [P, _e, $e]), Pn = it.useMemo(() => {
+  }, [P, _e, ze]), Pn = it.useMemo(() => {
     const T = Zr ? t : go || [], Q = new Hx(T, vo, U), re = Q.getLeafNodes().map((te) => te.name);
     return Q.layout(re), Q;
   }, [t, Zr, go, U, vo, $s]), ut = it.useMemo(() => {
@@ -58133,9 +58123,9 @@ const as = !1, TM = it.forwardRef(({
   }, [ne, Z, fe, be, qn, P?.colorPalettes]), Gn(() => {
     j > 0 && (us.current = !0, kn((T) => T + 1));
   }, [j]);
-  const Bt = it.useRef($e), fn = it.useRef(y), vn = it.useRef(m), Wt = it.useRef(C), Gt = it.useRef(_e), wn = it.useRef(0), gn = it.useMemo(() => {
+  const Bt = it.useRef(ze), fn = it.useRef(y), vn = it.useRef(m), Wt = it.useRef(C), Gt = it.useRef(_e), wn = it.useRef(0), gn = it.useMemo(() => {
     if (!ne) return `empty-${wn.current}`;
-    const T = ne.config?.genome?.xScalePercent, Q = $e ?? T ?? 30;
+    const T = ne.config?.genome?.xScalePercent, Q = ze ?? T ?? 30;
     T !== Q && (ne.config = {
       ...ne.config,
       genome: {
@@ -58143,9 +58133,9 @@ const as = !1, TM = it.forwardRef(({
         xScalePercent: Q
       }
     });
-    const re = Bt.current !== $e, te = fn.current !== y, X = vn.current !== m, G = Wt.current !== C, K = Gt.current !== _e;
+    const re = Bt.current !== ze, te = fn.current !== y, X = vn.current !== m, G = Wt.current !== C, K = Gt.current !== _e;
     if (re || te || X || G) {
-      if (Bt.current = $e, fn.current = y, vn.current = m, Wt.current = C, m != null && m !== "")
+      if (Bt.current = ze, fn.current = y, vn.current = m, Wt.current = C, m != null && m !== "")
         ne.alignCluster(String(m));
       else {
         const ae = Object.values(ne.hoodRanges || {}).some((he) => he.align_gene);
@@ -58153,28 +58143,28 @@ const as = !1, TM = it.forwardRef(({
       }
       wn.current++;
     }
-    return K && (Gt.current = _e), `${$e}-${y}-${m || ""}-${C}-${_e}-${wn.current}`;
-  }, [ne, $e, y, m, C, _e]), In = it.useMemo(() => {
+    return K && (Gt.current = _e), `${ze}-${y}-${m || ""}-${C}-${_e}-${wn.current}`;
+  }, [ne, ze, y, m, C, _e]), In = it.useMemo(() => {
     if (!Pn) return 100;
     const T = (ye) => {
       if (!$) return {};
       if ($[ye]) return $[ye];
       const Me = Object.values($);
-      for (let Ue = 0; Ue < Me.length; ++Ue) {
-        const Be = Me[Ue];
+      for (let $e = 0; $e < Me.length; ++$e) {
+        const Be = Me[$e];
         if (Be && (Be.leaf_id == ye || Be.leaf_id === ye || Be.leaf_name == ye || Be.leaf_name === ye || Be.id == ye || Be.id === ye || Be.name == ye || Be.name === ye || Be.originalId == ye || Be.original_id == ye))
           return Be;
       }
       return {};
     }, Q = L ? Array.isArray(L) ? L : L.split(",").map((ye) => ye.trim()).filter(Boolean) : null, te = Pn.leafNodes.map((ye) => {
       const Me = T(ye.name) || {};
-      let Ue;
+      let $e;
       if (Q && Q.length > 0) {
         const Be = Q.map((Ye) => Ye === "name" ? ye.name : Me[Ye]).filter((Ye) => Ye != null && Ye !== "");
-        Ue = Be.length > 0 ? Be.join(" | ") : ye.name;
+        $e = Be.length > 0 ? Be.join(" | ") : ye.name;
       } else
-        Ue = Me[L], Ue == null && (Ue = ye.name);
-      return String(Ue);
+        $e = Me[L], $e == null && ($e = ye.name);
+      return String($e);
     }).reduce((ye, Me) => Math.max(ye, Me.length), 0), X = P.tree.labelPadding.charWidth, G = te * X, K = typeof ve == "number" ? ve : P?.text?.phyloLabelSize || 14, ae = P?.text?.scaleFactors?.phylo || 1, me = K * ae * 5;
     return G + me;
   }, [Pn, $, L, P, ve]), Qn = it.useMemo(() => {
@@ -58204,8 +58194,8 @@ const as = !1, TM = it.forwardRef(({
   function xi(T, Q, re = "after-tree", te = null, X = !0, G = null) {
     let K = 1 / 0, ae = 1 / 0, he = -1 / 0, me = -1 / 0, ye = 1 / 0, Me = null;
     if (!T) return P.layout.containerFallback;
-    const Ue = G && G.size > 0;
-    Ue ? (Object.values(T.genesById).forEach((Zt) => {
+    const $e = G && G.size > 0;
+    $e ? (Object.values(T.genesById).forEach((Zt) => {
       G.has(String(Zt.hood_id)) && Zt.polygon && Zt.polygon.forEach(([Yt, jt]) => {
         K = Math.min(K, Yt), he = Math.max(he, Yt);
       });
@@ -58231,16 +58221,16 @@ const as = !1, TM = it.forwardRef(({
         K = Math.min(K, Yt), he = Math.max(he, Yt);
       });
     })), Object.values(T.genesById).forEach((Zt) => {
-      Ue && !G.has(String(Zt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([Yt, jt]) => {
+      $e && !G.has(String(Zt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([Yt, jt]) => {
         ae = Math.min(ae, jt), me = Math.max(me, jt);
       });
     }), Object.values(T.ncRNAsById).forEach((Zt) => {
-      Ue && !G.has(String(Zt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([Yt, jt]) => {
+      $e && !G.has(String(Zt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([Yt, jt]) => {
         ae = Math.min(ae, jt), me = Math.max(me, jt);
       });
     }), T.getAllDomains().forEach((Zt) => {
       const Yt = Zt.parentGene;
-      Ue && Yt && !G.has(String(Yt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([jt, mr]) => {
+      $e && Yt && !G.has(String(Yt.hood_id)) || Zt.polygon && Zt.polygon.forEach(([jt, mr]) => {
         ae = Math.min(ae, mr), me = Math.max(me, mr);
       });
     });
@@ -58256,7 +58246,7 @@ const as = !1, TM = it.forwardRef(({
     const Ze = te !== null ? te / 100 : P.tree && typeof P.tree.xScalePercent == "number" ? P.tree.xScalePercent / 100 : 1;
     if (Q) {
       let Zt = null;
-      if (Ue && G && G.size > 0) {
+      if ($e && G && G.size > 0) {
         Zt = /* @__PURE__ */ new Set();
         for (const Yt of Q.allNodes)
           if ((!Yt.branchset || Yt.branchset.length === 0) && (G.has(String(Yt.name)) || G.has(String(Yt.id)))) {
@@ -58276,10 +58266,10 @@ const as = !1, TM = it.forwardRef(({
         });
       });
     }
-    const Ge = Ue ? isFinite(K) ? K : isFinite(ye) ? ye : -1 / 0 : isFinite(T.globalMin) ? T.globalMin : isFinite(ye) ? ye : isFinite(K) ? K : -1 / 0, at = isFinite(Ge) ? P.layout.geneOffset - Ge : 0, Nt = P.tree.gap, Jt = isFinite(Ge) ? Ge : K, hn = re || P.tree?.phyloLabelPosition || "after-tree";
+    const Ge = $e ? isFinite(K) ? K : isFinite(ye) ? ye : -1 / 0 : isFinite(T.globalMin) ? T.globalMin : isFinite(ye) ? ye : isFinite(K) ? K : -1 / 0, at = isFinite(Ge) ? P.layout.geneOffset - Ge : 0, Nt = P.tree.gap, Jt = isFinite(Ge) ? Ge : K, hn = re || P.tree?.phyloLabelPosition || "after-tree";
     let On = 0;
     if (hn === "after-tree" && Q) {
-      const Zt = Ue && G ? Q.leafNodes.filter((Yt) => G.has(String(Yt.name)) || G.has(String(Yt.id))) : Q.leafNodes;
+      const Zt = $e && G ? Q.leafNodes.filter((Yt) => G.has(String(Yt.name)) || G.has(String(Yt.id))) : Q.leafNodes;
       if (Zt.length > 0) {
         const Yt = P.tree.labelPadding.charWidth, jt = typeof ve == "number" ? ve : P?.text?.phyloLabelSize || 14, mr = P?.text?.scaleFactors?.phylo || 1, ps = jt * mr * 5;
         On = Zt.reduce((Jr, Vs) => {
@@ -58339,7 +58329,7 @@ const as = !1, TM = it.forwardRef(({
     W,
     rr,
     gn,
-    $e,
+    ze,
     _e,
     H,
     R,
@@ -58353,7 +58343,7 @@ const as = !1, TM = it.forwardRef(({
     rr,
     gn,
     nn,
-    $e,
+    ze,
     _e,
     H,
     R,
@@ -58368,9 +58358,9 @@ const as = !1, TM = it.forwardRef(({
       minX: nn.minX,
       maxX: nn.maxX,
       ySpacing: _e,
-      genomeXScale: $e
+      genomeXScale: ze
     });
-  }, [nn.minY, nn.maxY, nn.minX, nn.maxX, _e, $e, H, R, rr]);
+  }, [nn.minY, nn.maxY, nn.minX, nn.maxX, _e, ze, H, R, rr]);
   const Yn = it.useRef(!1);
   it.useEffect(() => {
     if (Yn.current || !Zn.width || !Zn.height || !isFinite(pn.minX) || !isFinite(pn.maxX) || !isFinite(pn.minY) || !isFinite(pn.maxY)) return;
@@ -58412,7 +58402,7 @@ const as = !1, TM = it.forwardRef(({
       (Nt == null || Nt === "") && at === "cluster" && (Nt = Ge?.metadata?.clusterId ?? Ge?.metadata?.cluster_id ?? Ge?.cluster);
       let Jt = null;
       return Q && !or(Nt) && (Jt = ds(Q, Fl(Nt), St?.type) || null), ye(Jt || Ge.fillColor || X.geneFill);
-    }, Ue = (Ge, at, Nt, Jt = 1 / 0) => {
+    }, $e = (Ge, at, Nt, Jt = 1 / 0) => {
       const hn = Nt * 0.6, On = Math.max(3, Math.floor(at / hn));
       if (Ge.length <= On) return Ge;
       const _n = [];
@@ -58475,7 +58465,7 @@ const as = !1, TM = it.forwardRef(({
         const Pi = Math.min(1, Yi * 2 / Cr.length);
         Jr = Math.max(mr * 0.5, mr * Math.max(0.5, Pi));
       }
-      const Vs = at.geneHeight !== void 0 && at.geneHeight !== null ? at.geneHeight : G && G.gene ? G.gene.height : 60, Bs = me - Vs - 10, ja = Jr * 7, no = Math.max(1, Math.floor(Bs / ja)), na = Ue(Cr, jt, Jr, no), Ws = 2;
+      const Vs = at.geneHeight !== void 0 && at.geneHeight !== null ? at.geneHeight : G && G.gene ? G.gene.height : 60, Bs = me - Vs - 10, ja = Jr * 7, no = Math.max(1, Math.floor(Bs / ja)), na = $e(Cr, jt, Jr, no), Ws = 2;
       let ss;
       switch ((K || "bottom").toLowerCase()) {
         case "top":
@@ -58582,7 +58572,7 @@ const as = !1, TM = it.forwardRef(({
       return T.map((me) => {
         const Me = (Hn(me.leafNode.name) || {})[Q];
         if (Me != null) {
-          const Ue = String(Me), Be = X.get(Ue) || X.get(Number(Ue)) || [0, 0, 0, 255];
+          const $e = String(Me), Be = X.get($e) || X.get(Number($e)) || [0, 0, 0, 255];
           return { ...me, color: Be };
         } else
           return { ...me, color: [0, 0, 0, 255] };
@@ -58606,10 +58596,10 @@ const as = !1, TM = it.forwardRef(({
       }
     const he = {};
     if (te.type === "sequential" && K.length > 0 && K.every((me) => !isNaN(Number(me)))) {
-      const me = K.map((Ue) => Number(Ue)), ye = Math.min(...me), Me = Math.max(...me);
-      K.forEach((Ue) => {
-        const Be = Number(Ue), Ye = Me > ye ? (Be - ye) / (Me - ye) : 0, He = Math.floor(Ye * (ae.length - 1));
-        he[Ue] = ae[He];
+      const me = K.map(($e) => Number($e)), ye = Math.min(...me), Me = Math.max(...me);
+      K.forEach(($e) => {
+        const Be = Number($e), Ye = Me > ye ? (Be - ye) / (Me - ye) : 0, He = Math.floor(Ye * (ae.length - 1));
+        he[$e] = ae[He];
       });
     } else
       K.forEach((me, ye) => {
@@ -58618,10 +58608,10 @@ const as = !1, TM = it.forwardRef(({
     return T.map((me) => {
       const Me = (Hn(me.leafNode.name) || {})[Q];
       if (Me != null) {
-        const Ue = String(Me);
+        const $e = String(Me);
         return {
           ...me,
-          color: he[Ue] || [0, 0, 0, 255]
+          color: he[$e] || [0, 0, 0, 255]
         };
       } else
         return {
@@ -58689,8 +58679,8 @@ const as = !1, TM = it.forwardRef(({
       let Me = ye?.metadata?.[T];
       return (Me == null || Me === "") && T === "cluster" && (Me = ye?.metadata?.clusterId ?? ye?.metadata?.cluster_id ?? ye?.cluster), Me;
     }, te = Q.map(re).map((ye) => Fl(ye)).filter((ye) => !or(ye)), X = [...new Set(te)].sort((ye, Me) => {
-      const Ue = Number(ye), Be = Number(Me);
-      return !isNaN(Ue) && !isNaN(Be) ? Ue - Be : String(ye).localeCompare(String(Me));
+      const $e = Number(ye), Be = Number(Me);
+      return !isNaN($e) && !isNaN(Be) ? $e - Be : String(ye).localeCompare(String(Me));
     });
     if (X.length === 0) return null;
     const G = `${T}-${St.name}-${St.numColors}-${St.reverse}-${X.length}`;
@@ -58703,9 +58693,9 @@ const as = !1, TM = it.forwardRef(({
       St.type || "qualitative"
     ), me = /* @__PURE__ */ new Map();
     if (St.type === "sequential" && ae) {
-      const ye = X.map((Be) => Pr(Be)), Me = Math.min(...ye), Ue = Math.max(...ye);
+      const ye = X.map((Be) => Pr(Be)), Me = Math.min(...ye), $e = Math.max(...ye);
       X.forEach((Be) => {
-        const Ye = Pr(Be), He = Ue > Me ? (Ye - Me) / (Ue - Me) : 0, Ze = Math.floor(He * (he.length - 1));
+        const Ye = Pr(Be), He = $e > Me ? (Ye - Me) / ($e - Me) : 0, Ze = Math.floor(He * (he.length - 1));
         me.set(Ye, he[Ze]);
         try {
           me.set(String(Be), he[Ze]);
@@ -58715,8 +58705,8 @@ const as = !1, TM = it.forwardRef(({
     } else
       X.forEach((ye, Me) => {
         me.set(String(ye), he[Me % he.length]);
-        const Ue = Pr(ye);
-        isNaN(Ue) || me.set(Ue, he[Me % he.length]);
+        const $e = Pr(ye);
+        isNaN($e) || me.set($e, he[Me % he.length]);
       });
     return ha.current = me, Rl.current = G, console.debug("stableGeneColorMap: generated for", X.length, "unique values"), me;
   }, [ne, ge, S, St?.enabled, St?.name, St?.numColors, St?.reverse, St?.type]), ga = it.useRef(null), cc = it.useRef(null), ea = it.useMemo(() => {
@@ -58761,23 +58751,23 @@ const as = !1, TM = it.forwardRef(({
     const T = ge || S || "cluster";
     let Q = Object.values(ne.genesById);
     !gs && hs && hs.size > 0 && (Q = Q.filter((Me) => {
-      const Ue = Me.hood_id || ne.getHoodIdFromSeqid(Me.seqid);
-      return Ue && hs.has(Ue);
+      const $e = Me.hood_id || ne.getHoodIdFromSeqid(Me.seqid);
+      return $e && hs.has($e);
     }));
     const re = (Me) => {
-      let Ue = Me?.metadata?.[T];
-      return (Ue == null || Ue === "") && T === "cluster" && (Ue = Me?.metadata?.clusterId ?? Me?.metadata?.cluster_id ?? Me?.cluster), Ue;
-    }, te = Q.map(re).map((Me) => Fl(Me)).filter((Me) => !or(Me)), X = [...new Set(te)].sort((Me, Ue) => {
-      const Be = Number(Me), Ye = Number(Ue);
-      return !isNaN(Be) && !isNaN(Ye) ? Be - Ye : String(Me).localeCompare(String(Ue));
+      let $e = Me?.metadata?.[T];
+      return ($e == null || $e === "") && T === "cluster" && ($e = Me?.metadata?.clusterId ?? Me?.metadata?.cluster_id ?? Me?.cluster), $e;
+    }, te = Q.map(re).map((Me) => Fl(Me)).filter((Me) => !or(Me)), X = [...new Set(te)].sort((Me, $e) => {
+      const Be = Number(Me), Ye = Number($e);
+      return !isNaN(Be) && !isNaN(Ye) ? Be - Ye : String(Me).localeCompare(String($e));
     });
     if (X.length === 0) return null;
     const K = X.map((Me) => Pr(Me)).filter((Me) => !isNaN(Me)).length === X.length && X.length > 0, ae = /* @__PURE__ */ new Map(), he = Kt.gene.fillColor, me = St.transparentByPrevalence ? [he[0], he[1], he[2], 0] : he, ye = (St.prevalenceFilter || 0) / 100;
     if (gs)
       X.forEach((Me) => {
-        const Ue = Xi?.get(String(Me)) || 0, Be = Ue >= ye, Ye = ds(Uo, Me, St?.type);
+        const $e = Xi?.get(String(Me)) || 0, Be = $e >= ye, Ye = ds(Uo, Me, St?.type);
         let He = Be ? Ye : me;
-        Be && St.desaturateByPrevalence && Xi && ne._desaturateColorByPrevalence && (He = ne._desaturateColorByPrevalence(He, Ue)), Be && St.transparentByPrevalence && Xi && ne._transparentByPrevalence && (He = ne._transparentByPrevalence(He, Ue));
+        Be && St.desaturateByPrevalence && Xi && ne._desaturateColorByPrevalence && (He = ne._desaturateColorByPrevalence(He, $e)), Be && St.transparentByPrevalence && Xi && ne._transparentByPrevalence && (He = ne._transparentByPrevalence(He, $e));
         const Ze = St.type === "sequential" && K ? Pr(Me) : String(Me);
         ae.set(Ze, He);
         try {
@@ -58788,7 +58778,7 @@ const as = !1, TM = it.forwardRef(({
         isNaN(Ge) || ae.set(Ge, He);
       });
     else {
-      const Me = X.filter((Be) => (Xi?.get(String(Be)) || 0) >= ye), Ue = on(
+      const Me = X.filter((Be) => (Xi?.get(String(Be)) || 0) >= ye), $e = on(
         St.name,
         St.numColors && St.type === "sequential" ? St.numColors : Math.max(Me.length, St.numColors || Me.length),
         St.reverse || !1,
@@ -58797,8 +58787,8 @@ const as = !1, TM = it.forwardRef(({
       if (St.type === "sequential" && K) {
         const Be = Me.map((Ze) => Pr(Ze)), Ye = Math.min(...Be), He = Math.max(...Be);
         Me.forEach((Ze) => {
-          const Ge = Pr(Ze), at = He > Ye ? (Ge - Ye) / (He - Ye) : 0, Nt = Math.floor(at * (Ue.length - 1));
-          let Jt = Ue[Nt];
+          const Ge = Pr(Ze), at = He > Ye ? (Ge - Ye) / (He - Ye) : 0, Nt = Math.floor(at * ($e.length - 1));
+          let Jt = $e[Nt];
           if (St.desaturateByPrevalence && Xi && ne._desaturateColorByPrevalence) {
             const hn = Xi.get(String(Ze)) || 0;
             Jt = ne._desaturateColorByPrevalence(Jt, hn);
@@ -58815,7 +58805,7 @@ const as = !1, TM = it.forwardRef(({
         });
       } else
         Me.forEach((Be, Ye) => {
-          let He = Ue[Ye % Ue.length];
+          let He = $e[Ye % $e.length];
           if (St.desaturateByPrevalence && Xi && ne._desaturateColorByPrevalence) {
             const Ge = Xi.get(String(Be)) || 0;
             He = ne._desaturateColorByPrevalence(He, Ge);
@@ -58920,7 +58910,7 @@ const as = !1, TM = it.forwardRef(({
           (ye) => ye.hoodA === T.hoodA && ye.hoodB === T.hoodB && ye.hoodStartA === T.hoodStartA
         );
         if (me) {
-          const ye = me.strandA || "+", Me = me.strandB || "+", Ue = !!X.trackFlipped[T.hoodA], Be = !!X.trackFlipped[T.hoodB], Ye = ye === "+" !== Ue ? "+" : "-", He = Me === "+" !== Be ? "+" : "-";
+          const ye = me.strandA || "+", Me = me.strandB || "+", $e = !!X.trackFlipped[T.hoodA], Be = !!X.trackFlipped[T.hoodB], Ye = ye === "+" !== $e ? "+" : "-", He = Me === "+" !== Be ? "+" : "-";
           G = `${Ye}/${He} (${Ye === He ? "same strand" : "opposite strand"})`;
         }
       }
@@ -59009,8 +58999,8 @@ const as = !1, TM = it.forwardRef(({
     }
     const X = T.filter((he) => {
       if (!he.metadata) return !1;
-      const { gAId: me, gBId: ye, hoodA: Me, hoodB: Ue, seqids: Be } = he.metadata;
-      let Ye = Me || me && ne.genesById[me]?.hood_id || Be?.[0], He = Ue || ye && ne.genesById[ye]?.hood_id || Be?.[1];
+      const { gAId: me, gBId: ye, hoodA: Me, hoodB: $e, seqids: Be } = he.metadata;
+      let Ye = Me || me && ne.genesById[me]?.hood_id || Be?.[0], He = $e || ye && ne.genesById[ye]?.hood_id || Be?.[1];
       if ($t.size > 0 && (Ye != null && ($t.has(String(Ye)) || $t.has(Number(Ye))) || He != null && ($t.has(String(He)) || $t.has(Number(He)))))
         return !1;
       if (Ye && He) {
@@ -59027,8 +59017,8 @@ const as = !1, TM = it.forwardRef(({
       if (!he.metadata) return !1;
       const { seqids: me, hoodA: ye, hoodB: Me } = he.metadata;
       if (!me || me.length < 2) return !1;
-      const Ue = ye || me[0], Be = Me || me[1];
-      if ($t.size > 0 && (Ue != null && ($t.has(String(Ue)) || $t.has(Number(Ue))) || Be != null && ($t.has(String(Be)) || $t.has(Number(Be)))))
+      const $e = ye || me[0], Be = Me || me[1];
+      if ($t.size > 0 && ($e != null && ($t.has(String($e)) || $t.has(Number($e))) || Be != null && ($t.has(String(Be)) || $t.has(Number(Be)))))
         return !1;
       const [Ye, He] = me.sort(), Ze = `${Ye}__${He}`;
       return G.has(Ze) && !K.has(Ze) ? (K.add(Ze), !0) : !1;
@@ -59117,8 +59107,8 @@ const as = !1, TM = it.forwardRef(({
           else {
             let Me = 0;
             for (let He = 0; He < me.length; ++He) Me = me.charCodeAt(He) + ((Me << 5) - Me);
-            const Ue = Me >> 0 & 255, Be = Me >> 8 & 255, Ye = Me >> 16 & 255;
-            ye = [Math.abs(Ue), Math.abs(Be), Math.abs(Ye), 255];
+            const $e = Me >> 0 & 255, Be = Me >> 8 & 255, Ye = Me >> 16 & 255;
+            ye = [Math.abs($e), Math.abs(Be), Math.abs(Ye), 255];
           }
           re.set(me, { value: me, color: ye, stroke: Array.isArray(ye) ? rs(ye) : null });
         });
@@ -59328,16 +59318,16 @@ const as = !1, TM = it.forwardRef(({
       let ye = me.slice();
       (String(ke).toLowerCase() === "evalue" || String(ke).toLowerCase() === "e_value") && (ye = me.map((Ye) => !isFinite(Ye) || Ye <= 0 ? -Math.log10(Number.MIN_VALUE) : -Math.log10(Ye)), ye = ye.map((Ye) => Math.log2(1 + Math.max(0, Ye))));
       const Me = Math.max(...ye);
-      let Ue = 128, Be = 255;
+      let $e = 128, Be = 255;
       try {
         if (Jn.alphaRange && Array.isArray(Jn.alphaRange) && Jn.alphaRange.length === 2) {
           let Ye = Number(Jn.alphaRange[0]), He = Number(Jn.alphaRange[1]);
-          !isNaN(Ye) && !isNaN(He) && (Ye <= 1 && He <= 1 && (Ye = Ye * 255, He = He * 255), Ue = Math.max(0, Math.min(255, Math.round(Ye))), Be = Math.max(0, Math.min(255, Math.round(He))));
+          !isNaN(Ye) && !isNaN(He) && (Ye <= 1 && He <= 1 && (Ye = Ye * 255, He = He * 255), $e = Math.max(0, Math.min(255, Math.round(Ye))), Be = Math.max(0, Math.min(255, Math.round(He))));
         }
       } catch {
       }
       re.forEach((Ye, He) => {
-        const Ze = me[He], Ge = ye[He], Nt = Me > 0 ? Ge / Me : 0, Jt = Math.floor(Nt * (ae.length - 1)), hn = ae[Jt] || [0, 0, 0, 255], On = Math.round(Ue + (Be - Ue) * Nt), _n = [
+        const Ze = me[He], Ge = ye[He], Nt = Me > 0 ? Ge / Me : 0, Jt = Math.floor(Nt * (ae.length - 1)), hn = ae[Jt] || [0, 0, 0, 255], On = Math.round($e + (Be - $e) * Nt), _n = [
           hn[0] !== void 0 ? hn[0] : 0,
           hn[1] !== void 0 ? hn[1] : 0,
           hn[2] !== void 0 ? hn[2] : 0,
@@ -59502,7 +59492,7 @@ const as = !1, TM = it.forwardRef(({
         Q.set(te.hood_id, Math.max(X, Math.max(te.start, te.end)));
       }
     }), Q;
-  }, [ne, Pn, W, P.tree?.phyloLabelPosition, qt, rr, oe, N, $, L, $e]), Wr = it.useMemo(() => {
+  }, [ne, Pn, W, P.tree?.phyloLabelPosition, qt, rr, oe, N, $, L, ze]), Wr = it.useMemo(() => {
     const T = JSON.stringify(Z || P?.colorPalettes?.genePalette || {}), Q = JSON.stringify(fe || P?.colorPalettes?.ncRNAPalette || {}), re = JSON.stringify(be || P?.colorPalettes?.regionPalette || {}), te = JSON.stringify(ce || P?.colorPalettes?.domainPalette || {}), X = JSON.stringify(Ee || {}), G = JSON.stringify(Ce || {});
     return `${T}|${Q}|${re}|${te}|${X}|${G}|${qt}`;
   }, [Z, fe, be, Ee, Ce, qt, P]), is = it.useMemo(() => {
@@ -59577,7 +59567,7 @@ const as = !1, TM = it.forwardRef(({
       fillColor: is.get(X) || mt.geneFill || [200, 200, 200, 255]
     }));
     return te.filter((X) => X.fillColor && X.fillColor[0] !== 200), te;
-  }, [ne, ne?._paletteVersion, St?.enabled, is, mt, Wr, a, yn, En, Ht, qt, $e, _e]);
+  }, [ne, ne?._paletteVersion, St?.enabled, is, mt, Wr, a, yn, En, Ht, qt, ze, _e]);
   const Ho = it.useMemo(() => JSON.stringify(Ee), [Ee]), Ca = it.useMemo(() => JSON.stringify(Ce), [Ce]), ta = it.useMemo(() => {
     if (!ne || !ne.proteinLinks || !Array.isArray(ne.proteinLinks)) return [];
     Ee && ne.applyProteinLinkColors(Ee, mt.geneFill);
@@ -59618,7 +59608,7 @@ const as = !1, TM = it.forwardRef(({
         const me = he != null && he !== "" ? ds(Tn, he, St?.type) : null;
         let ye = K?.metadata?.[ae];
         (ye == null || ye === "") && ae === "cluster" && (ye = K?.metadata?.clusterId ?? K?.metadata?.cluster_id ?? K?.cluster);
-        const Me = ye != null && ye !== "" ? ds(Tn, ye, St?.type) : null, Ue = me && Array.isArray(me) && me.length >= 4 ? me[3] / 255 : 0, Be = Me && Array.isArray(Me) && Me.length >= 4 ? Me[3] / 255 : 0, Ye = Math.min(Ue, Be), He = Array.isArray(X) && X.length >= 4 ? X[3] / 255 : 1, Ze = Math.round(He * Ye * 255);
+        const Me = ye != null && ye !== "" ? ds(Tn, ye, St?.type) : null, $e = me && Array.isArray(me) && me.length >= 4 ? me[3] / 255 : 0, Be = Me && Array.isArray(Me) && Me.length >= 4 ? Me[3] / 255 : 0, Ye = Math.min($e, Be), He = Array.isArray(X) && X.length >= 4 ? X[3] / 255 : 1, Ze = Math.round(He * Ye * 255);
         X = Array.isArray(X) ? [X[0], X[1], X[2], Ze] : X;
       }
       return {
@@ -59666,7 +59656,7 @@ const as = !1, TM = it.forwardRef(({
       _k: `${qt}_${te}`
     }));
   }, [ne, ne?.nucleotideLinks, Wr, qt, Ca, Ht, En]), Pe = it.useMemo(() => {
-    const T = Xe || P, Q = typeof H == "number" ? H : T.gene?.height || T.gene?.defaultHeight || Kt.gene.height, re = typeof R == "number" ? R : T.gene?.arrowheadHeight ?? Kt.gene.arrowheadHeight, te = typeof _e == "number" ? _e : T.tree?.ySpacing || Kt.tree.ySpacing, X = typeof $e == "number" ? $e : T.genome?.xScalePercent || Kt.genome.xScalePercent, G = typeof vt == "number" ? vt : T.gene?.edgeWidth || Kt.gene.edgeWidth, K = typeof ve == "number" ? ve : T.text?.phyloLabelSize || Kt.text.phyloLabelSize, ae = typeof rt == "number" ? rt : T.text?.geneLabelSize || Kt.text.geneLabelSize, he = typeof Ke == "number" ? Ke : T.text?.rulerLabelSize || Kt.text.rulerLabelSize;
+    const T = Xe || P, Q = typeof H == "number" ? H : T.gene?.height || T.gene?.defaultHeight || Kt.gene.height, re = typeof R == "number" ? R : T.gene?.arrowheadHeight ?? Kt.gene.arrowheadHeight, te = typeof _e == "number" ? _e : T.tree?.ySpacing || Kt.tree.ySpacing, X = typeof ze == "number" ? ze : T.genome?.xScalePercent || Kt.genome.xScalePercent, G = typeof vt == "number" ? vt : T.gene?.edgeWidth || Kt.gene.edgeWidth, K = typeof ve == "number" ? ve : T.text?.phyloLabelSize || Kt.text.phyloLabelSize, ae = typeof tt == "number" ? tt : T.text?.geneLabelSize || Kt.text.geneLabelSize, he = typeof Ke == "number" ? Ke : T.text?.rulerLabelSize || Kt.text.rulerLabelSize;
     return {
       ...T,
       // Enable alignment debug logs temporarily when DEBUG_LOGS is on
@@ -59706,7 +59696,7 @@ const as = !1, TM = it.forwardRef(({
         lineWidth: G
       }
     };
-  }, [Xe, P, rr, H, R, I, O, q, _e, $e, vt, ve, rt, Ke]);
+  }, [Xe, P, rr, H, R, I, O, q, _e, ze, vt, ve, tt, Ke]);
   Gn(() => {
     if (!sr || sr.length === 0) return;
     const T = mt.treeEdges || [100, 180, 255, 255], Q = sr[0]?.color;
@@ -59752,7 +59742,7 @@ const as = !1, TM = it.forwardRef(({
   }, [Pe.tree?.xScalePercent, nn?.treeOffset, Pe.tree?.ySpacing, Ar?.[0]?.id]);
   const ba = it.useCallback((T, Q = null) => {
     if (!T) return null;
-    const re = Pe.gene?.height || Pe.gene?.geneHeight || 20, te = Pe.gene?.arrowheadHeight || 10, X = (Pe.genome?.xScalePercent || 100) / 100, G = T.gene || T, K = Q ?? T.trackY ?? G.trackY ?? 0, ae = (T.start ?? G.start) * X, he = (T.end ?? G.end) * X, me = T.strand ?? G.strand, ye = re / 2, Me = te / 2, Ue = Math.abs(he - ae), Be = Ku(Ue, Pe);
+    const re = Pe.gene?.height || Pe.gene?.geneHeight || 20, te = Pe.gene?.arrowheadHeight || 10, X = (Pe.genome?.xScalePercent || 100) / 100, G = T.gene || T, K = Q ?? T.trackY ?? G.trackY ?? 0, ae = (T.start ?? G.start) * X, he = (T.end ?? G.end) * X, me = T.strand ?? G.strand, ye = re / 2, Me = te / 2, $e = Math.abs(he - ae), Be = Ku($e, Pe);
     if (Be < 1) {
       const Ye = Math.min(ae, he), He = Math.max(ae, he);
       return [
@@ -59819,10 +59809,10 @@ const as = !1, TM = it.forwardRef(({
         end: ae,
         strand: he,
         trackY: G ?? T.trackY
-      }, Ue = ba(Me, G);
-      Ue && Zs((Be) => !Be || Be.length === 0 ? null : Be.map((Ye) => ({
+      }, $e = ba(Me, G);
+      $e && Zs((Be) => !Be || Be.length === 0 ? null : Be.map((Ye) => ({
         ...Ye,
-        polygon: Ue,
+        polygon: $e,
         fillColor: ye,
         // Update stored coordinates for consistency
         start: K,
@@ -59844,7 +59834,7 @@ const as = !1, TM = it.forwardRef(({
     Pe.tree?.ySpacing,
     _e,
     // CRITICAL: Listen to genomeXScale changes
-    $e,
+    ze,
     // CRITICAL: Listen to alignment changes (flip/reverse)
     qt,
     Tn,
@@ -59881,7 +59871,7 @@ const as = !1, TM = it.forwardRef(({
     Pe.tree?.ySpacing,
     Pe.genome?.xScalePercent,
     _e,
-    $e,
+    ze,
     qt,
     // Also need to listen to paletteVersion for color changes
     Wr
@@ -59947,7 +59937,7 @@ const as = !1, TM = it.forwardRef(({
     }
     const K = `${T}:${rr}:${Ht?.id ?? "null"}:${W}:${U}`, ae = G && qi.current === K, he = `${Object.keys(ne.genesById).length}:${qt}:${rr}:${Ht?.id ?? "null"}:${U}:${y}:${m || ""}:${C}:${$t.size}:${Qr.size}:${Pe.tree.ySpacing}:${Pe.genome.xScalePercent}:${W}:${ve}`, me = Va.current?.signature === he, ye = Dr.current?.structuralSignature === he;
     performance.now();
-    const Me = xi(ne, Pn, W, rr, !0, Nn), Ue = Me.treeOffset || 0;
+    const Me = xi(ne, Pn, W, rr, !0, Nn), $e = Me.treeOffset || 0;
     sl.current = Me, performance.now();
     const Be = (dc || []).map((V, ee) => ({
       // shallow copy metadata
@@ -60039,11 +60029,11 @@ const as = !1, TM = it.forwardRef(({
             const Fe = ge || S || "cluster";
             let De = ue?.metadata?.[Fe];
             (De == null || De === "") && Fe === "cluster" && (De = ue?.metadata?.clusterId ?? ue?.metadata?.cluster_id ?? ue?.cluster);
-            const gt = De != null && De !== "" ? ds(Tn, De, St?.type) : null;
-            if (gt && Array.isArray(gt) && gt.length >= 4) {
-              const nt = gt[3] / 255, yt = Array.isArray(ie) && ie.length >= 4 ? ie[3] / 255 : 1, Ot = Math.round(yt * nt * 255);
+            const pt = De != null && De !== "" ? ds(Tn, De, St?.type) : null;
+            if (pt && Array.isArray(pt) && pt.length >= 4) {
+              const rt = pt[3] / 255, yt = Array.isArray(ie) && ie.length >= 4 ? ie[3] / 255 : 1, Ot = Math.round(yt * rt * 255);
               ie = Array.isArray(ie) ? [ie[0], ie[1], ie[2], Ot] : ie;
-            } else gt || (ie = Array.isArray(ie) ? [ie[0], ie[1], ie[2], 0] : ie);
+            } else pt || (ie = Array.isArray(ie) ? [ie[0], ie[1], ie[2], 0] : ie);
           }
         }
         return { ...ee, fillColor: ie, polygon: ee.polygon ? [...ee.polygon] : null };
@@ -60055,9 +60045,9 @@ const as = !1, TM = it.forwardRef(({
       hn = Va.current.data;
     else {
       const V = (ue) => {
-        const Fe = ne.hoodRanges[ue], De = ne.hoodToSeqidMap[ue], gt = ne.nucleotidesBySeqid[De];
-        if (!Fe || !gt) return null;
-        const nt = ne.trackOffset[ue] || 0, yt = !!ne.trackFlipped[ue], Ot = Fe.length / 2, en = 0, Cn = Fe.length, Bn = ne.constructor.getTransformedXUnified(en, Ot, nt, yt), xr = ne.constructor.getTransformedXUnified(Cn, Ot, nt, yt), fr = Pe.genome && typeof Pe.genome.xScalePercent == "number" ? Pe.genome.xScalePercent / 100 : 1, hr = Ot + (Bn - Ot) * fr, er = Ot + (xr - Ot) * fr, Ir = ne.getTrackYByHoodId(ue);
+        const Fe = ne.hoodRanges[ue], De = ne.hoodToSeqidMap[ue], pt = ne.nucleotidesBySeqid[De];
+        if (!Fe || !pt) return null;
+        const rt = ne.trackOffset[ue] || 0, yt = !!ne.trackFlipped[ue], Ot = Fe.length / 2, en = 0, Cn = Fe.length, Bn = ne.constructor.getTransformedXUnified(en, Ot, rt, yt), xr = ne.constructor.getTransformedXUnified(Cn, Ot, rt, yt), fr = Pe.genome && typeof Pe.genome.xScalePercent == "number" ? Pe.genome.xScalePercent / 100 : 1, hr = Ot + (Bn - Ot) * fr, er = Ot + (xr - Ot) * fr, Ir = ne.getTrackYByHoodId(ue);
         return Ir == null ? null : {
           hood_id: ue,
           seqid: De,
@@ -60105,24 +60095,24 @@ const as = !1, TM = it.forwardRef(({
         const Fe = typeof Hn == "function" ? Hn(ue.name) : $?.[ue.name] || {};
         let De;
         if (Yt && Yt.length > 0) {
-          const nt = Yt.map((yt) => yt === "name" ? ue.name : Fe[yt]).filter((yt) => yt != null && yt !== "");
-          De = nt.length > 0 ? nt.join(" | ") : ue.name;
+          const rt = Yt.map((yt) => yt === "name" ? ue.name : Fe[yt]).filter((yt) => yt != null && yt !== "");
+          De = rt.length > 0 ? rt.join(" | ") : ue.name;
         } else
           De = Fe[L], De == null && (De = ue.name);
         typeof De != "string" && (De = String(De));
-        let gt;
+        let pt;
         if (cn && cn.enabled) {
-          const nt = Fe[N];
-          nt != null ? gt = Jo(nt) : gt = mt.phyloLabelFill || [0, 0, 0, 255];
+          const rt = Fe[N];
+          rt != null ? pt = Jo(rt) : pt = mt.phyloLabelFill || [0, 0, 0, 255];
         } else
-          gt = mt.phyloLabelFill || [0, 0, 0, 255];
+          pt = mt.phyloLabelFill || [0, 0, 0, 255];
         return {
           rawY: ue.y,
           // Original tree Y coordinate (before scaling/offset)
           x: ue.x,
           // Tree X coordinate
           text: De,
-          color: gt,
+          color: pt,
           size: Pe.text.phyloLabelSize,
           textAnchor: "start",
           alignmentBaseline: "center",
@@ -60145,16 +60135,16 @@ const as = !1, TM = it.forwardRef(({
       let ie;
       cn && cn.enabled && $ ? ie = fs(V, N, $, cn, uc ? ea : null).map((Fe) => {
         if ($r) {
-          const nt = $r.get(Fe.leafNode.name);
-          if (nt) return { ...Fe, color: nt };
+          const rt = $r.get(Fe.leafNode.name);
+          if (rt) return { ...Fe, color: rt };
         }
         const De = Hn(Fe.leafNode.name);
         if (De?.color) {
-          const nt = ee(De.color);
-          if (nt) return { ...Fe, color: nt };
+          const rt = ee(De.color);
+          if (rt) return { ...Fe, color: rt };
         }
-        const gt = $?.[Fe.leafNode.name]?.[N];
-        return gt != null && gt !== "" ? Fe : { ...Fe, color: mt.phyloLabelFill };
+        const pt = $?.[Fe.leafNode.name]?.[N];
+        return pt != null && pt !== "" ? Fe : { ...Fe, color: mt.phyloLabelFill };
       }) : ie = V.map((ue) => {
         if ($r) {
           const De = $r.get(ue.leafNode.name);
@@ -60203,8 +60193,8 @@ const as = !1, TM = it.forwardRef(({
         const ue = ne.getNodeDescendantLeaves(ie);
         !Ht || ue.some((Cn) => V.has(Cn));
         let Fe;
-        const De = ie.metadata || Hn(ie.name) || {}, gt = De.leaf_id || ie.leaf_id;
-        if (!ie.leaf_id && gt && (ie.leaf_id = gt), !ie.metadata && Object.keys(De).length && (ie.metadata = De), ie.branchset.length > 0)
+        const De = ie.metadata || Hn(ie.name) || {}, pt = De.leaf_id || ie.leaf_id;
+        if (!ie.leaf_id && pt && (ie.leaf_id = pt), !ie.metadata && Object.keys(De).length && (ie.metadata = De), ie.branchset.length > 0)
           Fe = mt.treeEdges || [0, 0, 0, 255];
         else {
           const Cn = ee.get(ie.name);
@@ -60238,11 +60228,11 @@ const as = !1, TM = it.forwardRef(({
               Fe = mt.treeEdges || [100, 100, 100, 255];
           }
         }
-        const nt = Array.isArray(ie.branchset) && ie.branchset.length > 0, yt = nt ? Cr.internal || 4 : Cr.leaf || 2, en = Ht && Ht.id === ie.id && nt ? Math.max(yt * 2, yt + 8) : yt;
+        const rt = Array.isArray(ie.branchset) && ie.branchset.length > 0, yt = rt ? Cr.internal || 4 : Cr.leaf || 2, en = Ht && Ht.id === ie.id && rt ? Math.max(yt * 2, yt + 8) : yt;
         return {
           id: ie.id,
           name: ie.name,
-          leaf_id: gt,
+          leaf_id: pt,
           node: ie,
           rawY: ie.y,
           // Keep original coordinates for direct computation
@@ -60253,7 +60243,7 @@ const as = !1, TM = it.forwardRef(({
             ...De,
             name: ie.name,
             id: ie.id,
-            leaf_id: gt || De.leaf_id || ie.leaf_id
+            leaf_id: pt || De.leaf_id || ie.leaf_id
           }
         };
       }), Dr.current = {
@@ -60263,51 +60253,51 @@ const as = !1, TM = it.forwardRef(({
       };
     }
     function Vs(V) {
-      const ee = (nt) => {
-        if (Array.isArray(nt)) return nt.length === 3 ? [nt[0], nt[1], nt[2], 255] : nt;
-        if (typeof nt == "string") {
-          const yt = nt.split(",").map((Ot) => parseInt(Ot.trim(), 10)).filter((Ot) => !isNaN(Ot));
+      const ee = (rt) => {
+        if (Array.isArray(rt)) return rt.length === 3 ? [rt[0], rt[1], rt[2], 255] : rt;
+        if (typeof rt == "string") {
+          const yt = rt.split(",").map((Ot) => parseInt(Ot.trim(), 10)).filter((Ot) => !isNaN(Ot));
           if (yt.length === 3) return [yt[0], yt[1], yt[2], 255];
           if (yt.length >= 4) return [yt[0], yt[1], yt[2], yt[3]];
         }
         return Array.isArray(mt.geneFill) ? mt.geneFill : [150, 150, 150, 255];
       };
       if (!St?.enabled) {
-        const nt = ee(mt.geneFill || Pe.gene.fillColor), Ot = mt.background === "#ffffff" ? 0.7 : 1.3;
+        const rt = ee(mt.geneFill || Pe.gene.fillColor), Ot = mt.background === "#ffffff" ? 0.7 : 1.3;
         return [
-          Math.max(0, Math.min(255, Math.floor(nt[0] * Ot))),
-          Math.max(0, Math.min(255, Math.floor(nt[1] * Ot))),
-          Math.max(0, Math.min(255, Math.floor(nt[2] * Ot))),
-          nt[3] ?? 255
+          Math.max(0, Math.min(255, Math.floor(rt[0] * Ot))),
+          Math.max(0, Math.min(255, Math.floor(rt[1] * Ot))),
+          Math.max(0, Math.min(255, Math.floor(rt[2] * Ot))),
+          rt[3] ?? 255
         ];
       }
       let ie = null;
       const ue = ge || S || "cluster";
       if (Tn) {
-        let nt = V?.metadata?.[ue];
-        (nt == null || nt === "") && ue === "cluster" && (nt = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), nt != null && nt !== "" && (ie = ds(Tn, nt, St?.type) || null);
+        let rt = V?.metadata?.[ue];
+        (rt == null || rt === "") && ue === "cluster" && (rt = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), rt != null && rt !== "" && (ie = ds(Tn, rt, St?.type) || null);
       }
       let Fe;
       if (Tn && ue !== "cluster")
         if (ie)
           Fe = ee(ie);
         else if (St.transparentByPrevalence) {
-          const nt = ee(Pe.gene.fillColor);
-          Fe = [nt[0], nt[1], nt[2], 0];
+          const rt = ee(Pe.gene.fillColor);
+          Fe = [rt[0], rt[1], rt[2], 0];
         } else
           Fe = ee(Pe.gene.fillColor);
       else if (ie)
         Fe = ee(ie);
       else if (St.transparentByPrevalence) {
-        const nt = ee(V.fillColor || Pe.gene.fillColor);
-        Fe = [nt[0], nt[1], nt[2], 0];
+        const rt = ee(V.fillColor || Pe.gene.fillColor);
+        Fe = [rt[0], rt[1], rt[2], 0];
       } else
         Fe = ee(V.fillColor || Pe.gene.fillColor);
-      const gt = mt.background === "#ffffff" ? 0.7 : 1.3;
+      const pt = mt.background === "#ffffff" ? 0.7 : 1.3;
       return [
-        Math.max(0, Math.min(255, Math.floor(Fe[0] * gt))),
-        Math.max(0, Math.min(255, Math.floor(Fe[1] * gt))),
-        Math.max(0, Math.min(255, Math.floor(Fe[2] * gt))),
+        Math.max(0, Math.min(255, Math.floor(Fe[0] * pt))),
+        Math.max(0, Math.min(255, Math.floor(Fe[1] * pt))),
+        Math.max(0, Math.min(255, Math.floor(Fe[2] * pt))),
         Fe[3] ?? 255
       ];
     }
@@ -60329,8 +60319,8 @@ const as = !1, TM = it.forwardRef(({
         const De = ue.hood_id ?? ue.hoodId;
         if ($t.size > 0 && De != null && ($t.has(String(De)) || $t.has(Number(De))))
           return !1;
-        const gt = V(ue.attributes), nt = ue.originalGeneId || ue.gene_id || gt || Fe;
-        return yn.size > 0 && console.log("[isGeneVisibleInLayer] geneKey:", nt, "uid:", Fe, "originalGeneId:", ue.originalGeneId, "attrId:", gt, "hiddenGeneSet:", Array.from(yn)), !(yn.size > 0 && nt && yn.has(String(nt)));
+        const pt = V(ue.attributes), rt = ue.originalGeneId || ue.gene_id || pt || Fe;
+        return yn.size > 0 && console.log("[isGeneVisibleInLayer] geneKey:", rt, "uid:", Fe, "originalGeneId:", ue.originalGeneId, "attrId:", pt, "hiddenGeneSet:", Array.from(yn)), !(yn.size > 0 && rt && yn.has(String(rt)));
       };
       let ie = Object.entries(ne.genesById).filter(([ue, Fe]) => ee(Fe, ue));
       if (Ht)
@@ -60342,7 +60332,7 @@ const as = !1, TM = it.forwardRef(({
         } catch {
         }
       return ie.map(([ue, Fe]) => {
-        const gt = is.get(ue) || Fe.fillColor || mt.geneFill;
+        const pt = is.get(ue) || Fe.fillColor || mt.geneFill;
         return {
           type: "gene",
           id: Fe.id || ue,
@@ -60351,7 +60341,7 @@ const as = !1, TM = it.forwardRef(({
           end: Fe.end,
           trackY: Fe.trackY,
           strand: Fe.strand,
-          fillColor: gt,
+          fillColor: pt,
           _originalFillColor: Fe.fillColor,
           // Cache original for color-only updates
           geneHeight: Fe.geneHeight || Pe.gene.height,
@@ -60364,7 +60354,7 @@ const as = !1, TM = it.forwardRef(({
       });
     })();
     Us.current = no, Ao.current = Bs, performance.now() - ja;
-    const na = typeof _e == "number" ? _e : P?.tree?.ySpacing || 150, Ws = Fi(no, Tn, ge, S, mt, Pe || P, qe, Ae, $e || 100, na);
+    const na = typeof _e == "number" ? _e : P?.tree?.ySpacing || 150, Ws = Fi(no, Tn, ge, S, mt, Pe || P, qe, Ae, ze || 100, na);
     try {
       typeof console < "u" && console.debug && console.debug("[HoodiniViz] geneLabels sample:", {
         geneHeight: H,
@@ -60401,16 +60391,16 @@ const as = !1, TM = it.forwardRef(({
       for (const Fe of V) {
         const De = Fe.polygon || [];
         if (!De || De.length < 4) continue;
-        const gt = Math.floor(De.length / 2), nt = [];
-        for (let fr = 0; fr < gt; fr++) {
-          const hr = De[fr], er = De[fr + gt] || De[De.length - 1];
-          nt.push([(hr[0] + er[0]) / 2, (hr[1] + er[1]) / 2]);
+        const pt = Math.floor(De.length / 2), rt = [];
+        for (let fr = 0; fr < pt; fr++) {
+          const hr = De[fr], er = De[fr + pt] || De[De.length - 1];
+          rt.push([(hr[0] + er[0]) / 2, (hr[1] + er[1]) / 2]);
         }
-        if (nt.length < 2) continue;
+        if (rt.length < 2) continue;
         const yt = Fe.metadata && typeof Fe.metadata.similarity == "number" ? Fe.metadata.similarity : 0, Ot = ie.length > 0 ? Math.floor(Math.max(0, Math.min(1, yt / 100)) * (ie.length - 1)) : 0, en = ie.length > 0 ? ie[Ot] : Fe.fillColor || [150, 150, 150, 255], Cn = Gi(en.slice(0, 4), 0.9), Bn = Gi(en.slice(0, 4), 1.1), xr = Math.max(2, ro);
         for (let fr = 0; fr < xr - 1; fr++) {
           const hr = fr / (xr - 1), er = (fr + 1) / (xr - 1), Ir = (Xa) => {
-            const Nr = Xa * (nt.length - 1), To = Math.floor(Nr), Ki = nt[To], qr = nt[Math.min(nt.length - 1, To + 1)], cl = Nr - To;
+            const Nr = Xa * (rt.length - 1), To = Math.floor(Nr), Ki = rt[To], qr = rt[Math.min(rt.length - 1, To + 1)], cl = Nr - To;
             return [Ki[0] + (qr[0] - Ki[0]) * cl, Ki[1] + (qr[1] - Ki[1]) * cl];
           }, Ii = Ir(hr), Ni = Ir(er), os = ra(Cn, Bn, hr), Mr = ra(Cn, Bn, er), As = ra(os, Mr, 0.5);
           ue.push({ path: [Ii, Ni], color: As, width: Math.max(1, ee.strokeWidth || 2) });
@@ -60422,8 +60412,8 @@ const as = !1, TM = it.forwardRef(({
     const Fs = (ne.nucleotideLinks || []).map((V, ee) => {
       let ie = V.fillColor || mt.nucleotideFill;
       try {
-        const ue = ne.genesById && ne.genesById[V.gAId], Fe = ne.genesById && ne.genesById[V.gBId], De = ge || S || "cluster", gt = ue && Tn?.get(ue.metadata?.[De]) || Fe && Tn?.get(Fe.metadata?.[De]);
-        gt && (ie = gt);
+        const ue = ne.genesById && ne.genesById[V.gAId], Fe = ne.genesById && ne.genesById[V.gBId], De = ge || S || "cluster", pt = ue && Tn?.get(ue.metadata?.[De]) || Fe && Tn?.get(Fe.metadata?.[De]);
+        pt && (ie = pt);
       } catch {
       }
       return {
@@ -60442,8 +60432,8 @@ const as = !1, TM = it.forwardRef(({
     }).filter((V) => !(!V.hoodA || !V.hoodB || $t.size > 0 && ($t.has(String(V.hoodA)) || $t.has(Number(V.hoodA)) || $t.has(String(V.hoodB)) || $t.has(Number(V.hoodB))))), Do = (Be || []).map((V, ee) => {
       let ie = V.fillColor || mt.proteinFill || [200, 200, 200, 255];
       try {
-        const ue = ne.genesById && ne.genesById[V?.metadata?.gAId], Fe = ne.genesById && ne.genesById[V?.metadata?.gBId], De = ge || S || "cluster", gt = ue && Tn?.get(ue.metadata?.[De]) || Fe && Tn?.get(Fe.metadata?.[De]);
-        gt && (ie = gt);
+        const ue = ne.genesById && ne.genesById[V?.metadata?.gAId], Fe = ne.genesById && ne.genesById[V?.metadata?.gBId], De = ge || S || "cluster", pt = ue && Tn?.get(ue.metadata?.[De]) || Fe && Tn?.get(Fe.metadata?.[De]);
+        pt && (ie = pt);
       } catch {
       }
       return {
@@ -60455,16 +60445,16 @@ const as = !1, TM = it.forwardRef(({
       };
     }).filter((V) => V.gAId && V.gBId), Bo = (V, ee, ie, ue, Fe = 20) => {
       const De = [];
-      for (let gt = 0; gt <= 1; gt += 1 / Fe) {
-        const nt = Math.pow(1 - gt, 3) * V[0] + 3 * Math.pow(1 - gt, 2) * gt * ee[0] + 3 * (1 - gt) * gt * gt * ie[0] + gt * gt * gt * ue[0], yt = Math.pow(1 - gt, 3) * V[1] + 3 * Math.pow(1 - gt, 2) * gt * ee[1] + 3 * (1 - gt) * gt * gt * ie[1] + gt * gt * gt * ue[1];
-        De.push([nt, yt]);
+      for (let pt = 0; pt <= 1; pt += 1 / Fe) {
+        const rt = Math.pow(1 - pt, 3) * V[0] + 3 * Math.pow(1 - pt, 2) * pt * ee[0] + 3 * (1 - pt) * pt * pt * ie[0] + pt * pt * pt * ue[0], yt = Math.pow(1 - pt, 3) * V[1] + 3 * Math.pow(1 - pt, 2) * pt * ee[1] + 3 * (1 - pt) * pt * pt * ie[1] + pt * pt * pt * ue[1];
+        De.push([rt, yt]);
       }
       return De;
     }, So = (V, ee) => {
       if (!V || !ee) return [];
-      const ie = Math.min(V.start, V.end), ue = Math.max(V.start, V.end), Fe = Math.min(ee.start, ee.end), De = Math.max(ee.start, ee.end), gt = V.trackY, nt = ee.trackY;
+      const ie = Math.min(V.start, V.end), ue = Math.max(V.start, V.end), Fe = Math.min(ee.start, ee.end), De = Math.max(ee.start, ee.end), pt = V.trackY, rt = ee.trackY;
       let yt, Ot;
-      gt <= nt ? (yt = { left: [ie, gt], right: [ue, gt] }, Ot = { left: [Fe, nt], right: [De, nt] }) : (yt = { left: [Fe, nt], right: [De, nt] }, Ot = { left: [ie, gt], right: [ue, gt] });
+      pt <= rt ? (yt = { left: [ie, pt], right: [ue, pt] }, Ot = { left: [Fe, rt], right: [De, rt] }) : (yt = { left: [Fe, rt], right: [De, rt] }, Ot = { left: [ie, pt], right: [ue, pt] });
       const en = (yt.left[1] + Ot.right[1]) / 2, Cn = (fr, hr) => Bo(fr, [fr[0], en], [hr[0], en], hr, 20), Bn = Cn(yt.right, Ot.right), xr = Cn(Ot.left, yt.left);
       return [yt.left, yt.right, ...Bn, Ot.right, Ot.left, ...xr];
     }, Vo = (V) => {
@@ -60478,22 +60468,22 @@ const as = !1, TM = it.forwardRef(({
         const Cn = Fe;
         Fe = De, De = Cn;
       }
-      const gt = Math.abs(De - Fe), nt = Ku(gt, Pe), yt = ie / 2, Ot = V.strand === "+", en = yt + ue / 2;
+      const pt = Math.abs(De - Fe), rt = Ku(pt, Pe), yt = ie / 2, Ot = V.strand === "+", en = yt + ue / 2;
       return Ot ? [
         [Fe, ee - yt],
-        [De - nt, ee - yt],
-        [De - nt, ee - en],
+        [De - rt, ee - yt],
+        [De - rt, ee - en],
         [De, ee],
-        [De - nt, ee + en],
-        [De - nt, ee + yt],
+        [De - rt, ee + en],
+        [De - rt, ee + yt],
         [Fe, ee + yt]
       ] : [
         [De, ee - yt],
-        [Fe + nt, ee - yt],
-        [Fe + nt, ee - en],
+        [Fe + rt, ee - yt],
+        [Fe + rt, ee - en],
         [Fe, ee],
-        [Fe + nt, ee + en],
-        [Fe + nt, ee + yt],
+        [Fe + rt, ee + en],
+        [Fe + rt, ee + yt],
         [De, ee + yt]
       ];
     }, Uc = typeof Pe.gene.glowPadFactor == "number" ? Pe.gene.glowPadFactor : 0.2;
@@ -60501,14 +60491,14 @@ const as = !1, TM = it.forwardRef(({
     const Te = ((V, ee = [100, 100, 100, 255]) => {
       const ie = (ue) => Math.max(0, Math.min(255, Math.round(ue)));
       if (Array.isArray(V)) {
-        const [ue = 0, Fe = 0, De = 0, gt = 255] = V;
-        return [ie(ue), ie(Fe), ie(De), ie(gt)];
+        const [ue = 0, Fe = 0, De = 0, pt = 255] = V;
+        return [ie(ue), ie(Fe), ie(De), ie(pt)];
       }
       if (typeof V == "string") {
         const ue = V.split(",").map((Fe) => parseInt(Fe.trim(), 10)).filter((Fe) => !isNaN(Fe));
         if (ue.length >= 3) {
-          const [Fe, De, gt, nt = 255] = ue;
-          return [ie(Fe), ie(De), ie(gt), ie(nt)];
+          const [Fe, De, pt, rt = 255] = ue;
+          return [ie(Fe), ie(De), ie(pt), ie(rt)];
         }
       }
       return ee;
@@ -60528,8 +60518,8 @@ const as = !1, TM = it.forwardRef(({
         widthUnits: "meters",
         pickable: !1,
         updateTriggers: {
-          getSourcePosition: [hn, qt, pi, _e, $e],
-          getTargetPosition: [hn, qt, pi, _e, $e]
+          getSourcePosition: [hn, qt, pi, _e, ze],
+          getTargetPosition: [hn, qt, pi, _e, ze]
         }
       }),
       new ls({
@@ -60539,17 +60529,17 @@ const as = !1, TM = it.forwardRef(({
         getPolygon: (V) => {
           const ee = Kn.current;
           if (Ht && Qr.size > 0) {
-            const Fe = ee?.genesById?.[V.gAId], De = ee?.genesById?.[V.gBId], gt = Fe?.hood_id, nt = De?.hood_id;
-            if (gt && nt && (!Qr.has(gt) || !Qr.has(nt)))
+            const Fe = ee?.genesById?.[V.gAId], De = ee?.genesById?.[V.gBId], pt = Fe?.hood_id, rt = De?.hood_id;
+            if (pt && rt && (!Qr.has(pt) || !Qr.has(rt)))
               return [];
           }
           if (yn.size > 0) {
-            const Fe = ee?.genesById?.[V.gAId], De = ee?.genesById?.[V.gBId], gt = (Ot, en) => {
+            const Fe = ee?.genesById?.[V.gAId], De = ee?.genesById?.[V.gBId], pt = (Ot, en) => {
               if (!Ot) return en;
               const Cn = typeof Ot.attributes == "string" ? Ot.attributes.match(/ID=([^;]+)/)?.[1] || null : Ot.attributes?.ID || null;
               return Ot.originalGeneId || Ot.gene_id || Cn || en;
-            }, nt = gt(Fe, V.gAId), yt = gt(De, V.gBId);
-            if (nt && yn.has(String(nt)) || yt && yn.has(String(yt)))
+            }, rt = pt(Fe, V.gAId), yt = pt(De, V.gBId);
+            if (rt && yn.has(String(rt)) || yt && yn.has(String(yt)))
               return [];
           }
           const ie = ee?.genesById?.[V.gAId], ue = ee?.genesById?.[V.gBId];
@@ -60573,13 +60563,13 @@ const as = !1, TM = it.forwardRef(({
                 Ee.palette.name,
                 Ee.palette.numColors,
                 Ee.palette.reverse
-              ), gt = V.metadata?.similarity ?? 50, nt = Math.max(0, Math.min(1, gt / 100)), yt = Math.floor(nt * (De.length - 1));
+              ), pt = V.metadata?.similarity ?? 50, rt = Math.max(0, Math.min(1, pt / 100)), yt = Math.floor(rt * (De.length - 1));
               ee = De[yt]?.slice(0, 3) || ee;
             } catch {
             }
           const Fe = Ee || Pe?.proteinLink || Kt.proteinLink;
           if (Fe?.useAlpha && V.metadata?.similarity !== void 0) {
-            const De = V.metadata.similarity / 100, gt = Fe.minAlpha ?? 0, yt = (Fe.maxAlpha ?? 0.5) - gt, Ot = gt + De * yt;
+            const De = V.metadata.similarity / 100, pt = Fe.minAlpha ?? 0, yt = (Fe.maxAlpha ?? 0.5) - pt, Ot = pt + De * yt;
             ie = Math.round(Ot * 255);
           }
           if (V.fillColor && Array.isArray(V.fillColor) && V.fillColor.length >= 4) {
@@ -60593,7 +60583,7 @@ const as = !1, TM = it.forwardRef(({
         filled: !0,
         pickable: !0,
         updateTriggers: {
-          getPolygon: [Do, qt, Wr, Ht, _e, $e],
+          getPolygon: [Do, qt, Wr, Ht, _e, ze],
           getFillColor: [
             Do,
             Wr,
@@ -60630,7 +60620,7 @@ const as = !1, TM = it.forwardRef(({
           }
           const ie = ee.getTrackYByHoodId(V.hoodA), ue = ee.getTrackYByHoodId(V.hoodB);
           if (ie == null || ue == null) return [];
-          const De = (ee.config.genome && typeof ee.config.genome.xScalePercent == "number" ? ee.config.genome.xScalePercent : 100) / 100, gt = ee.hoodRanges[V.hoodA], nt = ee.hoodRanges[V.hoodB], yt = gt ? gt.length / 2 : 0, Ot = nt ? nt.length / 2 : 0, en = ee.trackOffset[V.hoodA] || 0, Cn = ee.trackOffset[V.hoodB] || 0, Bn = !!ee.trackFlipped[V.hoodA], xr = !!ee.trackFlipped[V.hoodB], fr = ee.constructor.getTransformedXUnified;
+          const De = (ee.config.genome && typeof ee.config.genome.xScalePercent == "number" ? ee.config.genome.xScalePercent : 100) / 100, pt = ee.hoodRanges[V.hoodA], rt = ee.hoodRanges[V.hoodB], yt = pt ? pt.length / 2 : 0, Ot = rt ? rt.length / 2 : 0, en = ee.trackOffset[V.hoodA] || 0, Cn = ee.trackOffset[V.hoodB] || 0, Bn = !!ee.trackFlipped[V.hoodA], xr = !!ee.trackFlipped[V.hoodB], fr = ee.constructor.getTransformedXUnified;
           let hr = fr(V.hoodStartA, yt, en, Bn), er = fr(V.hoodEndA, yt, en, Bn), Ir = fr(V.hoodStartB, Ot, Cn, xr), Ii = fr(V.hoodEndB, Ot, Cn, xr);
           hr = yt + (hr - yt) * De, er = yt + (er - yt) * De, Ir = Ot + (Ir - Ot) * De, Ii = Ot + (Ii - Ot) * De;
           const Ni = [[hr, ie], [er, ie]].sort((Mr, As) => Mr[0] - As[0]), os = [[Ir, ue], [Ii, ue]].sort((Mr, As) => Mr[0] - As[0]);
@@ -60638,7 +60628,7 @@ const as = !1, TM = it.forwardRef(({
         },
         getFillColor: (V) => {
           let ee = [200, 200, 200], ie = 255;
-          const ue = Ce?.colorBy, Fe = Ce?.strandColoring, De = V.similarity ?? V.metadata?.similarity ?? 50, gt = () => {
+          const ue = Ce?.colorBy, Fe = Ce?.strandColoring, De = V.similarity ?? V.metadata?.similarity ?? 50, pt = () => {
             const yt = Kn.current;
             if (!yt) return !0;
             const Ot = yt.nucleotideLinks?.find(
@@ -60649,10 +60639,10 @@ const as = !1, TM = it.forwardRef(({
             return (en === "+" !== Bn ? "+" : "-") === (Cn === "+" !== xr ? "+" : "-");
           };
           if (ue === "solid")
-            Fe ? gt() ? ee = Ce?.sameStrandColor?.slice(0, 3) || [180, 180, 180] : ee = Ce?.oppositeStrandColor?.slice(0, 3) || [220, 80, 80] : Ce?.solidColor && (ee = Ce.solidColor.slice(0, 3), !Ce?.useAlpha && Ce.solidColor.length > 3 && (ie = Ce.solidColor[3]));
+            Fe ? pt() ? ee = Ce?.sameStrandColor?.slice(0, 3) || [180, 180, 180] : ee = Ce?.oppositeStrandColor?.slice(0, 3) || [220, 80, 80] : Ce?.solidColor && (ee = Ce.solidColor.slice(0, 3), !Ce?.useAlpha && Ce.solidColor.length > 3 && (ie = Ce.solidColor[3]));
           else if (ue === "identity_gradient") {
             if (Fe) {
-              const Ot = gt() ? Ce?.sameStrandPalette : Ce?.oppositeStrandPalette;
+              const Ot = pt() ? Ce?.sameStrandPalette : Ce?.oppositeStrandPalette;
               if (Ot?.enabled)
                 try {
                   const en = on(
@@ -60674,9 +60664,9 @@ const as = !1, TM = it.forwardRef(({
               } catch {
               }
           }
-          const nt = Ce || Pe?.nucleotideLink || Kt.nucleotideLink;
-          if (nt?.useAlpha) {
-            const yt = De / 100, Ot = nt.minAlpha ?? 0, Cn = (nt.maxAlpha ?? 0.5) - Ot, Bn = Ot + yt * Cn;
+          const rt = Ce || Pe?.nucleotideLink || Kt.nucleotideLink;
+          if (rt?.useAlpha) {
+            const yt = De / 100, Ot = rt.minAlpha ?? 0, Cn = (rt.maxAlpha ?? 0.5) - Ot, Bn = Ot + yt * Cn;
             ie = Math.round(Bn * 255);
           }
           return [...ee, ie];
@@ -60686,7 +60676,7 @@ const as = !1, TM = it.forwardRef(({
         autoHighlight: !0,
         pickable: !0,
         updateTriggers: {
-          getPolygon: [Fs, qt, Wr, Kn.current && Kn.current.config && Kn.current.config.genome && Kn.current.config.genome.xScalePercent || null, Ht, _e, $e],
+          getPolygon: [Fs, qt, Wr, Kn.current && Kn.current.config && Kn.current.config.genome && Kn.current.config.genome.xScalePercent || null, Ht, _e, ze],
           getFillColor: [
             Fs,
             Wr,
@@ -60727,7 +60717,7 @@ const as = !1, TM = it.forwardRef(({
         autoHighlight: !0,
         pickable: !0,
         updateTriggers: {
-          getPolygon: [Ze, qt, _e, $e],
+          getPolygon: [Ze, qt, _e, ze],
           getFillColor: [Ze, qt],
           getLineColor: [Ze, qt],
           getLineWidth: [Ze, qt]
@@ -60737,10 +60727,10 @@ const as = !1, TM = it.forwardRef(({
       new I1({
         id: "phylo-tree",
         data: On,
-        visible: ze && Zr,
+        visible: Ue && Zr,
         getPath: (V) => {
           const ee = Pe.tree && typeof Pe.tree.xScalePercent == "number" ? Pe.tree.xScalePercent / 100 : 1;
-          return V.rawPath.map(([ie, ue]) => [ie * ee + Ue, ue]);
+          return V.rawPath.map(([ie, ue]) => [ie * ee + $e, ue]);
         },
         getColor: (V) => V.color || mt.treeEdges || Pe.tree.edgeColor,
         autoHighlight: !0,
@@ -60754,7 +60744,7 @@ const as = !1, TM = it.forwardRef(({
           getPath: [
             On.length,
             Pe.tree.xScalePercent,
-            Ue,
+            $e,
             qt
           ],
           getColor: [On.length, mt.treeEdges, Pe.tree.edgeColor],
@@ -60772,9 +60762,9 @@ const as = !1, TM = it.forwardRef(({
           const ee = (De) => {
             if (Array.isArray(De)) return De.length === 3 ? [De[0], De[1], De[2], 255] : De;
             if (typeof De == "string") {
-              const gt = De.split(",").map((nt) => parseInt(nt.trim(), 10)).filter((nt) => !isNaN(nt));
-              if (gt.length === 3) return [gt[0], gt[1], gt[2], 255];
-              if (gt.length >= 4) return [gt[0], gt[1], gt[2], gt[3]];
+              const pt = De.split(",").map((rt) => parseInt(rt.trim(), 10)).filter((rt) => !isNaN(rt));
+              if (pt.length === 3) return [pt[0], pt[1], pt[2], 255];
+              if (pt.length >= 4) return [pt[0], pt[1], pt[2], pt[3]];
             }
             return mt.geneFill || [150, 150, 150, 255];
           };
@@ -60824,7 +60814,7 @@ const as = !1, TM = it.forwardRef(({
             H,
             Ht,
             _e,
-            $e
+            ze
           ],
           getFillColor: [no, ge, S, Wr, mt.geneFill, qt, St?.enabled, St?.transparentByPrevalence],
           // Include resolvedTheme because getGeneEdgeColor uses themeColors.background to decide darken/lighten factor
@@ -60854,7 +60844,7 @@ const as = !1, TM = it.forwardRef(({
         // keep gene picking priority
         updateTriggers: {
           // Include gene.height and gene.arrowheadHeight so domain polygons update when gene size changes
-          getPolygon: [at, qt, Pe.domain.height, Pe.gene.height, Pe.gene.arrowheadHeight, Pe.domain.heightFactor, lt, Ht, _e, $e],
+          getPolygon: [at, qt, Pe.domain.height, Pe.gene.height, Pe.gene.arrowheadHeight, Pe.domain.heightFactor, lt, Ht, _e, ze],
           getFillColor: [at.length, ke, Wr, mt.domainFill, lt, Ht, St?.transparentByPrevalence, Tn],
           getLineColor: [at.length, St?.transparentByPrevalence],
           getLineWidth: Pe.domain.edgeWidth
@@ -60876,8 +60866,8 @@ const as = !1, TM = it.forwardRef(({
         pickable: !1,
         updateTriggers: {
           // Use geneLabels.length to force data refresh when filtering by ySpacing changes label count
-          getPosition: [Ws.length, qt, Pe && Pe.gene ? Pe.gene.height : null, H, qe, _e, $e, no],
-          getText: [Ws.length, Ae, $e, _e],
+          getPosition: [Ws.length, qt, Pe && Pe.gene ? Pe.gene.height : null, H, qe, _e, ze, no],
+          getText: [Ws.length, Ae, ze, _e],
           getColor: [Ws.length, ge, St && St.name || null, Wr],
           getSize: [Pe.text?.geneLabelSize, Pe.text?.scaleFactors?.gene, Ws.length, H, qe],
           getAlignmentBaseline: [Ws.length, qe, qt]
@@ -60894,16 +60884,16 @@ const as = !1, TM = it.forwardRef(({
           if (V.labelPosition === "after-tracks")
             if (Zt) {
               const ue = jt.map((De) => De.rightmostX).filter((De) => isFinite(De));
-              ie = (ue.length > 0 ? Math.max(...ue) : V.rawY * ee + Ue + (P.tree?.labelOffset || 10)) + (P.tree?.labelOffset || 10);
+              ie = (ue.length > 0 ? Math.max(...ue) : V.rawY * ee + $e + (P.tree?.labelOffset || 10)) + (P.tree?.labelOffset || 10);
             } else {
               let ue = V.rightmostX;
-              isFinite(ue) ? ue += Pe.tree?.labelOffset || 10 : ue = V.rawY * ee + Ue + (Pe.tree?.labelOffset || 10), ie = ue;
+              isFinite(ue) ? ue += Pe.tree?.labelOffset || 10 : ue = V.rawY * ee + $e + (Pe.tree?.labelOffset || 10), ie = ue;
             }
           else if (Zt) {
             const ue = jt.map((De) => De.rawY * ee);
-            ie = (ue.length > 0 ? Math.max(...ue) : V.rawY * ee) + Ue + (Pe.tree?.labelOffset || 10);
+            ie = (ue.length > 0 ? Math.max(...ue) : V.rawY * ee) + $e + (Pe.tree?.labelOffset || 10);
           } else
-            ie = V.rawY * ee + Ue + (Pe.tree?.labelOffset || 10);
+            ie = V.rawY * ee + $e + (Pe.tree?.labelOffset || 10);
           return [ie, V.x];
         },
         getText: (V) => V.text,
@@ -60927,7 +60917,7 @@ const as = !1, TM = it.forwardRef(({
           getPosition: [
             jt.length,
             Pe.tree.xScalePercent,
-            Ue,
+            $e,
             qt,
             ya,
             Zt
@@ -60961,12 +60951,12 @@ const as = !1, TM = it.forwardRef(({
       new ca({
         id: "nodes",
         data: Jr,
-        visible: ze && Zr,
+        visible: Ue && Zr,
         getPosition: (V) => {
           const ee = Number(V.rawY), ie = Number(V.x);
           if (!Number.isFinite(ee) || !Number.isFinite(ie)) return [0, 0];
           const ue = Pe.tree && typeof Pe.tree.xScalePercent == "number" ? Pe.tree.xScalePercent / 100 : 1;
-          return [ee * ue + Ue, ie];
+          return [ee * ue + $e, ie];
         },
         getFillColor: (V) => V.color,
         getRadius: (V) => V.radius,
@@ -60981,7 +60971,7 @@ const as = !1, TM = it.forwardRef(({
           getPosition: [
             Jr.length,
             Pe.tree.xScalePercent,
-            Ue,
+            $e,
             qt
           ],
           getFillColor: [
@@ -61022,7 +61012,7 @@ const as = !1, TM = it.forwardRef(({
           data: V,
           getSourcePosition: (ee) => {
             const ie = Pe.tree && typeof Pe.tree.xScalePercent == "number" ? Pe.tree.xScalePercent / 100 : 1;
-            return [ee.rawLeafY * ie + Ue, ee.leafX];
+            return [ee.rawLeafY * ie + $e, ee.leafX];
           },
           getTargetPosition: (ee) => [ee.genomeStartX, ee.trackY],
           getColor: P.connectingLines.color,
@@ -61034,7 +61024,7 @@ const as = !1, TM = it.forwardRef(({
             getSourcePosition: [
               V.length,
               Pe.tree.xScalePercent,
-              Ue,
+              $e,
               qt
             ],
             getTargetPosition: V
@@ -61071,7 +61061,7 @@ const as = !1, TM = it.forwardRef(({
         pickable: !0,
         autoHighlight: !0,
         updateTriggers: {
-          getPolygon: [je, Pe.gene.height, Pe.gene.arrowheadHeight, qt, Wr, _e, $e],
+          getPolygon: [je, Pe.gene.height, Pe.gene.arrowheadHeight, qt, Wr, _e, ze],
           // Include alignmentVersion so positions update
           getFillColor: [je.length, Wr],
           getLineColor: [je.length, Wr],
@@ -61146,7 +61136,7 @@ const as = !1, TM = it.forwardRef(({
     yn,
     En,
     Qt,
-    ze,
+    Ue,
     Mt,
     an,
     sn,
@@ -61182,7 +61172,7 @@ const as = !1, TM = it.forwardRef(({
       }, te = (X) => {
         if (X.polygon && Array.isArray(X.polygon) && X.polygon.length > 0)
           return X.polygon;
-        const G = X.gene || X, K = X.trackY ?? G.trackY ?? 0, ae = Pe.gene?.height || Pe.gene?.geneHeight || 20, he = Pe.gene?.arrowheadHeight || 10, me = (Pe.genome?.xScalePercent || 100) / 100, ye = (X.start ?? G.start) * me, Me = (X.end ?? G.end) * me, Ue = X.strand ?? G.strand, Be = ae / 2, Ye = he / 2, He = Math.abs(Me - ye), Ze = Ku(He, Pe);
+        const G = X.gene || X, K = X.trackY ?? G.trackY ?? 0, ae = Pe.gene?.height || Pe.gene?.geneHeight || 20, he = Pe.gene?.arrowheadHeight || 10, me = (Pe.genome?.xScalePercent || 100) / 100, ye = (X.start ?? G.start) * me, Me = (X.end ?? G.end) * me, $e = X.strand ?? G.strand, Be = ae / 2, Ye = he / 2, He = Math.abs(Me - ye), Ze = Ku(He, Pe);
         if (Ze < 1) {
           const [Ge, at] = ye < Me ? [ye, Me] : [Me, ye];
           return [
@@ -61192,7 +61182,7 @@ const as = !1, TM = it.forwardRef(({
             [Ge, K + Be + Ye]
           ];
         }
-        if (Ue === "+" || Ue === 1) {
+        if ($e === "+" || $e === 1) {
           const Ge = Math.max(ye, Me - Ze);
           return [
             [ye, K - Be],
@@ -61593,26 +61583,26 @@ const as = !1, TM = it.forwardRef(({
     // ySpacing affects trackY positions
     Pe.tree?.ySpacing,
     // genomeXScale and alignment affect gene coordinates
-    $e,
+    ze,
     qt
   ]);
   const Ds = it.useCallback((T) => {
     const Q = [], re = Math.sin(T * 0.2), te = 1 + re * 0.15, X = mn === "light", G = (Me) => {
-      const Ue = (Be) => Math.max(0, Math.min(255, Math.round(Be)));
+      const $e = (Be) => Math.max(0, Math.min(255, Math.round(Be)));
       if (Array.isArray(Me)) {
         const [Be = 0, Ye = 0, He = 0, Ze = 255] = Me;
-        return [Ue(Be), Ue(Ye), Ue(He), Ue(Ze ?? 255)];
+        return [$e(Be), $e(Ye), $e(He), $e(Ze ?? 255)];
       }
       return [150, 150, 150, 255];
-    }, K = (Me, Ue, Be) => (0.299 * Me + 0.587 * Ue + 0.114 * Be) / 255, ae = (Me, Ue, Be, Ye) => {
-      const He = K(Me, Ue, Be);
+    }, K = (Me, $e, Be) => (0.299 * Me + 0.587 * $e + 0.114 * Be) / 255, ae = (Me, $e, Be, Ye) => {
+      const He = K(Me, $e, Be);
       if (X) {
         if (He > 0.7) {
           const Ze = 0.4 + (1 - He) * 0.3;
           return {
             color: [
               Math.round(Me * Ze),
-              Math.round(Ue * Ze),
+              Math.round($e * Ze),
               Math.round(Be * Ze)
             ],
             opacity: Math.min(255, Math.round(Ye * 1.5))
@@ -61621,16 +61611,16 @@ const as = !1, TM = it.forwardRef(({
           return {
             color: [
               Math.round(Me * 0.7),
-              Math.round(Ue * 0.7),
+              Math.round($e * 0.7),
               Math.round(Be * 0.7)
             ],
             opacity: Math.round(Ye * 1.2)
           };
       }
-      return { color: [Me, Ue, Be], opacity: Ye };
+      return { color: [Me, $e, Be], opacity: Ye };
     }, he = Pe.gene?.height || H || Kt.gene.height, me = Pe.gene?.arrowheadHeight ?? R ?? Kt.gene.arrowheadHeight, ye = (Me) => {
-      const Ue = Me.trackY;
-      if (Ue == null) return Me.polygon || [];
+      const $e = Me.trackY;
+      if ($e == null) return Me.polygon || [];
       let Be = Me.start, Ye = Me.end;
       if (Be > Ye) {
         const Jt = Be;
@@ -61639,49 +61629,49 @@ const as = !1, TM = it.forwardRef(({
       const He = Math.abs(Ye - Be), Ze = Ku(He, Pe), Ge = he / 2, at = Me.strand === "+";
       if (Ze < 1)
         return [
-          [Be, Ue - Ge],
-          [Ye, Ue - Ge],
-          [Ye, Ue + Ge],
-          [Be, Ue + Ge]
+          [Be, $e - Ge],
+          [Ye, $e - Ge],
+          [Ye, $e + Ge],
+          [Be, $e + Ge]
         ];
       if (me < 0.1)
         return at ? [
-          [Be, Ue - Ge],
-          [Ye - Ze, Ue - Ge],
-          [Ye, Ue],
-          [Ye - Ze, Ue + Ge],
-          [Be, Ue + Ge]
+          [Be, $e - Ge],
+          [Ye - Ze, $e - Ge],
+          [Ye, $e],
+          [Ye - Ze, $e + Ge],
+          [Be, $e + Ge]
         ] : [
-          [Ye, Ue - Ge],
-          [Be + Ze, Ue - Ge],
-          [Be, Ue],
-          [Be + Ze, Ue + Ge],
-          [Ye, Ue + Ge]
+          [Ye, $e - Ge],
+          [Be + Ze, $e - Ge],
+          [Be, $e],
+          [Be + Ze, $e + Ge],
+          [Ye, $e + Ge]
         ];
       const Nt = Ge + me / 2;
       return at ? [
-        [Be, Ue - Ge],
-        [Ye - Ze, Ue - Ge],
-        [Ye - Ze, Ue - Nt],
-        [Ye, Ue],
-        [Ye - Ze, Ue + Nt],
-        [Ye - Ze, Ue + Ge],
-        [Be, Ue + Ge]
+        [Be, $e - Ge],
+        [Ye - Ze, $e - Ge],
+        [Ye - Ze, $e - Nt],
+        [Ye, $e],
+        [Ye - Ze, $e + Nt],
+        [Ye - Ze, $e + Ge],
+        [Be, $e + Ge]
       ] : [
-        [Ye, Ue - Ge],
-        [Be + Ze, Ue - Ge],
-        [Be + Ze, Ue - Nt],
-        [Be, Ue],
-        [Be + Ze, Ue + Nt],
-        [Be + Ze, Ue + Ge],
-        [Ye, Ue + Ge]
+        [Ye, $e - Ge],
+        [Be + Ze, $e - Ge],
+        [Be + Ze, $e - Nt],
+        [Be, $e],
+        [Be + Ze, $e + Nt],
+        [Be + Ze, $e + Ge],
+        [Ye, $e + Ge]
       ];
     };
     if (tn && tn.length > 0) {
       const Me = (He) => {
         const Ze = He?.fillColor || mt.geneFill || P.gene?.fillColor || [100, 200, 255, 255];
         return G(Ze);
-      }, Ue = he * (0.3 + re * 0.2), Be = Math.round(150 + re * 50);
+      }, $e = he * (0.3 + re * 0.2), Be = Math.round(150 + re * 50);
       Q.push(
         new ls({
           id: `genes-glow-outer-anim-${T}`,
@@ -61690,7 +61680,7 @@ const as = !1, TM = it.forwardRef(({
           // Recalculate polygon with current settings
           stroked: !0,
           filled: !1,
-          getLineWidth: Ue,
+          getLineWidth: $e,
           getLineColor: (He) => {
             const [Ze, Ge, at] = Me(He), Nt = ae(Ze, Ge, at, Be);
             return [...Nt.color, Nt.opacity];
@@ -61723,14 +61713,14 @@ const as = !1, TM = it.forwardRef(({
       const Me = (Ze) => {
         const Ge = Ze?.color;
         return Ge && Array.isArray(Ge) && Ge.some((at) => at > 0) ? G(Ge) : [220, 180, 60, 255];
-      }, Ue = 4 * (1.5 + re * 0.5) * te, Be = 4 * (0.8 + re * 0.3) * te, Ye = Math.round(60 + re * 30), He = Math.round(120 + re * 50);
+      }, $e = 4 * (1.5 + re * 0.5) * te, Be = 4 * (0.8 + re * 0.3) * te, Ye = Math.round(60 + re * 30), He = Math.round(120 + re * 50);
       Q.push(
         new ca({
           id: `tree-glow-outer-anim-${T}`,
           // Include tick in id to force layer recreation
           data: Ar,
           getPosition: (Ze) => Ze.position || [0, 0],
-          getRadius: (Ze) => (Ze.radius || 2) * Ue,
+          getRadius: (Ze) => (Ze.radius || 2) * $e,
           getFillColor: (Ze) => {
             const [Ge, at, Nt] = Me(Ze), Jt = ae(Ge, at, Nt, Ye);
             return [...Jt.color, Jt.opacity];
@@ -61781,13 +61771,13 @@ const as = !1, TM = it.forwardRef(({
       const Me = (Ze) => {
         const Ge = Ze?.color;
         return Ge && Array.isArray(Ge) && Ge.some((at) => at > 0) ? G(Ge) : [100, 180, 255, 255];
-      }, Ue = 4 * (1.6 + re * 0.6) * te, Be = 4 * (0.9 + re * 0.35) * te, Ye = Math.round(50 + re * 30), He = Math.round(110 + re * 50);
+      }, $e = 4 * (1.6 + re * 0.6) * te, Be = 4 * (0.9 + re * 0.35) * te, Ye = Math.round(50 + re * 30), He = Math.round(110 + re * 50);
       Q.push(
         new ca({
           id: `tree-node-glow-outer-anim-${T}`,
           data: sr,
           getPosition: (Ze) => Ze.position || [0, 0],
-          getRadius: (Ze) => (Ze.radius || 4) * Ue,
+          getRadius: (Ze) => (Ze.radius || 4) * $e,
           getFillColor: (Ze) => {
             const [Ge, at, Nt] = Me(Ze), Jt = ae(Ge, at, Nt, Ye);
             return [...Jt.color, Jt.opacity];
@@ -61834,7 +61824,7 @@ const as = !1, TM = it.forwardRef(({
       );
     }
     if (ni && ni.length > 0) {
-      const Me = 10 + re * 8, Ue = Math.round(150 + re * 50), Be = X ? [180, 140, 40] : [255, 215, 80], Ye = X ? Math.min(255, Math.round(Ue * 1.3)) : Ue;
+      const Me = 10 + re * 8, $e = Math.round(150 + re * 50), Be = X ? [180, 140, 40] : [255, 215, 80], Ye = X ? Math.min(255, Math.round($e * 1.3)) : $e;
       Q.push(
         new mu({
           id: `hoods-glow-outer-anim-${T}`,
@@ -61875,7 +61865,7 @@ const as = !1, TM = it.forwardRef(({
           [Ge, at + _n],
           [Ze, at + _n]
         ];
-      }, Ue = (He) => {
+      }, $e = (He) => {
         const Ze = He?.strokeColor || He?.fillColor || [255, 180, 50, 255];
         return G(Ze);
       }, Be = he * (0.4 + re * 0.2), Ye = Math.round(120 + re * 60);
@@ -61888,7 +61878,7 @@ const as = !1, TM = it.forwardRef(({
           filled: !1,
           getLineWidth: Be,
           getLineColor: (He) => {
-            const [Ze, Ge, at] = Ue(He), Nt = ae(Ze, Ge, at, Ye);
+            const [Ze, Ge, at] = $e(He), Nt = ae(Ze, Ge, at, Ye);
             return [...Nt.color, Nt.opacity];
           },
           lineWidthUnits: "common",
@@ -61903,7 +61893,7 @@ const as = !1, TM = it.forwardRef(({
           stroked: !0,
           filled: !1,
           getLineColor: (He) => {
-            const [Ze, Ge, at] = Ue(He);
+            const [Ze, Ge, at] = $e(He);
             return X ? [Math.round(Ze * 0.5), Math.round(Ge * 0.5), Math.round(at * 0.5), 220] : [255, 255, 255, 255];
           },
           getLineWidth: he * 0.04,
@@ -61924,7 +61914,7 @@ const as = !1, TM = it.forwardRef(({
           [Ge, at + Nt],
           [Ze, at + Nt]
         ];
-      }, Ue = (He) => {
+      }, $e = (He) => {
         const Ze = He?.fillColor || He?.strokeColor || [120, 200, 255, 255];
         return G(Ze);
       }, Be = he * (0.35 + re * 0.15), Ye = Math.round(100 + re * 50);
@@ -61937,7 +61927,7 @@ const as = !1, TM = it.forwardRef(({
           filled: !1,
           getLineWidth: Be,
           getLineColor: (He) => {
-            const [Ze, Ge, at] = Ue(He), Nt = ae(Ze, Ge, at, Ye);
+            const [Ze, Ge, at] = $e(He), Nt = ae(Ze, Ge, at, Ye);
             return [...Nt.color, Nt.opacity];
           },
           lineWidthUnits: "common",
@@ -61952,7 +61942,7 @@ const as = !1, TM = it.forwardRef(({
           stroked: !0,
           filled: !1,
           getLineColor: (He) => {
-            const [Ze, Ge, at] = Ue(He);
+            const [Ze, Ge, at] = $e(He);
             return X ? [Math.round(Ze * 0.5), Math.round(Ge * 0.5), Math.round(at * 0.5), 220] : [255, 255, 255, 255];
           },
           getLineWidth: he * 0.04,
@@ -61983,7 +61973,7 @@ const as = !1, TM = it.forwardRef(({
     // ySpacing affects trackY positions
     Pe.tree?.ySpacing,
     // genomeXScale and alignment affect gene coordinates
-    $e,
+    ze,
     qt,
     // Tree/palette dependencies
     N,
@@ -62054,9 +62044,9 @@ const as = !1, TM = it.forwardRef(({
       let Q = null;
       if (Tt && xt && zt) {
         const ye = xt.unit === "mm" ? 300 : 96, Me = 1 / 25.4;
-        let Ue, Be;
-        xt.unit === "mm" ? (Ue = xt.width * Me * ye, Be = xt.height * Me * ye) : (Ue = xt.width, Be = xt.height);
-        const Ye = 40, He = Zn.width - 2 * Ye, Ze = Si - 2 * Ye, Ge = He / Ue, at = Ze / Be, Nt = Math.min(Ge, at), Jt = Ue * Nt, hn = Be * Nt, On = (Zn.width - Jt) / 2, _n = (Si - hn) / 2, Zt = On + Jt, Yt = _n + hn, jt = Math.pow(2, T.zoom || 0), mr = T.target[0], Cr = T.target[1], ps = (Jr) => mr + (Jr - Zn.width / 2) / jt, Yi = (Jr) => Cr + (Si / 2 - Jr) / jt;
+        let $e, Be;
+        xt.unit === "mm" ? ($e = xt.width * Me * ye, Be = xt.height * Me * ye) : ($e = xt.width, Be = xt.height);
+        const Ye = 40, He = Zn.width - 2 * Ye, Ze = Si - 2 * Ye, Ge = He / $e, at = Ze / Be, Nt = Math.min(Ge, at), Jt = $e * Nt, hn = Be * Nt, On = (Zn.width - Jt) / 2, _n = (Si - hn) / 2, Zt = On + Jt, Yt = _n + hn, jt = Math.pow(2, T.zoom || 0), mr = T.target[0], Cr = T.target[1], ps = (Jr) => mr + (Jr - Zn.width / 2) / jt, Yi = (Jr) => Cr + (Si / 2 - Jr) / jt;
         Q = {
           minX: ps(On),
           maxX: ps(Zt),
@@ -62085,12 +62075,12 @@ const as = !1, TM = it.forwardRef(({
         precomputedTicks: Wi.current ? Wi.current.getTicks() : void 0,
         // Pass tree visibility flags for SVG export
         // Tree ruler should only show if: tree data exists AND (showTreeLayer OR showTreeTextLayer)
-        showTreeLayer: ze && Zr,
+        showTreeLayer: Ue && Zr,
         showTreeTextLayer: Ut && Zr
       } : void 0, te = Bi.filter((ye) => {
         if (!ye || !ye.id) return !0;
         const Me = ye.id;
-        return Me === "phylo-tree" || Me === "nodes" || Me === "tree-nodes" ? ze : Me === "phylo-labels" ? Ut : Me === "genes" ? Mt : Me === "gene-labels" ? Vt : Me === "domains" || Me.startsWith("domains-") ? an : Me === "protein-polygons" ? sn : Me === "nucleotide-polygons" ? Ct : Me === "ncrna-features" ? wt : Me === "region-polygons" ? At : !0;
+        return Me === "phylo-tree" || Me === "nodes" || Me === "tree-nodes" ? Ue : Me === "phylo-labels" ? Ut : Me === "genes" ? Mt : Me === "gene-labels" ? Vt : Me === "domains" || Me.startsWith("domains-") ? an : Me === "protein-polygons" ? sn : Me === "nucleotide-polygons" ? Ct : Me === "ncrna-features" ? wt : Me === "region-polygons" ? At : !0;
       }), X = Gse(
         te,
         T,
@@ -62108,7 +62098,7 @@ const as = !1, TM = it.forwardRef(({
           formatPreset: xt,
           guideBounds: zt ? Q : null,
           // Only crop if checkbox is enabled
-          scaleRulerWithCrop: ht
+          scaleRulerWithCrop: gt
           // Pass ruler scaling preference
         } : void 0
       );
@@ -62197,10 +62187,10 @@ const as = !1, TM = it.forwardRef(({
           end: me.end
         }), !G.hoodRanges?.[ye])
           return console.warn("[focusFeatureByPosition] No hoodRange found for hood:", ye), !1;
-        const Ue = G.getTrackYByHoodId?.(ye);
-        if (Ue == null)
+        const $e = G.getTrackYByHoodId?.(ye);
+        if ($e == null)
           return console.warn("[focusFeatureByPosition] No trackY found for hood:", ye), !1;
-        const Be = (me.start + me.end) / 2, Ye = me.trackY ?? Ue;
+        const Be = (me.start + me.end) / 2, Ye = me.trackY ?? $e;
         console.log(`[focusFeatureByPosition] ${te} colors:`, {
           fillColor: me.fillColor,
           strokeColor: me.strokeColor,
@@ -62281,7 +62271,7 @@ const as = !1, TM = it.forwardRef(({
         if (!Q || !Q.hoodRanges) return !1;
         const re = String(T), te = Q.hoodRanges[re];
         if (!te) return !1;
-        const X = Q.trackOffset && Q.trackOffset[re] || 0, G = Q.trackFlipped ? !!Q.trackFlipped[re] : !1, K = te.length / 2, ae = 0, he = te.length, me = Q.constructor.getTransformedXUnified(ae, K, X, G), ye = Q.constructor.getTransformedXUnified(he, K, X, G), Me = Pe.genome && typeof Pe.genome.xScalePercent == "number" ? Pe.genome.xScalePercent / 100 : 1, Ue = K + (me - K) * Me, Be = K + (ye - K) * Me, Ye = (Ue + Be) / 2, He = typeof Q.getTrackYByHoodId == "function" && Q.getTrackYByHoodId(re) || 0, Ze = wr.current && wr.current.zoom !== void 0 ? wr.current.zoom : Wn.zoom || -3;
+        const X = Q.trackOffset && Q.trackOffset[re] || 0, G = Q.trackFlipped ? !!Q.trackFlipped[re] : !1, K = te.length / 2, ae = 0, he = te.length, me = Q.constructor.getTransformedXUnified(ae, K, X, G), ye = Q.constructor.getTransformedXUnified(he, K, X, G), Me = Pe.genome && typeof Pe.genome.xScalePercent == "number" ? Pe.genome.xScalePercent / 100 : 1, $e = K + (me - K) * Me, Be = K + (ye - K) * Me, Ye = ($e + Be) / 2, He = typeof Q.getTrackYByHoodId == "function" && Q.getTrackYByHoodId(re) || 0, Ze = wr.current && wr.current.zoom !== void 0 ? wr.current.zoom : Wn.zoom || -3;
         ir((Nt) => ({
           ...Nt,
           target: [Ye, He, 0],
@@ -62291,7 +62281,7 @@ const as = !1, TM = it.forwardRef(({
         return yi([{
           hood_id: re,
           seqid: Ge,
-          start: Ue,
+          start: $e,
           end: Be,
           trackY: He
         }]), setTimeout(() => {
@@ -62316,18 +62306,18 @@ const as = !1, TM = it.forwardRef(({
         const ye = String(te.leaf_id || te.metadata?.leaf_id || te.name || re);
         ts(null), setTimeout(() => ts(ye), 0);
         const Me = P?.tree?.nodeRadius || { internal: 4, leaf: 2 };
-        let Ue = mt.treeEdges || [220, 180, 60, 255];
+        let $e = mt.treeEdges || [220, 180, 60, 255];
         if (Dr.current?.nodes) {
           const Ye = Dr.current.nodes.find(
             (He) => He.leaf_id === ye || He.name === ye || He.id === ye || He.metadata?.leaf_id === ye
           );
-          Ye?.color && Array.isArray(Ye.color) && Ye.color.some((He) => He > 0) && (Ue = Ye.color);
+          Ye?.color && Array.isArray(Ye.color) && Ye.color.some((He) => He > 0) && ($e = Ye.color);
         }
         const Be = [{
           id: ye,
           position: [X * K + ae, G],
           radius: Me.leaf || 2,
-          color: Ue
+          color: $e
         }];
         return _s(Be), !0;
       } catch {
@@ -62345,7 +62335,7 @@ const as = !1, TM = it.forwardRef(({
     },
     // Expose current geneColorMap so sidebar can get up-to-date palette colors
     geneColorMap: Tn
-  }), [Bi, Wn, P, b, nn, mt, rr, Si, $a, Ci, Tt, xt, zt, ht]), /* @__PURE__ */ le(
+  }), [Bi, Wn, P, b, nn, mt, rr, Si, $a, Ci, Tt, xt, zt, gt]), /* @__PURE__ */ le(
     "div",
     {
       id: "phylo-tree-viewer-container",
@@ -62391,7 +62381,7 @@ const as = !1, TM = it.forwardRef(({
                   wr.current = Q;
                   return;
                 }
-                const re = P?.scrollbar?.panPaddingY ?? 50, te = P?.scrollbar?.panPaddingX ?? 500, X = Math.pow(2, Q.zoom || 0), G = Math.max(1, X * 0.5), K = W !== "none" ? In || 200 : 0, ae = re * G, he = (te + K) * G, me = ns - xs || 1e3, ye = Di - bi || 1e4, Me = Zn.height || 600, Ue = Zn.width || 800, Be = Math.log2(Me / (me * 1.5)), Ye = Math.log2(Ue / (ye * 1.5)), He = Math.min(Be, Ye, P?.scrollbar?.minZoom ?? -5), Ze = P?.scrollbar?.maxZoom ?? 2;
+                const re = P?.scrollbar?.panPaddingY ?? 50, te = P?.scrollbar?.panPaddingX ?? 500, X = Math.pow(2, Q.zoom || 0), G = Math.max(1, X * 0.5), K = W !== "none" ? In || 200 : 0, ae = re * G, he = (te + K) * G, me = ns - xs || 1e3, ye = Di - bi || 1e4, Me = Zn.height || 600, $e = Zn.width || 800, Be = Math.log2(Me / (me * 1.5)), Ye = Math.log2($e / (ye * 1.5)), He = Math.min(Be, Ye, P?.scrollbar?.minZoom ?? -5), Ze = P?.scrollbar?.maxZoom ?? 2;
                 isFinite(Q.zoom) && (Q.zoom = Math.max(He, Math.min(Ze, Q.zoom)));
                 const Ge = xs - ae, at = ns + ae;
                 if (isFinite(Ge) && isFinite(at) && at > Ge) {
@@ -62592,7 +62582,7 @@ function lc() {
   return BC = n, BC;
 }
 var SC, S5;
-function Jg() {
+function ep() {
   if (S5) return SC;
   S5 = 1;
   var t = lc(), e = t.Symbol;
@@ -62602,7 +62592,7 @@ var TC, T5;
 function Zse() {
   if (T5) return TC;
   T5 = 1;
-  var t = Jg(), e = Object.prototype, n = e.hasOwnProperty, r = e.toString, i = t ? t.toStringTag : void 0;
+  var t = ep(), e = Object.prototype, n = e.hasOwnProperty, r = e.toString, i = t ? t.toStringTag : void 0;
   function s(o) {
     var a = n.call(o, i), u = o[i];
     try {
@@ -62626,17 +62616,17 @@ function Qse() {
   return RC = n, RC;
 }
 var kC, k5;
-function ep() {
+function tp() {
   if (k5) return kC;
   k5 = 1;
-  var t = Jg(), e = Zse(), n = Qse(), r = "[object Null]", i = "[object Undefined]", s = t ? t.toStringTag : void 0;
+  var t = ep(), e = Zse(), n = Qse(), r = "[object Null]", i = "[object Undefined]", s = t ? t.toStringTag : void 0;
   function o(a) {
     return a == null ? a === void 0 ? i : r : s && s in Object(a) ? e(a) : n(a);
   }
   return kC = o, kC;
 }
 var MC, M5;
-function tp() {
+function np() {
   if (M5) return MC;
   M5 = 1;
   function t(e) {
@@ -62648,7 +62638,7 @@ var PC, P5;
 function N1() {
   if (P5) return PC;
   P5 = 1;
-  var t = ep(), e = tp(), n = "[object Symbol]";
+  var t = tp(), e = np(), n = "[object Symbol]";
   function r(i) {
     return typeof i == "symbol" || e(i) && t(i) == n;
   }
@@ -62681,7 +62671,7 @@ var OC, O5;
 function kM() {
   if (O5) return OC;
   O5 = 1;
-  var t = ep(), e = xd(), n = "[object AsyncFunction]", r = "[object Function]", i = "[object GeneratorFunction]", s = "[object Proxy]";
+  var t = tp(), e = xd(), n = "[object AsyncFunction]", r = "[object Function]", i = "[object GeneratorFunction]", s = "[object Proxy]";
   function o(a) {
     if (!e(a))
       return !1;
@@ -63091,7 +63081,7 @@ var C3, C8;
 function _oe() {
   if (C8) return C3;
   C8 = 1;
-  var t = Jg(), e = Eoe(), n = ac(), r = N1(), i = t ? t.prototype : void 0, s = i ? i.toString : void 0;
+  var t = ep(), e = Eoe(), n = ac(), r = N1(), i = t ? t.prototype : void 0, s = i ? i.toString : void 0;
   function o(a) {
     if (typeof a == "string")
       return a;
@@ -63128,7 +63118,7 @@ var A3, A8;
 function xoe() {
   if (A8) return A3;
   A8 = 1;
-  var t = ep(), e = tp(), n = "[object Arguments]";
+  var t = tp(), e = np(), n = "[object Arguments]";
   function r(i) {
     return e(i) && t(i) == n;
   }
@@ -63138,7 +63128,7 @@ var v3, v8;
 function EE() {
   if (v8) return v3;
   v8 = 1;
-  var t = xoe(), e = tp(), n = Object.prototype, r = n.hasOwnProperty, i = n.propertyIsEnumerable, s = t(/* @__PURE__ */ (function() {
+  var t = xoe(), e = np(), n = Object.prototype, r = n.hasOwnProperty, i = n.propertyIsEnumerable, s = t(/* @__PURE__ */ (function() {
     return arguments;
   })()) ? t : function(o) {
     return e(o) && r.call(o, "callee") && !i.call(o, "callee");
@@ -63215,7 +63205,7 @@ function Ma(t, e = "Assertion failed") {
   if (!t)
     return NM(e);
 }
-function Hg(t, e) {
+function Vg(t, e) {
   return NM(e ?? "Hell froze over");
 }
 function Toe(t, e) {
@@ -63226,7 +63216,7 @@ function Toe(t, e) {
   }
 }
 const B8 = Object.prototype.hasOwnProperty;
-function Wf(t, e) {
+function qf(t, e) {
   let n, r;
   if (t === e)
     return !0;
@@ -63237,14 +63227,14 @@ function Wf(t, e) {
       return t.toString() === e.toString();
     if (n === Array) {
       if ((r = t.length) === e.length)
-        for (; r-- && Wf(t[r], e[r]); )
+        for (; r-- && qf(t[r], e[r]); )
           ;
       return r === -1;
     }
     if (!n || typeof t == "object") {
       r = 0;
       for (n in t)
-        if (B8.call(t, n) && ++r && !B8.call(e, n) || !(n in e) || !Wf(t[n], e[n]))
+        if (B8.call(t, n) && ++r && !B8.call(e, n) || !(n in e) || !qf(t[n], e[n]))
           return !1;
       return Object.keys(e).length === r;
     }
@@ -63270,14 +63260,14 @@ function M0(t) {
 async function S8(t) {
   return typeof t == "object" ? t : await t();
 }
-function ff(t) {
+function hf(t) {
   return !(t.kind === dn.Loading || t.kind === dn.Bubble || t.kind === dn.RowID || t.kind === dn.Protected || t.kind === dn.Drilldown);
 }
-function Af(t) {
+function vf(t) {
   return t.kind === Ja.Marker || t.kind === Ja.NewRow;
 }
-function hf(t) {
-  if (!ff(t) || t.kind === dn.Image)
+function gf(t) {
+  if (!hf(t) || t.kind === dn.Image)
     return !1;
   switch (t.kind) {
     case dn.Text:
@@ -63288,7 +63278,7 @@ function hf(t) {
     case dn.Boolean:
       return t.readonly !== !0;
     default:
-      Hg(t, "A cell was passed with an invalid kind");
+      Vg(t, "A cell was passed with an invalid kind");
   }
 }
 function Roe(t) {
@@ -63506,7 +63496,7 @@ const Uoe = /* @__PURE__ */ za("div")({
   class: "gdg-i2iowwq",
   propsAsIs: !1
 });
-var T3 = {}, Uh = {}, P0 = {}, I0 = {}, R3 = { exports: {} }, k3, k8;
+var T3 = {}, $h = {}, P0 = {}, I0 = {}, R3 = { exports: {} }, k3, k8;
 function $oe() {
   if (k8) return k3;
   k8 = 1;
@@ -63801,7 +63791,7 @@ function LM() {
     });
   })(P0)), P0;
 }
-var $h = {}, P3 = { exports: {} };
+var Hh = {}, P3 = { exports: {} };
 var O8;
 function qoe() {
   return O8 || (O8 = 1, (function(t) {
@@ -63837,10 +63827,10 @@ function qoe() {
 }
 var L8;
 function zM() {
-  if (L8) return $h;
-  L8 = 1, Object.defineProperty($h, "__esModule", {
+  if (L8) return Hh;
+  L8 = 1, Object.defineProperty(Hh, "__esModule", {
     value: !0
-  }), $h.default = void 0;
+  }), Hh.default = void 0;
   var t = e(qoe());
   function e(i) {
     return i && i.__esModule ? i : { default: i };
@@ -63902,49 +63892,49 @@ function zM() {
       });
     }
   };
-  return $h.default = r, $h;
+  return Hh.default = r, Hh;
 }
-var Hh = {}, Vh = {}, z8;
+var Vh = {}, Wh = {}, z8;
 function joe() {
-  if (z8) return Vh;
-  z8 = 1, Object.defineProperty(Vh, "__esModule", {
+  if (z8) return Wh;
+  z8 = 1, Object.defineProperty(Wh, "__esModule", {
     value: !0
-  }), Vh.outerWidth = void 0;
+  }), Wh.outerWidth = void 0;
   var t = function(n) {
     var r = n.offsetWidth, i = getComputedStyle(n);
     return r += parseInt(i.marginLeft) + parseInt(i.marginRight), r;
   };
-  return Vh.outerWidth = t, Vh;
+  return Wh.outerWidth = t, Wh;
 }
-var Wh = {}, U8;
+var qh = {}, U8;
 function BE() {
-  if (U8) return Wh;
-  U8 = 1, Object.defineProperty(Wh, "__esModule", {
+  if (U8) return qh;
+  U8 = 1, Object.defineProperty(qh, "__esModule", {
     value: !0
-  }), Wh.default = void 0;
+  }), qh.default = void 0;
   var t = function(n, r, i) {
     var s = n === 0 ? n : n + r, o = i === "horizontal" ? [s, 0, 0] : [0, s, 0], a = "translate3d", u = "(" + o.join(",") + ")";
     return a + u;
   };
-  return Wh.default = t, Wh;
+  return qh.default = t, qh;
 }
-var qh = {}, $8;
+var jh = {}, $8;
 function UM() {
-  if ($8) return qh;
-  $8 = 1, Object.defineProperty(qh, "__esModule", {
+  if ($8) return jh;
+  $8 = 1, Object.defineProperty(jh, "__esModule", {
     value: !0
-  }), qh.default = void 0;
+  }), jh.default = void 0;
   var t = function() {
     return window;
   };
-  return qh.default = t, qh;
+  return jh.default = t, jh;
 }
 var H8;
 function $M() {
-  if (H8) return Hh;
-  H8 = 1, Object.defineProperty(Hh, "__esModule", {
+  if (H8) return Vh;
+  H8 = 1, Object.defineProperty(Vh, "__esModule", {
     value: !0
-  }), Hh.default = void 0;
+  }), Vh.default = void 0;
   var t = u(it), e = o(zM()), n = joe(), r = o(BE()), i = o(LM()), s = o(UM());
   function o(L) {
     return L && L.__esModule ? L : { default: L };
@@ -64235,7 +64225,7 @@ function $M() {
       }
     }]), P;
   })(t.Component);
-  return Hh.default = $, S($, "displayName", "Thumbs"), S($, "defaultProps", {
+  return Vh.default = $, S($, "displayName", "Thumbs"), S($, "defaultProps", {
     axis: "horizontal",
     labels: {
       leftArrow: "previous slide / item",
@@ -64245,18 +64235,18 @@ function $M() {
     selectedItem: 0,
     thumbWidth: 80,
     transitionTime: 350
-  }), Hh;
+  }), Vh;
 }
-var jh = {}, V8;
+var Xh = {}, V8;
 function Xoe() {
-  if (V8) return jh;
-  V8 = 1, Object.defineProperty(jh, "__esModule", {
+  if (V8) return Xh;
+  V8 = 1, Object.defineProperty(Xh, "__esModule", {
     value: !0
-  }), jh.default = void 0;
+  }), Xh.default = void 0;
   var t = function() {
     return document;
   };
-  return jh.default = t, jh;
+  return Xh.default = t, Xh;
 }
 var Sa = {}, W8;
 function HM() {
@@ -64405,10 +64395,10 @@ function Yoe() {
 }
 var j8;
 function Goe() {
-  if (j8) return Uh;
-  j8 = 1, Object.defineProperty(Uh, "__esModule", {
+  if (j8) return $h;
+  j8 = 1, Object.defineProperty($h, "__esModule", {
     value: !0
-  }), Uh.default = void 0;
+  }), $h.default = void 0;
   var t = h(it), e = u(LM()), n = u(zM()), r = u($M()), i = u(Xoe()), s = u(UM()), o = HM(), a = Yoe();
   function u(U) {
     return U && U.__esModule ? U : { default: U };
@@ -64868,7 +64858,7 @@ function Goe() {
       }
     }]), j;
   })(t.default.Component);
-  return Uh.default = P, N(P, "displayName", "Carousel"), N(P, "defaultProps", {
+  return $h.default = P, N(P, "displayName", "Carousel"), N(P, "defaultProps", {
     ariaLabel: void 0,
     axis: "horizontal",
     centerSlidePercentage: 80,
@@ -64947,7 +64937,7 @@ function Goe() {
     animationHandler: "slide",
     swipeAnimationHandler: a.slideSwipeAnimationHandler,
     stopSwipingHandler: a.slideStopSwipingHandler
-  }), Uh;
+  }), $h;
 }
 var X8 = {}, Y8;
 function Koe() {
@@ -65199,7 +65189,7 @@ function GM(t) {
 }
 function uae(t) {
   const e = A.useRef(t);
-  return Wf(t, e.current) || (e.current = t), e.current;
+  return qf(t, e.current) || (e.current = t), e.current;
 }
 const dae = (t) => {
   const { urls: e, canWrite: n, onEditClick: r, renderImage: i } = t, s = e.filter((a) => a !== "");
@@ -65227,7 +65217,7 @@ var Bd = kE();
 function KM(t) {
   Bd = t;
 }
-var Eg = { exec: () => null };
+var _g = { exec: () => null };
 function Ur(t, e = "") {
   let n = typeof t == "string" ? t : t.source, r = { replace: (i, s) => {
     let o = typeof s == "string" ? s : s.source;
@@ -65241,8 +65231,8 @@ var fae = (() => {
   } catch {
     return !1;
   }
-})(), Ko = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] /, listReplaceTask: /^\[[ xX]\] +/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, hae = /^(?:[ \t]*(?:\n|$))+/, gae = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, pae = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, np = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, mae = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, ME = /(?:[*+-]|\d{1,9}[.)])/, ZM = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, QM = Ur(ZM).replace(/bull/g, ME).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), yae = Ur(ZM).replace(/bull/g, ME).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), PE = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Cae = /^[^\n]+/, IE = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, bae = Ur(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", IE).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Fae = Ur(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, ME).getRegex(), H1 = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", NE = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Aae = Ur("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", NE).replace("tag", H1).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), JM = Ur(PE).replace("hr", np).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex(), vae = Ur(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", JM).getRegex(), OE = { blockquote: vae, code: gae, def: bae, fences: pae, heading: mae, hr: np, html: Aae, lheading: QM, list: Fae, newline: hae, paragraph: JM, table: Eg, text: Cae }, nB = Ur("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", np).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex(), Eae = { ...OE, lheading: yae, table: nB, paragraph: Ur(PE).replace("hr", np).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", nB).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex() }, _ae = { ...OE, html: Ur(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", NE).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: Eg, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: Ur(PE).replace("hr", np).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", QM).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, wae = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, xae = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, eP = /^( {2,}|\\)\n(?!\s*$)/, Dae = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, V1 = /[\p{P}\p{S}]/u, LE = /[\s\p{P}\p{S}]/u, tP = /[^\s\p{P}\p{S}]/u, Bae = Ur(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, LE).getRegex(), nP = /(?!~)[\p{P}\p{S}]/u, Sae = /(?!~)[\s\p{P}\p{S}]/u, Tae = /(?:[^\s\p{P}\p{S}]|~)/u, Rae = Ur(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", fae ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), rP = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, kae = Ur(rP, "u").replace(/punct/g, V1).getRegex(), Mae = Ur(rP, "u").replace(/punct/g, nP).getRegex(), iP = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", Pae = Ur(iP, "gu").replace(/notPunctSpace/g, tP).replace(/punctSpace/g, LE).replace(/punct/g, V1).getRegex(), Iae = Ur(iP, "gu").replace(/notPunctSpace/g, Tae).replace(/punctSpace/g, Sae).replace(/punct/g, nP).getRegex(), Nae = Ur("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, tP).replace(/punctSpace/g, LE).replace(/punct/g, V1).getRegex(), Oae = Ur(/\\(punct)/, "gu").replace(/punct/g, V1).getRegex(), Lae = Ur(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), zae = Ur(NE).replace("(?:-->|$)", "-->").getRegex(), Uae = Ur("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", zae).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), Jm = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, $ae = Ur(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", Jm).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), sP = Ur(/^!?\[(label)\]\[(ref)\]/).replace("label", Jm).replace("ref", IE).getRegex(), oP = Ur(/^!?\[(ref)\](?:\[\])?/).replace("ref", IE).getRegex(), Hae = Ur("reflink|nolink(?!\\()", "g").replace("reflink", sP).replace("nolink", oP).getRegex(), rB = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, zE = { _backpedal: Eg, anyPunctuation: Oae, autolink: Lae, blockSkip: Rae, br: eP, code: xae, del: Eg, emStrongLDelim: kae, emStrongRDelimAst: Pae, emStrongRDelimUnd: Nae, escape: wae, link: $ae, nolink: oP, punctuation: Bae, reflink: sP, reflinkSearch: Hae, tag: Uae, text: Dae, url: Eg }, Vae = { ...zE, link: Ur(/^!?\[(label)\]\((.*?)\)/).replace("label", Jm).getRegex(), reflink: Ur(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", Jm).getRegex() }, LA = { ...zE, emStrongRDelimAst: Iae, emStrongLDelim: Mae, url: Ur(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", rB).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: Ur(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", rB).getRegex() }, Wae = { ...LA, br: Ur(eP).replace("{2,}", "*").getRegex(), text: Ur(LA.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, O0 = { normal: OE, gfm: Eae, pedantic: _ae }, Xh = { normal: zE, gfm: LA, breaks: Wae, pedantic: Vae }, qae = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, iB = (t) => qae[t];
+})(), Ko = { codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm, outputLinkReplace: /\\([\[\]])/g, indentCodeCompensation: /^(\s+)(?:```)/, beginningSpace: /^\s+/, endingHash: /#$/, startingSpaceChar: /^ /, endingSpaceChar: / $/, nonSpaceChar: /[^ ]/, newLineCharGlobal: /\n/g, tabCharGlobal: /\t/g, multipleSpaceGlobal: /\s+/g, blankLine: /^[ \t]*$/, doubleBlankLine: /\n[ \t]*\n[ \t]*$/, blockquoteStart: /^ {0,3}>/, blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g, blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm, listReplaceTabs: /^\t+/, listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g, listIsTask: /^\[[ xX]\] /, listReplaceTask: /^\[[ xX]\] +/, anyLine: /\n.*\n/, hrefBrackets: /^<(.*)>$/, tableDelimiter: /[:|]/, tableAlignChars: /^\||\| *$/g, tableRowBlankLine: /\n[ \t]*$/, tableAlignRight: /^ *-+: *$/, tableAlignCenter: /^ *:-+: *$/, tableAlignLeft: /^ *:-+ *$/, startATag: /^<a /i, endATag: /^<\/a>/i, startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i, endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i, startAngleBracket: /^</, endAngleBracket: />$/, pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/, unicodeAlphaNumeric: /[\p{L}\p{N}]/u, escapeTest: /[&<>"']/, escapeReplace: /[&<>"']/g, escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/, escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g, unescapeTest: /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig, caret: /(^|[^\[])\^/g, percentDecode: /%25/g, findPipe: /\|/g, splitPipe: / \|/, slashPipe: /\\\|/g, carriageReturn: /\r\n|\r/g, spaceLine: /^ +$/gm, notSpaceStart: /^\S*/, endingNewline: /\n$/, listItemRegex: (t) => new RegExp(`^( {0,3}${t})((?:[	 ][^\\n]*)?(?:\\n|$))`), nextBulletRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`), hrRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`), fencesBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}(?:\`\`\`|~~~)`), headingBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}#`), htmlBeginRegex: (t) => new RegExp(`^ {0,${Math.min(3, t - 1)}}<(?:[a-z].*>|!--)`, "i") }, hae = /^(?:[ \t]*(?:\n|$))+/, gae = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/, pae = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/, rp = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/, mae = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/, ME = /(?:[*+-]|\d{1,9}[.)])/, ZM = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/, QM = Ur(ZM).replace(/bull/g, ME).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex(), yae = Ur(ZM).replace(/bull/g, ME).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(), PE = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/, Cae = /^[^\n]+/, IE = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/, bae = Ur(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", IE).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(), Fae = Ur(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, ME).getRegex(), H1 = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul", NE = /<!--(?:-?>|[\s\S]*?(?:-->|$))/, Aae = Ur("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", NE).replace("tag", H1).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(), JM = Ur(PE).replace("hr", rp).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex(), vae = Ur(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", JM).getRegex(), OE = { blockquote: vae, code: gae, def: bae, fences: pae, heading: mae, hr: rp, html: Aae, lheading: QM, list: Fae, newline: hae, paragraph: JM, table: _g, text: Cae }, nB = Ur("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", rp).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex(), Eae = { ...OE, lheading: yae, table: nB, paragraph: Ur(PE).replace("hr", rp).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", nB).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H1).getRegex() }, _ae = { ...OE, html: Ur(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", NE).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(), def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/, heading: /^(#{1,6})(.*)(?:\n+|$)/, fences: _g, lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/, paragraph: Ur(PE).replace("hr", rp).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", QM).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex() }, wae = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/, xae = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/, eP = /^( {2,}|\\)\n(?!\s*$)/, Dae = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/, V1 = /[\p{P}\p{S}]/u, LE = /[\s\p{P}\p{S}]/u, tP = /[^\s\p{P}\p{S}]/u, Bae = Ur(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, LE).getRegex(), nP = /(?!~)[\p{P}\p{S}]/u, Sae = /(?!~)[\s\p{P}\p{S}]/u, Tae = /(?:[^\s\p{P}\p{S}]|~)/u, Rae = Ur(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", fae ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex(), rP = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/, kae = Ur(rP, "u").replace(/punct/g, V1).getRegex(), Mae = Ur(rP, "u").replace(/punct/g, nP).getRegex(), iP = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)", Pae = Ur(iP, "gu").replace(/notPunctSpace/g, tP).replace(/punctSpace/g, LE).replace(/punct/g, V1).getRegex(), Iae = Ur(iP, "gu").replace(/notPunctSpace/g, Tae).replace(/punctSpace/g, Sae).replace(/punct/g, nP).getRegex(), Nae = Ur("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, tP).replace(/punctSpace/g, LE).replace(/punct/g, V1).getRegex(), Oae = Ur(/\\(punct)/, "gu").replace(/punct/g, V1).getRegex(), Lae = Ur(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(), zae = Ur(NE).replace("(?:-->|$)", "-->").getRegex(), Uae = Ur("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", zae).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(), Jm = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/, $ae = Ur(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", Jm).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(), sP = Ur(/^!?\[(label)\]\[(ref)\]/).replace("label", Jm).replace("ref", IE).getRegex(), oP = Ur(/^!?\[(ref)\](?:\[\])?/).replace("ref", IE).getRegex(), Hae = Ur("reflink|nolink(?!\\()", "g").replace("reflink", sP).replace("nolink", oP).getRegex(), rB = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/, zE = { _backpedal: _g, anyPunctuation: Oae, autolink: Lae, blockSkip: Rae, br: eP, code: xae, del: _g, emStrongLDelim: kae, emStrongRDelimAst: Pae, emStrongRDelimUnd: Nae, escape: wae, link: $ae, nolink: oP, punctuation: Bae, reflink: sP, reflinkSearch: Hae, tag: Uae, text: Dae, url: _g }, Vae = { ...zE, link: Ur(/^!?\[(label)\]\((.*?)\)/).replace("label", Jm).getRegex(), reflink: Ur(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", Jm).getRegex() }, LA = { ...zE, emStrongRDelimAst: Iae, emStrongLDelim: Mae, url: Ur(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", rB).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(), _backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/, del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/, text: Ur(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", rB).getRegex() }, Wae = { ...LA, br: Ur(eP).replace("{2,}", "*").getRegex(), text: Ur(LA.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex() }, O0 = { normal: OE, gfm: Eae, pedantic: _ae }, Yh = { normal: zE, gfm: LA, breaks: Wae, pedantic: Vae }, qae = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }, iB = (t) => qae[t];
 function Vl(t, e) {
   if (e) {
     if (Ko.escapeTest.test(t)) return t.replace(Ko.escapeReplace, iB);
@@ -65268,7 +65258,7 @@ function oB(t, e) {
   for (; i < r.length; i++) r[i] = r[i].trim().replace(Ko.slashPipe, "|");
   return r;
 }
-function Yh(t, e, n) {
+function Gh(t, e, n) {
   let r = t.length;
   if (r === 0) return "";
   let i = 0;
@@ -65318,7 +65308,7 @@ var e1 = class {
     let e = this.rules.block.code.exec(t);
     if (e) {
       let n = e[0].replace(this.rules.other.codeRemoveIndent, "");
-      return { type: "code", raw: e[0], codeBlockStyle: "indented", text: this.options.pedantic ? n : Yh(n, `
+      return { type: "code", raw: e[0], codeBlockStyle: "indented", text: this.options.pedantic ? n : Gh(n, `
 `) };
     }
   }
@@ -65334,7 +65324,7 @@ var e1 = class {
     if (e) {
       let n = e[2].trim();
       if (this.rules.other.endingHash.test(n)) {
-        let r = Yh(n, "#");
+        let r = Gh(n, "#");
         (this.options.pedantic || !r || this.rules.other.endingSpaceChar.test(r)) && (n = r.trim());
       }
       return { type: "heading", raw: e[0], depth: e[1].length, text: n, tokens: this.lexer.inline(n) };
@@ -65342,13 +65332,13 @@ var e1 = class {
   }
   hr(t) {
     let e = this.rules.block.hr.exec(t);
-    if (e) return { type: "hr", raw: Yh(e[0], `
+    if (e) return { type: "hr", raw: Gh(e[0], `
 `) };
   }
   blockquote(t) {
     let e = this.rules.block.blockquote.exec(t);
     if (e) {
-      let n = Yh(e[0], `
+      let n = Gh(e[0], `
 `).split(`
 `), r = "", i = "", s = [];
       for (; n.length > 0; ) {
@@ -65485,7 +65475,7 @@ ${h}` : h;
       let n = e[2].trim();
       if (!this.options.pedantic && this.rules.other.startAngleBracket.test(n)) {
         if (!this.rules.other.endAngleBracket.test(n)) return;
-        let s = Yh(n.slice(0, -1), "\\");
+        let s = Gh(n.slice(0, -1), "\\");
         if ((n.length - s.length) % 2 === 0) return;
       } else {
         let s = jae(e[2], "()");
@@ -65591,11 +65581,11 @@ ${h}` : h;
   inlineQueue;
   constructor(e) {
     this.tokens = [], this.tokens.links = /* @__PURE__ */ Object.create(null), this.options = e || Bd, this.options.tokenizer = this.options.tokenizer || new e1(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = { inLink: !1, inRawBlock: !1, top: !0 };
-    let n = { other: Ko, block: O0.normal, inline: Xh.normal };
-    this.options.pedantic ? (n.block = O0.pedantic, n.inline = Xh.pedantic) : this.options.gfm && (n.block = O0.gfm, this.options.breaks ? n.inline = Xh.breaks : n.inline = Xh.gfm), this.tokenizer.rules = n;
+    let n = { other: Ko, block: O0.normal, inline: Yh.normal };
+    this.options.pedantic ? (n.block = O0.pedantic, n.inline = Yh.pedantic) : this.options.gfm && (n.block = O0.gfm, this.options.breaks ? n.inline = Yh.breaks : n.inline = Yh.gfm), this.tokenizer.rules = n;
   }
   static get rules() {
-    return { block: O0, inline: Xh };
+    return { block: O0, inline: Yh };
   }
   static lex(e, n) {
     return new zA(n).lex(e);
@@ -66084,7 +66074,7 @@ ${t}</tr>
     }
     return r;
   }
-}, cg = class {
+}, ug = class {
   options;
   block;
   constructor(t) {
@@ -66120,7 +66110,7 @@ ${t}</tr>
   TextRenderer = UE;
   Lexer = Al;
   Tokenizer = e1;
-  Hooks = cg;
+  Hooks = ug;
   constructor(...t) {
     this.use(...t);
   }
@@ -66194,13 +66184,13 @@ ${t}</tr>
         r.tokenizer = i;
       }
       if (n.hooks) {
-        let i = this.defaults.hooks || new cg();
+        let i = this.defaults.hooks || new ug();
         for (let s in n.hooks) {
           if (!(s in i)) throw new Error(`hook '${s}' does not exist`);
           if (["options", "block"].includes(s)) continue;
           let o = s, a = n.hooks[o], u = i[o];
-          cg.passThroughHooks.has(s) ? i[o] = (d) => {
-            if (this.defaults.async && cg.passThroughHooksRespectAsync.has(s)) return (async () => {
+          ug.passThroughHooks.has(s) ? i[o] = (d) => {
+            if (this.defaults.async && ug.passThroughHooksRespectAsync.has(s)) return (async () => {
               let g = await a.call(i, d);
               return u.call(i, g);
             })();
@@ -66293,7 +66283,7 @@ oi.TextRenderer = UE;
 oi.Lexer = Al;
 oi.lexer = Al.lex;
 oi.Tokenizer = e1;
-oi.Hooks = cg;
+oi.Hooks = ug;
 oi.parse = oi;
 oi.options;
 oi.setOptions;
@@ -66412,9 +66402,9 @@ function Pa(t, e) {
   const [o, a, u, d] = $A(e), h = s + d * (1 - s), g = (s * n + d * o * (1 - s)) / h, m = (s * r + d * a * (1 - s)) / h, y = (s * i + d * u * (1 - s)) / h;
   return `rgba(${g}, ${m}, ${y}, ${h})`;
 }
-var gf = /* @__PURE__ */ new Map(), vf = /* @__PURE__ */ new Map(), HA = /* @__PURE__ */ new Map();
+var pf = /* @__PURE__ */ new Map(), Ef = /* @__PURE__ */ new Map(), HA = /* @__PURE__ */ new Map();
 function tle() {
-  gf.clear(), HA.clear(), vf.clear();
+  pf.clear(), HA.clear(), Ef.clear();
 }
 function nle(t, e, n, r, i) {
   var s, o, a;
@@ -66437,9 +66427,9 @@ function rle(t, e) {
   for (let d of u) r.set(d, ((n = r.get(d)) != null ? n : s) * a);
   return r;
 }
-function _g(t, e, n, r) {
+function wg(t, e, n, r) {
   var i, s;
-  let o = vf.get(n);
+  let o = Ef.get(n);
   if (r && o !== void 0 && o.count > 2e4) {
     let d = HA.get(n);
     if (d === void 0 && (d = rle(t, o.size), HA.set(n, d)), o.count > 5e5) {
@@ -66448,27 +66438,27 @@ function _g(t, e, n, r) {
       return g * 1.01;
     }
     let h = t.measureText(e);
-    return nle(e, h.width, d, Math.max(0.05, 1 - o.count / 2e5), o.size), vf.set(n, { count: o.count + e.length, size: o.size }), h.width;
+    return nle(e, h.width, d, Math.max(0.05, 1 - o.count / 2e5), o.size), Ef.set(n, { count: o.count + e.length, size: o.size }), h.width;
   }
   let a = t.measureText(e), u = a.width / e.length;
   if (((s = o?.count) != null ? s : 0) > 2e4) return a.width;
-  if (o === void 0) vf.set(n, { count: e.length, size: u });
+  if (o === void 0) Ef.set(n, { count: e.length, size: u });
   else {
     let d = u - o.size, h = e.length / (o.count + e.length), g = o.size + d * h;
-    vf.set(n, { count: o.count + e.length, size: g });
+    Ef.set(n, { count: o.count + e.length, size: g });
   }
   return a.width;
 }
 function ile(t, e, n, r, i, s, o, a) {
   if (e.length <= 1) return e.length;
   if (i < n) return -1;
-  let u = Math.floor(n / i * s), d = _g(t, e.slice(0, Math.max(0, u)), r, o);
+  let u = Math.floor(n / i * s), d = wg(t, e.slice(0, Math.max(0, u)), r, o);
   if (d !== n) if (d < n) {
-    for (; d < n; ) u++, d = _g(t, e.slice(0, Math.max(0, u)), r, o);
+    for (; d < n; ) u++, d = wg(t, e.slice(0, Math.max(0, u)), r, o);
     u--;
   } else for (; d > n; ) {
     let h = e.lastIndexOf(" ", u - 1);
-    h > 0 ? u = h : u--, d = _g(t, e.slice(0, Math.max(0, u)), r, o);
+    h > 0 ? u = h : u--, d = wg(t, e.slice(0, Math.max(0, u)), r, o);
   }
   if (e[u] !== " ") {
     let h = 0;
@@ -66477,23 +66467,23 @@ function ile(t, e, n, r, i, s, o, a) {
   return u;
 }
 function sle(t, e, n, r, i, s) {
-  let o = `${e}_${n}_${r}px`, a = gf.get(o);
+  let o = `${e}_${n}_${r}px`, a = pf.get(o);
   if (a !== void 0) return a;
   if (r <= 0) return [];
   let u = [], d = e.split(`
-`), h = vf.get(n), g = h === void 0 ? e.length : r / h.size * 1.5, m = i && h !== void 0 && h.count > 2e4;
+`), h = Ef.get(n), g = h === void 0 ? e.length : r / h.size * 1.5, m = i && h !== void 0 && h.count > 2e4;
   for (let y of d) {
-    let C = _g(t, y.slice(0, Math.max(0, g)), n, m), b = Math.min(y.length, g);
+    let C = wg(t, y.slice(0, Math.max(0, g)), n, m), b = Math.min(y.length, g);
     if (C <= r) u.push(y);
     else {
       for (; C > r; ) {
         let E = ile(t, y, r, n, C, b, m), w = y.slice(0, Math.max(0, E));
-        y = y.slice(w.length), u.push(w), C = _g(t, y.slice(0, Math.max(0, g)), n, m), b = Math.min(y.length, g);
+        y = y.slice(w.length), u.push(w), C = wg(t, y.slice(0, Math.max(0, g)), n, m), b = Math.min(y.length, g);
       }
       C > 0 && u.push(y);
     }
   }
-  return u = u.map((y, C) => C === 0 ? y.trimEnd() : y.trim()), gf.set(o, u), gf.size > 500 && gf.delete(gf.keys().next().value), u;
+  return u = u.map((y, C) => C === 0 ? y.trimEnd() : y.trim()), pf.set(o, u), pf.size > 500 && pf.delete(pf.keys().next().value), u;
 }
 function ole(t, e) {
   return it.useMemo(() => t.map((n, r) => ({
@@ -66525,7 +66515,7 @@ function ale(t, e) {
   if (t.columns.hasIndex(n) || t.rows.hasIndex(r))
     return !0;
   if (t.current !== void 0) {
-    if (wg(t.current.cell, e))
+    if (xg(t.current.cell, e))
       return !0;
     const i = [t.current.range, ...t.current.rangeStack];
     for (const s of i)
@@ -66534,7 +66524,7 @@ function ale(t, e) {
   }
   return !1;
 }
-function Vg(t, e) {
+function Wg(t, e) {
   return (t ?? "") === (e ?? "");
 }
 function lle(t, e, n) {
@@ -66544,7 +66534,7 @@ function aP(t, e) {
   const [n, r] = t;
   return n >= e.x && n < e.x + e.width && r >= e.y && r < e.y + e.height;
 }
-function wg(t, e) {
+function xg(t, e) {
   return t?.[0] === e?.[0] && t?.[1] === e?.[1];
 }
 function lP(t) {
@@ -66581,7 +66571,7 @@ function cP(t, e) {
   }
   return n;
 }
-function qf(t, e) {
+function jf(t, e) {
   let n = 0;
   const r = cP(t, e);
   for (let i = 0; i < r.length; i++) {
@@ -66659,23 +66649,23 @@ function dle(t, e, n, r, i, s, o, a, u, d) {
     return;
   }
 }
-let am = 0, xg = {};
+let am = 0, Dg = {};
 const fle = typeof window > "u";
 async function hle() {
-  fle || document?.fonts?.ready === void 0 || (await document.fonts.ready, am = 0, xg = {}, tle());
+  fle || document?.fonts?.ready === void 0 || (await document.fonts.ready, am = 0, Dg = {}, tle());
 }
 hle();
 function uP(t, e, n, r) {
   return `${t}_${r ?? e?.font}_${n}`;
 }
-function nh(t, e, n, r = "middle") {
+function rh(t, e, n, r = "middle") {
   const i = uP(t, e, r, n);
-  let s = xg[i];
-  return s === void 0 && (s = e.measureText(t), xg[i] = s, am++), am > 1e4 && (xg = {}, am = 0), s;
+  let s = Dg[i];
+  return s === void 0 && (s = e.measureText(t), Dg[i] = s, am++), am > 1e4 && (Dg = {}, am = 0), s;
 }
 function dP(t, e) {
   const n = uP(t, void 0, "middle", e);
-  return xg[n];
+  return Dg[n];
 }
 function Su(t, e) {
   return typeof e != "string" && (e = e.baseFontFull), gle(t, e);
@@ -66707,7 +66697,7 @@ function ple(t, e, n, r, i, s) {
   }
   return d < h;
 }
-function rp(t, e, n) {
+function ip(t, e, n) {
   const { ctx: r, theme: i } = t, s = e ?? {}, o = n ?? i.textDark;
   return o !== s.fillStyle && (r.fillStyle = o, s.fillStyle = o), s;
 }
@@ -66715,7 +66705,7 @@ function fP(t, e, n, r, i, s, o, a, u) {
   u === "right" ? t.fillText(e, n + i - (a.cellHorizontalPadding + 0.5), r + s / 2 + o) : u === "center" ? t.fillText(e, n + i / 2, r + s / 2 + o) : t.fillText(e, n + a.cellHorizontalPadding + 0.5, r + s / 2 + o);
 }
 function hP(t, e) {
-  const n = nh("ABCi09jgqpy", t, e);
+  const n = rh("ABCi09jgqpy", t, e);
   return n.actualBoundingBoxAscent + n.actualBoundingBoxDescent;
 }
 function mle(t, e) {
@@ -66793,7 +66783,7 @@ function WA(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C) {
     return b;
   const E = s - i;
   if (t >= g) {
-    const w = o > t ? -1 : 1, _ = qf(y);
+    const w = o > t ? -1 : 1, _ = jf(y);
     b.x += _ + u;
     for (let x = o; x !== t; x += w)
       b.x += y[w === 1 ? x : x - 1].width * w;
@@ -66806,17 +66796,17 @@ function WA(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C) {
     b.y = 0, b.height = i;
     let w = t;
     const _ = y[t].group, x = y[t].sticky;
-    for (; w > 0 && Vg(y[w - 1].group, _) && y[w - 1].sticky === x; ) {
+    for (; w > 0 && Wg(y[w - 1].group, _) && y[w - 1].sticky === x; ) {
       const S = y[w - 1];
       b.x -= S.width, b.width += S.width, w--;
     }
     let D = t;
-    for (; D + 1 < y.length && Vg(y[D + 1].group, _) && y[D + 1].sticky === x; ) {
+    for (; D + 1 < y.length && Wg(y[D + 1].group, _) && y[D + 1].sticky === x; ) {
       const S = y[D + 1];
       b.width += S.width, D++;
     }
     if (!x) {
-      const S = qf(y), k = b.x - S;
+      const S = jf(y), k = b.x - S;
       k < 0 && (b.x -= k, b.width += k), b.x + b.width > n && (b.width = n - b.x);
     }
   } else if (e >= h - m) {
@@ -66866,7 +66856,7 @@ class pP {
     return s && o;
   };
   setWindow(e, n, r) {
-    this.visibleWindow.x === e.x && this.visibleWindow.y === e.y && this.visibleWindow.width === e.width && this.visibleWindow.height === e.height && this.freezeCols === n && Wf(this.freezeRows, r) || (this.visibleWindow = e, this.freezeCols = n, this.freezeRows = r, this.clearOutOfWindow());
+    this.visibleWindow.x === e.x && this.visibleWindow.y === e.y && this.visibleWindow.width === e.width && this.visibleWindow.height === e.height && this.freezeCols === n && qf(this.freezeRows, r) || (this.visibleWindow = e, this.freezeCols = n, this.freezeRows = r, this.clearOutOfWindow());
   }
 }
 class Fle extends pP {
@@ -66880,7 +66870,7 @@ class Fle extends pP {
       this.isInWindow(e) || this.cache.delete(e);
   };
 }
-class Dg {
+class Bg {
   cells;
   constructor(e = []) {
     this.cells = new Set(e.map((n) => wl(n[0], n[1])));
@@ -67343,7 +67333,7 @@ var ob, MB;
 function Hle() {
   if (MB) return ob;
   MB = 1;
-  var t = Jg(), e = EE(), n = ac(), r = t ? t.isConcatSpreadable : void 0;
+  var t = ep(), e = EE(), n = ac(), r = t ? t.isConcatSpreadable : void 0;
   function i(s) {
     return n(s) || e(s) || !!(r && s && s[r]);
   }
@@ -67759,7 +67749,7 @@ function _P(t, e, n, r, i) {
   for (let a = 0; a < t.length; a++) {
     const u = t[a];
     let d = a + 1, h = u.width;
-    for (u.sticky && (o += h); d < t.length && Vg(t[d].group, u.group) && t[d].sticky === t[a].sticky; ) {
+    for (u.sticky && (o += h); d < t.length && Wg(t[d].group, u.group) && t[d].sticky === t[a].sticky; ) {
       const b = t[d];
       h += b.width, d++, a++, b.sticky && (o += b.width);
     }
@@ -67809,7 +67799,7 @@ function Sce(t, e, n, r) {
   const i = e - t.x, s = t.x + t.width - e, o = n - t.y + 1, a = t.y + t.height - n, u = Math.min(r === "vertical" ? Number.MAX_SAFE_INTEGER : i, r === "vertical" ? Number.MAX_SAFE_INTEGER : s, r === "horizontal" ? Number.MAX_SAFE_INTEGER : o, r === "horizontal" ? Number.MAX_SAFE_INTEGER : a);
   return u === a ? { x: t.x, y: t.y + t.height, width: t.width, height: n - t.y - t.height + 1 } : u === o ? { x: t.x, y: n, width: t.width, height: t.y - n } : u === s ? { x: t.x + t.width, y: t.y, width: e - t.x - t.width + 1, height: t.height } : { x: e, y: t.y, width: t.x - e, height: t.height };
 }
-function Wg(t, e, n, r, i, s, o, a) {
+function qg(t, e, n, r, i, s, o, a) {
   return t <= i + o && i <= t + n && e <= s + a && s <= e + r;
 }
 function ad(t, e, n) {
@@ -67998,12 +67988,12 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
   let be, ge;
   const Ae = EP(_);
   return Tu(e, a, s, o, i, (ke, lt, Ee, Ce, Xe) => {
-    const ot = Math.max(0, Ce - lt), _t = lt + ot, ze = i + 1, Mt = ke.width - ot, an = r - i - 1;
+    const ot = Math.max(0, Ce - lt), _t = lt + ot, Ue = i + 1, Mt = ke.width - ot, an = r - i - 1;
     if (_.length > 0) {
       let Qt = !1;
       for (let qe = 0; qe < _.length; qe++) {
         const xe = _[qe];
-        if (Wg(_t, ze, Mt, an, xe.x, xe.y, xe.width, xe.height)) {
+        if (qg(_t, Ue, Mt, an, xe.x, xe.y, xe.width, xe.height)) {
           Qt = !0;
           break;
         }
@@ -68012,7 +68002,7 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
         return;
     }
     const sn = () => {
-      t.save(), t.beginPath(), t.rect(_t, ze, Mt, an), t.clip();
+      t.save(), t.beginPath(), t.rect(_t, Ue, Mt, an), t.clip();
     }, Ct = D.columns.hasIndex(ke.sourceIndex), wt = g(ke.group ?? "").overrideTheme, At = ke.themeOverride === void 0 && wt === void 0 ? j : Ic(j, wt, ke.themeOverride), Vt = At.baseFontFull;
     Vt !== Z && (Z = Vt, t.font = Vt), sn();
     let Ut;
@@ -68023,7 +68013,7 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
         let $t = !1;
         for (let En = 0; En < _.length; En++) {
           const yn = _[En];
-          if (Wg(lt, Qt, ke.width, xe, yn.x, yn.y, yn.width, yn.height)) {
+          if (qg(lt, Qt, ke.width, xe, yn.x, yn.y, yn.width, yn.height)) {
             $t = !0;
             break;
           }
@@ -68032,7 +68022,7 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
           return;
       }
       const ft = D.rows.hasIndex(qe), xt = y.hasIndex(qe), Tt = qe < u ? h(oe) : Mce;
-      let zt = lt, ht = ke.width, _e = !1, ve = !1;
+      let zt = lt, gt = ke.width, _e = !1, ve = !1;
       if (Tt.span !== void 0) {
         const [$t, En] = Tt.span, yn = `${qe},${$t},${En},${ke.sticky}`;
         if (ge === void 0 && (ge = /* @__PURE__ */ new Set()), ge.has(yn)) {
@@ -68041,7 +68031,7 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
         } else {
           const li = wP(Tt.span, lt, Qt, ke.width, xe, ke, n), $r = ke.sticky ? li[0] : li[1];
           if (!ke.sticky && li[0] !== void 0 && (ve = !0), $r !== void 0) {
-            zt = $r.x, ht = $r.width, ge.add(yn), t.restore(), Ut = void 0, t.save(), t.beginPath();
+            zt = $r.x, gt = $r.width, ge.add(yn), t.restore(), Ut = void 0, t.save(), t.beginPath();
             const Yr = Math.max(0, Ce - $r.x);
             t.rect($r.x + Yr, Qt, $r.width - Yr, xe), be === void 0 && (be = []), be.push({
               x: $r.x + Yr,
@@ -68052,15 +68042,15 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
           }
         }
       }
-      const rt = m?.(qe), Ke = Lt && ke.trailingRowOptions?.themeOverride !== void 0 ? ke.trailingRowOptions?.themeOverride : void 0, vt = Tt.themeOverride === void 0 && rt === void 0 && Ke === void 0 ? At : Ic(At, rt, Ke, Tt.themeOverride);
+      const tt = m?.(qe), Ke = Lt && ke.trailingRowOptions?.themeOverride !== void 0 ? ke.trailingRowOptions?.themeOverride : void 0, vt = Tt.themeOverride === void 0 && tt === void 0 && Ke === void 0 ? At : Ic(At, tt, Ke, Tt.themeOverride);
       t.beginPath();
-      const $e = lle(oe, Tt, D);
+      const ze = lle(oe, Tt, D);
       let ct = cle(oe, Tt, D, b);
       const It = Tt.span !== void 0 && D.columns.some(
         ($t) => Tt.span !== void 0 && $t >= Tt.span[0] && $t <= Tt.span[1]
         //alloc
       );
-      $e && !C && b ? ct = 0 : $e && b && (ct = Math.max(ct, 1)), It && ct++, $e || (ft && ct++, Ct && !Lt && ct++);
+      ze && !C && b ? ct = 0 : ze && b && (ct = Math.max(ct, 1)), It && ct++, ze || (ft && ct++, Ct && !Lt && ct++);
       const Xt = Tt.kind === dn.Protected ? vt.bgCellMedium : vt.bgCell;
       let ln;
       if ((Rt || Xt !== j.bgCell) && (ln = Pa(Xt, ln)), ct > 0 || xt) {
@@ -68082,10 +68072,10 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
       let Ln = !1;
       if (x !== void 0) {
         const $t = Qt + 1, yn = (Rt ? $t + xe - 1 : Math.min($t + xe - 1, r - fe)) - $t;
-        (yn !== xe - 1 || zt + 1 <= Ce) && (Ln = !0, t.save(), t.beginPath(), t.rect(zt + 1, $t, ht - 1, yn), t.clip()), ln = ln === void 0 ? vt.bgCell : Pa(ln, vt.bgCell);
+        (yn !== xe - 1 || zt + 1 <= Ce) && (Ln = !0, t.save(), t.beginPath(), t.rect(zt + 1, $t, gt - 1, yn), t.clip()), ln = ln === void 0 ? vt.bgCell : Pa(ln, vt.bgCell);
       }
       const mn = ke.sourceIndex === n.length - 1, mt = qe === u - 1;
-      ln !== void 0 && (t.fillStyle = ln, Ut !== void 0 && (Ut.fillStyle = ln), x !== void 0 ? t.fillRect(zt + 1, Qt + 1, ht - (mn ? 2 : 1), xe - (mt ? 2 : 1)) : t.fillRect(zt, Qt, ht, xe)), Tt.style === "faded" && (t.globalAlpha = 0.6);
+      ln !== void 0 && (t.fillStyle = ln, Ut !== void 0 && (Ut.fillStyle = ln), x !== void 0 ? t.fillRect(zt + 1, Qt + 1, gt - (mn ? 2 : 1), xe - (mt ? 2 : 1)) : t.fillRect(zt, Qt, gt, xe)), Tt.style === "faded" && (t.globalAlpha = 0.6);
       let on;
       for (let $t = 0; $t < N.length; $t++) {
         const En = N[$t];
@@ -68094,15 +68084,15 @@ function VB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
           break;
         }
       }
-      if (ht > I && !ve) {
+      if (gt > I && !ve) {
         const $t = vt.baseFontFull;
-        $t !== Z && (t.font = $t, Z = $t), Ut = DP(t, Tt, ke.sourceIndex, qe, mn, mt, zt, Qt, ht, xe, ct > 0, vt, ln ?? vt.bgCell, $, L, on?.hoverAmount ?? 0, P, M, q, U, Ut, W, Y, R, H);
+        $t !== Z && (t.font = $t, Z = $t), Ut = DP(t, Tt, ke.sourceIndex, qe, mn, mt, zt, Qt, gt, xe, ct > 0, vt, ln ?? vt.bgCell, $, L, on?.hoverAmount ?? 0, P, M, q, U, Ut, W, Y, R, H);
       }
       return Ln && t.restore(), Tt.style === "faded" && (t.globalAlpha = 1), O--, _e && (t.restore(), Ut?.deprep?.(ce), Ut = void 0, sn(), Z = Vt, t.font = Vt), O <= 0;
     }), t.restore(), O <= 0;
   }), be;
 }
-const Gh = [0, 0], Kh = { x: 0, y: 0, width: 0, height: 0 }, pb = [void 0, () => {
+const Kh = [0, 0], Zh = { x: 0, y: 0, width: 0, height: 0 }, pb = [void 0, () => {
 }];
 let jA = !1;
 function Pce() {
@@ -68112,7 +68102,7 @@ function DP(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
   let N, P;
   E !== void 0 && E[0][0] === n && E[0][1] === r && (N = E[1][0], P = E[1][1]);
   let U;
-  Gh[0] = n, Gh[1] = r, Kh.x = o, Kh.y = a, Kh.width = u, Kh.height = d, pb[0] = k.getValue(Gh), pb[1] = (Y) => k.setValue(Gh, Y), jA = !1;
+  Kh[0] = n, Kh[1] = r, Zh.x = o, Zh.y = a, Zh.width = u, Zh.height = d, pb[0] = k.getValue(Kh), pb[1] = (Y) => k.setValue(Kh, Y), jA = !1;
   const M = {
     //alloc
     ctx: t,
@@ -68120,7 +68110,7 @@ function DP(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
     col: n,
     row: r,
     cell: e,
-    rect: Kh,
+    rect: Zh,
     highlighted: h,
     cellFillColor: m,
     hoverAmount: b,
@@ -68137,14 +68127,14 @@ function DP(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _, x, D, S, k,
   if (W !== void 0) {
     D?.renderer !== W && (D?.deprep?.(M), D = void 0);
     const Y = W.drawPrep?.(M, D);
-    x !== void 0 && !Af(M.cell) ? x(M, () => W.draw(M, e)) : W.draw(M, e), U = Y === void 0 ? void 0 : {
+    x !== void 0 && !vf(M.cell) ? x(M, () => W.draw(M, e)) : W.draw(M, e), U = Y === void 0 ? void 0 : {
       deprep: Y?.deprep,
       fillStyle: Y?.fillStyle,
       font: Y?.font,
       renderer: W
     };
   }
-  return (j || jA) && S?.(Gh), U;
+  return (j || jA) && S?.(Kh), U;
 }
 function XE(t, e, n, r, i, s, o, a, u = -20, d = -20, h = void 0, g = "center", m = "square") {
   const y = Math.floor(i + o / 2), C = m === "circle" ? 1e4 : e.roundingRadius ?? 4;
@@ -68165,7 +68155,7 @@ function XE(t, e, n, r, i, s, o, a, u = -20, d = -20, h = void 0, g = "center", 
       break;
     }
     default:
-      Hg();
+      Vg();
   }
 }
 function Ice(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _) {
@@ -68242,7 +68232,7 @@ function BP(t, e) {
     }), r += 26;
   return n;
 }
-function Zh(t, e, n) {
+function Qh(t, e, n) {
   return !n || t === void 0 || (t.x = e - (t.x - e) - t.width), t;
 }
 function SP(t, e, n, r, i, s, o, a) {
@@ -68268,7 +68258,7 @@ function SP(t, e, n, r, i, s, o, a) {
   };
   let b;
   if (e.indicatorIcon !== void 0) {
-    const w = t === void 0 ? dP(e.title, o.headerFontFull)?.width ?? 0 : nh(e.title, t, o.headerFontFull).width;
+    const w = t === void 0 ? dP(e.title, o.headerFontFull)?.width ?? 0 : rh(e.title, t, o.headerFontFull).width;
     C.width = w, g += w + u, b = {
       x: g,
       y: r + (s - d) / 2,
@@ -68278,11 +68268,11 @@ function SP(t, e, n, r, i, s, o, a) {
   }
   const E = n + i / 2;
   return {
-    menuBounds: Zh(h, E, a),
-    iconBounds: Zh(m, E, a),
-    iconOverlayBounds: Zh(y, E, a),
-    textBounds: Zh(C, E, a),
-    indicatorIconBounds: Zh(b, E, a)
+    menuBounds: Qh(h, E, a),
+    iconBounds: Qh(m, E, a),
+    iconOverlayBounds: Qh(y, E, a),
+    textBounds: Qh(C, E, a),
+    indicatorIconBounds: Qh(b, E, a)
   };
 }
 function WB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b) {
@@ -68303,7 +68293,7 @@ function WB(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b) {
     $.addColorStop(C ? 1 : 0, E), $.addColorStop(S, E), $.addColorStop(k, L), $.addColorStop(C ? 0 : 1, L), t.fillStyle = $;
   } else
     t.fillStyle = E;
-  if (C && (t.textAlign = "right"), b.textBounds !== void 0 && t.fillText(s.title, C ? b.textBounds.x + b.textBounds.width : b.textBounds.x, n + i / 2 + Su(t, a.headerFontFull)), C && (t.textAlign = "left"), s.indicatorIcon !== void 0 && b.indicatorIconBounds !== void 0 && (!w || !Wg(b.menuBounds.x, b.menuBounds.y, b.menuBounds.width, b.menuBounds.height, b.indicatorIconBounds.x, b.indicatorIconBounds.y, b.indicatorIconBounds.width, b.indicatorIconBounds.height))) {
+  if (C && (t.textAlign = "right"), b.textBounds !== void 0 && t.fillText(s.title, C ? b.textBounds.x + b.textBounds.width : b.textBounds.x, n + i / 2 + Su(t, a.headerFontFull)), C && (t.textAlign = "left"), s.indicatorIcon !== void 0 && b.indicatorIconBounds !== void 0 && (!w || !qg(b.menuBounds.x, b.menuBounds.y, b.menuBounds.width, b.menuBounds.height, b.indicatorIconBounds.x, b.indicatorIconBounds.y, b.indicatorIconBounds.width, b.indicatorIconBounds.height))) {
     let _ = o ? "selected" : "normal";
     s.style === "highlight" && (_ = o ? "selected" : "special"), m.drawSprite(s.indicatorIcon, _, t, b.indicatorIconBounds.x, b.indicatorIconBounds.y, b.indicatorIconBounds.width, a);
   }
@@ -68430,7 +68420,7 @@ function Vce() {
   }
   return Ab = t, Ab;
 }
-var ug = { exports: {} }, vb, ZB;
+var dg = { exports: {} }, vb, ZB;
 function Wce() {
   if (ZB) return vb;
   ZB = 1;
@@ -68439,19 +68429,19 @@ function Wce() {
   }
   return vb = t, vb;
 }
-ug.exports;
+dg.exports;
 var QB;
 function RP() {
   return QB || (QB = 1, (function(t, e) {
     var n = lc(), r = Wce(), i = e && !e.nodeType && e, s = i && !0 && t && !t.nodeType && t, o = s && s.exports === i, a = o ? n.Buffer : void 0, u = a ? a.isBuffer : void 0, d = u || r;
     t.exports = d;
-  })(ug, ug.exports)), ug.exports;
+  })(dg, dg.exports)), dg.exports;
 }
 var Eb, JB;
 function qce() {
   if (JB) return Eb;
   JB = 1;
-  var t = ep(), e = wE(), n = tp(), r = "[object Arguments]", i = "[object Array]", s = "[object Boolean]", o = "[object Date]", a = "[object Error]", u = "[object Function]", d = "[object Map]", h = "[object Number]", g = "[object Object]", m = "[object RegExp]", y = "[object Set]", C = "[object String]", b = "[object WeakMap]", E = "[object ArrayBuffer]", w = "[object DataView]", _ = "[object Float32Array]", x = "[object Float64Array]", D = "[object Int8Array]", S = "[object Int16Array]", k = "[object Int32Array]", $ = "[object Uint8Array]", L = "[object Uint8ClampedArray]", N = "[object Uint16Array]", P = "[object Uint32Array]", U = {};
+  var t = tp(), e = wE(), n = np(), r = "[object Arguments]", i = "[object Array]", s = "[object Boolean]", o = "[object Date]", a = "[object Error]", u = "[object Function]", d = "[object Map]", h = "[object Number]", g = "[object Object]", m = "[object RegExp]", y = "[object Set]", C = "[object String]", b = "[object WeakMap]", E = "[object ArrayBuffer]", w = "[object DataView]", _ = "[object Float32Array]", x = "[object Float64Array]", D = "[object Int8Array]", S = "[object Int16Array]", k = "[object Int32Array]", $ = "[object Uint8Array]", L = "[object Uint8ClampedArray]", N = "[object Uint16Array]", P = "[object Uint32Array]", U = {};
   U[_] = U[x] = U[D] = U[S] = U[k] = U[$] = U[L] = U[N] = U[P] = !0, U[r] = U[i] = U[E] = U[s] = U[w] = U[o] = U[a] = U[u] = U[d] = U[h] = U[g] = U[m] = U[y] = U[C] = U[b] = !1;
   function M(j) {
     return n(j) && e(j.length) && !!U[t(j)];
@@ -68469,8 +68459,8 @@ function jce() {
   }
   return _b = t, _b;
 }
-var dg = { exports: {} };
-dg.exports;
+var fg = { exports: {} };
+fg.exports;
 var tS;
 function Xce() {
   return tS || (tS = 1, (function(t, e) {
@@ -68482,7 +68472,7 @@ function Xce() {
       }
     })();
     t.exports = a;
-  })(dg, dg.exports)), dg.exports;
+  })(fg, fg.exports)), fg.exports;
 }
 var wb, nS;
 function kP() {
@@ -68750,7 +68740,7 @@ var jb, ES;
 function due() {
   if (ES) return jb;
   ES = 1;
-  var t = Jg(), e = cue(), n = FE(), r = PP(), i = uue(), s = qE(), o = 1, a = 2, u = "[object Boolean]", d = "[object Date]", h = "[object Error]", g = "[object Map]", m = "[object Number]", y = "[object RegExp]", C = "[object Set]", b = "[object String]", E = "[object Symbol]", w = "[object ArrayBuffer]", _ = "[object DataView]", x = t ? t.prototype : void 0, D = x ? x.valueOf : void 0;
+  var t = ep(), e = cue(), n = FE(), r = PP(), i = uue(), s = qE(), o = 1, a = 2, u = "[object Boolean]", d = "[object Date]", h = "[object Error]", g = "[object Map]", m = "[object Number]", y = "[object RegExp]", C = "[object Set]", b = "[object String]", E = "[object Symbol]", w = "[object ArrayBuffer]", _ = "[object DataView]", x = t ? t.prototype : void 0, D = x ? x.valueOf : void 0;
   function S(k, $, L, N, P, U, M) {
     switch (L) {
       case _:
@@ -68905,7 +68895,7 @@ var nF, MS;
 function Aue() {
   if (MS) return nF;
   MS = 1;
-  var t = Cue(), e = AE(), n = bue(), r = FP(), i = Fue(), s = ep(), o = MM(), a = "[object Map]", u = "[object Object]", d = "[object Promise]", h = "[object Set]", g = "[object WeakMap]", m = "[object DataView]", y = o(t), C = o(e), b = o(n), E = o(r), w = o(i), _ = s;
+  var t = Cue(), e = AE(), n = bue(), r = FP(), i = Fue(), s = tp(), o = MM(), a = "[object Map]", u = "[object Object]", d = "[object Promise]", h = "[object Set]", g = "[object WeakMap]", m = "[object DataView]", y = o(t), C = o(e), b = o(n), E = o(r), w = o(i), _ = s;
   return (t && _(new t(new ArrayBuffer(1))) != m || e && _(new e()) != a || n && _(n.resolve()) != d || r && _(new r()) != h || i && _(new i()) != g) && (_ = function(x) {
     var D = s(x), S = D == u ? x.constructor : void 0, k = S ? o(S) : "";
     if (k)
@@ -68955,7 +68945,7 @@ var iF, IS;
 function IP() {
   if (IS) return iF;
   IS = 1;
-  var t = vue(), e = tp();
+  var t = vue(), e = np();
   function n(r, i, s, o, a) {
     return r === i ? !0 : r == null || i == null || !e(r) && !e(i) ? r !== r && i !== i : t(r, i, s, o, n, a);
   }
@@ -69183,7 +69173,7 @@ function zue(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _) {
     S += D.width;
     const N = Math.max(S, $);
     N > r || (t.save(), t.beginPath(), t.rect(N, s + 1, 1e4, i - s - 1), t.clip(), q1(L, k, i, d, h, C, b, x, (P, U, M, j) => {
-      if (!j && E.length > 0 && !E.some((I) => Wg(S, P, 1e4, M, I.x, I.y, I.width, I.height)))
+      if (!j && E.length > 0 && !E.some((I) => qg(S, P, 1e4, M, I.x, I.y, I.width, I.height)))
         return;
       const W = m.hasIndex(U), Y = y.hasIndex(U);
       t.beginPath();
@@ -69199,7 +69189,7 @@ function Uue(t, e, n, r, i, s, o, a, u) {
       d = o(C.sourceIndex);
       break;
     }
-  const h = u.horizontalBorderColor ?? u.borderColor, g = u.borderColor, m = d ? qf(e) : 0;
+  const h = u.horizontalBorderColor ?? u.borderColor, g = u.borderColor, m = d ? jf(e) : 0;
   let y;
   if (m !== 0 && (y = uB(g, u.bgCell), t.beginPath(), t.moveTo(m + 0.5, 0), t.lineTo(m + 0.5, r), t.strokeStyle = y, t.stroke()), i > 0) {
     const C = g === h && y !== void 0 ? y : uB(h, u.bgCell), b = Sd(s, i, a);
@@ -69330,7 +69320,7 @@ function Hue(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b, E, w, _) {
   for (let W = $; W < L; W++)
     N += b[W].width;
   s > i.cellXOffset && (N = -N), N += a - i.translateX;
-  const P = qf(E);
+  const P = jf(E);
   if (N !== 0 && k !== 0)
     return {
       regions: []
@@ -69407,12 +69397,12 @@ function Wue(t, e) {
     let n;
     for (let r = 0; r < t.mappedColumns.length; r++) {
       const i = t.mappedColumns[r], s = e.mappedColumns[r];
-      if (Wf(i, s))
+      if (qf(i, s))
         continue;
       if (n !== void 0 || i.width === s.width)
         return !1;
       const { width: o, ...a } = i, { width: u, ...d } = s;
-      if (!Wf(a, d))
+      if (!qf(a, d))
         return !1;
       n = r;
     }
@@ -69424,7 +69414,7 @@ function e9(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b) {
   const E = C?.filter(($) => $.style !== "no-outline");
   if (E === void 0 || E.length === 0)
     return;
-  const w = qf(a), _ = Sd(y, m, g), x = [u, 0, a.length, y - m], D = [w, 0, e, n - _], S = E.map(($) => {
+  const w = jf(a), _ = Sd(y, m, g), x = [u, 0, a.length, y - m], D = [w, 0, e, n - _], S = E.map(($) => {
     const L = $.range, N = $.style ?? "dashed";
     return kce(L, x, e, n, D).map((P) => {
       const U = P.rect, M = WA(U.x, U.y, e, n, h, d + h, r, i, s, o, y, u, m, a, g), j = U.width === 1 && U.height === 1 ? M : WA(U.x + U.width - 1, U.y + U.height - 1, e, n, h, d + h, r, i, s, o, y, u, m, a, g);
@@ -69445,7 +69435,7 @@ function e9(t, e, n, r, i, s, o, a, u, d, h, g, m, y, C, b) {
     let $ = !1;
     for (const L of S)
       for (const N of L)
-        if (N?.rect !== void 0 && Wg(0, 0, e, n, N.rect.x, N.rect.y, N.rect.width, N.rect.height)) {
+        if (N?.rect !== void 0 && qg(0, 0, e, n, N.rect.x, N.rect.y, N.rect.width, N.rect.height)) {
           const P = $, U = !Tce(N.clip, N.rect);
           t.beginPath(), U && (t.save(), t.rect(N.clip.x, N.clip.y, N.clip.width, N.clip.height), t.clip()), N.style === "dashed" && !$ ? (t.setLineDash([5, 3]), $ = !0) : (N.style === "solid" || N.style === "solid-outline") && $ && (t.setLineDash([]), $ = !1), t.strokeStyle = N.style === "solid-outline" ? Pa(Pa(N.color, b.borderColor), b.bgCell) : Fd(N.color, 1), t.closePath(), t.strokeRect(N.rect.x + 0.5, N.rect.y + 0.5, N.rect.width - 1, N.rect.height - 1), U && (t.restore(), $ = P);
         }
@@ -69513,7 +69503,7 @@ function jue(t, e, n, r, i, s, o, a, u, d) {
   }), !0)), h;
 }
 function n9(t, e) {
-  const { canvasCtx: n, headerCanvasCtx: r, width: i, height: s, cellXOffset: o, cellYOffset: a, translateX: u, translateY: d, mappedColumns: h, enableGroups: g, freezeColumns: m, dragAndDropState: y, theme: C, drawFocus: b, headerHeight: E, groupHeaderHeight: w, disabledRows: _, rowHeight: x, verticalBorder: D, overrideCursor: S, isResizing: k, selection: $, fillHandle: L, freezeTrailingRows: N, rows: P, getCellContent: U, getGroupDetails: M, getRowThemeOverride: j, isFocused: W, drawHeaderCallback: Y, prelightCells: R, drawCellCallback: H, highlightRegions: I, resizeCol: O, imageLoader: q, lastBlitData: Z, hoverValues: ce, hyperWrapping: oe, hoverInfo: fe, spriteManager: be, maxScaleFactor: ge, hasAppendRow: Ae, touchMode: ke, enqueue: lt, renderStateProvider: Ee, getCellRenderer: Ce, renderStrategy: Xe, bufferACtx: ot, bufferBCtx: _t, damage: ze, minimumCellWidth: Mt, resizeIndicator: an } = t;
+  const { canvasCtx: n, headerCanvasCtx: r, width: i, height: s, cellXOffset: o, cellYOffset: a, translateX: u, translateY: d, mappedColumns: h, enableGroups: g, freezeColumns: m, dragAndDropState: y, theme: C, drawFocus: b, headerHeight: E, groupHeaderHeight: w, disabledRows: _, rowHeight: x, verticalBorder: D, overrideCursor: S, isResizing: k, selection: $, fillHandle: L, freezeTrailingRows: N, rows: P, getCellContent: U, getGroupDetails: M, getRowThemeOverride: j, isFocused: W, drawHeaderCallback: Y, prelightCells: R, drawCellCallback: H, highlightRegions: I, resizeCol: O, imageLoader: q, lastBlitData: Z, hoverValues: ce, hyperWrapping: oe, hoverInfo: fe, spriteManager: be, maxScaleFactor: ge, hasAppendRow: Ae, touchMode: ke, enqueue: lt, renderStateProvider: Ee, getCellRenderer: Ce, renderStrategy: Xe, bufferACtx: ot, bufferBCtx: _t, damage: Ue, minimumCellWidth: Mt, resizeIndicator: an } = t;
   if (i === 0 || s === 0)
     return;
   const sn = Xe === "double-buffer", Ct = Math.min(ge, Math.ceil(window.devicePixelRatio ?? 1)), wt = Xe !== "direct" && Wue(t, e), At = n.canvas;
@@ -69529,12 +69519,12 @@ function n9(t, e) {
   sn && (Lt = n);
   const ft = r;
   let xt;
-  sn ? ze !== void 0 ? xt = Rt?.lastBuffer === "b" ? _t : ot : xt = Rt?.lastBuffer === "b" ? ot : _t : xt = n;
-  const Tt = xt.canvas, zt = sn ? Tt === qe ? xe : qe : At, ht = typeof x == "number" ? () => x : x;
+  sn ? Ue !== void 0 ? xt = Rt?.lastBuffer === "b" ? _t : ot : xt = Rt?.lastBuffer === "b" ? ot : _t : xt = n;
+  const Tt = xt.canvas, zt = sn ? Tt === qe ? xe : qe : At, gt = typeof x == "number" ? () => x : x;
   ft.save(), xt.save(), ft.beginPath(), xt.beginPath(), ft.textBaseline = "middle", xt.textBaseline = "middle", Ct !== 1 && (ft.scale(Ct, Ct), xt.scale(Ct, Ct));
   const _e = VA(h, o, i, y, u);
   let ve = [];
-  const rt = b && $.current?.cell[1] === a && d === 0;
+  const tt = b && $.current?.cell[1] === a && d === 0;
   let Ke = !1;
   if (I !== void 0) {
     for (const mn of I)
@@ -69544,10 +69534,10 @@ function n9(t, e) {
       }
   }
   const vt = () => {
-    Ice(ft, _e, g, fe, i, u, E, w, y, k, $, C, be, ce, D, M, ze, Y, ke), JS(ft, _e, a, u, d, i, s, void 0, void 0, w, Ut, ht, j, D, N, P, C, !0), ft.beginPath(), ft.moveTo(0, Qt - 0.5), ft.lineTo(i, Qt - 0.5), ft.strokeStyle = Pa(C.headerBottomBorderColor ?? C.horizontalBorderColor ?? C.borderColor, C.bgHeader), ft.stroke(), Ke && e9(ft, i, s, o, a, u, d, h, m, E, w, x, N, P, I, C), rt && vF(ft, i, s, a, u, d, _e, h, C, Ut, $, ht, U, N, Ae, L, P);
+    Ice(ft, _e, g, fe, i, u, E, w, y, k, $, C, be, ce, D, M, Ue, Y, ke), JS(ft, _e, a, u, d, i, s, void 0, void 0, w, Ut, gt, j, D, N, P, C, !0), ft.beginPath(), ft.moveTo(0, Qt - 0.5), ft.lineTo(i, Qt - 0.5), ft.strokeStyle = Pa(C.headerBottomBorderColor ?? C.horizontalBorderColor ?? C.borderColor, C.bgHeader), ft.stroke(), Ke && e9(ft, i, s, o, a, u, d, h, m, E, w, x, N, P, I, C), tt && vF(ft, i, s, a, u, d, _e, h, C, Ut, $, gt, U, N, Ae, L, P);
   };
-  if (ze !== void 0) {
-    const mn = _e[_e.length - 1].sourceIndex + 1, mt = ze.hasItemInRegion([
+  if (Ue !== void 0) {
+    const mn = _e[_e.length - 1].sourceIndex + 1, mt = Ue.hasItemInRegion([
       {
         x: o,
         y: -2,
@@ -69580,20 +69570,20 @@ function n9(t, e) {
         when: N > 0
       }
     ]), on = ($t) => {
-      VB($t, _e, h, s, Ut, u, d, a, P, ht, U, M, j, _, W, b, N, Ae, ve, ze, $, R, I, q, be, ce, fe, H, oe, C, lt, Ee, Ce, S, Mt);
+      VB($t, _e, h, s, Ut, u, d, a, P, gt, U, M, j, _, W, b, N, Ae, ve, Ue, $, R, I, q, be, ce, fe, H, oe, C, lt, Ee, Ce, S, Mt);
       const En = $.current;
-      L !== !1 && L !== void 0 && b && En !== void 0 && ze.has(lP(En.range)) && vF($t, i, s, a, u, d, _e, h, C, Ut, $, ht, U, N, Ae, L, P);
+      L !== !1 && L !== void 0 && b && En !== void 0 && Ue.has(lP(En.range)) && vF($t, i, s, a, u, d, _e, h, C, Ut, $, gt, U, N, Ae, L, P);
     };
-    mt && (on(xt), Lt !== null && (Lt.save(), Lt.scale(Ct, Ct), Lt.textBaseline = "middle", on(Lt), Lt.restore()), ze.hasHeader() && (que(ft, _e, i, w, Ut, u, d, a, ze), vt())), xt.restore(), ft.restore();
+    mt && (on(xt), Lt !== null && (Lt.save(), Lt.scale(Ct, Ct), Lt.textBaseline = "middle", on(Lt), Lt.restore()), Ue.hasHeader() && (que(ft, _e, i, w, Ut, u, d, a, Ue), vt())), xt.restore(), ft.restore();
     return;
   }
-  if ((wt !== !0 || o !== Rt?.cellXOffset || u !== Rt?.translateX || rt !== Rt?.mustDrawFocusOnHeader || Ke !== Rt?.mustDrawHighlightRingsOnHeader) && vt(), wt === !0) {
+  if ((wt !== !0 || o !== Rt?.cellXOffset || u !== Rt?.translateX || tt !== Rt?.mustDrawFocusOnHeader || Ke !== Rt?.mustDrawHighlightRingsOnHeader) && vt(), wt === !0) {
     Ma(zt !== void 0 && Rt !== void 0);
     const { regions: mn } = Hue(xt, zt, zt === qe ? Rt.aBufferScroll : Rt.bBufferScroll, zt === qe ? Rt.bBufferScroll : Rt.aBufferScroll, Rt, o, a, u, d, N, i, s, P, Ut, Ct, h, _e, x, sn);
     ve = mn;
   } else wt !== !1 && (Ma(Rt !== void 0), ve = Vue(Rt, o, a, u, d, i, s, Ut, _e, wt));
-  Uue(xt, _e, i, s, N, P, D, ht, C);
-  const $e = e9(xt, i, s, o, a, u, d, h, m, E, w, x, N, P, I, C), ct = b ? vF(xt, i, s, a, u, d, _e, h, C, Ut, $, ht, U, N, Ae, L, P) : void 0;
+  Uue(xt, _e, i, s, N, P, D, gt, C);
+  const ze = e9(xt, i, s, o, a, u, d, h, m, E, w, x, N, P, I, C), ct = b ? vF(xt, i, s, a, u, d, _e, h, C, Ut, $, gt, U, N, Ae, L, P) : void 0;
   if (xt.fillStyle = C.bgCell, ve.length > 0) {
     xt.beginPath();
     for (const mn of ve)
@@ -69601,9 +69591,9 @@ function n9(t, e) {
     xt.clip(), xt.fill(), xt.beginPath();
   } else
     xt.fillRect(0, 0, i, s);
-  const It = VB(xt, _e, h, s, Ut, u, d, a, P, ht, U, M, j, _, W, b, N, Ae, ve, ze, $, R, I, q, be, ce, fe, H, oe, C, lt, Ee, Ce, S, Mt);
-  zue(xt, _e, h, i, s, Ut, u, d, a, P, ht, j, $.rows, _, N, Ae, ve, ze, C), $ue(xt, _e, a, u, d, i, s, ve, Ut, ht, j, D, N, P, C), JS(xt, _e, a, u, d, i, s, ve, It, w, Ut, ht, j, D, N, P, C), $e?.(), ct?.(), k && an !== "none" && Tu(_e, 0, u, 0, Ut, (mn, mt) => mn.sourceIndex === O ? (t9(ft, mt + mn.width, 0, Ut + 1, Pa(C.resizeIndicatorColor ?? C.accentLight, C.bgHeader)), an === "full" && t9(xt, mt + mn.width, Ut, s, Pa(C.resizeIndicatorColor ?? C.accentLight, C.bgCell)), !0) : !1), Lt !== null && (Lt.fillStyle = C.bgCell, Lt.fillRect(0, 0, i, s), Lt.drawImage(xt.canvas, 0, 0));
-  const Xt = jue(_e, s, Ut, u, d, a, P, ht, N, Ae);
+  const It = VB(xt, _e, h, s, Ut, u, d, a, P, gt, U, M, j, _, W, b, N, Ae, ve, Ue, $, R, I, q, be, ce, fe, H, oe, C, lt, Ee, Ce, S, Mt);
+  zue(xt, _e, h, i, s, Ut, u, d, a, P, gt, j, $.rows, _, N, Ae, ve, Ue, C), $ue(xt, _e, a, u, d, i, s, ve, Ut, gt, j, D, N, P, C), JS(xt, _e, a, u, d, i, s, ve, It, w, Ut, gt, j, D, N, P, C), ze?.(), ct?.(), k && an !== "none" && Tu(_e, 0, u, 0, Ut, (mn, mt) => mn.sourceIndex === O ? (t9(ft, mt + mn.width, 0, Ut + 1, Pa(C.resizeIndicatorColor ?? C.accentLight, C.bgHeader)), an === "full" && t9(xt, mt + mn.width, Ut, s, Pa(C.resizeIndicatorColor ?? C.accentLight, C.bgCell)), !0) : !1), Lt !== null && (Lt.fillStyle = C.bgCell, Lt.fillRect(0, 0, i, s), Lt.drawImage(xt.canvas, 0, 0));
+  const Xt = jue(_e, s, Ut, u, d, a, P, gt, N, Ae);
   q?.setWindow({
     x: o,
     y: a,
@@ -69616,7 +69606,7 @@ function n9(t, e) {
     cellYOffset: a,
     translateX: u,
     translateY: d,
-    mustDrawFocusOnHeader: rt,
+    mustDrawFocusOnHeader: tt,
     mustDrawHighlightRingsOnHeader: Ke,
     lastBuffer: sn ? Tt === qe ? "a" : "b" : void 0,
     aBufferScroll: Tt === qe ? [ln, Ln] : Rt?.aBufferScroll,
@@ -69637,13 +69627,13 @@ class Gue {
   leavingItems = [];
   lastAnimationTime;
   addToLeavingItems = (e) => {
-    this.leavingItems.some((r) => wg(r.item, e.item)) || this.leavingItems.push(e);
+    this.leavingItems.some((r) => xg(r.item, e.item)) || this.leavingItems.push(e);
   };
   /**
    * @returns the hover amount of the item, if it was leaving (0 if not).
    */
   removeFromLeavingItems = (e) => {
-    const n = this.leavingItems.find((r) => wg(r.item, e));
+    const n = this.leavingItems.find((r) => xg(r.item, e));
     return this.leavingItems = this.leavingItems.filter((r) => r !== n), n?.hoverAmount ?? 0;
   };
   cleanUpLeavingElements = () => {
@@ -69668,7 +69658,7 @@ class Gue {
     this.shouldStep() ? (this.lastAnimationTime = e, window.requestAnimationFrame(this.step)) : this.lastAnimationTime = void 0;
   };
   setHovered = (e) => {
-    if (!wg(this.currentHoveredItem?.item, e)) {
+    if (!xg(this.currentHoveredItem?.item, e)) {
       if (this.currentHoveredItem !== void 0 && this.addToLeavingItems(this.currentHoveredItem), e !== void 0) {
         const n = this.removeFromLeavingItems(e);
         this.currentHoveredItem = {
@@ -69701,7 +69691,7 @@ function Que(t) {
   const i = A.useCallback(() => {
     const s = () => window.requestAnimationFrame(o), o = () => {
       const a = e.current.map(VE);
-      e.current = [], r.current(new Dg(a)), e.current.length > 0 ? n.current++ : n.current = 0;
+      e.current = [], r.current(new Bg(a)), e.current.length > 0 ? n.current++ : n.current = 0;
     };
     window.requestAnimationFrame(n.current > 600 ? s : o);
   }, []);
@@ -69712,15 +69702,15 @@ function Que(t) {
   }, [i]);
 }
 const gu = "header", El = "group-header", i1 = "out-of-bounds";
-var Ef;
+var _f;
 (function(t) {
   t[t.Start = -2] = "Start", t[t.StartPadding = -1] = "StartPadding", t[t.Center = 0] = "Center", t[t.EndPadding = 1] = "EndPadding", t[t.End = 2] = "End";
-})(Ef || (Ef = {}));
+})(_f || (_f = {}));
 function UP(t, e) {
   return t === e ? !0 : t?.kind === "out-of-bounds" ? t?.kind === e?.kind && t?.location[0] === e?.location[0] && t?.location[1] === e?.location[1] && t?.region[0] === e?.region[0] && t?.region[1] === e?.region[1] : t?.kind === e?.kind && t?.location[0] === e?.location[0] && t?.location[1] === e?.location[1];
 }
 const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibilityString(t) ?? "", ede = (t, e) => {
-  const { width: n, height: r, accessibilityHeight: i, columns: s, cellXOffset: o, cellYOffset: a, headerHeight: u, fillHandle: d = !1, groupHeaderHeight: h, rowHeight: g, rows: m, getCellContent: y, getRowThemeOverride: C, onHeaderMenuClick: b, onHeaderIndicatorClick: E, enableGroups: w, isFilling: _, onCanvasFocused: x, onCanvasBlur: D, isFocused: S, selection: k, freezeColumns: $, onContextMenu: L, freezeTrailingRows: N, fixedShadowX: P = !0, fixedShadowY: U = !0, drawFocusRing: M, onMouseDown: j, onMouseUp: W, onMouseMoveRaw: Y, onMouseMove: R, onItemHovered: H, dragAndDropState: I, firstColAccessible: O, onKeyDown: q, onKeyUp: Z, highlightRegions: ce, canvasRef: oe, onDragStart: fe, onDragEnd: be, eventTargetRef: ge, isResizing: Ae, resizeColumn: ke, isDragging: lt, isDraggable: Ee = !1, allowResize: Ce, disabledRows: Xe, hasAppendRow: ot, getGroupDetails: _t, theme: ze, prelightCells: Mt, headerIcons: an, verticalBorder: sn, drawCell: Ct, drawHeader: wt, onCellFocused: At, onDragOverCell: Vt, onDrop: Ut, onDragLeave: Qt, imageWindowLoader: qe, smoothScrollX: xe = !1, smoothScrollY: Rt = !1, experimental: Lt, getCellRenderer: ft, resizeIndicator: xt = "full" } = t, Tt = t.translateX ?? 0, zt = t.translateY ?? 0, ht = Math.max($, Math.min(s.length - 1, o)), _e = A.useRef(null), ve = A.useRef(Lt?.eventTarget ?? window), rt = ve.current, Ke = qe, vt = A.useRef(), [$e, ct] = A.useState(!1), It = A.useRef([]), Xt = A.useRef(), [ln, Ln] = A.useState(), [mn, mt] = A.useState(), on = A.useRef(null), [$t, En] = A.useState(), [yn, li] = A.useState(!1), $r = A.useRef(yn);
+  const { width: n, height: r, accessibilityHeight: i, columns: s, cellXOffset: o, cellYOffset: a, headerHeight: u, fillHandle: d = !1, groupHeaderHeight: h, rowHeight: g, rows: m, getCellContent: y, getRowThemeOverride: C, onHeaderMenuClick: b, onHeaderIndicatorClick: E, enableGroups: w, isFilling: _, onCanvasFocused: x, onCanvasBlur: D, isFocused: S, selection: k, freezeColumns: $, onContextMenu: L, freezeTrailingRows: N, fixedShadowX: P = !0, fixedShadowY: U = !0, drawFocusRing: M, onMouseDown: j, onMouseUp: W, onMouseMoveRaw: Y, onMouseMove: R, onItemHovered: H, dragAndDropState: I, firstColAccessible: O, onKeyDown: q, onKeyUp: Z, highlightRegions: ce, canvasRef: oe, onDragStart: fe, onDragEnd: be, eventTargetRef: ge, isResizing: Ae, resizeColumn: ke, isDragging: lt, isDraggable: Ee = !1, allowResize: Ce, disabledRows: Xe, hasAppendRow: ot, getGroupDetails: _t, theme: Ue, prelightCells: Mt, headerIcons: an, verticalBorder: sn, drawCell: Ct, drawHeader: wt, onCellFocused: At, onDragOverCell: Vt, onDrop: Ut, onDragLeave: Qt, imageWindowLoader: qe, smoothScrollX: xe = !1, smoothScrollY: Rt = !1, experimental: Lt, getCellRenderer: ft, resizeIndicator: xt = "full" } = t, Tt = t.translateX ?? 0, zt = t.translateY ?? 0, gt = Math.max($, Math.min(s.length - 1, o)), _e = A.useRef(null), ve = A.useRef(Lt?.eventTarget ?? window), tt = ve.current, Ke = qe, vt = A.useRef(), [ze, ct] = A.useState(!1), It = A.useRef([]), Xt = A.useRef(), [ln, Ln] = A.useState(), [mn, mt] = A.useState(), on = A.useRef(null), [$t, En] = A.useState(), [yn, li] = A.useState(!1), $r = A.useRef(yn);
   $r.current = yn;
   const Yr = A.useMemo(() => new Bce(an, () => {
     rr.current = void 0, Io.current();
@@ -69729,19 +69719,19 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     window.devicePixelRatio === 1 || !Hn && !Ht || (co.current !== -1 && ct(!0), window.clearTimeout(co.current), co.current = window.setTimeout(() => {
       ct(!1), co.current = -1;
     }, 200));
-  }, [a, ht, Tt, zt, Hn, Ht]);
-  const zn = ole(s, $), qt = A.useMemo(() => P ? qf(zn, I) : 0, [zn, I, P]), kn = A.useCallback((ne, Bt, fn) => {
+  }, [a, gt, Tt, zt, Hn, Ht]);
+  const zn = ole(s, $), qt = A.useMemo(() => P ? jf(zn, I) : 0, [zn, I, P]), kn = A.useCallback((ne, Bt, fn) => {
     const vn = ne.getBoundingClientRect();
     if (Bt >= zn.length || fn >= m)
       return;
-    const Wt = vn.width / n, Gt = WA(Bt, fn, n, r, h, pi, ht, a, Tt, zt, m, $, N, zn, g);
+    const Wt = vn.width / n, Gt = WA(Bt, fn, n, r, h, pi, gt, a, Tt, zt, m, $, N, zn, g);
     return Wt !== 1 && (Gt.x *= Wt, Gt.y *= Wt, Gt.width *= Wt, Gt.height *= Wt), Gt.x += vn.x, Gt.y += vn.y, Gt;
   }, [
     n,
     r,
     h,
     pi,
-    ht,
+    gt,
     a,
     Tt,
     zt,
@@ -69751,7 +69741,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     zn,
     g
   ]), Vn = A.useCallback((ne, Bt, fn, vn) => {
-    const Wt = ne.getBoundingClientRect(), Gt = Wt.width / n, wn = (Bt - Wt.left) / Gt, gn = (fn - Wt.top) / Gt, In = 5, Qn = VA(zn, ht, n, void 0, Tt);
+    const Wt = ne.getBoundingClientRect(), Gt = Wt.width / n, wn = (Bt - Wt.left) / Gt, gn = (fn - Wt.top) / Gt, In = 5, Qn = VA(zn, gt, n, void 0, Tt);
     let xi = 0, Vr = 0;
     const Nn = typeof PointerEvent < "u" && vn instanceof PointerEvent && vn.pointerType === "mouse" || typeof MouseEvent < "u" && vn instanceof MouseEvent, nn = typeof PointerEvent < "u" && vn instanceof PointerEvent && vn.pointerType === "touch" || typeof TouchEvent < "u" && vn instanceof TouchEvent;
     Nn && (xi = vn.button, Vr = vn.buttons);
@@ -69763,7 +69753,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     if (pn === -1 || gn < 0 || wn < 0 || Yn === void 0 || wn > n || gn > r) {
       const Br = wn > n ? 1 : wn < 0 ? -1 : 0, to = gn > r ? 1 : gn < 0 ? -1 : 0;
       let ji = Br * 2, fa = to * 2;
-      Br === 0 && (ji = pn === -1 ? Ef.EndPadding : Ef.Center), to === 0 && (fa = Yn === void 0 ? Ef.EndPadding : Ef.Center);
+      Br === 0 && (ji = pn === -1 ? _f.EndPadding : _f.Center), to === 0 && (fa = Yn === void 0 ? _f.EndPadding : _f.Center);
       let _o = !1;
       if (pn === -1 && Yn === -1) {
         const Fi = kn(ne, zn.length - 1, -1);
@@ -69853,7 +69843,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, [
     n,
     zn,
-    ht,
+    gt,
     Tt,
     r,
     w,
@@ -69881,7 +69871,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         Gr.canvas.remove(), mi.canvas.remove();
       };
   }, [Gr, mi]);
-  const Ji = A.useMemo(() => new Fle(), []), _i = Hn && $e ? 1 : Ht && $e ? 2 : 5, Kr = Lt?.disableMinimumCellWidth === !0 ? 1 : 10, rr = A.useRef(), Wn = A.useRef(null), ir = A.useRef(null), uo = A.useCallback(() => {
+  const Ji = A.useMemo(() => new Fle(), []), _i = Hn && ze ? 1 : Ht && ze ? 2 : 5, Kr = Lt?.disableMinimumCellWidth === !0 ? 1 : 10, rr = A.useRef(), Wn = A.useRef(null), ir = A.useRef(null), uo = A.useCallback(() => {
     const ne = _e.current, Bt = on.current;
     if (ne === null || Bt === null || (Wn.current === null && (Wn.current = ne.getContext("2d", { alpha: !1 }), ne.width = 0, ne.height = 0), ir.current === null && (ir.current = Bt.getContext("2d", { alpha: !1 }), Bt.width = 0, Bt.height = 0), Wn.current === null || ir.current === null || Gr === null || mi === null))
       return;
@@ -69895,7 +69885,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       bufferBCtx: mi,
       width: n,
       height: r,
-      cellXOffset: ht,
+      cellXOffset: gt,
       cellYOffset: a,
       translateX: Math.round(Tt),
       translateY: Math.round(zt),
@@ -69903,7 +69893,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       enableGroups: w,
       freezeColumns: $,
       dragAndDropState: I,
-      theme: ze,
+      theme: Ue,
       headerHeight: u,
       groupHeaderHeight: h,
       disabledRows: Xe ?? ur.empty(),
@@ -69933,7 +69923,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       hoverValues: It.current,
       hoverInfo: Zn.current,
       spriteManager: Yr,
-      scrolling: $e,
+      scrolling: ze,
       hyperWrapping: Lt?.hyperWrapping ?? !1,
       touchMode: yn,
       enqueue: $i.current,
@@ -69949,7 +69939,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     mi,
     n,
     r,
-    ht,
+    gt,
     a,
     Tt,
     zt,
@@ -69957,7 +69947,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     w,
     $,
     I,
-    ze,
+    Ue,
     u,
     h,
     Xe,
@@ -69982,7 +69972,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     ce,
     Ke,
     Yr,
-    $e,
+    ze,
     Lt?.hyperWrapping,
     Lt?.renderStrategy,
     yn,
@@ -70001,7 +69991,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, []), ts = Que(es);
   $i.current = ts;
   const tn = A.useCallback((ne) => {
-    es(new Dg(ne.map((Bt) => Bt.cell)));
+    es(new Bg(ne.map((Bt) => Bt.cell)));
   }, [es]);
   Ke.setCallback(es);
   const [Zs, Ar] = A.useState(!1), [_s, sr] = Mi ?? [], Qs = _s !== void 0 && sr === -1 && _s >= 0 && _s < zn.length && zn[_s].headerRowMarkerDisabled !== !0, ni = _s !== void 0 && sr === -2;
@@ -70033,7 +70023,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     if (!lt && !Ae && !(mn ?? !1)) {
       const Gt = kn(ne, Bt, -1);
       Ma(Gt !== void 0);
-      const wn = SP(void 0, Wt, Gt.x, Gt.y, Gt.width, Gt.height, ze, RE(Wt.title) === "rtl");
+      const wn = SP(void 0, Wt, Gt.x, Gt.y, Gt.width, Gt.height, Ue, RE(Wt.title) === "rtl");
       if (Wt.hasMenu === !0 && wn.menuBounds !== void 0 && ad(wn.menuBounds, fn, vn))
         return {
           area: "menu",
@@ -70045,7 +70035,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
           bounds: wn.indicatorIconBounds
         };
     }
-  }, [zn, kn, mn, lt, Ae, ze]), Oo = A.useRef(0), Ci = A.useRef(), Hi = A.useRef(!1), ho = A.useCallback((ne) => {
+  }, [zn, kn, mn, lt, Ae, Ue]), Oo = A.useRef(0), Ci = A.useRef(), Hi = A.useRef(!1), ho = A.useCallback((ne) => {
     const Bt = _e.current, fn = ge?.current;
     if (Bt === null || ne.target !== Bt && ne.target !== fn)
       return;
@@ -70066,7 +70056,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     fo,
     j
   ]);
-  Go("pointerdown", ho, rt, !1);
+  Go("pointerdown", ho, tt, !1);
   const cs = A.useRef(0), Zo = A.useCallback((ne) => {
     const Bt = cs.current;
     cs.current = Date.now();
@@ -70095,7 +70085,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     }
     W(In, Wt);
   }, [W, ge, Vn, fo, No]);
-  Go("pointerup", Zo, rt, !1);
+  Go("pointerup", Zo, tt, !1);
   const Vi = A.useCallback((ne) => {
     const Bt = _e.current;
     if (Bt === null)
@@ -70111,7 +70101,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       Qn !== void 0 && gn.button === 0 && Ci.current?.[0] === In && Ci.current?.[1] === -1 && (Qn.area === "menu" ? b?.(In, Qn.bounds) : Qn.area === "indicator" && E?.(In, Qn.bounds));
     }
   }, [ge, Vn, fo, b, E]);
-  Go("click", Vi, rt, !1);
+  Go("click", Vi, tt, !1);
   const $a = A.useCallback((ne) => {
     const Bt = _e.current, fn = ge?.current;
     if (Bt === null || ne.target !== Bt && ne.target !== fn || L === void 0)
@@ -70123,7 +70113,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, [ge, Vn, L]);
   Go("contextmenu", $a, ge?.current ?? null, !1);
   const Qo = A.useCallback((ne) => {
-    vt.current = new Dg(ne.map((Bt) => Bt.item)), It.current = ne, Io.current(), vt.current = void 0;
+    vt.current = new Bg(ne.map((Bt) => Bt.item)), It.current = ne, Io.current(), vt.current = void 0;
   }, []), Sn = A.useMemo(() => new Gue(Qo), [Qo]), Ha = A.useRef(Sn);
   Ha.current = Sn, A.useLayoutEffect(() => {
     const ne = Ha.current;
@@ -70154,7 +70144,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       } else
         gn = !0;
       const Qn = [Wt.location, [Wt.localEventX, Wt.localEventY]];
-      Gt(Qn, In), Zn.current = Qn, gn && es(new Dg([Wt.location]));
+      Gt(Qn, In), Zn.current = Qn, gn && es(new Bg([Wt.location]));
     }
     const wn = Wt.location[0] >= (O ? 0 : 1);
     mt(Wt.kind === gu && Wt.isEdge && wn && Ce === !0), Ar(Wt.kind === "cell" && Wt.isFillHandle), Y?.(ne), R(Wt);
@@ -70170,7 +70160,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     ft,
     es
   ]);
-  Go("pointermove", Wi, rt, !0);
+  Go("pointermove", Wi, tt, !0);
   const Lo = A.useCallback((ne) => {
     const Bt = _e.current;
     if (Bt === null)
@@ -70257,7 +70247,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
           const Yn = Math.ceil(window.devicePixelRatio ?? 1);
           nn.width = pn.width * Yn, nn.height = pn.height * Yn;
           const _r = nn.getContext("2d");
-          _r !== null && (_r.scale(Yn, Yn), _r.textBaseline = "middle", Nn === -1 ? (_r.font = ze.headerFontFull, _r.fillStyle = ze.bgHeader, _r.fillRect(0, 0, nn.width, nn.height), TP(_r, 0, 0, pn.width, pn.height, zn[Vr], !1, ze, !1, void 0, void 0, !1, 0, Yr, wt, !1)) : (_r.font = ze.baseFontFull, _r.fillStyle = ze.bgCell, _r.fillRect(0, 0, nn.width, nn.height), DP(_r, y([Vr, Nn]), 0, Nn, !1, !1, 0, 0, pn.width, pn.height, !1, ze, ze.bgCell, Ke, Yr, 1, void 0, !1, 0, void 0, void 0, void 0, Ji, ft, () => {
+          _r !== null && (_r.scale(Yn, Yn), _r.textBaseline = "middle", Nn === -1 ? (_r.font = Ue.headerFontFull, _r.fillStyle = Ue.bgHeader, _r.fillRect(0, 0, nn.width, nn.height), TP(_r, 0, 0, pn.width, pn.height, zn[Vr], !1, Ue, !1, void 0, void 0, !1, 0, Yr, wt, !1)) : (_r.font = Ue.baseFontFull, _r.fillStyle = Ue.bgCell, _r.fillRect(0, 0, nn.width, nn.height), DP(_r, y([Vr, Nn]), 0, Nn, !1, !1, 0, 0, pn.width, pn.height, !1, Ue, Ue.bgCell, Ke, Yr, 1, void 0, !1, 0, void 0, void 0, void 0, Ji, ft, () => {
           }))), nn.style.left = "-100%", nn.style.position = "absolute", nn.style.width = `${pn.width}px`, nn.style.height = `${pn.height}px`, document.body.append(nn), ne.dataTransfer.setDragImage(nn, pn.width / 2, pn.height / 2), window.setTimeout(() => {
             nn.remove();
           }, 0);
@@ -70271,7 +70261,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     Vn,
     fe,
     kn,
-    ze,
+    Ue,
     zn,
     Yr,
     wt,
@@ -70308,16 +70298,16 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   Go("dragleave", qi, ge?.current ?? null, !1, !1);
   const us = A.useRef(k);
   us.current = k;
-  const tt = A.useRef(null), qn = A.useCallback((ne) => {
+  const nt = A.useRef(null), qn = A.useCallback((ne) => {
     _e.current === null || !_e.current.contains(document.activeElement) || (ne === null && us.current.current !== void 0 ? oe?.current?.focus({
       preventScroll: !0
     }) : ne !== null && ne.focus({
       preventScroll: !0
-    }), tt.current = ne);
+    }), nt.current = ne);
   }, [oe]);
   A.useImperativeHandle(e, () => ({
     focus: () => {
-      const ne = tt.current;
+      const ne = nt.current;
       ne === null || !document.contains(ne) ? oe?.current?.focus({
         preventScroll: !0
       }) : ne.focus({
@@ -70337,7 +70327,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   const $s = A.useRef(), Zr = sae(() => {
     if (n < 50 || Lt?.disableAccessibilityTree === !0)
       return null;
-    let ne = VA(zn, ht, n, I, Tt);
+    let ne = VA(zn, gt, n, I, Tt);
     const Bt = O ? 0 : -1;
     !O && ne[0]?.sourceIndex === 0 && (ne = ne.slice(1));
     const [fn, vn] = k.current?.cell ?? [], Wt = k.current?.range, Gt = ne.map((gn) => gn.sourceIndex), wn = Gu(a, Math.min(m, a + i));
@@ -70348,13 +70338,13 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         "thead",
         { role: "rowgroup" },
         A.createElement("tr", { role: "row", "aria-rowindex": 1 }, ne.map((gn) => A.createElement("th", { role: "columnheader", "aria-selected": k.columns.hasIndex(gn.sourceIndex), "aria-colindex": gn.sourceIndex + 1 + Bt, tabIndex: -1, onFocus: (In) => {
-          if (In.target !== tt.current)
+          if (In.target !== nt.current)
             return At?.([gn.sourceIndex, -1]);
         }, key: gn.sourceIndex }, gn.title)))
       ),
       A.createElement("tbody", { role: "rowgroup" }, wn.map((gn) => A.createElement("tr", { role: "row", "aria-selected": k.rows.hasIndex(gn), key: gn, "aria-rowindex": gn + 2 }, ne.map((In) => {
         const Qn = In.sourceIndex, xi = wl(Qn, gn), Vr = fn === Qn && vn === gn, Nn = Wt !== void 0 && Qn >= Wt.x && Qn < Wt.x + Wt.width && gn >= Wt.y && gn < Wt.y + Wt.height, nn = `glide-cell-${Qn}-${gn}`, pn = [Qn, gn], Yn = y(pn, !0);
-        return A.createElement("td", { key: xi, role: "gridcell", "aria-colindex": Qn + 1 + Bt, "aria-selected": Nn, "aria-readonly": Af(Yn) || !hf(Yn), id: nn, "data-testid": nn, onClick: () => {
+        return A.createElement("td", { key: xi, role: "gridcell", "aria-colindex": Qn + 1 + Bt, "aria-selected": Nn, "aria-readonly": vf(Yn) || !gf(Yn), id: nn, "data-testid": nn, onClick: () => {
           const _r = oe?.current;
           if (_r != null)
             return q?.({
@@ -70375,7 +70365,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
               location: pn
             });
         }, onFocusCapture: (_r) => {
-          if (!(_r.target === tt.current || $s.current?.[0] === Qn && $s.current?.[1] === gn))
+          if (!(_r.target === nt.current || $s.current?.[0] === Qn && $s.current?.[1] === gn))
             return $s.current = pn, At?.(pn);
         }, ref: Vr ? qn : void 0, tabIndex: -1 }, Jue(Yn, ft));
       }))))
@@ -70383,7 +70373,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, [
     n,
     zn,
-    ht,
+    gt,
     I,
     Tt,
     m,
@@ -70396,7 +70386,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     q,
     kn,
     At
-  ], 200), go = $ === 0 || !P ? 0 : ht > $ ? 1 : Za(-Tt / 100, 0, 1), vo = -a * 32 + zt, Eo = U ? Za(-vo / 100, 0, 1) : 0, Pn = A.useMemo(() => {
+  ], 200), go = $ === 0 || !P ? 0 : gt > $ ? 1 : Za(-Tt / 100, 0, 1), vo = -a * 32 + zt, Eo = U ? Za(-vo / 100, 0, 1) : 0, Pn = A.useMemo(() => {
     if (!go && !Eo)
       return null;
     const ne = {
@@ -70439,7 +70429,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     Pn
   );
 }, tde = A.memo(A.forwardRef(ede));
-function Qh(t, e, n, r) {
+function Jh(t, e, n, r) {
   return Za(Math.round(e - (t.growOffset ?? 0)), Math.ceil(n), Math.floor(r));
 }
 const nde = (t) => {
@@ -70475,15 +70465,15 @@ const nde = (t) => {
           for (const Vt of ge) {
             if (Vt === r)
               continue;
-            const Ut = fe[Vt], Qt = Qh(Ut, Xe.current, W, j);
+            const Ut = fe[Vt], Qt = Jh(Ut, Xe.current, W, j);
             N?.(Ut, Qt, Vt, Qt + (Ut.growOffset ?? 0));
           }
-        const At = Qh(fe[r], Xe.current, W, j);
+        const At = Jh(fe[r], Xe.current, W, j);
         if (U?.(fe[r], At, r, At + (fe[r].growOffset ?? 0)), ge.hasIndex(r))
           for (const Vt of ge) {
             if (Vt === r)
               continue;
-            const Ut = fe[Vt], Qt = Qh(Ut, Xe.current, W, j);
+            const Ut = fe[Vt], Qt = Jh(Ut, Xe.current, W, j);
             U?.(Ut, Qt, Vt, Qt + (Ut.growOffset ?? 0));
           }
       }
@@ -70507,7 +70497,7 @@ const nde = (t) => {
     Y,
     ot,
     H
-  ]), ze = A.useMemo(() => {
+  ]), Ue = A.useMemo(() => {
     if (!(s === void 0 || a === void 0) && s !== a && H?.(s, a) !== !1)
       return {
         src: s,
@@ -70520,12 +70510,12 @@ const nde = (t) => {
     else if (y !== void 0 && x !== void 0)
       Math.abs(Ct.clientY - x) > 20 && _(!0);
     else if (r !== void 0 && e !== void 0 && wt) {
-      const Vt = wt.getBoundingClientRect().width / wt.offsetWidth, Ut = (Ct.clientX - e) / Vt, Qt = fe[r], qe = Qh(Qt, Ut, W, j);
+      const Vt = wt.getBoundingClientRect().width / wt.offsetWidth, Ut = (Ct.clientX - e) / Vt, Qt = fe[r], qe = Jh(Qt, Ut, W, j);
       if (N?.(Qt, qe, r, qe + (Qt.growOffset ?? 0)), Xe.current = Ut, ge?.first() === r)
         for (const xe of ge) {
           if (xe === r)
             continue;
-          const Rt = fe[xe], Lt = Qh(Rt, Xe.current, W, j);
+          const Rt = fe[xe], Lt = Jh(Rt, Xe.current, W, j);
           N?.(Rt, Lt, xe, Lt + (Rt.growOffset ?? 0));
         }
     }
@@ -70550,7 +70540,7 @@ const nde = (t) => {
   }, [y, b, $]), sn = A.useCallback((Ct) => {
     Z?.(Ct), Ct.defaultPrevented() || ot();
   }, [ot, Z]);
-  return A.createElement(tde, { accessibilityHeight: t.accessibilityHeight, canvasRef: t.canvasRef, cellXOffset: t.cellXOffset, cellYOffset: t.cellYOffset, columns: t.columns, disabledRows: t.disabledRows, drawFocusRing: t.drawFocusRing, drawHeader: t.drawHeader, drawCell: t.drawCell, enableGroups: t.enableGroups, eventTargetRef: t.eventTargetRef, experimental: t.experimental, fillHandle: t.fillHandle, firstColAccessible: t.firstColAccessible, fixedShadowX: t.fixedShadowX, fixedShadowY: t.fixedShadowY, freezeColumns: t.freezeColumns, getCellRenderer: t.getCellRenderer, getGroupDetails: t.getGroupDetails, getRowThemeOverride: t.getRowThemeOverride, groupHeaderHeight: t.groupHeaderHeight, headerHeight: t.headerHeight, headerIcons: t.headerIcons, height: t.height, highlightRegions: t.highlightRegions, imageWindowLoader: t.imageWindowLoader, resizeColumn: r, isDraggable: t.isDraggable, isFilling: t.isFilling, isFocused: t.isFocused, onCanvasBlur: t.onCanvasBlur, onCanvasFocused: t.onCanvasFocused, onCellFocused: t.onCellFocused, onContextMenu: t.onContextMenu, onDragEnd: t.onDragEnd, onDragLeave: t.onDragLeave, onDragOverCell: t.onDragOverCell, onDrop: t.onDrop, onKeyDown: t.onKeyDown, onKeyUp: t.onKeyUp, onMouseMove: t.onMouseMove, prelightCells: t.prelightCells, rowHeight: t.rowHeight, rows: t.rows, selection: t.selection, smoothScrollX: t.smoothScrollX, smoothScrollY: t.smoothScrollY, theme: t.theme, freezeTrailingRows: t.freezeTrailingRows, hasAppendRow: t.hasAppendRow, translateX: t.translateX, translateY: t.translateY, resizeIndicator: t.resizeIndicator, verticalBorder: t.verticalBorder, width: t.width, getCellContent: an, isResizing: r !== void 0, onHeaderMenuClick: Ee, onHeaderIndicatorClick: Ce, isDragging: d, onItemHovered: Ae, onDragStart: sn, onMouseDown: lt, allowResize: oe, onMouseUp: _t, dragAndDropState: ze, onMouseMoveRaw: Mt, ref: M });
+  return A.createElement(tde, { accessibilityHeight: t.accessibilityHeight, canvasRef: t.canvasRef, cellXOffset: t.cellXOffset, cellYOffset: t.cellYOffset, columns: t.columns, disabledRows: t.disabledRows, drawFocusRing: t.drawFocusRing, drawHeader: t.drawHeader, drawCell: t.drawCell, enableGroups: t.enableGroups, eventTargetRef: t.eventTargetRef, experimental: t.experimental, fillHandle: t.fillHandle, firstColAccessible: t.firstColAccessible, fixedShadowX: t.fixedShadowX, fixedShadowY: t.fixedShadowY, freezeColumns: t.freezeColumns, getCellRenderer: t.getCellRenderer, getGroupDetails: t.getGroupDetails, getRowThemeOverride: t.getRowThemeOverride, groupHeaderHeight: t.groupHeaderHeight, headerHeight: t.headerHeight, headerIcons: t.headerIcons, height: t.height, highlightRegions: t.highlightRegions, imageWindowLoader: t.imageWindowLoader, resizeColumn: r, isDraggable: t.isDraggable, isFilling: t.isFilling, isFocused: t.isFocused, onCanvasBlur: t.onCanvasBlur, onCanvasFocused: t.onCanvasFocused, onCellFocused: t.onCellFocused, onContextMenu: t.onContextMenu, onDragEnd: t.onDragEnd, onDragLeave: t.onDragLeave, onDragOverCell: t.onDragOverCell, onDrop: t.onDrop, onKeyDown: t.onKeyDown, onKeyUp: t.onKeyUp, onMouseMove: t.onMouseMove, prelightCells: t.prelightCells, rowHeight: t.rowHeight, rows: t.rows, selection: t.selection, smoothScrollX: t.smoothScrollX, smoothScrollY: t.smoothScrollY, theme: t.theme, freezeTrailingRows: t.freezeTrailingRows, hasAppendRow: t.hasAppendRow, translateX: t.translateX, translateY: t.translateY, resizeIndicator: t.resizeIndicator, verticalBorder: t.verticalBorder, width: t.width, getCellContent: an, isResizing: r !== void 0, onHeaderMenuClick: Ee, onHeaderIndicatorClick: Ce, isDragging: d, onItemHovered: Ae, onDragStart: sn, onMouseDown: lt, allowResize: oe, onMouseUp: _t, dragAndDropState: Ue, onMouseMoveRaw: Mt, ref: M });
 };
 function rde(t) {
   const e = $n(null), [n, r] = bt({
@@ -70660,17 +70650,17 @@ const ude = (t) => {
     P && Ee !== 0 && Ce !== 0 && (Math.abs(Ee) > 3 || Math.abs(Ce) > 3) && u && L.current.lockDirection === void 0 && (L.current.lockDirection = Math.abs(Ee) < Math.abs(Ce) ? [lt, void 0] : [void 0, ke]);
     const Xe = L.current.lockDirection;
     be = Xe?.[0] ?? be, ge = Xe?.[1] ?? ge, L.current.scrollLeft = be, L.current.scrollTop = ge;
-    const ot = Ae.clientWidth, _t = Ae.clientHeight, ze = ge, Mt = D.current - ze, an = Ae.scrollHeight - _t;
-    D.current = ze;
+    const ot = Ae.clientWidth, _t = Ae.clientHeight, Ue = ge, Mt = D.current - Ue, an = Ae.scrollHeight - _t;
+    D.current = Ue;
     let sn;
     if (an > 0 && r > Ae.scrollHeight + 5)
-      if (Math.abs(Mt) > 2e3 || ze === 0 || ze === an) {
-        const Ct = Math.max(0, Math.min(1, ze / an)), wt = r - _t;
+      if (Math.abs(Mt) > 2e3 || Ue === 0 || Ue === an) {
+        const Ct = Math.max(0, Math.min(1, Ue / an)), wt = r - _t;
         sn = Ct * wt, x.current = sn;
       } else
         x.current -= Mt, sn = x.current;
     else
-      sn = ze, x.current = sn;
+      sn = Ue, x.current = sn;
     sn = Math.max(0, Math.min(sn, r - _t)), x.current = sn, Xe !== void 0 && (window.clearTimeout(j.current), M(!1), j.current = window.setTimeout(() => M(!0), 200)), s({
       x: be,
       y: sn,
@@ -70904,7 +70894,7 @@ const ude = (t) => {
         rowsSearched: be,
         selectedIndex: ot
       }), h?.(ge, ot), oe + fe >= r ? oe = 0 : oe += fe;
-      const _t = Xe - ke, ze = Math.max(_t, 1), Mt = mde / ze;
+      const _t = Xe - ke, Ue = Math.max(_t, 1), Mt = mde / Ue;
       fe = Math.ceil(fe * Mt), be < r && ge.length < 1e3 && (k.current = window.requestAnimationFrame(Ae));
     };
     P(), k.current = window.requestAnimationFrame(Ae);
@@ -71304,7 +71294,7 @@ function wde(t) {
         format: "string"
       };
     default:
-      Hg();
+      Vg();
   }
 }
 function xde(t, e) {
@@ -71930,7 +71920,7 @@ function jde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-B4lQDYkP.js"));
+const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-BSZPb022.js"));
 let Yde = 0;
 function Gde(t) {
   return $le(NB(NB(t).filter((e) => e.span !== void 0).map((e) => Gu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -71960,7 +71950,7 @@ const U0 = {
   rows: ur.empty(),
   current: void 0
 }, Kde = (t, e) => {
-  const [n, r] = A.useState($0), [i, s] = A.useState(), o = A.useRef(null), a = A.useRef(null), [u, d] = A.useState(), h = A.useRef(), g = typeof window > "u" ? null : window, { imageEditorOverride: m, getRowThemeOverride: y, markdownDivCreateNode: C, width: b, height: E, columns: w, rows: _, getCellContent: x, onCellClicked: D, onCellActivated: S, onFillPattern: k, onFinishedEditing: $, coercePasteValue: L, drawHeader: N, drawCell: P, editorBloom: U, onHeaderClicked: M, onColumnProposeMove: j, rangeSelectionColumnSpanning: W = !0, spanRangeBehavior: Y = "default", onGroupHeaderClicked: R, onCellContextMenu: H, className: I, onHeaderContextMenu: O, getCellsForSelection: q, onGroupHeaderContextMenu: Z, onGroupHeaderRenamed: ce, onCellEdited: oe, onCellsEdited: fe, onSearchResultsChanged: be, searchResults: ge, onSearchValueChange: Ae, searchValue: ke, onKeyDown: lt, onKeyUp: Ee, keybindings: Ce, editOnType: Xe = !0, onRowAppended: ot, onColumnAppended: _t, onColumnMoved: ze, validateCell: Mt, highlightRegions: an, rangeSelect: sn = "rect", columnSelect: Ct = "multi", rowSelect: wt = "multi", rangeSelectionBlending: At = "exclusive", columnSelectionBlending: Vt = "exclusive", rowSelectionBlending: Ut = "exclusive", onDelete: Qt, onDragStart: qe, onMouseMove: xe, onPaste: Rt, copyHeaders: Lt = !1, freezeColumns: ft = 0, cellActivationBehavior: xt = "second-click", rowSelectionMode: Tt = "auto", columnSelectionMode: zt = "auto", onHeaderMenuClick: ht, onHeaderIndicatorClick: _e, getGroupDetails: ve, rowGrouping: rt, onSearchClose: Ke, onItemHovered: vt, onSelectionCleared: $e, showSearch: ct, onVisibleRegionChanged: It, gridSelection: Xt, onGridSelectionChange: ln, minColumnWidth: Ln = 50, maxColumnWidth: mn = 500, maxColumnAutoWidth: mt, provideEditor: on, trailingRowOptions: $t, freezeTrailingRows: En = 0, allowedFillDirections: yn = "orthogonal", scrollOffsetX: li, scrollOffsetY: $r, verticalBorder: Yr, onDragOverCell: pi, onDrop: co, onColumnResize: Hn, onColumnResizeEnd: Ht, onColumnResizeStart: zn, customRenderers: qt, fillHandle: kn, experimental: Vn, fixedShadowX: Mi, fixedShadowY: $i, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: Ji, onDragLeave: _i, onRowMoved: Kr, overscrollX: rr, overscrollY: Wn, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, trapFocus: es = !1, smoothScrollX: ts, smoothScrollY: tn, scaleToRem: Zs = !1, rowHeight: Ar = 34, headerHeight: _s = 36, groupHeaderHeight: sr = _s, theme: Qs, isOutsideClick: ni, renderers: yi, resizeIndicator: ci, scrollToActiveCell: Hr = !0, drawFocusRing: wi = !0, portalElementRef: Ua } = t, Js = wi === "no-editor" ? i === void 0 : wi, eo = typeof t.rowMarkers == "string" ? void 0 : t.rowMarkers, dr = eo?.kind ?? t.rowMarkers ?? "none", No = eo?.width ?? t.rowMarkerWidth, fo = eo?.startIndex ?? t.rowMarkerStartIndex ?? 1, Oo = eo?.theme ?? t.rowMarkerTheme, Ci = eo?.headerTheme, Hi = eo?.headerAlwaysVisible, ho = wt !== "multi" || eo?.headerDisabled === !0, cs = eo?.checkboxStyle ?? "square", Zo = Math.max(Ln, 20), Vi = Math.max(mn, Zo), $a = Math.max(mt ?? Vi, Zo), Qo = A.useMemo(() => typeof window > "u" ? { fontSize: "16px" } : window.getComputedStyle(document.documentElement), []), { rows: Sn, rowNumberMapper: Ha, rowHeight: Kn, getRowThemeOverride: Wi } = Vde(rt, _, Ar, y), Lo = A.useMemo(() => Number.parseFloat(Qo.fontSize), [Qo]), { rowHeight: ws, headerHeight: Us, groupHeaderHeight: Ao, theme: zo, overscrollX: sl, overscrollY: Va } = Ude({
+  const [n, r] = A.useState($0), [i, s] = A.useState(), o = A.useRef(null), a = A.useRef(null), [u, d] = A.useState(), h = A.useRef(), g = typeof window > "u" ? null : window, { imageEditorOverride: m, getRowThemeOverride: y, markdownDivCreateNode: C, width: b, height: E, columns: w, rows: _, getCellContent: x, onCellClicked: D, onCellActivated: S, onFillPattern: k, onFinishedEditing: $, coercePasteValue: L, drawHeader: N, drawCell: P, editorBloom: U, onHeaderClicked: M, onColumnProposeMove: j, rangeSelectionColumnSpanning: W = !0, spanRangeBehavior: Y = "default", onGroupHeaderClicked: R, onCellContextMenu: H, className: I, onHeaderContextMenu: O, getCellsForSelection: q, onGroupHeaderContextMenu: Z, onGroupHeaderRenamed: ce, onCellEdited: oe, onCellsEdited: fe, onSearchResultsChanged: be, searchResults: ge, onSearchValueChange: Ae, searchValue: ke, onKeyDown: lt, onKeyUp: Ee, keybindings: Ce, editOnType: Xe = !0, onRowAppended: ot, onColumnAppended: _t, onColumnMoved: Ue, validateCell: Mt, highlightRegions: an, rangeSelect: sn = "rect", columnSelect: Ct = "multi", rowSelect: wt = "multi", rangeSelectionBlending: At = "exclusive", columnSelectionBlending: Vt = "exclusive", rowSelectionBlending: Ut = "exclusive", onDelete: Qt, onDragStart: qe, onMouseMove: xe, onPaste: Rt, copyHeaders: Lt = !1, freezeColumns: ft = 0, cellActivationBehavior: xt = "second-click", rowSelectionMode: Tt = "auto", columnSelectionMode: zt = "auto", onHeaderMenuClick: gt, onHeaderIndicatorClick: _e, getGroupDetails: ve, rowGrouping: tt, onSearchClose: Ke, onItemHovered: vt, onSelectionCleared: ze, showSearch: ct, onVisibleRegionChanged: It, gridSelection: Xt, onGridSelectionChange: ln, minColumnWidth: Ln = 50, maxColumnWidth: mn = 500, maxColumnAutoWidth: mt, provideEditor: on, trailingRowOptions: $t, freezeTrailingRows: En = 0, allowedFillDirections: yn = "orthogonal", scrollOffsetX: li, scrollOffsetY: $r, verticalBorder: Yr, onDragOverCell: pi, onDrop: co, onColumnResize: Hn, onColumnResizeEnd: Ht, onColumnResizeStart: zn, customRenderers: qt, fillHandle: kn, experimental: Vn, fixedShadowX: Mi, fixedShadowY: $i, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: Ji, onDragLeave: _i, onRowMoved: Kr, overscrollX: rr, overscrollY: Wn, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, trapFocus: es = !1, smoothScrollX: ts, smoothScrollY: tn, scaleToRem: Zs = !1, rowHeight: Ar = 34, headerHeight: _s = 36, groupHeaderHeight: sr = _s, theme: Qs, isOutsideClick: ni, renderers: yi, resizeIndicator: ci, scrollToActiveCell: Hr = !0, drawFocusRing: wi = !0, portalElementRef: Ua } = t, Js = wi === "no-editor" ? i === void 0 : wi, eo = typeof t.rowMarkers == "string" ? void 0 : t.rowMarkers, dr = eo?.kind ?? t.rowMarkers ?? "none", No = eo?.width ?? t.rowMarkerWidth, fo = eo?.startIndex ?? t.rowMarkerStartIndex ?? 1, Oo = eo?.theme ?? t.rowMarkerTheme, Ci = eo?.headerTheme, Hi = eo?.headerAlwaysVisible, ho = wt !== "multi" || eo?.headerDisabled === !0, cs = eo?.checkboxStyle ?? "square", Zo = Math.max(Ln, 20), Vi = Math.max(mn, Zo), $a = Math.max(mt ?? Vi, Zo), Qo = A.useMemo(() => typeof window > "u" ? { fontSize: "16px" } : window.getComputedStyle(document.documentElement), []), { rows: Sn, rowNumberMapper: Ha, rowHeight: Kn, getRowThemeOverride: Wi } = Vde(tt, _, Ar, y), Lo = A.useMemo(() => Number.parseFloat(Qo.fontSize), [Qo]), { rowHeight: ws, headerHeight: Us, groupHeaderHeight: Ao, theme: zo, overscrollX: sl, overscrollY: Va } = Ude({
     groupHeaderHeight: sr,
     headerHeight: _s,
     overscrollX: rr,
@@ -71969,30 +71959,30 @@ const U0 = {
     rowHeight: Kn,
     scaleToRem: Zs,
     theme: Qs
-  }), Dr = $de(Ce), qi = No ?? (_ > 1e4 ? 48 : _ > 1e3 ? 44 : _ > 100 ? 36 : 32), us = dr !== "none", tt = us ? 1 : 0, qn = $t !== void 0, $s = $t?.sticky === !0, [Zr, go] = A.useState(!1), vo = ct ?? Zr, Eo = A.useCallback(() => {
+  }), Dr = $de(Ce), qi = No ?? (_ > 1e4 ? 48 : _ > 1e3 ? 44 : _ > 100 ? 36 : 32), us = dr !== "none", nt = us ? 1 : 0, qn = $t !== void 0, $s = $t?.sticky === !0, [Zr, go] = A.useState(!1), vo = ct ?? Zr, Eo = A.useCallback(() => {
     Ke !== void 0 ? Ke() : go(!1);
-  }, [Ke]), ut = A.useMemo(() => Xt === void 0 ? void 0 : z0(Xt, tt), [Xt, tt]) ?? n, ne = A.useRef();
+  }, [Ke]), ut = A.useMemo(() => Xt === void 0 ? void 0 : z0(Xt, nt), [Xt, nt]) ?? n, ne = A.useRef();
   ne.current === void 0 && (ne.current = new AbortController()), A.useEffect(() => () => ne?.current.abort(), []);
-  const [Bt, fn] = _de(q, x, tt, ne.current, Sn), vn = A.useCallback((J, Te, Se) => {
+  const [Bt, fn] = _de(q, x, nt, ne.current, Sn), vn = A.useCallback((J, Te, Se) => {
     if (Mt === void 0)
       return !0;
-    const Ie = [J[0] - tt, J[1]];
+    const Ie = [J[0] - nt, J[1]];
     return Mt?.(Ie, Te, Se);
-  }, [tt, Mt]), Wt = A.useRef(Xt), Gt = A.useCallback((J, Te) => {
-    Te && (J = Rde(J, Bt, tt, Y, ne.current)), ln !== void 0 ? (Wt.current = z0(J, -tt), ln(Wt.current)) : r(J);
-  }, [ln, Bt, tt, Y]), wn = hu(Hn, A.useCallback((J, Te, Se, Ie) => {
-    Hn?.(w[Se - tt], Te, Se - tt, Ie);
-  }, [Hn, tt, w])), gn = hu(Ht, A.useCallback((J, Te, Se, Ie) => {
-    Ht?.(w[Se - tt], Te, Se - tt, Ie);
-  }, [Ht, tt, w])), In = hu(zn, A.useCallback((J, Te, Se, Ie) => {
-    zn?.(w[Se - tt], Te, Se - tt, Ie);
-  }, [zn, tt, w])), Qn = hu(N, A.useCallback((J, Te) => N?.({ ...J, columnIndex: J.columnIndex - tt }, Te) ?? !1, [N, tt])), xi = hu(P, A.useCallback((J, Te) => P?.({ ...J, col: J.col - tt }, Te) ?? !1, [P, tt])), Vr = A.useCallback((J) => {
+  }, [nt, Mt]), Wt = A.useRef(Xt), Gt = A.useCallback((J, Te) => {
+    Te && (J = Rde(J, Bt, nt, Y, ne.current)), ln !== void 0 ? (Wt.current = z0(J, -nt), ln(Wt.current)) : r(J);
+  }, [ln, Bt, nt, Y]), wn = hu(Hn, A.useCallback((J, Te, Se, Ie) => {
+    Hn?.(w[Se - nt], Te, Se - nt, Ie);
+  }, [Hn, nt, w])), gn = hu(Ht, A.useCallback((J, Te, Se, Ie) => {
+    Ht?.(w[Se - nt], Te, Se - nt, Ie);
+  }, [Ht, nt, w])), In = hu(zn, A.useCallback((J, Te, Se, Ie) => {
+    zn?.(w[Se - nt], Te, Se - nt, Ie);
+  }, [zn, nt, w])), Qn = hu(N, A.useCallback((J, Te) => N?.({ ...J, columnIndex: J.columnIndex - nt }, Te) ?? !1, [N, nt])), xi = hu(P, A.useCallback((J, Te) => P?.({ ...J, col: J.col - nt }, Te) ?? !1, [P, nt])), Vr = A.useCallback((J) => {
     if (Qt !== void 0) {
-      const Te = Qt(z0(J, -tt));
-      return typeof Te == "boolean" ? Te : z0(Te, tt);
+      const Te = Qt(z0(J, -nt));
+      return typeof Te == "boolean" ? Te : z0(Te, nt);
     }
     return !0;
-  }, [Qt, tt]), [Nn, nn, pn] = Ede(ut, Gt, At, Vt, Ut, sn, W), Yn = A.useMemo(() => Ic(WE(), zo), [zo]), [_r, xs] = A.useState([0, 0, 0]), ns = A.useMemo(() => {
+  }, [Qt, nt]), [Nn, nn, pn] = Ede(ut, Gt, At, Vt, Ut, sn, W), Yn = A.useMemo(() => Ic(WE(), zo), [zo]), [_r, xs] = A.useState([0, 0, 0]), ns = A.useMemo(() => {
     if (yi === void 0)
       return {};
     const J = {};
@@ -72000,7 +71990,7 @@ const U0 = {
       J[Te.kind] = Te;
     return J;
   }, [yi]), bi = A.useCallback((J) => J.kind !== dn.Custom ? ns[J.kind] : qt?.find((Te) => Te.isMatch(J)), [qt, ns]);
-  let { sizedColumns: Di, nonGrowWidth: Br } = _le(w, Sn, fn, _r[0] - (tt === 0 ? 0 : qi) - _r[2], Zo, $a, Yn, bi, ne.current);
+  let { sizedColumns: Di, nonGrowWidth: Br } = _le(w, Sn, fn, _r[0] - (nt === 0 ? 0 : qi) - _r[2], Zo, $a, Yn, bi, ne.current);
   dr !== "none" && (Br += qi);
   const to = A.useMemo(() => Di.some((J) => J.group !== void 0), [Di]), ji = to ? Us + Ao : Us, fa = ut.rows.length, _o = dr === "none" ? void 0 : fa === 0 ? !1 : fa === Sn ? !0 : void 0, jn = A.useMemo(() => dr === "none" ? Di : [
     {
@@ -72034,31 +72024,31 @@ const U0 = {
     y: 0
   }), rs = A.useRef(!1), { setVisibleRegion: Jo, visibleRegion: Pr, scrollRef: or } = jde(li, $r, ws, Fi, () => rs.current = !0);
   Fi.current = Pr;
-  const ds = Pr.x + tt, Wa = Pr.y, fs = A.useRef(null), St = A.useCallback((J) => {
+  const ds = Pr.x + nt, Wa = Pr.y, fs = A.useRef(null), St = A.useCallback((J) => {
     J === !0 ? fs.current?.focus() : window.requestAnimationFrame(() => {
       fs.current?.focus();
     });
   }, []), Jn = qn ? Sn + 1 : Sn, cn = A.useCallback((J) => {
-    const Te = tt === 0 ? J : J.map((Ie) => ({
+    const Te = nt === 0 ? J : J.map((Ie) => ({
       ...Ie,
-      location: [Ie.location[0] - tt, Ie.location[1]]
+      location: [Ie.location[0] - nt, Ie.location[1]]
     })), Se = fe?.(Te);
     if (Se !== !0)
       for (const Ie of Te)
         oe?.(Ie.location, Ie.value);
     return Se;
-  }, [oe, fe, tt]), [hs, Xi] = A.useState(), ha = ut.current !== void 0 && ut.current.range.width * ut.current.range.height > 1 ? ut.current.range : void 0, Rl = Js ? ut.current?.cell : void 0, Uo = Rl?.[0], ga = Rl?.[1], cc = A.useMemo(() => {
+  }, [oe, fe, nt]), [hs, Xi] = A.useState(), ha = ut.current !== void 0 && ut.current.range.width * ut.current.range.height > 1 ? ut.current.range : void 0, Rl = Js ? ut.current?.cell : void 0, Uo = Rl?.[0], ga = Rl?.[1], cc = A.useMemo(() => {
     if ((an === void 0 || an.length === 0) && (ha ?? Uo ?? ga ?? hs) === void 0)
       return;
     const J = [];
     if (an !== void 0)
       for (const Te of an) {
-        const Se = jn.length - Te.range.x - tt;
+        const Se = jn.length - Te.range.x - nt;
         Se > 0 && J.push({
           color: Te.color,
           range: {
             ...Te.range,
-            x: Te.range.x + tt,
+            x: Te.range.x + nt,
             width: Math.min(Se, Te.range.width)
           },
           style: Te.style
@@ -72090,7 +72080,7 @@ const U0 = {
     an,
     jn.length,
     Yn.accentColor,
-    tt
+    nt
   ]), ea = A.useRef(jn);
   ea.current = jn;
   const gs = A.useCallback(([J, Te], Se = !1) => {
@@ -72110,7 +72100,7 @@ const U0 = {
         cursor: dr === "clickable-number" ? "pointer" : void 0
       };
     } else if (Ie) {
-      const ee = J === tt ? $t?.hint ?? "" : "", ie = ea.current[J];
+      const ee = J === nt ? $t?.hint ?? "" : "", ie = ea.current[J];
       if (ie?.trailingRowOptions?.disabled === !0)
         return U0;
       {
@@ -72123,13 +72113,13 @@ const U0 = {
         };
       }
     } else {
-      const V = J - tt;
+      const V = J - nt;
       if (Se || Vn?.strict === !0) {
         const ie = Fi.current, ue = ie.x > V || V > ie.x + ie.width || ie.y > Te || Te > ie.y + ie.height || Te >= ma.current, Fe = V === ie.extras?.selected?.[0] && Te === ie.extras?.selected[1];
         let De = !1;
         if (ie.extras?.freezeRegions !== void 0) {
-          for (const gt of ie.extras.freezeRegions)
-            if (ad(gt, V, Te)) {
+          for (const pt of ie.extras.freezeRegions)
+            if (ad(pt, V, Te)) {
               De = !0;
               break;
             }
@@ -72138,9 +72128,9 @@ const U0 = {
           return U0;
       }
       let ee = x([V, Te]);
-      return tt !== 0 && ee.span !== void 0 && (ee = {
+      return nt !== 0 && ee.span !== void 0 && (ee = {
         ...ee,
-        span: [ee.span[0] + tt, ee.span[1] + tt]
+        span: [ee.span[0] + nt, ee.span[1] + nt]
       }), ee;
     }
   }, [
@@ -72153,7 +72143,7 @@ const U0 = {
     dr,
     fo,
     Kr,
-    tt,
+    nt,
     $t?.hint,
     $t?.addIcon,
     Vn?.strict,
@@ -72241,31 +72231,31 @@ const U0 = {
     });
   }, [gs, or, Tn]), kr = A.useCallback((J, Te, Se = "both", Ie = 0, je = 0, V = void 0) => {
     if (or.current !== null) {
-      const ee = fs.current, ie = a.current, ue = typeof J != "number" ? J.unit === "cell" ? J.amount : void 0 : J, Fe = typeof Te != "number" ? Te.unit === "cell" ? Te.amount : void 0 : Te, De = typeof J != "number" && J.unit === "px" ? J.amount : void 0, gt = typeof Te != "number" && Te.unit === "px" ? Te.amount : void 0;
+      const ee = fs.current, ie = a.current, ue = typeof J != "number" ? J.unit === "cell" ? J.amount : void 0 : J, Fe = typeof Te != "number" ? Te.unit === "cell" ? Te.amount : void 0 : Te, De = typeof J != "number" && J.unit === "px" ? J.amount : void 0, pt = typeof Te != "number" && Te.unit === "px" ? Te.amount : void 0;
       if (ee !== null && ie !== null) {
-        let nt = {
+        let rt = {
           x: 0,
           y: 0,
           width: 0,
           height: 0
         }, yt = 0, Ot = 0;
-        if ((ue !== void 0 || Fe !== void 0) && (nt = ee.getBounds((ue ?? 0) + tt, Fe ?? 0) ?? nt, nt.width === 0 || nt.height === 0))
+        if ((ue !== void 0 || Fe !== void 0) && (rt = ee.getBounds((ue ?? 0) + nt, Fe ?? 0) ?? rt, rt.width === 0 || rt.height === 0))
           return;
         const en = ie.getBoundingClientRect(), Cn = en.width / ie.offsetWidth;
-        if (De !== void 0 && (nt = {
-          ...nt,
+        if (De !== void 0 && (rt = {
+          ...rt,
           x: De - en.left - or.current.scrollLeft,
           width: 1
-        }), gt !== void 0 && (nt = {
-          ...nt,
-          y: gt + en.top - or.current.scrollTop,
+        }), pt !== void 0 && (rt = {
+          ...rt,
+          y: pt + en.top - or.current.scrollTop,
           height: 1
-        }), nt !== void 0) {
+        }), rt !== void 0) {
           const Bn = {
-            x: nt.x - Ie,
-            y: nt.y - je,
-            width: nt.width + 2 * Ie,
-            height: nt.height + 2 * je
+            x: rt.x - Ie,
+            y: rt.y - je,
+            width: rt.width + 2 * Ie,
+            height: rt.height + 2 * je
           };
           let xr = 0;
           for (let As = 0; As < ft; As++)
@@ -72273,8 +72263,8 @@ const U0 = {
           let fr = 0;
           const hr = En + ($s ? 1 : 0);
           hr > 0 && (fr = Sd(Jn, hr, ws));
-          let er = xr * Cn + en.left + tt * qi * Cn, Ir = en.right, Ii = en.top + ji * Cn, Ni = en.bottom - fr * Cn;
-          const os = nt.width + Ie * 2;
+          let er = xr * Cn + en.left + nt * qi * Cn, Ir = en.right, Ii = en.top + ji * Cn, Ni = en.bottom - fr * Cn;
+          const os = rt.width + Ie * 2;
           switch (V?.hAlign) {
             case "start":
               Ir = er + os;
@@ -72286,7 +72276,7 @@ const U0 = {
               er = Math.floor((er + Ir) / 2) - os / 2, Ir = er + os;
               break;
           }
-          const Mr = nt.height + je * 2;
+          const Mr = rt.height + je * 2;
           switch (V?.vAlign) {
             case "start":
               Ni = Ii + Mr;
@@ -72307,7 +72297,7 @@ const U0 = {
       }
     }
   }, [
-    tt,
+    nt,
     En,
     qi,
     or,
@@ -72336,7 +72326,7 @@ const U0 = {
         return;
       }
       const Fe = typeof V == "number" ? V : ee ? Sn : 0;
-      Bs.current(J - tt, Fe, "both", 0, 0, Se ? { behavior: Se } : void 0), Nn({
+      Bs.current(J - nt, Fe, "both", 0, 0, Se ? { behavior: Se } : void 0), Nn({
         cell: [J, Fe],
         range: {
           x: J,
@@ -72345,13 +72335,13 @@ const U0 = {
           height: 1
         }
       }, !1, !1, "edit");
-      const De = ol.current([J - tt, Fe]);
-      De.allowOverlay && hf(De) && De.readonly !== !0 && Te && window.setTimeout(() => {
+      const De = ol.current([J - nt, Fe]);
+      De.allowOverlay && gf(De) && De.readonly !== !0 && Te && window.setTimeout(() => {
         $o.current(J, Fe);
       }, 0);
     };
     ue();
-  }, [jn, ot, tt, Sn, Nn]), ya = A.useCallback(async (J, Te = !0) => {
+  }, [jn, ot, nt, Sn, Nn]), ya = A.useCallback(async (J, Te = !0) => {
     const Se = _t?.();
     let Ie, je = !0;
     Se !== void 0 && (Ie = await Se, Ie === "left" && (je = !1), typeof Ie == "number" && (je = !1));
@@ -72362,7 +72352,7 @@ const U0 = {
         return;
       }
       const ie = typeof Ie == "number" ? Ie : je ? jn.length : 0;
-      kr(ie - tt, J), Nn({
+      kr(ie - nt, J), Nn({
         cell: [ie, J],
         range: {
           x: ie,
@@ -72371,13 +72361,13 @@ const U0 = {
           height: 1
         }
       }, !1, !1, "edit");
-      const ue = ol.current([ie - tt, J]);
-      ue.allowOverlay && hf(ue) && ue.readonly !== !0 && Te && window.setTimeout(() => {
+      const ue = ol.current([ie - nt, J]);
+      ue.allowOverlay && gf(ue) && ue.readonly !== !0 && Te && window.setTimeout(() => {
         $o.current(ie, J);
       }, 0);
     };
     ee();
-  }, [jn, _t, tt, kr, Nn]), Wr = A.useCallback((J) => {
+  }, [jn, _t, nt, kr, Nn]), Wr = A.useCallback((J) => {
     const Te = Di[J]?.trailingRowOptions?.targetColumn ?? $t?.targetColumn;
     if (typeof Te == "number")
       return Te + (us ? 1 : 0);
@@ -72389,7 +72379,7 @@ const U0 = {
   }, [Di, w, us, $t?.targetColumn]), is = A.useRef(), Ho = A.useRef(), Ca = A.useCallback((J, Te) => {
     const [Se, Ie] = Te;
     return Ic(Yn, jn[Se]?.themeOverride, Wi?.(Ie), J.themeOverride);
-  }, [Wi, jn, Yn]), { mapper: ta } = Wde(rt, _), po = rt?.navigationBehavior, Pe = A.useCallback((J) => {
+  }, [Wi, jn, Yn]), { mapper: ta } = Wde(tt, _), po = tt?.navigationBehavior, Pe = A.useCallback((J) => {
     const Te = r1.value ? J.metaKey : J.ctrlKey, Se = Te && wt === "multi", [Ie, je] = J.location, V = ut.columns, ee = ut.rows, [ie, ue] = ut.current?.cell ?? [];
     if (J.kind === "cell") {
       if (Ho.current = void 0, Qr.current = [Ie, je], Ie === 0 && us) {
@@ -72399,9 +72389,9 @@ const U0 = {
         if (Fe.kind !== Ja.Marker)
           return;
         if (Kr !== void 0) {
-          const nt = bi(Fe);
-          Ma(nt?.kind === Ja.Marker);
-          const yt = nt?.onClick?.({
+          const rt = bi(Fe);
+          Ma(rt?.kind === Ja.Marker);
+          const yt = rt?.onClick?.({
             ...J,
             cell: Fe,
             posX: J.localEventX,
@@ -72415,12 +72405,12 @@ const U0 = {
             return;
         }
         s(void 0), St();
-        const De = ee.hasIndex(je), gt = is.current;
-        if (wt === "multi" && (J.shiftKey || J.isLongTouch === !0) && gt !== void 0 && ee.hasIndex(gt)) {
-          const nt = [Math.min(gt, je), Math.max(gt, je) + 1];
-          Se || Tt === "multi" ? nn(void 0, nt, !0) : nn(ur.fromSingleSelection(nt), void 0, Se);
+        const De = ee.hasIndex(je), pt = is.current;
+        if (wt === "multi" && (J.shiftKey || J.isLongTouch === !0) && pt !== void 0 && ee.hasIndex(pt)) {
+          const rt = [Math.min(pt, je), Math.max(pt, je) + 1];
+          Se || Tt === "multi" ? nn(void 0, rt, !0) : nn(ur.fromSingleSelection(rt), void 0, Se);
         } else wt === "multi" && (Se || J.isTouch || Tt === "multi") ? De ? nn(ee.remove(je), void 0, !0) : (nn(void 0, je, !0), is.current = je) : De && ee.length === 1 ? nn(ur.empty(), void 0, Te) : (nn(ur.fromSingleSelection(je), void 0, Te), is.current = je);
-      } else if (Ie >= tt && qn && je === Sn) {
+      } else if (Ie >= nt && qn && je === Sn) {
         const Fe = Wr(Ie);
         Hs(Fe ?? Ie);
       } else if (ie !== Ie || ue !== je) {
@@ -72440,9 +72430,9 @@ const U0 = {
         }
         if (po === "block" && ta(je).isGroupHeader)
           return;
-        const gt = $s && je === Sn, nt = $s && ut !== void 0 && ut.current?.cell[1] === Sn;
-        if ((J.shiftKey || J.isLongTouch === !0) && ie !== void 0 && ue !== void 0 && ut.current !== void 0 && !nt) {
-          if (gt)
+        const pt = $s && je === Sn, rt = $s && ut !== void 0 && ut.current?.cell[1] === Sn;
+        if ((J.shiftKey || J.isLongTouch === !0) && ie !== void 0 && ue !== void 0 && ut.current !== void 0 && !rt) {
+          if (pt)
             return;
           const yt = Math.min(Ie, ie), Ot = Math.max(Ie, ie), en = Math.min(je, ue), Cn = Math.max(je, ue);
           Nn({
@@ -72471,13 +72461,13 @@ const U0 = {
         } else Ct === "multi" && (Te || J.isTouch || zt === "multi") ? (V.hasIndex(Ie) ? pn(V.remove(Ie), void 0, Te) : pn(void 0, Ie, Te), Ho.current = Ie) : Ct !== "none" && (V.hasIndex(Ie) ? pn(V.remove(Ie), void 0, Te) : pn(ur.fromSingleSelection(Ie), void 0, Te), Ho.current = Ie);
         is.current = void 0, St();
       }
-    else J.kind === El ? Qr.current = [Ie, je] : J.kind === i1 && !J.isMaybeScrollbar && (Gt($0, !1), s(void 0), St(), $e?.(), is.current = void 0, Ho.current = void 0);
+    else J.kind === El ? Qr.current = [Ie, je] : J.kind === i1 && !J.isMaybeScrollbar && (Gt($0, !1), s(void 0), St(), ze?.(), is.current = void 0, Ho.current = void 0);
   }, [
     wt,
     Ct,
     ut,
     us,
-    tt,
+    nt,
     qn,
     Sn,
     dr,
@@ -72498,7 +72488,7 @@ const U0 = {
     ho,
     pn,
     Gt,
-    $e
+    ze
   ]), ba = A.useRef(!1), Qr = A.useRef(), Bi = A.useRef(Pr), Ds = A.useRef(), fc = A.useCallback((J) => {
     if (xo.current = !1, Bi.current = Fi.current, J.button !== 0 && J.button !== 1) {
       Ds.current = void 0;
@@ -72519,13 +72509,13 @@ const U0 = {
     if (J.kind !== El || Ct !== "multi")
       return;
     const Te = r1.value ? J.metaKey : J.ctrlKey, [Se] = J.location, Ie = ut.columns;
-    if (Se < tt)
+    if (Se < nt)
       return;
     const je = jn[Se];
     let V = Se, ee = Se;
-    for (let ie = Se - 1; ie >= tt && Vg(je.group, jn[ie].group); ie--)
+    for (let ie = Se - 1; ie >= nt && Wg(je.group, jn[ie].group); ie--)
       V--;
-    for (let ie = Se + 1; ie < jn.length && Vg(je.group, jn[ie].group); ie++)
+    for (let ie = Se + 1; ie < jn.length && Wg(je.group, jn[ie].group); ie++)
       ee++;
     if (St(), Te || J.isTouch || zt === "multi")
       if (Ie.hasAll([V, ee + 1])) {
@@ -72542,7 +72532,7 @@ const U0 = {
     St,
     ut.columns,
     jn,
-    tt,
+    nt,
     pn,
     zt
   ]), xo = A.useRef(!1), qa = A.useCallback(async (J) => {
@@ -72555,7 +72545,7 @@ const U0 = {
         height: Math.min(Se, Sn - Te)
       }, ne.current.signal);
       typeof Ie != "object" && (Ie = await Ie());
-      const je = Di[J - tt], ee = document.createElement("canvas").getContext("2d", { alpha: !1 });
+      const je = Di[J - nt], ee = document.createElement("canvas").getContext("2d", { alpha: !1 });
       if (ee !== null) {
         ee.font = Yn.baseFontFull;
         const ie = yP(ee, Yn, je, 0, Ie, Zo, Vi, !1, bi);
@@ -72569,7 +72559,7 @@ const U0 = {
     Yn,
     Zo,
     wn,
-    tt,
+    nt,
     Sn,
     bi
   ]), [Fa, ll] = A.useState(), Si = A.useCallback(async (J, Te) => {
@@ -72580,8 +72570,8 @@ const U0 = {
     if (k !== void 0) {
       let ie = !1;
       if (k({
-        fillDestination: { ...Ie, x: Ie.x - tt },
-        patternSource: { ...Se, x: Se.x - tt },
+        fillDestination: { ...Ie, x: Ie.x - nt },
+        patternSource: { ...Se, x: Se.x - nt },
         preventDefault: () => ie = !0
       }), ie)
         return;
@@ -72595,7 +72585,7 @@ const U0 = {
         if (aP(Fe, Se))
           continue;
         const De = V[ue % Se.height][ie % Se.width];
-        Af(De) || !hf(De) || ee.push({
+        vf(De) || !gf(De) || ee.push({
           location: Fe,
           value: { ...De }
         });
@@ -72603,7 +72593,7 @@ const U0 = {
     cn(ee), fs.current?.damage(ee.map((ie) => ({
       cell: ie.location
     })));
-  }, [Bt, cn, k, tt]), wr = A.useCallback(() => {
+  }, [Bt, cn, k, nt]), wr = A.useCallback(() => {
     if (ut.current === void 0 || ut.current.range.width <= 1)
       return;
     const J = {
@@ -72651,25 +72641,25 @@ const U0 = {
     const [Ie, je] = J.location, [V, ee] = Qr.current ?? [], ie = () => {
       xo.current = !0;
     }, ue = (De) => {
-      const gt = De.isTouch || V === Ie && ee === je;
-      if (gt && D?.([Ie - tt, je], {
+      const pt = De.isTouch || V === Ie && ee === je;
+      if (pt && D?.([Ie - nt, je], {
         ...De,
         preventDefault: ie
       }), De.button === 1)
         return !xo.current;
       if (!xo.current) {
-        const nt = gs(J.location), yt = bi(nt);
-        if (yt !== void 0 && yt.onClick !== void 0 && gt) {
+        const rt = gs(J.location), yt = bi(rt);
+        if (yt !== void 0 && yt.onClick !== void 0 && pt) {
           const en = yt.onClick({
             ...De,
-            cell: nt,
+            cell: rt,
             posX: De.localEventX,
             posY: De.localEventY,
             bounds: De.bounds,
-            theme: Ca(nt, J.location),
+            theme: Ca(rt, J.location),
             preventDefault: ie
           });
-          en !== void 0 && !Af(en) && ff(en) && (cn([{ location: De.location, value: en }]), fs.current?.damage([
+          en !== void 0 && !vf(en) && hf(en) && (cn([{ location: De.location, value: en }]), fs.current?.damage([
             {
               cell: De.location
             }
@@ -72678,7 +72668,7 @@ const U0 = {
         if (xo.current || ut.current === void 0)
           return !1;
         let Ot = !1;
-        switch (nt.activationBehaviorOverride ?? xt) {
+        switch (rt.activationBehaviorOverride ?? xt) {
           case "double-click":
           case "second-click": {
             if (Se?.previousSelection?.current?.cell === void 0)
@@ -72695,20 +72685,20 @@ const U0 = {
         if (Ot) {
           const Cn = {
             inputType: "pointer",
-            pointerActivation: De.isDoubleClick === !0 ? "double-click" : nt.activationBehaviorOverride ?? xt,
+            pointerActivation: De.isDoubleClick === !0 ? "double-click" : rt.activationBehaviorOverride ?? xt,
             pointerType: De.isTouch ? "touch" : "mouse"
           };
-          return S?.([Ie - tt, je], Cn), pa(De.bounds, Cn), !0;
+          return S?.([Ie - nt, je], Cn), pa(De.bounds, Cn), !0;
         }
       }
       return !1;
-    }, Fe = J.location[0] - tt;
+    }, Fe = J.location[0] - nt;
     if (J.isTouch) {
-      const De = Fi.current, gt = Bi.current;
-      if (De.x !== gt.x || De.y !== gt.y)
+      const De = Fi.current, pt = Bi.current;
+      if (De.x !== pt.x || De.y !== pt.y)
         return;
       if (J.isLongTouch === !0) {
-        if (J.kind === "cell" && wg(ut.current?.cell, J.location)) {
+        if (J.kind === "cell" && xg(ut.current?.cell, J.location)) {
           H?.([Fe, J.location[1]], {
             ...J,
             preventDefault: ie
@@ -72744,7 +72734,7 @@ const U0 = {
   }, [
     u,
     ut,
-    tt,
+    nt,
     hs,
     Si,
     Gt,
@@ -72767,17 +72757,17 @@ const U0 = {
   ]), re = A.useCallback((J) => {
     const Te = {
       ...J,
-      location: [J.location[0] - tt, J.location[1]]
+      location: [J.location[0] - nt, J.location[1]]
     };
-    xe?.(Te), u !== void 0 && J.buttons === 0 && (d(void 0), Xi(void 0), ll(void 0), ba.current = !1), ll((Se) => ba.current ? [J.scrollEdge[0], 0] : J.scrollEdge[0] === Se?.[0] && J.scrollEdge[1] === Se[1] ? Se : u === void 0 || (Ds.current?.location[0] ?? 0) < tt ? void 0 : J.scrollEdge);
-  }, [u, xe, tt]), te = A.useCallback((J, Te) => {
-    ht?.(J - tt, Te);
-  }, [ht, tt]), X = A.useCallback((J, Te) => {
-    _e?.(J - tt, Te);
-  }, [_e, tt]), G = ut?.current?.cell, K = A.useCallback((J, Te, Se, Ie, je, V) => {
+    xe?.(Te), u !== void 0 && J.buttons === 0 && (d(void 0), Xi(void 0), ll(void 0), ba.current = !1), ll((Se) => ba.current ? [J.scrollEdge[0], 0] : J.scrollEdge[0] === Se?.[0] && J.scrollEdge[1] === Se[1] ? Se : u === void 0 || (Ds.current?.location[0] ?? 0) < nt ? void 0 : J.scrollEdge);
+  }, [u, xe, nt]), te = A.useCallback((J, Te) => {
+    gt?.(J - nt, Te);
+  }, [gt, nt]), X = A.useCallback((J, Te) => {
+    _e?.(J - nt, Te);
+  }, [_e, nt]), G = ut?.current?.cell, K = A.useCallback((J, Te, Se, Ie, je, V) => {
     rs.current = !1;
     let ee = G;
-    ee !== void 0 && (ee = [ee[0] - tt, ee[1]]);
+    ee !== void 0 && (ee = [ee[0] - nt, ee[1]]);
     const ie = ft === 0 ? void 0 : {
       x: 0,
       y: J.y,
@@ -72785,7 +72775,7 @@ const U0 = {
       height: J.height
     }, ue = [];
     ie !== void 0 && ue.push(ie), En > 0 && (ue.push({
-      x: J.x - tt,
+      x: J.x - nt,
       y: Sn - En,
       width: J.width,
       height: En
@@ -72796,7 +72786,7 @@ const U0 = {
       height: En
     }));
     const Fe = {
-      x: J.x - tt,
+      x: J.x - nt,
       y: J.y,
       width: J.width,
       height: qn && J.y + J.height >= Sn ? J.height - 1 : J.height,
@@ -72811,37 +72801,37 @@ const U0 = {
     Fi.current = Fe, Jo(Fe), xs([Te, Se, Ie]), It?.(Fe, Fe.tx, Fe.ty, Fe.extras);
   }, [
     G,
-    tt,
+    nt,
     qn,
     Sn,
     ft,
     En,
     Jo,
     It
-  ]), ae = hu(j, A.useCallback((J, Te) => j?.(J - tt, Te - tt) !== !1, [j, tt])), he = hu(ze, A.useCallback((J, Te) => {
-    ze?.(J - tt, Te - tt), Ct !== "none" && pn(ur.fromSingleSelection(Te), void 0, !0);
-  }, [Ct, ze, tt, pn])), me = A.useRef(!1), ye = A.useCallback((J) => {
-    if (J.location[0] === 0 && tt > 0) {
+  ]), ae = hu(j, A.useCallback((J, Te) => j?.(J - nt, Te - nt) !== !1, [j, nt])), he = hu(Ue, A.useCallback((J, Te) => {
+    Ue?.(J - nt, Te - nt), Ct !== "none" && pn(ur.fromSingleSelection(Te), void 0, !0);
+  }, [Ct, Ue, nt, pn])), me = A.useRef(!1), ye = A.useCallback((J) => {
+    if (J.location[0] === 0 && nt > 0) {
       J.preventDefault();
       return;
     }
     qe?.({
       ...J,
-      location: [J.location[0] - tt, J.location[1]]
+      location: [J.location[0] - nt, J.location[1]]
     }), J.defaultPrevented() || (me.current = !0), d(void 0);
-  }, [qe, tt]), Me = A.useCallback(() => {
+  }, [qe, nt]), Me = A.useCallback(() => {
     me.current = !1;
-  }, []), Ue = rt?.selectionBehavior, Be = A.useCallback((J) => {
-    if (Ue !== "block-spanning")
+  }, []), $e = tt?.selectionBehavior, Be = A.useCallback((J) => {
+    if ($e !== "block-spanning")
       return;
     const { isGroupHeader: Te, path: Se, groupRows: Ie } = ta(J);
     if (Te)
       return [J, J];
     const je = Se[Se.length - 1], V = J - je, ee = J + Ie - je - 1;
     return [V, ee];
-  }, [ta, Ue]), Ye = A.useRef(), He = A.useCallback((J) => {
+  }, [ta, $e]), Ye = A.useRef(), He = A.useCallback((J) => {
     if (!UP(J, Ye.current) && (Ye.current = J, !(Ds?.current?.button !== void 0 && Ds.current.button >= 1))) {
-      if (J.buttons !== 0 && u !== void 0 && Ds.current?.location[0] === 0 && tt === 1 && wt === "multi" && u.previousSelection && !u.previousSelection.rows.hasIndex(Ds.current.location[1]) && ut.rows.hasIndex(Ds.current.location[1])) {
+      if (J.buttons !== 0 && u !== void 0 && Ds.current?.location[0] === 0 && nt === 1 && wt === "multi" && u.previousSelection && !u.previousSelection.rows.hasIndex(Ds.current.location[1]) && ut.rows.hasIndex(Ds.current.location[1])) {
         const Te = Math.min(Ds.current.location[1], J.location[1]), Se = Math.max(Ds.current.location[1], J.location[1]) + 1;
         nn(ur.fromSingleSelection([Te, Se]), void 0, !1);
       } else if (J.buttons !== 0 && u !== void 0 && ut.current !== void 0 && !me.current && !ba.current && (sn === "rect" || sn === "multi-rect")) {
@@ -72860,7 +72850,7 @@ const U0 = {
               je--;
             else
               return;
-          Ie = Math.max(Ie, tt);
+          Ie = Math.max(Ie, nt);
           const ie = Be(Se);
           je = ie === void 0 ? je : Za(je, ie[0], ie[1]);
           const ue = Ie - Te, Fe = je - Se, De = {
@@ -72875,11 +72865,11 @@ const U0 = {
           }, !0, !1, "drag");
         }
       }
-      vt?.({ ...J, location: [J.location[0] - tt, J.location[1]] });
+      vt?.({ ...J, location: [J.location[0] - nt, J.location[1]] });
     }
   }, [
     u,
-    tt,
+    nt,
     wt,
     ut,
     sn,
@@ -72908,11 +72898,11 @@ const U0 = {
       return;
     const [Te, Se] = J, [Ie, je] = ut.current.cell, V = ut.current.range;
     let ee = V.x, ie = V.x + V.width, ue = V.y, Fe = V.y + V.height;
-    const [De, gt] = Be(je) ?? [0, Sn - 1], nt = gt + 1;
+    const [De, pt] = Be(je) ?? [0, Sn - 1], rt = pt + 1;
     if (Se !== 0)
       switch (Se) {
         case 2: {
-          Fe = nt, ue = je, kr(0, Fe, "vertical");
+          Fe = rt, ue = je, kr(0, Fe, "vertical");
           break;
         }
         case -2: {
@@ -72920,7 +72910,7 @@ const U0 = {
           break;
         }
         case 1: {
-          ue < je ? (ue++, kr(0, ue, "vertical")) : (Fe = Math.min(nt, Fe + 1), kr(0, Fe, "vertical"));
+          ue < je ? (ue++, kr(0, ue, "vertical")) : (Fe = Math.min(rt, Fe + 1), kr(0, Fe, "vertical"));
           break;
         }
         case -1: {
@@ -72928,20 +72918,20 @@ const U0 = {
           break;
         }
         default:
-          Hg();
+          Vg();
       }
     if (Te !== 0)
       if (Te === 2)
-        ie = jn.length, ee = Ie, kr(ie - 1 - tt, 0, "horizontal");
+        ie = jn.length, ee = Ie, kr(ie - 1 - nt, 0, "horizontal");
       else if (Te === -2)
-        ee = tt, ie = Ie + 1, kr(ee - tt, 0, "horizontal");
+        ee = nt, ie = Ie + 1, kr(ee - nt, 0, "horizontal");
       else {
         let yt = [];
         if (Bt !== void 0) {
           const Ot = Bt({
             x: ee,
             y: ue,
-            width: ie - ee - tt,
+            width: ie - ee - nt,
             height: Fe - ue
           }, ne.current.signal);
           typeof Ot == "object" && (yt = Gde(Ot));
@@ -72950,26 +72940,26 @@ const U0 = {
           let Ot = !1;
           if (ee < Ie) {
             if (yt.length > 0) {
-              const en = Gu(ee + 1, Ie + 1).find((Cn) => !yt.includes(Cn - tt));
+              const en = Gu(ee + 1, Ie + 1).find((Cn) => !yt.includes(Cn - nt));
               en !== void 0 && (ee = en, Ot = !0);
             } else
               ee++, Ot = !0;
             Ot && kr(ee, 0, "horizontal");
           }
-          Ot || (ie = Math.min(jn.length, ie + 1), kr(ie - 1 - tt, 0, "horizontal"));
+          Ot || (ie = Math.min(jn.length, ie + 1), kr(ie - 1 - nt, 0, "horizontal"));
         } else if (Te === -1) {
           let Ot = !1;
           if (ie > Ie + 1) {
             if (yt.length > 0) {
-              const en = Gu(ie - 1, Ie, -1).find((Cn) => !yt.includes(Cn - tt));
+              const en = Gu(ie - 1, Ie, -1).find((Cn) => !yt.includes(Cn - nt));
               en !== void 0 && (ie = en, Ot = !0);
             } else
               ie--, Ot = !0;
-            Ot && kr(ie - tt, 0, "horizontal");
+            Ot && kr(ie - nt, 0, "horizontal");
           }
-          Ot || (ee = Math.max(tt, ee - 1), kr(ee - tt, 0, "horizontal"));
+          Ot || (ee = Math.max(nt, ee - 1), kr(ee - nt, 0, "horizontal"));
         } else
-          Hg();
+          Vg();
       }
     Nn({
       cell: ut.current.cell,
@@ -72985,7 +72975,7 @@ const U0 = {
     Be,
     ut,
     jn.length,
-    tt,
+    nt,
     Sn,
     kr,
     Nn
@@ -72993,7 +72983,7 @@ const U0 = {
   at.current = Hr;
   const Nt = A.useCallback((J, Te, Se, Ie) => {
     const je = Jn - (Se ? 0 : 1);
-    J = Za(J, tt, Di.length - 1 + tt), Te = Za(Te, 0, je);
+    J = Za(J, nt, Di.length - 1 + nt), Te = Za(Te, 0, je);
     const V = G?.[0], ee = G?.[1];
     if (J === V && Te === ee)
       return !1;
@@ -73012,10 +73002,10 @@ const U0 = {
         cell: [J, Te],
         range: { x: J, y: Te, width: 1, height: 1 }
       }, !0, !1, "keyboard-nav");
-    return h.current !== void 0 && h.current[0] === J && h.current[1] === Te && (h.current = void 0), at.current && kr(J - tt, Te), !0;
+    return h.current !== void 0 && h.current[0] === J && h.current[1] === Te && (h.current = void 0), at.current && kr(J - nt, Te), !0;
   }, [
     Jn,
-    tt,
+    nt,
     Di.length,
     G,
     ut,
@@ -73023,7 +73013,7 @@ const U0 = {
     Gt,
     Nn
   ]), Jt = A.useCallback((J, Te) => {
-    i?.cell !== void 0 && J !== void 0 && ff(J) && (cn([{ location: i.cell, value: J }]), window.requestAnimationFrame(() => {
+    i?.cell !== void 0 && J !== void 0 && hf(J) && (cn([{ location: i.cell, value: J }]), window.requestAnimationFrame(() => {
       fs.current?.damage([
         {
           cell: i.cell
@@ -73066,36 +73056,36 @@ const U0 = {
     const Te = [];
     for (let Se = J.x; Se < J.x + J.width; Se++)
       for (let Ie = J.y; Ie < J.y + J.height; Ie++) {
-        const je = x([Se - tt, Ie]);
+        const je = x([Se - nt, Ie]);
         if (!je.allowOverlay && je.kind !== dn.Boolean)
           continue;
         let V;
         if (je.kind === dn.Custom) {
           const ee = bi(je), ie = ee?.provideEditor?.({
             ...je,
-            location: [Se - tt, Ie]
+            location: [Se - nt, Ie]
           });
           ee?.onDelete !== void 0 ? V = ee.onDelete(je) : Roe(ie) && (V = ie?.deletedValue?.(je));
-        } else (ff(je) && je.allowOverlay || je.kind === dn.Boolean) && (V = bi(je)?.onDelete?.(je));
-        V !== void 0 && !Af(V) && ff(V) && Te.push({ location: [Se, Ie], value: V });
+        } else (hf(je) && je.allowOverlay || je.kind === dn.Boolean) && (V = bi(je)?.onDelete?.(je));
+        V !== void 0 && !vf(V) && hf(V) && Te.push({ location: [Se, Ie], value: V });
       }
     cn(Te), fs.current?.damage(Te.map((Se) => ({ cell: Se.location })));
-  }, [St, x, bi, cn, tt]), _n = i !== void 0, Zt = A.useCallback((J) => {
+  }, [St, x, bi, cn, nt]), _n = i !== void 0, Zt = A.useCallback((J) => {
     const Te = () => {
       J.stopPropagation(), J.preventDefault();
     }, Se = {
       didMatch: !1
     }, { bounds: Ie } = J, je = ut.columns, V = ut.rows, ee = Dr;
     if (!_n && lr(ee.clear, J, Se))
-      Gt($0, !1), $e?.();
+      Gt($0, !1), ze?.();
     else if (!_n && lr(ee.selectAll, J, Se))
       Gt({
         columns: ur.empty(),
         rows: ur.empty(),
         current: {
-          cell: ut.current?.cell ?? [tt, 0],
+          cell: ut.current?.cell ?? [nt, 0],
           range: {
-            x: tt,
+            x: nt,
             y: 0,
             width: w.length,
             height: Sn
@@ -73116,7 +73106,7 @@ const U0 = {
         }
         for (const Bn of Cn.rows)
           On({
-            x: tt,
+            x: nt,
             y: Bn,
             width: w.length,
             height: 1
@@ -73136,9 +73126,9 @@ const U0 = {
       return !1;
     let [ie, ue] = ut.current.cell;
     const [, Fe] = ut.current.cell;
-    let De = !1, gt = !1;
+    let De = !1, pt = !1;
     if (lr(ee.scrollToSelectedCell, J, Se))
-      Bs.current(ie - tt, ue);
+      Bs.current(ie - nt, ue);
     else if (Ct !== "none" && lr(ee.selectColumn, J, Se))
       je.hasIndex(ie) ? pn(je.remove(ie), void 0, !0) : Ct === "single" ? pn(ur.fromSingleSelection(ie), void 0, !0) : pn(void 0, ie, !0);
     else if (wt !== "none" && lr(ee.selectRow, J, Se))
@@ -73154,9 +73144,9 @@ const U0 = {
           inputType: "keyboard",
           key: J.key
         };
-        S?.([ie - tt, ue], en), pa(Ie, en);
+        S?.([ie - nt, ue], en), pa(Ie, en);
       }
-    else ut.current.range.height > 1 && lr(ee.downFill, J, Se) ? T() : ut.current.range.width > 1 && lr(ee.rightFill, J, Se) ? wr() : lr(ee.goToNextPage, J, Se) ? ue += Math.max(1, Fi.current.height - 4) : lr(ee.goToPreviousPage, J, Se) ? ue -= Math.max(1, Fi.current.height - 4) : lr(ee.goToFirstCell, J, Se) ? (s(void 0), ue = 0, ie = 0) : lr(ee.goToLastCell, J, Se) ? (s(void 0), ue = Number.MAX_SAFE_INTEGER, ie = Number.MAX_SAFE_INTEGER) : lr(ee.selectToFirstCell, J, Se) ? (s(void 0), Ge([-2, -2])) : lr(ee.selectToLastCell, J, Se) ? (s(void 0), Ge([2, 2])) : _n ? (lr(ee.closeOverlay, J, Se) && s(void 0), lr(ee.acceptOverlayDown, J, Se) && (s(void 0), ue++), lr(ee.acceptOverlayUp, J, Se) && (s(void 0), ue--), lr(ee.acceptOverlayLeft, J, Se) && (s(void 0), ie--), lr(ee.acceptOverlayRight, J, Se) && (s(void 0), ie++)) : (lr(ee.goDownCell, J, Se) ? ue += 1 : lr(ee.goUpCell, J, Se) ? ue -= 1 : lr(ee.goRightCell, J, Se) ? ie += 1 : lr(ee.goLeftCell, J, Se) ? ie -= 1 : lr(ee.goDownCellRetainSelection, J, Se) ? (ue += 1, De = !0) : lr(ee.goUpCellRetainSelection, J, Se) ? (ue -= 1, De = !0) : lr(ee.goRightCellRetainSelection, J, Se) ? (ie += 1, De = !0) : lr(ee.goLeftCellRetainSelection, J, Se) ? (ie -= 1, De = !0) : lr(ee.goToLastRow, J, Se) ? ue = Sn - 1 : lr(ee.goToFirstRow, J, Se) ? ue = Number.MIN_SAFE_INTEGER : lr(ee.goToLastColumn, J, Se) ? ie = Number.MAX_SAFE_INTEGER : lr(ee.goToFirstColumn, J, Se) ? ie = Number.MIN_SAFE_INTEGER : (sn === "rect" || sn === "multi-rect") && (lr(ee.selectGrowDown, J, Se) ? Ge([0, 1]) : lr(ee.selectGrowUp, J, Se) ? Ge([0, -1]) : lr(ee.selectGrowRight, J, Se) ? Ge([1, 0]) : lr(ee.selectGrowLeft, J, Se) ? Ge([-1, 0]) : lr(ee.selectToLastRow, J, Se) ? Ge([0, 2]) : lr(ee.selectToFirstRow, J, Se) ? Ge([0, -2]) : lr(ee.selectToLastColumn, J, Se) ? Ge([2, 0]) : lr(ee.selectToFirstColumn, J, Se) && Ge([-2, 0])), gt = Se.didMatch);
+    else ut.current.range.height > 1 && lr(ee.downFill, J, Se) ? T() : ut.current.range.width > 1 && lr(ee.rightFill, J, Se) ? wr() : lr(ee.goToNextPage, J, Se) ? ue += Math.max(1, Fi.current.height - 4) : lr(ee.goToPreviousPage, J, Se) ? ue -= Math.max(1, Fi.current.height - 4) : lr(ee.goToFirstCell, J, Se) ? (s(void 0), ue = 0, ie = 0) : lr(ee.goToLastCell, J, Se) ? (s(void 0), ue = Number.MAX_SAFE_INTEGER, ie = Number.MAX_SAFE_INTEGER) : lr(ee.selectToFirstCell, J, Se) ? (s(void 0), Ge([-2, -2])) : lr(ee.selectToLastCell, J, Se) ? (s(void 0), Ge([2, 2])) : _n ? (lr(ee.closeOverlay, J, Se) && s(void 0), lr(ee.acceptOverlayDown, J, Se) && (s(void 0), ue++), lr(ee.acceptOverlayUp, J, Se) && (s(void 0), ue--), lr(ee.acceptOverlayLeft, J, Se) && (s(void 0), ie--), lr(ee.acceptOverlayRight, J, Se) && (s(void 0), ie++)) : (lr(ee.goDownCell, J, Se) ? ue += 1 : lr(ee.goUpCell, J, Se) ? ue -= 1 : lr(ee.goRightCell, J, Se) ? ie += 1 : lr(ee.goLeftCell, J, Se) ? ie -= 1 : lr(ee.goDownCellRetainSelection, J, Se) ? (ue += 1, De = !0) : lr(ee.goUpCellRetainSelection, J, Se) ? (ue -= 1, De = !0) : lr(ee.goRightCellRetainSelection, J, Se) ? (ie += 1, De = !0) : lr(ee.goLeftCellRetainSelection, J, Se) ? (ie -= 1, De = !0) : lr(ee.goToLastRow, J, Se) ? ue = Sn - 1 : lr(ee.goToFirstRow, J, Se) ? ue = Number.MIN_SAFE_INTEGER : lr(ee.goToLastColumn, J, Se) ? ie = Number.MAX_SAFE_INTEGER : lr(ee.goToFirstColumn, J, Se) ? ie = Number.MIN_SAFE_INTEGER : (sn === "rect" || sn === "multi-rect") && (lr(ee.selectGrowDown, J, Se) ? Ge([0, 1]) : lr(ee.selectGrowUp, J, Se) ? Ge([0, -1]) : lr(ee.selectGrowRight, J, Se) ? Ge([1, 0]) : lr(ee.selectGrowLeft, J, Se) ? Ge([-1, 0]) : lr(ee.selectToLastRow, J, Se) ? Ge([0, 2]) : lr(ee.selectToFirstRow, J, Se) ? Ge([0, -2]) : lr(ee.selectToLastColumn, J, Se) ? Ge([2, 0]) : lr(ee.selectToFirstColumn, J, Se) && Ge([-2, 0])), pt = Se.didMatch);
     if (po !== void 0 && po !== "normal" && ue !== Fe) {
       const en = po === "skip-up" || po === "skip" || po === "block", Cn = po === "skip-down" || po === "skip" || po === "block", Bn = ue < Fe;
       if (Bn && en) {
@@ -73170,7 +73160,7 @@ const U0 = {
       }
     }
     const yt = Nt(ie, ue, !1, De), Ot = Se.didMatch;
-    return Ot && (yt || !gt || es) && Te(), Ot;
+    return Ot && (yt || !pt || es) && Te(), Ot;
   }, [
     po,
     _n,
@@ -73179,12 +73169,12 @@ const U0 = {
     Ct,
     wt,
     sn,
-    tt,
+    nt,
     ta,
     Sn,
     Nt,
     Gt,
-    $e,
+    ze,
     w.length,
     Vr,
     es,
@@ -73204,7 +73194,7 @@ const U0 = {
     if (lt !== void 0 && lt({
       ...J,
       ...J.location && {
-        location: [J.location[0] - tt, J.location[1]]
+        location: [J.location[0] - nt, J.location[1]]
       },
       cancel: () => {
         Te = !0;
@@ -73212,14 +73202,14 @@ const U0 = {
     }), Te || Zt(J) || ut.current === void 0)
       return;
     const [Se, Ie] = ut.current.cell, je = Fi.current;
-    if (Xe && !J.metaKey && !J.ctrlKey && ut.current !== void 0 && J.key.length === 1 && /[\p{L}\p{M}\p{N}\p{S}\p{P}]/u.test(J.key) && J.bounds !== void 0 && hf(x([Se - tt, Math.max(0, Math.min(Ie, Sn - 1))]))) {
+    if (Xe && !J.metaKey && !J.ctrlKey && ut.current !== void 0 && J.key.length === 1 && /[\p{L}\p{M}\p{N}\p{S}\p{P}]/u.test(J.key) && J.bounds !== void 0 && gf(x([Se - nt, Math.max(0, Math.min(Ie, Sn - 1))]))) {
       if ((!qn || Ie !== Sn) && (je.y > Ie || Ie > je.y + je.height || je.x > Se || Se > je.x + je.width))
         return;
       const V = {
         inputType: "keyboard",
         key: J.key
       };
-      S?.([Se - tt, Ie], V), pa(J.bounds, V, J.key), J.stopPropagation(), J.preventDefault();
+      S?.([Se - nt, Ie], V), pa(J.bounds, V, J.key), J.stopPropagation(), J.preventDefault();
     }
   }, [
     Xe,
@@ -73227,13 +73217,13 @@ const U0 = {
     Zt,
     ut,
     x,
-    tt,
+    nt,
     Sn,
     qn,
     S,
     pa
   ]), jt = A.useCallback((J, Te) => {
-    const Se = J.location[0] - tt;
+    const Se = J.location[0] - nt;
     if (J.kind === "header" && O?.(Se, { ...J, preventDefault: Te }), J.kind === El) {
       if (Se < 0)
         return;
@@ -73251,7 +73241,7 @@ const U0 = {
     H,
     Z,
     O,
-    tt,
+    nt,
     Nt
   ]), mr = A.useCallback(async (J) => {
     if (!Dr.paste)
@@ -73259,19 +73249,19 @@ const U0 = {
     function Te(ee, ie, ue, Fe) {
       const De = typeof ue == "object" ? ue?.join(`
 `) ?? "" : ue?.toString() ?? "";
-      if (!Af(ee) && hf(ee) && ee.readonly !== !0) {
-        const gt = L?.(De, ee);
-        if (gt !== void 0 && ff(gt))
+      if (!vf(ee) && gf(ee) && ee.readonly !== !0) {
+        const pt = L?.(De, ee);
+        if (pt !== void 0 && hf(pt))
           return {
             location: ie,
-            value: gt
+            value: pt
           };
-        const nt = bi(ee);
-        if (nt === void 0)
+        const rt = bi(ee);
+        if (rt === void 0)
           return;
-        if (nt.kind === dn.Custom) {
+        if (rt.kind === dn.Custom) {
           Ma(ee.kind === dn.Custom);
-          const yt = nt.onPaste?.(De, ee.data);
+          const yt = rt.onPaste?.(De, ee.data);
           return yt === void 0 ? void 0 : {
             location: ie,
             value: {
@@ -73280,7 +73270,7 @@ const U0 = {
             }
           };
         } else {
-          const yt = nt.onPaste?.(De, ee, {
+          const yt = rt.onPaste?.(De, ee, {
             formatted: Fe,
             formattedString: typeof Fe == "string" ? Fe : Fe?.join(`
 `),
@@ -73295,7 +73285,7 @@ const U0 = {
     }
     const Se = ut.columns, Ie = ut.rows, je = or.current?.contains(document.activeElement) === !0 || a.current?.contains(document.activeElement) === !0;
     let V;
-    if (ut.current !== void 0 ? V = [ut.current.range.x, ut.current.range.y] : Se.length === 1 ? V = [Se.first() ?? 0, 0] : Ie.length === 1 && (V = [tt, Ie.first() ?? 0]), je && V !== void 0) {
+    if (ut.current !== void 0 ? V = [ut.current.range.x, ut.current.range.y] : Se.length === 1 ? V = [Se.first() ?? 0, 0] : Ie.length === 1 && (V = [nt, Ie.first() ?? 0]), je && V !== void 0) {
       let ee, ie;
       const ue = "text/plain", Fe = "text/html";
       if (navigator.clipboard.read !== void 0) {
@@ -73320,11 +73310,11 @@ const U0 = {
         ee === void 0 && J.clipboardData.types.includes(ue) && (ie = J.clipboardData.getData(ue));
       } else
         return;
-      const [De, gt] = V, nt = [];
+      const [De, pt] = V, rt = [];
       do {
         if (Rt === void 0) {
           const yt = gs(V), Ot = ie ?? ee?.map((Cn) => Cn.map((Bn) => Bn.rawValue).join("	")).join("	") ?? "", en = Te(yt, V, Ot, void 0);
-          en !== void 0 && nt.push(en);
+          en !== void 0 && rt.push(en);
           break;
         }
         if (ee === void 0) {
@@ -73332,21 +73322,21 @@ const U0 = {
             return;
           ee = kde(ie);
         }
-        if (Rt === !1 || typeof Rt == "function" && Rt?.([V[0] - tt, V[1]], ee.map((yt) => yt.map((Ot) => Ot.rawValue?.toString() ?? ""))) !== !0)
+        if (Rt === !1 || typeof Rt == "function" && Rt?.([V[0] - nt, V[1]], ee.map((yt) => yt.map((Ot) => Ot.rawValue?.toString() ?? ""))) !== !0)
           return;
         for (const [yt, Ot] of ee.entries()) {
-          if (yt + gt >= Sn)
+          if (yt + pt >= Sn)
             break;
           for (const [en, Cn] of Ot.entries()) {
-            const Bn = [en + De, yt + gt], [xr, fr] = Bn;
+            const Bn = [en + De, yt + pt], [xr, fr] = Bn;
             if (xr >= jn.length || fr >= Jn)
               continue;
             const hr = gs(Bn), er = Te(hr, Bn, Cn.rawValue, Cn.formatted);
-            er !== void 0 && nt.push(er);
+            er !== void 0 && rt.push(er);
           }
         }
       } while (!1);
-      cn(nt), fs.current?.damage(nt.map((yt) => ({
+      cn(rt), fs.current?.damage(rt.map((yt) => ({
         cell: yt.location
       })));
     }
@@ -73361,7 +73351,7 @@ const U0 = {
     cn,
     Jn,
     Rt,
-    tt,
+    nt,
     Sn
   ]);
   Go("paste", mr, g, !1, !0);
@@ -73384,11 +73374,11 @@ const U0 = {
     if (Se && Bt !== void 0) {
       if (ut.current !== void 0) {
         let ee = Bt(ut.current.range, ne.current.signal);
-        typeof ee != "object" && (ee = await ee()), V(ee, Gu(ut.current.range.x - tt, ut.current.range.x + ut.current.range.width - tt));
+        typeof ee != "object" && (ee = await ee()), V(ee, Gu(ut.current.range.x - nt, ut.current.range.x + ut.current.range.width - nt));
       } else if (je !== void 0 && je.length > 0) {
         const ie = [...je].map((ue) => {
           const Fe = Bt({
-            x: tt,
+            x: nt,
             y: ue,
             width: w.length,
             height: 1
@@ -73409,12 +73399,12 @@ const U0 = {
             width: 1,
             height: Sn
           }, ne.current.signal);
-          typeof Fe != "object" && (Fe = await Fe()), ee.push(Fe), ie.push(ue - tt);
+          typeof Fe != "object" && (Fe = await Fe()), ee.push(Fe), ie.push(ue - nt);
         }
         if (ee.length === 1)
           V(ee[0], ie);
         else {
-          const ue = ee.reduce((Fe, De) => Fe.map((gt, nt) => [...gt, ...De[nt]]));
+          const ue = ee.reduce((Fe, De) => Fe.map((pt, rt) => [...pt, ...De[rt]]));
           V(ue, ie);
         }
       }
@@ -73424,7 +73414,7 @@ const U0 = {
     Bt,
     ut,
     Dr.copy,
-    tt,
+    nt,
     or,
     Sn,
     Lt
@@ -73450,14 +73440,14 @@ const U0 = {
   Go("cut", ps, g, !1, !1);
   const Yi = A.useCallback((J, Te) => {
     if (be !== void 0) {
-      tt !== 0 && (J = J.map((je) => [je[0] - tt, je[1]])), be(J, Te);
+      nt !== 0 && (J = J.map((je) => [je[0] - nt, je[1]])), be(J, Te);
       return;
     }
     if (J.length === 0 || Te === -1)
       return;
     const [Se, Ie] = J[Te];
     h.current !== void 0 && h.current[0] === Se && h.current[1] === Ie || (h.current = [Se, Ie], Nt(Se, Ie, !1, !1));
-  }, [be, tt, Nt]), [Jr, Vs] = Xt?.current?.cell ?? [], Bs = A.useRef(kr);
+  }, [be, nt, Nt]), [Jr, Vs] = Xt?.current?.cell ?? [], Bs = A.useRef(kr);
   Bs.current = kr, A.useLayoutEffect(() => {
     at.current && !rs.current && Jr !== void 0 && Vs !== void 0 && (Jr !== Wt.current?.current?.cell[0] || Vs !== Wt.current?.current?.cell[1]) && Bs.current(Jr, Vs), rs.current = !1;
   }, [Jr, Vs]);
@@ -73465,7 +73455,7 @@ const U0 = {
   A.useLayoutEffect(() => {
     ja && Gt($0, !1);
   }, [ja, Gt]);
-  const no = A.useMemo(() => qn === !0 && $t?.tint === !0 ? ur.fromSingleSelection(Jn - 1) : ur.empty(), [Jn, qn, $t?.tint]), na = A.useCallback((J) => typeof Yr == "boolean" ? Yr : Yr?.(J - tt) ?? !0, [tt, Yr]), Ws = A.useMemo(() => {
+  const no = A.useMemo(() => qn === !0 && $t?.tint === !0 ? ur.fromSingleSelection(Jn - 1) : ur.empty(), [Jn, qn, $t?.tint]), na = A.useCallback((J) => typeof Yr == "boolean" ? Yr : Yr?.(J - nt) ?? !0, [nt, Yr]), Ws = A.useMemo(() => {
     if (Ml === void 0 || a.current === null)
       return null;
     const { bounds: J, group: Te } = Ml, Se = a.current.getBoundingClientRect();
@@ -73474,9 +73464,9 @@ const U0 = {
     } });
   }, [ce, Ml]), ss = Math.min(jn.length, ft + (us ? 1 : 0));
   A.useImperativeHandle(e, () => ({
-    appendRow: (J, Te) => Hs(J + tt, Te),
+    appendRow: (J, Te) => Hs(J + nt, Te),
     appendColumn: (J, Te) => ya(J, Te),
-    updateCells: (J) => (tt !== 0 && (J = J.map((Te) => ({ cell: [Te.cell[0] + tt, Te.cell[1]] }))), fs.current?.damage(J)),
+    updateCells: (J) => (nt !== 0 && (J = J.map((Te) => ({ cell: [Te.cell[0] + nt, Te.cell[1]] }))), fs.current?.damage(J)),
     getBounds: (J, Te) => {
       if (!(a?.current === null || or?.current === null)) {
         if (J === void 0 && Te === void 0) {
@@ -73488,7 +73478,7 @@ const U0 = {
             height: or.current.scrollHeight * Ie
           };
         }
-        return fs.current?.getBounds((J ?? 0) + tt, Te);
+        return fs.current?.getBounds((J ?? 0) + nt, Te);
       }
     },
     focus: () => fs.current?.focus(),
@@ -73562,7 +73552,7 @@ const U0 = {
     scrollTo: kr,
     remeasureColumns: (J) => {
       for (const Te of J)
-        qa(Te + tt);
+        qa(Te + nt);
     },
     getMouseArgsForPosition: (J, Te, Se) => {
       if (fs?.current === null)
@@ -73571,7 +73561,7 @@ const U0 = {
       if (Ie !== void 0)
         return {
           ...Ie,
-          location: [Ie.location[0] - tt, Ie.location[1]]
+          location: [Ie.location[0] - nt, Ie.location[1]]
         };
     }
   }), [
@@ -73582,7 +73572,7 @@ const U0 = {
     Cr,
     Yt,
     mr,
-    tt,
+    nt,
     kr
   ]);
   const [ro, Pi] = G ?? [], Gi = A.useCallback((J) => {
@@ -73599,15 +73589,15 @@ const U0 = {
     qs(J);
   }, 5)), Do = A.useCallback(() => {
     Fs.current(!0), ut.current === void 0 && ut.columns.length === 0 && ut.rows.length === 0 && u === void 0 && Nn({
-      cell: [tt, Wa],
+      cell: [nt, Wa],
       range: {
-        x: tt,
+        x: nt,
         y: Wa,
         width: 1,
         height: 1
       }
     }, !0, !1, "keyboard-select");
-  }, [Wa, ut, u, tt, Nn]), Bo = A.useCallback(() => {
+  }, [Wa, ut, u, nt, Nn]), Bo = A.useCallback(() => {
     Fs.current(!1);
   }, []), [So, Vo] = A.useMemo(() => {
     let J;
@@ -73631,7 +73621,7 @@ const U0 = {
     A.createElement(
       Nde,
       { style: Uc, className: I, inWidth: b ?? So, inHeight: E ?? Vo },
-      A.createElement(yde, { fillHandle: kn, drawFocusRing: Js, experimental: Vn, fixedShadowX: Mi, fixedShadowY: $i, getRowThemeOverride: Wi, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: Ji, onDragLeave: _i, onRowMoved: Kr, overscrollX: sl, overscrollY: Va, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, smoothScrollX: ts, smoothScrollY: tn, className: I, enableGroups: to, onCanvasFocused: Do, onCanvasBlur: Bo, canvasRef: a, onContextMenu: jt, theme: Yn, cellXOffset: ds, cellYOffset: Wa, accessibilityHeight: Pr.height, onDragEnd: Me, columns: jn, nonGrowWidth: Br, drawHeader: Qn, onColumnProposeMove: ae, drawCell: xi, disabledRows: no, freezeColumns: ss, lockColumns: tt, firstColAccessible: tt === 0, getCellContent: gs, minColumnWidth: Zo, maxColumnWidth: Vi, searchInputRef: o, showSearch: vo, onSearchClose: Eo, highlightRegions: cc, getCellsForSelection: Bt, getGroupDetails: uc, headerHeight: Us, isFocused: ra, groupHeaderHeight: to ? Ao : 0, freezeTrailingRows: En + (qn && $t?.sticky === !0 ? 1 : 0), hasAppendRow: qn, onColumnResize: wn, onColumnResizeEnd: gn, onColumnResizeStart: In, onCellFocused: Gi, onColumnMoved: he, onDragStart: ye, onHeaderMenuClick: te, onHeaderIndicatorClick: X, onItemHovered: He, isFilling: u?.fillHandle === !0, onMouseMove: re, onKeyDown: Yt, onKeyUp: Ee, onMouseDown: fc, onMouseUp: Q, onDragOverCell: pi, onDrop: co, onSearchResultsChanged: Yi, onVisibleRegionChanged: K, clientSize: _r, rowHeight: ws, searchResults: ge, searchValue: ke, onSearchValueChange: Ae, rows: Jn, scrollRef: or, selection: ut, translateX: Pr.tx, translateY: Pr.ty, verticalBorder: na, gridRef: fs, getCellRenderer: bi, resizeIndicator: ci }),
+      A.createElement(yde, { fillHandle: kn, drawFocusRing: Js, experimental: Vn, fixedShadowX: Mi, fixedShadowY: $i, getRowThemeOverride: Wi, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: Ji, onDragLeave: _i, onRowMoved: Kr, overscrollX: sl, overscrollY: Va, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, smoothScrollX: ts, smoothScrollY: tn, className: I, enableGroups: to, onCanvasFocused: Do, onCanvasBlur: Bo, canvasRef: a, onContextMenu: jt, theme: Yn, cellXOffset: ds, cellYOffset: Wa, accessibilityHeight: Pr.height, onDragEnd: Me, columns: jn, nonGrowWidth: Br, drawHeader: Qn, onColumnProposeMove: ae, drawCell: xi, disabledRows: no, freezeColumns: ss, lockColumns: nt, firstColAccessible: nt === 0, getCellContent: gs, minColumnWidth: Zo, maxColumnWidth: Vi, searchInputRef: o, showSearch: vo, onSearchClose: Eo, highlightRegions: cc, getCellsForSelection: Bt, getGroupDetails: uc, headerHeight: Us, isFocused: ra, groupHeaderHeight: to ? Ao : 0, freezeTrailingRows: En + (qn && $t?.sticky === !0 ? 1 : 0), hasAppendRow: qn, onColumnResize: wn, onColumnResizeEnd: gn, onColumnResizeStart: In, onCellFocused: Gi, onColumnMoved: he, onDragStart: ye, onHeaderMenuClick: te, onHeaderIndicatorClick: X, onItemHovered: He, isFilling: u?.fillHandle === !0, onMouseMove: re, onKeyDown: Yt, onKeyUp: Ee, onMouseDown: fc, onMouseUp: Q, onDragOverCell: pi, onDrop: co, onSearchResultsChanged: Yi, onVisibleRegionChanged: K, clientSize: _r, rowHeight: ws, searchResults: ge, searchValue: ke, onSearchValueChange: Ae, rows: Jn, scrollRef: or, selection: ut, translateX: Pr.tx, translateY: Pr.ty, verticalBorder: na, gridRef: fs, getCellRenderer: bi, resizeIndicator: ci }),
       Ws,
       i !== void 0 && A.createElement(
         A.Suspense,
@@ -73725,7 +73715,7 @@ function rfe(t, e) {
   for (const m of e) {
     if (h > o + u)
       break;
-    const y = nh(m, i, r.baseFontFull).width;
+    const y = rh(m, i, r.baseFontFull).width;
     g.push({
       x: h,
       width: y
@@ -73797,7 +73787,7 @@ function lfe(t, e) {
   for (const S of e) {
     if (w > u + d)
       break;
-    const $ = nh(S.text, i, h).width;
+    const $ = rh(S.text, i, h).width;
     let L = 0;
     S.img !== void 0 && s.loadOrGetImage(S.img, o, a) !== void 0 && (L = C - 8 + 4);
     const N = $ + L + b * 2;
@@ -73958,7 +73948,7 @@ const ffe = {
   kind: dn.Markdown,
   needsHover: !1,
   needsHoverPosition: !1,
-  drawPrep: rp,
+  drawPrep: ip,
   measure: (t, e, n) => {
     const r = e.data.split(`
 `)[0];
@@ -74062,7 +74052,7 @@ function vfe(t, e, n, r, i) {
       width: e.width - s,
       height: e.height - o - 1
     };
-  const a = nh(n, t, r.baseFontFull, "alphabetic"), u = e.height - o, d = Math.min(u, a.actualBoundingBoxAscent * 2.5);
+  const a = rh(n, t, r.baseFontFull, "alphabetic"), u = e.height - o, d = Math.min(u, a.actualBoundingBoxAscent * 2.5);
   return {
     x: e.x + s / 2,
     y: e.y + (e.height - d) / 2 + 1,
@@ -74070,13 +74060,13 @@ function vfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const Efe = A.lazy(async () => await import("./number-overlay-editor-DTkHoOvV.js")), _fe = {
+const Efe = A.lazy(async () => await import("./number-overlay-editor-DejoxDrF.js")), _fe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,
   needsHoverPosition: !1,
   useLabel: !0,
-  drawPrep: rp,
+  drawPrep: ip,
   draw: (t) => {
     const { hoverAmount: e, cell: n, ctx: r, theme: i, rect: s, overrideCursor: o } = t, { hoverEffect: a, displayData: u, hoverEffectTheme: d } = n;
     a === !0 && e > 0 && qP(r, i, d, u, s, e, o), Mc(t, t.cell.displayData, t.cell.contentAlign);
@@ -74127,7 +74117,7 @@ const Dfe = {
   kind: dn.RowID,
   needsHover: !1,
   needsHoverPosition: !1,
-  drawPrep: (t, e) => rp(t, e, t.theme.textLight),
+  drawPrep: (t, e) => ip(t, e, t.theme.textLight),
   draw: (t) => Mc(t, t.cell.data, t.cell.contentAlign),
   measure: (t, e, n) => t.measureText(e.data).width + n.cellHorizontalPadding * 2,
   // eslint-disable-next-line react/display-name
@@ -74145,7 +74135,7 @@ const Dfe = {
   kind: dn.Text,
   needsHover: (t) => t.hoverEffect === !0,
   needsHoverPosition: !1,
-  drawPrep: rp,
+  drawPrep: ip,
   useLabel: !0,
   draw: (t) => {
     const { cell: e, hoverAmount: n, hyperWrapping: r, ctx: i, rect: s, theme: o, overrideCursor: a } = t, { displayData: u, contentAlign: d, hoverEffect: h, allowWrapping: g, hoverEffectTheme: m } = e;
@@ -74220,11 +74210,11 @@ const Rfe = {
   needsHover: (t) => t.hoverEffect === !0,
   needsHoverPosition: !0,
   useLabel: !0,
-  drawPrep: rp,
+  drawPrep: ip,
   draw: (t) => {
     const { cell: e, theme: n, overrideCursor: r, hoverX: i, hoverY: s, rect: o, ctx: a } = t, u = e.displayData ?? e.data, d = e.hoverEffect === !0;
     if (r !== void 0 && d && i !== void 0 && s !== void 0) {
-      const h = nh(u, a, n.baseFontFull), g = jP(h, o, n, e.contentAlign), { x: m, y, width: C, height: b } = g;
+      const h = rh(u, a, n.baseFontFull), g = jP(h, o, n, e.contentAlign), { x: m, y, width: C, height: b } = g;
       if (i >= m - 4 && i <= m - 4 + C + 8 && s >= y - 4 && s <= y - 4 + b + 8) {
         const E = Su(a, n.baseFontFull);
         r("pointer");
@@ -74298,7 +74288,7 @@ class Nfe extends pP {
   }
   // eslint-disable-next-line unicorn/consistent-function-scoping
   sendLoaded = Ife(() => {
-    this.imageLoaded(new Dg(this.loadedLocations)), this.loadedLocations = [];
+    this.imageLoaded(new Bg(this.loadedLocations)), this.loadedLocations = [];
   }, 20);
   clearOutOfWindow = () => {
     const e = Object.keys(this.cache);
@@ -74501,10 +74491,10 @@ function zfe({
       needsHover: !0,
       isMatch: (oe) => oe.kind === dn.Custom && oe.data?.kind === "zoom-button",
       draw: (oe, fe) => {
-        const { rect: be, ctx: ge, theme: Ae, hoverX: ke, hoverY: lt } = oe, Ee = fe.data?.label || "Zoom", Ce = 8, Xe = 7, ot = 5, _t = be.x + Xe, ze = be.y + ot, Mt = be.width - Xe * 2, an = be.height - ot * 2, sn = ke != null && lt != null && ke >= _t && ke <= _t + Mt && lt >= ze && lt <= ze + an, Ct = L && L.row === fe.data?.row && L.col === fe.data?.col, wt = sn || Ct;
+        const { rect: be, ctx: ge, theme: Ae, hoverX: ke, hoverY: lt } = oe, Ee = fe.data?.label || "Zoom", Ce = 8, Xe = 7, ot = 5, _t = be.x + Xe, Ue = be.y + ot, Mt = be.width - Xe * 2, an = be.height - ot * 2, sn = ke != null && lt != null && ke >= _t && ke <= _t + Mt && lt >= Ue && lt <= Ue + an, Ct = L && L.row === fe.data?.row && L.col === fe.data?.col, wt = sn || Ct;
         ge && ge.canvas && (ge.canvas.style.cursor = wt ? "pointer" : "default");
         const At = u === "dark" ? "#0a0a0a" : "#ffffff", Vt = u === "dark" ? "#151515" : "#f3f3f3", Ut = u === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", Qt = u === "dark" ? "rgba(0,0,0,0.48)" : "rgba(0,0,0,0.10)";
-        return ge.save(), ge.fillStyle = wt ? Vt : At, ge.strokeStyle = Ut, ge.lineWidth = 1, ge.shadowColor = wt ? Qt : "rgba(0,0,0,0)", ge.shadowBlur = wt ? 10 : 0, ge.shadowOffsetX = 0, ge.shadowOffsetY = wt ? 4 : 0, ge.beginPath(), ge.moveTo(_t + Ce, ze), ge.lineTo(_t + Mt - Ce, ze), ge.quadraticCurveTo(_t + Mt, ze, _t + Mt, ze + Ce), ge.lineTo(_t + Mt, ze + an - Ce), ge.quadraticCurveTo(_t + Mt, ze + an, _t + Mt - Ce, ze + an), ge.lineTo(_t + Ce, ze + an), ge.quadraticCurveTo(_t, ze + an, _t, ze + an - Ce), ge.lineTo(_t, ze + Ce), ge.quadraticCurveTo(_t, ze, _t + Ce, ze), ge.closePath(), ge.fill(), ge.stroke(), ge.restore(), ge.fillStyle = u === "dark" ? "#fafafa" : "#050505", ge.font = '600 11px var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", sans-serif)', ge.textAlign = "center", ge.textBaseline = "middle", ge.fillText(Ee, _t + Mt / 2, ze + an / 2 + 0.4), !0;
+        return ge.save(), ge.fillStyle = wt ? Vt : At, ge.strokeStyle = Ut, ge.lineWidth = 1, ge.shadowColor = wt ? Qt : "rgba(0,0,0,0)", ge.shadowBlur = wt ? 10 : 0, ge.shadowOffsetX = 0, ge.shadowOffsetY = wt ? 4 : 0, ge.beginPath(), ge.moveTo(_t + Ce, Ue), ge.lineTo(_t + Mt - Ce, Ue), ge.quadraticCurveTo(_t + Mt, Ue, _t + Mt, Ue + Ce), ge.lineTo(_t + Mt, Ue + an - Ce), ge.quadraticCurveTo(_t + Mt, Ue + an, _t + Mt - Ce, Ue + an), ge.lineTo(_t + Ce, Ue + an), ge.quadraticCurveTo(_t, Ue + an, _t, Ue + an - Ce), ge.lineTo(_t, Ue + Ce), ge.quadraticCurveTo(_t, Ue, _t + Ce, Ue), ge.closePath(), ge.fill(), ge.stroke(), ge.restore(), ge.fillStyle = u === "dark" ? "#fafafa" : "#050505", ge.font = '600 11px var(--font-sans, "Inter", system-ui, -apple-system, "Segoe UI", sans-serif)', ge.textAlign = "center", ge.textBaseline = "middle", ge.fillText(Ee, _t + Mt / 2, Ue + an / 2 + 0.4), !0;
       },
       onClick: (oe) => {
         const { location: fe } = oe, [be, ge] = fe;
@@ -74583,7 +74573,7 @@ function zfe({
               }
           }
           if (ot && typeof ot == "object")
-            return Object.entries(ot).filter(([, _t]) => _t != null).map(([_t, ze]) => `${_t}=${ze}`).join(";");
+            return Object.entries(ot).filter(([, _t]) => _t != null).map(([_t, Ue]) => `${_t}=${Ue}`).join(";");
         }
         return typeof Xe == "object" ? JSON.stringify(Xe) : String(Xe);
       })(Ae), Ee = y.trim().toLowerCase(), Ce = Ee && String(lt).toLowerCase().includes(Ee);
@@ -74740,7 +74730,7 @@ function zfe({
               if (I(Ee), !be) return;
               const Ce = ke ? Ae : lt;
               if (console.log("[DataGridView] applyRows.length=", Ce.length, "clearRowsIntent=", ke, "rows.length=", P.length), !Ce.length && !ke) return;
-              const Xe = k.getRowId, ot = k.hiddenSet || /* @__PURE__ */ new Set(), _t = k.onToggle, ze = k.onBatchToggle, Mt = [];
+              const Xe = k.getRowId, ot = k.hiddenSet || /* @__PURE__ */ new Set(), _t = k.onToggle, Ue = k.onBatchToggle, Mt = [];
               console.log("[DataGridView] Starting forEach over", P.length, "rows"), P.forEach((an, sn) => {
                 const Ct = Xe ? Xe(an) : null;
                 if (!Ct) {
@@ -74751,7 +74741,7 @@ function zfe({
                 sn < 5 && console.log("DEBUG: invert=", k.invert, "rowId=", Ct, "desiredSelected=", wt);
                 const Vt = k.invert ? !wt : wt;
                 Vt !== !At && Mt.push({ rowId: Ct, desiredVisible: Vt });
-              }), Mt.length > 0 && (ze ? ze(Mt) : Mt.forEach(({ rowId: an, desiredVisible: sn }) => {
+              }), Mt.length > 0 && (Ue ? Ue(Mt) : Mt.forEach(({ rowId: an, desiredVisible: sn }) => {
                 _t(an, sn);
               })), w.current = g, _.current = P.length;
             },
@@ -75093,8 +75083,8 @@ const GA = it.forwardRef((t, e) => {
     ...g9,
     ...s
   }), []), [$, L] = bt(k), N = o !== void 0, P = N ? { ...g9, ...o } : $, U = Ri((_e, ve) => {
-    N ? a?.({ ...P, [_e]: ve }, _e) : L((rt) => ({ ...rt, [_e]: ve }));
-  }, [N, P, a]), M = Ri((_e) => (ve) => U(_e, ve), [U]), j = $n(null), [W, Y] = bt(null), [R, H] = bt(!0), [I, O] = bt(null), [q, Z] = bt(["cluster", "species", "geneType"]), [ce, oe] = bt(["species", "branchLength", "support"]), [fe, be] = bt([]), [ge, Ae] = bt(!1), [ke, lt] = bt(!1), [Ee, Ce] = bt(!1), [Xe, ot] = bt(!1), [_t, ze] = bt(!1), [Mt, an] = bt(!1), [sn, Ct] = bt(null), [wt, At] = bt(null), [Vt, Ut] = bt(/* @__PURE__ */ new Set()), [Qt, qe] = bt(/* @__PURE__ */ new Set()), xe = Ti(() => ({
+    N ? a?.({ ...P, [_e]: ve }, _e) : L((tt) => ({ ...tt, [_e]: ve }));
+  }, [N, P, a]), M = Ri((_e) => (ve) => U(_e, ve), [U]), j = $n(null), [W, Y] = bt(null), [R, H] = bt(!0), [I, O] = bt(null), [q, Z] = bt(["cluster", "species", "geneType"]), [ce, oe] = bt(["species", "branchLength", "support"]), [fe, be] = bt([]), [ge, Ae] = bt(!1), [ke, lt] = bt(!1), [Ee, Ce] = bt(!1), [Xe, ot] = bt(!1), [_t, Ue] = bt(!1), [Mt, an] = bt(!1), [sn, Ct] = bt(null), [wt, At] = bt(null), [Vt, Ut] = bt(/* @__PURE__ */ new Set()), [Qt, qe] = bt(/* @__PURE__ */ new Set()), xe = Ti(() => ({
     ...Kt,
     ...D
   }), [D]);
@@ -75112,8 +75102,8 @@ const GA = it.forwardRef((t, e) => {
         newickStr: r.newickStr || ""
       };
       Y(ve), H(!1), Ae(ve.gffFeatures.length > 0), lt(Object.keys(ve.domainsByGene).length > 0), Ce(ve.proteinLinks.length > 0), ot(ve.nucleotideLinks.length > 0);
-      const rt = ve.gffFeatures.some((vt) => vt?.type === "ncRNA"), Ke = ve.gffFeatures.some((vt) => vt?.type === "region");
-      ze(rt), an(Ke), y?.(ve), b?.(!1);
+      const tt = ve.gffFeatures.some((vt) => vt?.type === "ncRNA"), Ke = ve.gffFeatures.some((vt) => vt?.type === "region");
+      Ue(tt), an(Ke), y?.(ve), b?.(!1);
       return;
     }
     (async () => {
@@ -75122,45 +75112,45 @@ const GA = it.forwardRef((t, e) => {
         const ve = {};
         if (console.log("[loadData] Starting data load...", { dataPaths: n, preferParquet: i }), n.gffParquet || n.gffText) {
           if (console.log("[loadData] Loading GFF from:", n.gffParquet ? "parquet" : "text"), i && n.gffParquet) {
-            const $e = await Tc(n.gffParquet);
-            console.log("[loadData] GFF parquet result:", $e?.length ?? "null"), $e && (ve.gffFeatures = $e);
+            const ze = await Tc(n.gffParquet);
+            console.log("[loadData] GFF parquet result:", ze?.length ?? "null"), ze && (ve.gffFeatures = ze);
           }
           if (!ve.gffFeatures && n.gffText) {
             console.log("[loadData] Falling back to GFF text");
-            const $e = await Hl(n.gffText);
-            ve.gffFeatures = await jfe($e);
+            const ze = await Hl(n.gffText);
+            ve.gffFeatures = await jfe(ze);
           }
         }
         if (ve.gffFeatures = ve.gffFeatures || [], console.log("[loadData] Final gffFeatures count:", ve.gffFeatures.length), ve.gffFeatures.length > 0 && console.log("[loadData] Sample GFF feature:", JSON.stringify(ve.gffFeatures[0])), n.hoodsParquet || n.hoodsText) {
           if (i && n.hoodsParquet) {
-            const $e = await Tc(n.hoodsParquet);
-            $e && (ve.hoods = $e);
+            const ze = await Tc(n.hoodsParquet);
+            ze && (ve.hoods = ze);
           }
           if (!ve.hoods && n.hoodsText) {
-            const $e = await Hl(n.hoodsText);
-            ve.hoods = await qfe($e);
+            const ze = await Hl(n.hoodsText);
+            ve.hoods = await qfe(ze);
           }
         }
         if (ve.hoods = ve.hoods || [], console.log("[loadData] Final hoods count:", ve.hoods.length), ve.hoods.length > 0 && console.log("[loadData] Sample hood:", JSON.stringify(ve.hoods[0])), n.proteinLinksParquet || n.proteinLinksText) {
           if (console.log("[loadData] Loading Protein Links..."), i && n.proteinLinksParquet) {
-            const $e = await Tc(n.proteinLinksParquet);
-            $e && (ve.proteinLinks = $e.map((ct) => ({
+            const ze = await Tc(n.proteinLinksParquet);
+            ze && (ve.proteinLinks = ze.map((ct) => ({
               geneA: ct.geneA || ct.qseqid || ct.gene_a,
               geneB: ct.geneB || ct.sseqid || ct.gene_b,
               score: ct.score ?? ct.pident ?? ct.similarity ?? 0,
               ...ct
-            })), console.log("[loadData] Protein Links from parquet:", $e.length));
+            })), console.log("[loadData] Protein Links from parquet:", ze.length));
           }
           if (!ve.proteinLinks && n.proteinLinksText) {
             console.log("[loadData] Loading protein links from text:", n.proteinLinksText?.substring(0, 100));
-            const $e = await Hl(n.proteinLinksText);
-            console.log("[loadData] Protein links text length:", $e?.length, "sample:", $e?.substring(0, 200)), ve.proteinLinks = await Xfe($e), console.log("[loadData] Parsed protein links:", ve.proteinLinks?.length, ve.proteinLinks?.slice(0, 2));
+            const ze = await Hl(n.proteinLinksText);
+            console.log("[loadData] Protein links text length:", ze?.length, "sample:", ze?.substring(0, 200)), ve.proteinLinks = await Xfe(ze), console.log("[loadData] Parsed protein links:", ve.proteinLinks?.length, ve.proteinLinks?.slice(0, 2));
           }
         }
         if (ve.proteinLinks = ve.proteinLinks || [], console.log("[loadData] Final protein links count:", ve.proteinLinks.length), n.nucleotideLinksParquet || n.nucleotideLinksText) {
           if (console.log("[loadData] Loading Nucleotide Links..."), i && n.nucleotideLinksParquet) {
-            const $e = await Tc(n.nucleotideLinksParquet);
-            $e && (ve.nucleotideLinks = $e.map((ct) => ({
+            const ze = await Tc(n.nucleotideLinksParquet);
+            ze && (ve.nucleotideLinks = ze.map((ct) => ({
               seqidA: ct.seqidA || ct.query || ct.seqid_a,
               startA: ct.startA ?? ct.query_start ?? ct.start_a,
               endA: ct.endA ?? ct.query_end ?? ct.end_a,
@@ -75169,20 +75159,20 @@ const GA = it.forwardRef((t, e) => {
               endB: ct.endB ?? ct.ref_end ?? ct.end_b,
               similarity: ct.similarity ?? ct.ani ?? ct.pident ?? 0,
               ...ct
-            })), console.log("[loadData] Nucleotide Links from parquet:", $e.length));
+            })), console.log("[loadData] Nucleotide Links from parquet:", ze.length));
           }
           if (!ve.nucleotideLinks && n.nucleotideLinksText) {
             console.log("[loadData] Loading nucleotide links from text...");
-            const $e = await Hl(n.nucleotideLinksText);
-            console.log("[loadData] Nucleotide links text length:", $e?.length), ve.nucleotideLinks = await Yfe($e), console.log("[loadData] Parsed nucleotide links:", ve.nucleotideLinks?.length);
+            const ze = await Hl(n.nucleotideLinksText);
+            console.log("[loadData] Nucleotide links text length:", ze?.length), ve.nucleotideLinks = await Yfe(ze), console.log("[loadData] Parsed nucleotide links:", ve.nucleotideLinks?.length);
           }
         }
         if (ve.nucleotideLinks = ve.nucleotideLinks || [], console.log("[loadData] Final nucleotide links count:", ve.nucleotideLinks.length), n.domainsParquet || n.domainsText) {
           if (i && n.domainsParquet) {
-            const $e = await Tc(n.domainsParquet);
-            if ($e) {
+            const ze = await Tc(n.domainsParquet);
+            if (ze) {
               const ct = {};
-              for (const It of $e) {
+              for (const It of ze) {
                 const Xt = It.gene_id || It.geneId;
                 Xt && (ct[Xt] || (ct[Xt] = []), ct[Xt].push(It));
               }
@@ -75190,16 +75180,16 @@ const GA = it.forwardRef((t, e) => {
             }
           }
           if (!ve.domainsByGene && n.domainsText) {
-            const $e = await Hl(n.domainsText);
-            ve.domainsByGene = await Gfe($e);
+            const ze = await Hl(n.domainsText);
+            ve.domainsByGene = await Gfe(ze);
           }
         }
         if (ve.domainsByGene = ve.domainsByGene || {}, n.proteinMetadataParquet || n.proteinMetadataText) {
           if (console.log("[loadData] Loading Protein Metadata..."), i && n.proteinMetadataParquet) {
-            const $e = await Tc(n.proteinMetadataParquet);
-            if ($e) {
+            const ze = await Tc(n.proteinMetadataParquet);
+            if (ze) {
               const ct = {};
-              for (const It of $e) {
+              for (const It of ze) {
                 const Xt = It.id || It.gene_id || It.protein_id;
                 Xt && (ct[Xt] = It);
               }
@@ -75208,8 +75198,8 @@ const GA = it.forwardRef((t, e) => {
           }
           if (!ve.proteinMetadata && n.proteinMetadataText) {
             console.log("[loadData] Loading protein metadata from text:", n.proteinMetadataText?.substring(0, 100));
-            const $e = await Hl(n.proteinMetadataText);
-            if (console.log("[loadData] Protein metadata text length:", $e?.length, "sample:", $e?.substring(0, 300)), ve.proteinMetadata = await Vfe($e), console.log("[loadData] Parsed protein metadata keys:", Object.keys(ve.proteinMetadata || {}).length), Object.keys(ve.proteinMetadata || {}).length > 0) {
+            const ze = await Hl(n.proteinMetadataText);
+            if (console.log("[loadData] Protein metadata text length:", ze?.length, "sample:", ze?.substring(0, 300)), ve.proteinMetadata = await Vfe(ze), console.log("[loadData] Parsed protein metadata keys:", Object.keys(ve.proteinMetadata || {}).length), Object.keys(ve.proteinMetadata || {}).length > 0) {
               const ct = Object.keys(ve.proteinMetadata)[0];
               console.log("[loadData] Sample protein metadata:", ct, ve.proteinMetadata[ct]);
             }
@@ -75217,10 +75207,10 @@ const GA = it.forwardRef((t, e) => {
         }
         if (ve.proteinMetadata = ve.proteinMetadata || {}, console.log("[loadData] Final protein metadata count:", Object.keys(ve.proteinMetadata).length), n.treeMetadataParquet || n.treeMetadataText) {
           if (console.log("[loadData] Loading Tree Metadata..."), i && n.treeMetadataParquet) {
-            const $e = await Tc(n.treeMetadataParquet);
-            if ($e) {
+            const ze = await Tc(n.treeMetadataParquet);
+            if (ze) {
               const ct = {};
-              for (const It of $e) {
+              for (const It of ze) {
                 const Xt = It.leaf_id || It.id || It.name;
                 Xt && (ct[Xt] = It);
               }
@@ -75229,16 +75219,16 @@ const GA = it.forwardRef((t, e) => {
           }
           if (!ve.treeMetadata && n.treeMetadataText) {
             console.log("[loadData] Loading tree metadata from text...");
-            const $e = await Hl(n.treeMetadataText);
-            ve.treeMetadata = await Wfe($e), console.log("[loadData] Parsed tree metadata keys:", Object.keys(ve.treeMetadata || {}).length);
+            const ze = await Hl(n.treeMetadataText);
+            ve.treeMetadata = await Wfe(ze), console.log("[loadData] Parsed tree metadata keys:", Object.keys(ve.treeMetadata || {}).length);
           }
         }
         if (ve.treeMetadata = ve.treeMetadata || {}, console.log("[loadData] Final tree metadata count:", Object.keys(ve.treeMetadata).length), n.ncRNAMetadataParquet || n.ncRNAMetadataText) {
           if (console.log("[loadData] Loading ncRNA Metadata..."), i && n.ncRNAMetadataParquet) {
-            const $e = await Tc(n.ncRNAMetadataParquet);
-            if ($e) {
+            const ze = await Tc(n.ncRNAMetadataParquet);
+            if (ze) {
               const ct = {};
-              for (const It of $e) {
+              for (const It of ze) {
                 const Xt = It.seqid, ln = parseInt(It.start, 10), Ln = parseInt(It.end, 10);
                 if (Xt && !isNaN(ln) && !isNaN(Ln)) {
                   const mn = `${Xt}:${ln}:${Ln}`, { seqid: mt, start: on, end: $t, ...En } = It;
@@ -75250,22 +75240,22 @@ const GA = it.forwardRef((t, e) => {
           }
           if (!ve.ncRNAMetadata && n.ncRNAMetadataText) {
             console.log("[loadData] Loading ncRNA metadata from text...");
-            const $e = await Hl(n.ncRNAMetadataText);
-            ve.ncRNAMetadata = await Kfe($e), console.log("[loadData] Parsed ncRNA metadata keys:", Object.keys(ve.ncRNAMetadata || {}).length);
+            const ze = await Hl(n.ncRNAMetadataText);
+            ve.ncRNAMetadata = await Kfe(ze), console.log("[loadData] Parsed ncRNA metadata keys:", Object.keys(ve.ncRNAMetadata || {}).length);
           }
         }
         if (ve.ncRNAMetadata = ve.ncRNAMetadata || {}, console.log("[loadData] Final ncRNA metadata count:", Object.keys(ve.ncRNAMetadata).length), n.newick)
           try {
             ve.newickStr = await Hl(n.newick);
-          } catch ($e) {
-            console.warn("Failed to load newick:", $e);
+          } catch (ze) {
+            console.warn("Failed to load newick:", ze);
           }
         if (ve.newickStr = ve.newickStr || "", n.domainsMetadataParquet || n.domainsMetadataText) {
           if (console.log("[loadData] Loading Domain Metadata..."), i && n.domainsMetadataParquet) {
-            const $e = await Tc(n.domainsMetadataParquet);
-            if ($e) {
+            const ze = await Tc(n.domainsMetadataParquet);
+            if (ze) {
               const ct = {};
-              for (const It of $e) {
+              for (const It of ze) {
                 const Xt = It.domain_id || It.domainId || It.id || It.name;
                 Xt && (ct[Xt] = It);
               }
@@ -75274,29 +75264,38 @@ const GA = it.forwardRef((t, e) => {
           }
           if (!ve.domainMetadata && n.domainsMetadataText) {
             console.log("[loadData] Loading domain metadata from text...");
-            const $e = await Hl(n.domainsMetadataText);
-            ve.domainMetadata = Ufe($e), console.log("[loadData] Parsed domain metadata keys:", Object.keys(ve.domainMetadata || {}).length);
+            const ze = await Hl(n.domainsMetadataText);
+            ve.domainMetadata = Ufe(ze), console.log("[loadData] Parsed domain metadata keys:", Object.keys(ve.domainMetadata || {}).length);
           }
         }
         ve.domainMetadata = ve.domainMetadata || {}, console.log("[loadData] Final domain metadata count:", Object.keys(ve.domainMetadata).length);
-        const rt = ve;
-        Y(rt), Ae(rt.gffFeatures.length > 0), lt(Object.keys(rt.domainsByGene).length > 0), Ce(rt.proteinLinks.length > 0), ot(rt.nucleotideLinks.length > 0);
-        const Ke = rt.gffFeatures.some(($e) => $e?.type === "ncRNA"), vt = rt.gffFeatures.some(($e) => $e?.type === "region");
-        if (ze(Ke), an(vt), Object.keys(rt.proteinMetadata).length > 0) {
-          const $e = Object.values(rt.proteinMetadata)[0];
-          if ($e && typeof $e == "object") {
-            const ct = Object.keys($e).filter((It) => !It.startsWith("_"));
+        const tt = ve;
+        Y(tt), Ae(tt.gffFeatures.length > 0), lt(Object.keys(tt.domainsByGene).length > 0), Ce(tt.proteinLinks.length > 0), ot(tt.nucleotideLinks.length > 0);
+        const Ke = tt.gffFeatures.some((ze) => ze?.type === "ncRNA"), vt = tt.gffFeatures.some((ze) => ze?.type === "region");
+        if (Ue(Ke), an(vt), Object.keys(tt.proteinMetadata).length > 0) {
+          const ze = Object.values(tt.proteinMetadata)[0];
+          if (ze && typeof ze == "object") {
+            const ct = Object.keys(ze).filter((It) => !It.startsWith("_"));
             Z(ct);
           }
         }
-        if (Object.keys(rt.treeMetadata).length > 0) {
-          const $e = Object.values(rt.treeMetadata)[0];
-          if ($e && typeof $e == "object") {
-            const ct = Object.keys($e).filter((It) => !It.startsWith("_"));
+        if (Object.keys(tt.treeMetadata).length > 0) {
+          const ze = Object.values(tt.treeMetadata)[0];
+          if (ze && typeof ze == "object") {
+            const ct = Object.keys(ze).filter((It) => !It.startsWith("_"));
             oe(ct);
           }
         }
-        y?.(rt), x?.({
+        if (Object.keys(tt.domainMetadata).length > 0) {
+          const ze = Object.values(tt.domainMetadata)[0];
+          if (ze && typeof ze == "object") {
+            const ct = Object.keys(ze).filter(
+              (It) => !It.startsWith("_") && It.toLowerCase() !== "domain_id"
+            );
+            be(ct), console.log("[loadData] Domain metadata columns detected:", ct);
+          }
+        }
+        y?.(tt), x?.({
           gene: q,
           tree: ce,
           domain: fe
@@ -75313,18 +75312,18 @@ const GA = it.forwardRef((t, e) => {
   const Rt = Ri((_e) => {
     const ve = _e?.object ?? _e;
     if (!ve) return;
-    const rt = (Ke) => {
+    const tt = (Ke) => {
       try {
         const vt = W?.ncRNAMetadata || {};
         if (!vt || Object.keys(vt).length === 0 || Ke?.metadata?.sequence || Ke?.metadata?.structure) return Ke;
-        const $e = (mt) => {
+        const ze = (mt) => {
           if (!mt || typeof mt != "object") return mt;
           const on = { ...mt };
           return on.sequence || (on.sequence = on.rna_sequence || on.sequence_nt || on.nucleotide_sequence || on.rna_seq || on.seq || null), on.structure || (on.structure = on.secondary_structure || on.dot_bracket || on.dbn || on.structure_dbn || null), on.type || (on.type = on.ncrna_type || on.rna_type || on.subtype || null), on;
         }, ct = Number.isFinite(Number(Ke.genomicStart)) ? Number(Ke.genomicStart) : null, It = Number.isFinite(Number(Ke.genomicEnd)) ? Number(Ke.genomicEnd) : null, Xt = (mt) => {
           if (!mt) return !1;
           const on = vt[mt];
-          return on ? (Ke.metadata = { ...Ke.metadata || {}, ...$e(on) }, !0) : !1;
+          return on ? (Ke.metadata = { ...Ke.metadata || {}, ...ze(on) }, !0) : !1;
         };
         if (ct !== null && It !== null) {
           const mt = `${Ke.seqid}:${ct}:${It}`;
@@ -75343,7 +75342,7 @@ const GA = it.forwardRef((t, e) => {
         return console.debug("[Dashboard] ncRNA hydration failed", vt), Ke;
       }
     };
-    (ve?.type === "ncRNA" || ve?.type === "ncRNA_gene") && rt(ve), Ct(ve), E?.(ve), w?.(ve);
+    (ve?.type === "ncRNA" || ve?.type === "ncRNA_gene") && tt(ve), Ct(ve), E?.(ve), w?.(ve);
   }, [E, w, W, j]), Lt = Ri((_e) => {
     if (!_e) return null;
     if (_e.gene_id) return _e.gene_id;
@@ -75356,10 +75355,10 @@ const GA = it.forwardRef((t, e) => {
         if (ve.gene_id) return ve.gene_id;
         if (ve.Name) return ve.Name;
       } else if (typeof ve == "string") {
-        const rt = ve.trim();
-        if (rt.startsWith("{") && rt.endsWith("}"))
+        const tt = ve.trim();
+        if (tt.startsWith("{") && tt.endsWith("}"))
           try {
-            const vt = JSON.parse(rt);
+            const vt = JSON.parse(tt);
             if (vt && typeof vt == "object") {
               if (vt.ID) return vt.ID;
               if (vt.gene_id) return vt.gene_id;
@@ -75367,9 +75366,9 @@ const GA = it.forwardRef((t, e) => {
             }
           } catch {
           }
-        const Ke = rt.split(";");
+        const Ke = tt.split(";");
         for (const vt of Ke) {
-          const [$e, ...ct] = vt.split("="), It = $e ? $e.trim() : "", Xt = ct.join("=").trim();
+          const [ze, ...ct] = vt.split("="), It = ze ? ze.trim() : "", Xt = ct.join("=").trim();
           if (It && (It === "ID" || It === "gene_id" || It === "Name"))
             return Xt || It;
         }
@@ -75384,7 +75383,7 @@ const GA = it.forwardRef((t, e) => {
       if (Ke) {
         j.current.focusGeneById?.(String(Ke));
         const vt = j.current.genomeView;
-        let $e = null;
+        let ze = null;
         if (vt && vt.genesById) {
           const It = String(Ke);
           let Xt = null;
@@ -75400,29 +75399,29 @@ const GA = it.forwardRef((t, e) => {
                 break;
               }
             }
-          Xt && ($e = vt.genesById[Xt]);
+          Xt && (ze = vt.genesById[Xt]);
         }
         const ct = {
           type: "gene",
           id: Ke,
-          metadata: $e?.metadata || _e,
-          ...$e
+          metadata: ze?.metadata || _e,
+          ...ze
         };
         Ct(ct), w?.(ct);
       }
     } else {
-      const Ke = _e.seqid || _e.hood_id || _e.hoodId, vt = _e.start, $e = _e.end;
-      if (Ke && vt != null && $e != null) {
-        j.current.focusFeatureByPosition?.(String(Ke), vt, $e, ve);
+      const Ke = _e.seqid || _e.hood_id || _e.hoodId, vt = _e.start, ze = _e.end;
+      if (Ke && vt != null && ze != null) {
+        j.current.focusFeatureByPosition?.(String(Ke), vt, ze, ve);
         const ct = {
           type: ve,
-          id: _e.id || `${Ke}:${vt}-${$e}`,
+          id: _e.id || `${Ke}:${vt}-${ze}`,
           metadata: _e.metadata || _e,
           ..._e
         };
         Ct(ct), w?.(ct);
       } else
-        console.warn("[HoodiniDashboard] Missing required fields for zoom:", { hoodId: Ke, start: vt, end: $e });
+        console.warn("[HoodiniDashboard] Missing required fields for zoom:", { hoodId: Ke, start: vt, end: ze });
     }
   }, [Lt, w]), xt = Ri((_e) => {
     if (!_e || !j.current) return;
@@ -75435,34 +75434,34 @@ const GA = it.forwardRef((t, e) => {
   }, []), zt = Ri((_e, ve) => {
     if (ve === "hoods") {
       if (!j.current) return !0;
-      const rt = _e.hood_id || _e.hoodId || _e.seqid;
-      if (!rt) return !0;
-      if (Vt.has(String(rt)) || Vt.has(Number(rt)))
+      const tt = _e.hood_id || _e.hoodId || _e.seqid;
+      if (!tt) return !0;
+      if (Vt.has(String(tt)) || Vt.has(Number(tt)))
         return !1;
       const Ke = j.current.getVisibleHoods?.();
       if (Ke && Ke instanceof Set)
-        return Ke.has(String(rt));
+        return Ke.has(String(tt));
       const vt = j.current.genomeView;
       if (vt && vt.leaves)
-        return vt.leaves.includes(String(rt));
+        return vt.leaves.includes(String(tt));
     }
     if (ve === "treeMetadata") {
       if (!j.current) return !0;
-      const rt = _e.leaf_id || _e.leafId || _e.leaf_name || _e.leafName || _e.id || _e.name;
-      if (!rt) return !0;
-      if (Vt.has(String(rt)) || Vt.has(Number(rt)))
+      const tt = _e.leaf_id || _e.leafId || _e.leaf_name || _e.leafName || _e.id || _e.name;
+      if (!tt) return !0;
+      if (Vt.has(String(tt)) || Vt.has(Number(tt)))
         return !1;
       const Ke = j.current.getVisibleHoods?.();
       if (Ke && Ke instanceof Set)
-        return Ke.has(String(rt));
+        return Ke.has(String(tt));
     }
     return !0;
-  }, [Vt, sn]), ht = Ti(() => {
+  }, [Vt, sn]), gt = Ti(() => {
     const _e = (ve) => {
       if (!ve) return null;
       if (typeof ve == "string") {
-        const rt = ve.match(/ID=([^;]+)/);
-        return rt ? rt[1] : null;
+        const tt = ve.match(/ID=([^;]+)/);
+        return tt ? tt[1] : null;
       } else if (typeof ve == "object")
         return ve.ID || ve.gene_id || ve.protein_id || null;
       return null;
@@ -75473,10 +75472,10 @@ const GA = it.forwardRef((t, e) => {
         // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
         invert: !0,
         getRowId: (ve) => ve?.gene_id || _e(ve?.attributes) || ve?.uniqueId || ve?.id || ve?.originalGeneId,
-        onToggle: (ve, rt) => {
-          console.log("[Dashboard] onToggle Gene:", ve, "visible:", rt), ve && qe((Ke) => {
+        onToggle: (ve, tt) => {
+          console.log("[Dashboard] onToggle Gene:", ve, "visible:", tt), ve && qe((Ke) => {
             const vt = new Set(Ke);
-            return rt ? vt.delete(ve) : vt.add(ve), console.log("[Dashboard] updated hiddenGeneIds size:", vt.size), vt;
+            return tt ? vt.delete(ve) : vt.add(ve), console.log("[Dashboard] updated hiddenGeneIds size:", vt.size), vt;
           });
         }
       },
@@ -75485,10 +75484,10 @@ const GA = it.forwardRef((t, e) => {
         // Invert so "Checked" = "Hidden", "Unchecked" = "Visible"
         invert: !0,
         getRowId: (ve) => ve?.hood_id || ve?.seqid || ve?.id || ve?.name,
-        onToggle: (ve, rt) => {
-          console.log("[Dashboard] onToggle Hood:", ve, "visible:", rt), ve && Ut((Ke) => {
-            const vt = new Set(Ke), $e = String(ve);
-            return rt ? (vt.delete($e), vt.delete(Number($e))) : vt.add($e), console.log("[Dashboard] updated hiddenHoods size:", vt.size), vt;
+        onToggle: (ve, tt) => {
+          console.log("[Dashboard] onToggle Hood:", ve, "visible:", tt), ve && Ut((Ke) => {
+            const vt = new Set(Ke), ze = String(ve);
+            return tt ? (vt.delete(ze), vt.delete(Number(ze))) : vt.add(ze), console.log("[Dashboard] updated hiddenHoods size:", vt.size), vt;
           });
         }
       }
@@ -75517,8 +75516,8 @@ const GA = it.forwardRef((t, e) => {
     // State
     getState: () => P,
     setState: (_e) => {
-      for (const [ve, rt] of Object.entries(_e))
-        U(ve, rt);
+      for (const [ve, tt] of Object.entries(_e))
+        U(ve, tt);
     },
     // Refs
     vizRef: j
@@ -75794,7 +75793,7 @@ const GA = it.forwardRef((t, e) => {
                 },
                 initialKey: "genes",
                 height: 360,
-                visibilityConfig: ht,
+                visibilityConfig: gt,
                 onZoomGene: ft,
                 onZoomHood: xt,
                 onZoomTree: Tt,
@@ -75844,7 +75843,7 @@ export {
   Hu as P,
   y9 as R,
   vle as T,
-  Af as a,
+  vf as a,
   Roe as b,
   pq as c,
   bs as d,
@@ -75852,12 +75851,12 @@ export {
   Hx as f,
   ic as g,
   _ge as h,
-  ff as i,
+  hf as i,
   ihe as j,
   Ege as k,
-  Pf as l,
+  If as l,
   Ale as m,
-  Pg as n,
+  Ig as n,
   A1 as o,
   za as s
 };

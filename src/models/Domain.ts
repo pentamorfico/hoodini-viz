@@ -76,13 +76,27 @@ class Domain {
     this.parentGene = null;
     this.polygon = null;
     
-    // Format evalue for display - use scientific notation if very small
-    const evalueDisplay = (evalue && evalue > 0) ? 
-      (evalue < 0.001 ? evalue.toExponential(2) : evalue.toFixed(6)) : 
-      evalue;
+    // Format evalue for display - handle both number and string formats
+    let evalueDisplay = evalue;
+    if (evalue !== null && evalue !== undefined) {
+      // Convert to number if it's a string (e.g., "2.29e-36")
+      const evalueNum = typeof evalue === 'number' ? evalue : parseFloat(evalue);
+      if (!isNaN(evalueNum) && evalueNum > 0) {
+        evalueDisplay = evalueNum < 0.001 ? evalueNum.toExponential(2) : evalueNum.toFixed(6);
+      } else if (typeof evalue === 'string') {
+        // Keep original string if it's already formatted (like "2.29e-36")
+        evalueDisplay = evalue;
+      }
+    }
     
-    // Format coverage as percentage
-    const coverageDisplay = coverage ? `${(coverage * 100).toFixed(1)}%` : coverage;
+    // Format coverage as percentage - handle both number and string formats
+    let coverageDisplay = coverage;
+    if (coverage !== null && coverage !== undefined) {
+      const coverageNum = typeof coverage === 'number' ? coverage : parseFloat(coverage);
+      if (!isNaN(coverageNum)) {
+        coverageDisplay = `${(coverageNum * 100).toFixed(1)}%`;
+      }
+    }
     
     this.metadata = { 
       geneId, 
