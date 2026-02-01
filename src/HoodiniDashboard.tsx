@@ -1028,6 +1028,17 @@ const HoodiniDashboardInner = React.forwardRef<HoodiniDashboardRef, HoodiniDashb
             setTreeMetadataColumns(cols);
           }
         }
+        // Extract domain metadata columns for the color-by selector
+        if (Object.keys(finalData.domainMetadata).length > 0) {
+          const firstDomainMeta = Object.values(finalData.domainMetadata)[0];
+          if (firstDomainMeta && typeof firstDomainMeta === 'object') {
+            const cols = Object.keys(firstDomainMeta).filter(k => 
+              !k.startsWith('_') && k.toLowerCase() !== 'domain_id'
+            );
+            setDomainMetadataColumns(cols);
+            console.log('[loadData] Domain metadata columns detected:', cols);
+          }
+        }
         
         onDataLoaded?.(finalData);
         onMetadataColumnsDetected?.({

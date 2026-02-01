@@ -110,41 +110,22 @@ class Domain {
     const domainPoly = this.createDomainPolygon(g, this.origStart, this.origEnd);
     
     if (domainPoly && g.polygon) {
-      // Use a simple bounding box rectangle for clipping instead of the arrow shape.
-      // This ensures domains near the arrow tip don't get clipped out when the
-      // domain height exceeds the narrowing arrow height at that position.
-      const clipRect = this.getGeneClipRect(g);
-      this.polygon = clipPolygon(domainPoly, clipRect);
+      // Build a CONVEX 5-vertex arrow polygon for clipping.
+      // The 7-vertex gene polygon (with arrowhead) is CONCAVE and 
+      // Sutherland-Hodgman doesn't work correctly with concave clip polygons.
+      // Using a 5-vertex arrow covers the full gene area and is convex.
+      const convexClipPoly = this.getConvexGenePolygon(g);
+      this.polygon = clipPolygon(domainPoly, convexClipPoly);
     } else {
       this.polygon = domainPoly;
     }
-  }
-
-  // Get a simple rectangular clipping region that covers the entire gene
-  getGeneClipRect(g) {
-    const geneHeight = g.geneHeight || g.config?.gene?.height || 60;
-    const halfH = geneHeight / 2;
-    const trackY = g.trackY;
-    
-    const start = Math.min(g.start, g.end);
-    const end = Math.max(g.start, g.end);
-    
-    return [
-      [start, trackY - halfH],
-      [end, trackY - halfH],
-      [end, trackY + halfH],
-      [start, trackY + halfH]
-    ];
   }
 
   // Build a convex 5-vertex arrow polygon for clipping
   // This covers the full gene area (body + tip) and works with Sutherland-Hodgman
   getConvexGenePolygon(g) {
     const geneHeight = g.geneHeight || g.config?.gene?.height || 60;
-    const arrowheadHeight = g.config?.gene?.arrowheadHeight || 0;
     const halfH = geneHeight / 2;
-    // The tip extends beyond the body by arrowheadHeight/2
-    const tipHalfH = halfH + arrowheadHeight / 2;
     const trackY = g.trackY;
     
     let start = Math.min(g.start, g.end);
@@ -163,21 +144,24 @@ class Domain {
       ];
     }
     
-    // 5-vertex convex arrow polygon with proper tip height
+    // 5-vertex convex arrow polygon
+    // Use gene body height (halfH) for all vertices to ensure domains
+    // don't extend beyond the gene body. The arrowheadHeight only affects
+    // the visual gene rendering, not the clipping area for domains.
     if (isForward) {
       return [
         [start, trackY - halfH],
-        [end - tipWidth, trackY - tipHalfH],
+        [end - tipWidth, trackY - halfH],
         [end, trackY],  // tip
-        [end - tipWidth, trackY + tipHalfH],
+        [end - tipWidth, trackY + halfH],
         [start, trackY + halfH]
       ];
     } else {
       return [
         [end, trackY - halfH],
-        [start + tipWidth, trackY - tipHalfH],
+        [start + tipWidth, trackY - halfH],
         [start, trackY],  // tip
-        [start + tipWidth, trackY + tipHalfH],
+        [start + tipWidth, trackY + halfH],
         [end, trackY + halfH]
       ];
     }

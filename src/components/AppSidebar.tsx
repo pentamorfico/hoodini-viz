@@ -579,8 +579,9 @@ export function AppSidebar({
     .filter(col => col !== '' && col.toLowerCase() !== 'domain_id');
   const builtInFields = ['domainName', 'start', 'end', 'evalue', 'coverage'];
   // Use props when available, otherwise use header-based fields
+  // Always include builtInFields first, then metadata columns (filtering duplicates)
   const domainMetadataColumns = (Array.isArray(domainMetadataColumnsProp) && domainMetadataColumnsProp.length > 0)
-    ? domainMetadataColumnsProp.map(col => (col || '').toString().trim()).filter(col => col !== '' && col.toLowerCase() !== 'domain_id')
+    ? [...builtInFields, ...domainMetadataColumnsProp.map(col => (col || '').toString().trim()).filter(col => col !== '' && col.toLowerCase() !== 'domain_id' && !builtInFields.includes(col))]
     : [...builtInFields, ...metadataFields];
 
   // Selected gene information
