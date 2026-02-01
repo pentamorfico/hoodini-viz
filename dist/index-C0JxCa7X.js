@@ -16485,7 +16485,7 @@ function m$({
           {
             "data-slot": "sidebar-container",
             className: si(
-              `${g} z-10 h-svh transition-[left,right,width] duration-200 ease-linear flex`,
+              `${g} z-10 h-full transition-[left,right,width] duration-200 ease-linear flex`,
               t === "left" ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]" : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
               // Adjust the padding for floating and inset variants.
               e === "floating" || e === "inset" ? "p-2 group-data-[collapsible=offcanvas]:p-0 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]" : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l group-data-[collapsible=offcanvas]:border-none",
@@ -22208,7 +22208,7 @@ const VW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-DiArSuIW.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-pu_9RuuF.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -56856,10 +56856,10 @@ function Xse({
     {
       ref: S,
       style: {
-        position: "fixed",
+        position: "absolute",
         right: 0,
         top: 0,
-        height: "100vh",
+        height: "100%",
         width: `${d.scrollbar.width}px`,
         zIndex: 20,
         display: "flex",
@@ -71922,7 +71922,7 @@ function jde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-DQAZh7Ya.js"));
+const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-BQ0Buops.js"));
 let Yde = 0;
 function Gde(t) {
   return $le(NB(NB(t).filter((e) => e.span !== void 0).map((e) => Gu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -74062,7 +74062,7 @@ function vfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const Efe = A.lazy(async () => await import("./number-overlay-editor-8y2l7b0f.js")), _fe = {
+const Efe = A.lazy(async () => await import("./number-overlay-editor-DV08lcXU.js")), _fe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,

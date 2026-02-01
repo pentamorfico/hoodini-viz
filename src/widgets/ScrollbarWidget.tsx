@@ -165,10 +165,10 @@ export default function ScrollbarWidget({
     <div
       ref={containerRef}
       style={{
-        position: 'fixed',
+        position: 'absolute',
         right: 0,
         top: 0,
-        height: '100vh',
+        height: '100%',
         width: `${config.scrollbar.width}px`,
         zIndex: 20,
         display: 'flex',
