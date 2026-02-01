@@ -22208,7 +22208,7 @@ const VW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-TnO9rwRo.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-DiArSuIW.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -23357,7 +23357,7 @@ function uq({
     /* @__PURE__ */ le(
       "div",
       {
-        className: "mx-3 my-3 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide",
+        className: "mx-3 my-3 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide flex-1 min-h-0",
         style: { backgroundColor: ci.background || void 0, scrollbarWidth: "none", msOverflowStyle: "none" },
         children: [
           Hr === "info" && /* @__PURE__ */ le("div", { className: "space-y-3", children: [
@@ -71922,7 +71922,7 @@ function jde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-1lZ0mfm1.js"));
+const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-DQAZh7Ya.js"));
 let Yde = 0;
 function Gde(t) {
   return $le(NB(NB(t).filter((e) => e.span !== void 0).map((e) => Gu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -74062,7 +74062,7 @@ function vfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const Efe = A.lazy(async () => await import("./number-overlay-editor-rdJdQ947.js")), _fe = {
+const Efe = A.lazy(async () => await import("./number-overlay-editor-8y2l7b0f.js")), _fe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,

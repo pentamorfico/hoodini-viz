@@ -781,7 +781,7 @@ export function AppSidebar({
 
       {/* Content Container */}
       <div 
-        className="mx-3 my-3 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide"
+        className="mx-3 my-3 p-3 bg-card/60 backdrop-blur-sm rounded-xl border border-border/40 overflow-y-auto scrollbar-hide flex-1 min-h-0"
         style={{ backgroundColor: themeColors.background || undefined, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {/* Info Section */}
