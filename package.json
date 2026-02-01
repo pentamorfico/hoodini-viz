@@ -1,6 +1,6 @@
 {
   "name": "hoodini-viz",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "Interactive phylogenetic and genomic visualization library",
   "type": "module",
   "main": "./dist/hoodini-viz.umd.js",
