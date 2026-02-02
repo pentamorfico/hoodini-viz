@@ -465,27 +465,27 @@ function cN() {
         DetermineComponentFrameRoot: function() {
           try {
             if (c) {
-              var Bt = function() {
+              var St = function() {
                 throw Error();
               };
-              if (Object.defineProperty(Bt.prototype, "props", {
+              if (Object.defineProperty(St.prototype, "props", {
                 set: function() {
                   throw Error();
                 }
               }), typeof Reflect == "object" && Reflect.construct) {
                 try {
-                  Reflect.construct(Bt, []);
+                  Reflect.construct(St, []);
                 } catch (dt) {
                   var st = dt;
                 }
-                Reflect.construct(l, [], Bt);
+                Reflect.construct(l, [], St);
               } else {
                 try {
-                  Bt.call();
+                  St.call();
                 } catch (dt) {
                   st = dt;
                 }
-                l.call(Bt.prototype);
+                l.call(St.prototype);
               }
             } else {
               try {
@@ -493,7 +493,7 @@ function cN() {
               } catch (dt) {
                 st = dt;
               }
-              (Bt = l()) && typeof Bt.catch == "function" && Bt.catch(function() {
+              (St = l()) && typeof St.catch == "function" && St.catch(function() {
               });
             }
           } catch (dt) {
@@ -719,7 +719,7 @@ Error generating stack: ` + p.message + `
     l.pendingLanes = f, l.suspendedLanes = 0, l.pingedLanes = 0, l.warmLanes = 0, l.expiredLanes &= f, l.entangledLanes &= f, l.errorRecoveryDisabledLanes &= f, l.shellSuspendCounter = 0;
     var se = l.entanglements, we = l.expirationTimes, et = l.hiddenUpdates;
     for (f = z & ~f; 0 < f; ) {
-      var Ft = 31 - tt(f), Bt = 1 << Ft;
+      var Ft = 31 - tt(f), St = 1 << Ft;
       se[Ft] = 0, we[Ft] = -1;
       var st = et[Ft];
       if (st !== null)
@@ -727,7 +727,7 @@ Error generating stack: ` + p.message + `
           var dt = st[Ft];
           dt !== null && (dt.lane &= -536870913);
         }
-      f &= ~Bt;
+      f &= ~St;
     }
     p !== 0 && li(l, p, 0), v !== 0 && F === 0 && l.tag !== 0 && (l.suspendedLanes |= v & ~(z & ~c));
   }
@@ -1331,7 +1331,7 @@ Error generating stack: ` + p.message + `
     },
     defaultPrevented: 0,
     isTrusted: 0
-  }, St = ut(ne), fn = g({}, ne, { view: 0, detail: 0 }), vn = ut(fn), Wt, Gt, wn, gn = g({}, fn, {
+  }, Tt = ut(ne), fn = g({}, ne, { view: 0, detail: 0 }), vn = ut(fn), Wt, Gt, wn, gn = g({}, fn, {
     screenX: 0,
     screenY: 0,
     clientX: 0,
@@ -1487,7 +1487,7 @@ Error generating stack: ` + p.message + `
   }), Wa = ut(ds), fs = g({}, ne, {
     newState: 0,
     oldState: 0
-  }), Tt = ut(fs), Jn = [9, 13, 27, 32], cn = ji && "CompositionEvent" in window, hs = null;
+  }), Bt = ut(fs), Jn = [9, 13, 27, 32], cn = ji && "CompositionEvent" in window, hs = null;
   ji && "documentMode" in document && (hs = document.documentMode);
   var Yi = ji && "TextEvent" in window && !hs, ha = ji && (!cn || hs && 8 < hs && 11 >= hs), Rl = " ", $o = !1;
   function ga(l, c) {
@@ -1561,7 +1561,7 @@ Error generating stack: ` + p.message + `
     return c === "input" ? !!Tn[l.type] : c === "textarea";
   }
   function dc(l, c, f, p) {
-    Us ? Ao ? Ao.push(p) : Ao = [p] : Us = p, c = Np(c, "onChange"), 0 < c.length && (f = new St(
+    Us ? Ao ? Ao.push(p) : Ao = [p] : Us = p, c = Np(c, "onChange"), 0 < c.length && (f = new Tt(
       "onChange",
       "change",
       null,
@@ -1693,7 +1693,7 @@ Error generating stack: ` + p.message + `
       anchorOffset: p.anchorOffset,
       focusNode: p.focusNode,
       focusOffset: p.focusOffset
-    }), Si && Ds(Si, p) || (Si = p, p = Np(ll, "onSelect"), 0 < p.length && (c = new St(
+    }), Si && Ds(Si, p) || (Si = p, p = Np(ll, "onSelect"), 0 < p.length && (c = new Tt(
       "onSelect",
       "select",
       null,
@@ -2362,7 +2362,7 @@ Error generating stack: ` + p.message + `
         Mn
       ), Re.return = Ve, Re) : (Re = F(Re, Je), Re.return = Ve, Re);
     }
-    function Bt(Ve, Re, Je) {
+    function St(Ve, Re, Je) {
       if (typeof Re == "string" && Re !== "" || typeof Re == "number" || typeof Re == "bigint")
         return Re = ja(
           "" + Re,
@@ -2387,7 +2387,7 @@ Error generating stack: ` + p.message + `
               Je
             ), Re.return = Ve, Re;
           case L:
-            return Re = Vc(Re), Bt(Ve, Re, Je);
+            return Re = Vc(Re), St(Ve, Re, Je);
         }
         if (Y(Re) || M(Re))
           return Re = Bs(
@@ -2397,9 +2397,9 @@ Error generating stack: ` + p.message + `
             null
           ), Re.return = Ve, Re;
         if (typeof Re.then == "function")
-          return Bt(Ve, Md(Re), Je);
+          return St(Ve, Md(Re), Je);
         if (Re.$$typeof === x)
-          return Bt(
+          return St(
             Ve,
             As(Ve, Re),
             Je
@@ -2504,7 +2504,7 @@ Error generating stack: ` + p.message + `
         return f(Ve, xn), V && Wo(Ve, ar), Mn;
       if (xn === null) {
         for (; ar < Je.length; ar++)
-          xn = Bt(Ve, Je[ar], _t), xn !== null && (Re = v(
+          xn = St(Ve, Je[ar], _t), xn !== null && (Re = v(
             xn,
             Re,
             ar
@@ -2544,7 +2544,7 @@ Error generating stack: ` + p.message + `
         return f(Ve, xn), V && Wo(Ve, ar), Mn;
       if (xn === null) {
         for (; !Lr.done; ar++, Lr = Je.next())
-          Lr = Bt(Ve, Lr.value, _t), Lr !== null && (Re = v(Lr, Re, ar), Or === null ? Mn = Lr : Or.sibling = Lr, Or = Lr);
+          Lr = St(Ve, Lr.value, _t), Lr !== null && (Re = v(Lr, Re, ar), Or === null ? Mn = Lr : Or.sibling = Lr, Or = Lr);
         return V && Wo(Ve, ar), Mn;
       }
       for (xn = p(xn); !Lr.done; ar++, Lr = Je.next())
@@ -2762,7 +2762,7 @@ Error generating stack: ` + p.message + `
       Ft !== null && (Ft = Ft.updateQueue, se = Ft.lastBaseUpdate, se !== z && (se === null ? Ft.firstBaseUpdate = et : se.next = et, Ft.lastBaseUpdate = we));
     }
     if (v !== null) {
-      var Bt = F.baseState;
+      var St = F.baseState;
       z = 0, Ft = et = we = null, se = v;
       do {
         var st = se.lane & -536870913, dt = st !== se.lane;
@@ -2781,16 +2781,16 @@ Error generating stack: ` + p.message + `
             switch (Un.tag) {
               case 1:
                 if (bn = Un.payload, typeof bn == "function") {
-                  Bt = bn.call(fi, Bt, st);
+                  St = bn.call(fi, St, st);
                   break e;
                 }
-                Bt = bn;
+                St = bn;
                 break e;
               case 3:
                 bn.flags = bn.flags & -65537 | 128;
               case 0:
-                if (bn = Un.payload, st = typeof bn == "function" ? bn.call(fi, Bt, st) : bn, st == null) break e;
-                Bt = g({}, Bt, st);
+                if (bn = Un.payload, st = typeof bn == "function" ? bn.call(fi, St, st) : bn, st == null) break e;
+                St = g({}, St, st);
                 break e;
               case 2:
                 Il = !0;
@@ -2804,14 +2804,14 @@ Error generating stack: ` + p.message + `
             payload: se.payload,
             callback: se.callback,
             next: null
-          }, Ft === null ? (et = Ft = dt, we = Bt) : Ft = Ft.next = dt, z |= st;
+          }, Ft === null ? (et = Ft = dt, we = St) : Ft = Ft.next = dt, z |= st;
         if (se = se.next, se === null) {
           if (se = F.shared.pending, se === null)
             break;
           dt = se, se = dt.next, dt.next = null, F.lastBaseUpdate = dt, F.shared.pending = null;
         }
       } while (!0);
-      Ft === null && (we = Bt), F.baseState = we, F.firstBaseUpdate = et, F.lastBaseUpdate = Ft, v === null && (F.shared.lanes = 0), Gc |= z, l.lanes = z, l.memoizedState = Bt;
+      Ft === null && (we = St), F.baseState = we, F.firstBaseUpdate = et, F.lastBaseUpdate = Ft, v === null && (F.shared.lanes = 0), Gc |= z, l.lanes = z, l.memoizedState = St;
     }
   }
   function Aa(l, c) {
@@ -3017,8 +3017,8 @@ Error generating stack: ` + p.message + `
       c = F.next;
       var se = z = null, we = null, et = c, Ft = !1;
       do {
-        var Bt = et.lane & -536870913;
-        if (Bt !== et.lane ? (vr & Bt) === Bt : (yc & Bt) === Bt) {
+        var St = et.lane & -536870913;
+        if (St !== et.lane ? (vr & St) === St : (yc & St) === St) {
           var st = et.revertLane;
           if (st === 0)
             we !== null && (we = we.next = {
@@ -3029,12 +3029,12 @@ Error generating stack: ` + p.message + `
               hasEagerState: et.hasEagerState,
               eagerState: et.eagerState,
               next: null
-            }), Bt === qo && (Ft = !0);
+            }), St === qo && (Ft = !0);
           else if ((yc & st) === st) {
             et = et.next, st === qo && (Ft = !0);
             continue;
           } else
-            Bt = {
+            St = {
               lane: 0,
               revertLane: et.revertLane,
               gesture: null,
@@ -3042,18 +3042,18 @@ Error generating stack: ` + p.message + `
               hasEagerState: et.hasEagerState,
               eagerState: et.eagerState,
               next: null
-            }, we === null ? (se = we = Bt, z = v) : we = we.next = Bt, nr.lanes |= st, Gc |= st;
-          Bt = et.action, Nu && f(v, Bt), v = et.hasEagerState ? et.eagerState : f(v, Bt);
+            }, we === null ? (se = we = St, z = v) : we = we.next = St, nr.lanes |= st, Gc |= st;
+          St = et.action, Nu && f(v, St), v = et.hasEagerState ? et.eagerState : f(v, St);
         } else
           st = {
-            lane: Bt,
+            lane: St,
             revertLane: et.revertLane,
             gesture: et.gesture,
             action: et.action,
             hasEagerState: et.hasEagerState,
             eagerState: et.eagerState,
             next: null
-          }, we === null ? (se = we = st, z = v) : we = we.next = st, nr.lanes |= Bt, Gc |= Bt;
+          }, we === null ? (se = we = st, z = v) : we = we.next = st, nr.lanes |= St, Gc |= St;
         et = et.next;
       } while (et !== null && et !== c);
       if (we === null ? z = v : we.next = se, !Bi(v, l.memoizedState) && (Rs = !0, Ft && (f = Pl, f !== null)))
@@ -3455,12 +3455,12 @@ Error generating stack: ` + p.message + `
           p,
           xa(l)
         );
-    } catch (Bt) {
+    } catch (St) {
       uh(
         l,
         c,
         { then: function() {
-        }, status: "rejected", reason: Bt },
+        }, status: "rejected", reason: St },
         xa()
       );
     } finally {
@@ -4271,18 +4271,18 @@ Error generating stack: ` + p.message + `
       v.props = we;
       var et = v.context, Ft = f.contextType;
       z = jt, typeof Ft == "object" && Ft !== null && (z = Mr(Ft));
-      var Bt = f.getDerivedStateFromProps;
-      Ft = typeof Bt == "function" || typeof v.getSnapshotBeforeUpdate == "function", se = c.pendingProps !== se, Ft || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (se || et !== z) && O_(
+      var St = f.getDerivedStateFromProps;
+      Ft = typeof St == "function" || typeof v.getSnapshotBeforeUpdate == "function", se = c.pendingProps !== se, Ft || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (se || et !== z) && O_(
         c,
         v,
         p,
         z
       ), Il = !1;
       var st = c.memoizedState;
-      v.state = st, zi(c, p, v, F), ei(), et = c.memoizedState, se || st !== et || Il ? (typeof Bt == "function" && (d2(
+      v.state = st, zi(c, p, v, F), ei(), et = c.memoizedState, se || st !== et || Il ? (typeof St == "function" && (d2(
         c,
         f,
-        Bt,
+        St,
         p
       ), et = c.memoizedState), (we = Il || N_(
         c,
@@ -4294,14 +4294,14 @@ Error generating stack: ` + p.message + `
         z
       )) ? (Ft || typeof v.UNSAFE_componentWillMount != "function" && typeof v.componentWillMount != "function" || (typeof v.componentWillMount == "function" && v.componentWillMount(), typeof v.UNSAFE_componentWillMount == "function" && v.UNSAFE_componentWillMount()), typeof v.componentDidMount == "function" && (c.flags |= 4194308)) : (typeof v.componentDidMount == "function" && (c.flags |= 4194308), c.memoizedProps = p, c.memoizedState = et), v.props = p, v.state = et, v.context = z, p = we) : (typeof v.componentDidMount == "function" && (c.flags |= 4194308), p = !1);
     } else {
-      v = c.stateNode, ah(l, c), z = c.memoizedProps, Ft = Ou(f, z), v.props = Ft, Bt = c.pendingProps, st = v.context, et = f.contextType, we = jt, typeof et == "object" && et !== null && (we = Mr(et)), se = f.getDerivedStateFromProps, (et = typeof se == "function" || typeof v.getSnapshotBeforeUpdate == "function") || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (z !== Bt || st !== we) && O_(
+      v = c.stateNode, ah(l, c), z = c.memoizedProps, Ft = Ou(f, z), v.props = Ft, St = c.pendingProps, st = v.context, et = f.contextType, we = jt, typeof et == "object" && et !== null && (we = Mr(et)), se = f.getDerivedStateFromProps, (et = typeof se == "function" || typeof v.getSnapshotBeforeUpdate == "function") || typeof v.UNSAFE_componentWillReceiveProps != "function" && typeof v.componentWillReceiveProps != "function" || (z !== St || st !== we) && O_(
         c,
         v,
         p,
         we
       ), Il = !1, st = c.memoizedState, v.state = st, zi(c, p, v, F), ei();
       var dt = c.memoizedState;
-      z !== Bt || st !== dt || Il || l !== null && l.dependencies !== null && Oi(l.dependencies) ? (typeof se == "function" && (d2(
+      z !== St || st !== dt || Il || l !== null && l.dependencies !== null && Oi(l.dependencies) ? (typeof se == "function" && (d2(
         c,
         f,
         se,
@@ -5479,16 +5479,16 @@ Error generating stack: ` + p.message + `
               f = null;
               break e;
             }
-            var z = 0, se = -1, we = -1, et = 0, Ft = 0, Bt = l, st = null;
+            var z = 0, se = -1, we = -1, et = 0, Ft = 0, St = l, st = null;
             t: for (; ; ) {
-              for (var dt; Bt !== f || F !== 0 && Bt.nodeType !== 3 || (se = z + F), Bt !== v || p !== 0 && Bt.nodeType !== 3 || (we = z + p), Bt.nodeType === 3 && (z += Bt.nodeValue.length), (dt = Bt.firstChild) !== null; )
-                st = Bt, Bt = dt;
+              for (var dt; St !== f || F !== 0 && St.nodeType !== 3 || (se = z + F), St !== v || p !== 0 && St.nodeType !== 3 || (we = z + p), St.nodeType === 3 && (z += St.nodeValue.length), (dt = St.firstChild) !== null; )
+                st = St, St = dt;
               for (; ; ) {
-                if (Bt === l) break t;
-                if (st === f && ++et === F && (se = z), st === v && ++Ft === p && (we = z), (dt = Bt.nextSibling) !== null) break;
-                Bt = st, st = Bt.parentNode;
+                if (St === l) break t;
+                if (st === f && ++et === F && (se = z), st === v && ++Ft === p && (we = z), (dt = St.nextSibling) !== null) break;
+                St = st, st = St.parentNode;
               }
-              Bt = dt;
+              St = dt;
             }
             f = se === -1 || we === -1 ? null : { start: se, end: we };
           } else f = null;
@@ -6004,7 +6004,7 @@ Error generating stack: ` + p.message + `
                     z = v.style, typeof z.setProperty == "function" ? z.setProperty("display", "none", "important") : z.display = "none";
                   else {
                     se = we.stateNode;
-                    var Bt = we.memoizedProps.style, st = Bt != null && Bt.hasOwnProperty("display") ? Bt.display : null;
+                    var St = we.memoizedProps.style, st = St != null && St.hasOwnProperty("display") ? St.display : null;
                     se.style.display = st == null || typeof st == "boolean" ? "" : ("" + st).trim();
                   }
                 } catch (bn) {
@@ -6764,9 +6764,9 @@ Error generating stack: ` + p.message + `
     } while (!0);
     Ll(l);
   }
-  function D4(l, c, f, p, F, v, z, se, we, et, Ft, Bt, st, dt) {
-    if (l.timeoutHandle = -1, Bt = c.subtreeFlags, Bt & 8192 || (Bt & 16785408) === 16785408) {
-      Bt = {
+  function D4(l, c, f, p, F, v, z, se, we, et, Ft, St, st, dt) {
+    if (l.timeoutHandle = -1, St = c.subtreeFlags, St & 8192 || (St & 16785408) === 16785408) {
+      St = {
         stylesheets: null,
         count: 0,
         imgCount: 0,
@@ -6778,11 +6778,11 @@ Error generating stack: ` + p.message + `
       }, b4(
         c,
         v,
-        Bt
+        St
       );
       var bn = (v & 62914560) === v ? xp - Qt() : (v & 4194048) === v ? E4 - Qt() : 0;
       if (bn = GI(
-        Bt,
+        St,
         bn
       ), bn !== null) {
         xc = v, l.cancelPendingCommit = bn(
@@ -6798,7 +6798,7 @@ Error generating stack: ` + p.message + `
             se,
             we,
             Ft,
-            Bt,
+            St,
             null,
             st,
             dt
@@ -7181,7 +7181,7 @@ Error generating stack: ` + p.message + `
                   se.value.length
                 );
               else {
-                var Bt = se.ownerDocument || document, st = Bt && Bt.defaultView || window;
+                var St = se.ownerDocument || document, st = St && St.defaultView || window;
                 if (st.getSelection) {
                   var dt = st.getSelection(), bn = se.textContent.length, Un = Math.min(we.start, bn), fi = we.end === void 0 ? Un : Math.min(we.end, bn);
                   !dt.extend && Un > fi && (z = fi, fi = Un, Un = z);
@@ -7193,20 +7193,20 @@ Error generating stack: ` + p.message + `
                     fi
                   );
                   if (Ve && Re && (dt.rangeCount !== 1 || dt.anchorNode !== Ve.node || dt.anchorOffset !== Ve.offset || dt.focusNode !== Re.node || dt.focusOffset !== Re.offset)) {
-                    var Je = Bt.createRange();
+                    var Je = St.createRange();
                     Je.setStart(Ve.node, Ve.offset), dt.removeAllRanges(), Un > fi ? (dt.addRange(Je), dt.extend(Re.node, Re.offset)) : (Je.setEnd(Re.node, Re.offset), dt.addRange(Je));
                   }
                 }
               }
             }
-            for (Bt = [], dt = se; dt = dt.parentNode; )
-              dt.nodeType === 1 && Bt.push({
+            for (St = [], dt = se; dt = dt.parentNode; )
+              dt.nodeType === 1 && St.push({
                 element: dt,
                 left: dt.scrollLeft,
                 top: dt.scrollTop
               });
-            for (typeof se.focus == "function" && se.focus(), se = 0; se < Bt.length; se++) {
-              var _t = Bt[se];
+            for (typeof se.focus == "function" && se.focus(), se = 0; se < St.length; se++) {
+              var _t = St[se];
               _t.element.scrollLeft = _t.left, _t.element.scrollTop = _t.top;
             }
           }
@@ -7491,7 +7491,7 @@ Error generating stack: ` + p.message + `
         (F[kn] || null).action
       ), z = p.submitter;
       z && (c = (c = z[kn] || null) ? X4(c.formAction) : z.getAttribute("formAction"), c !== null && (v = c, z = null));
-      var se = new St(
+      var se = new Tt(
         "action",
         "action",
         null,
@@ -7684,11 +7684,11 @@ Error generating stack: ` + p.message + `
         p = p.return;
       }
     Va(function() {
-      var et = v, Ft = ws(f), Bt = [];
+      var et = v, Ft = ws(f), St = [];
       e: {
         var st = Be.get(l);
         if (st !== void 0) {
-          var dt = St, bn = l;
+          var dt = Tt, bn = l;
           switch (l) {
             case "keypress":
               if (vo(f) === 0) break e;
@@ -7766,7 +7766,7 @@ Error generating stack: ` + p.message + `
               break;
             case "toggle":
             case "beforetoggle":
-              dt = Tt;
+              dt = Bt;
           }
           var Un = (c & 4) !== 0, fi = !Un && (l === "scroll" || l === "scrollend"), Ve = Un ? st !== null ? st + "Capture" : null : st;
           Un = [];
@@ -7783,7 +7783,7 @@ Error generating stack: ` + p.message + `
             null,
             f,
             Ft
-          ), Bt.push({ event: st, listeners: Un }));
+          ), St.push({ event: st, listeners: Un }));
         }
       }
       if ((c & 7) === 0) {
@@ -7825,13 +7825,13 @@ Error generating stack: ` + p.message + `
               }
             else Un = null;
             dt !== null && Z4(
-              Bt,
+              St,
               st,
               dt,
               Un,
               !1
             ), bn !== null && fi !== null && Z4(
-              Bt,
+              St,
               fi,
               bn,
               Un,
@@ -7853,7 +7853,7 @@ Error generating stack: ` + p.message + `
             dt = st.nodeName, !dt || dt.toLowerCase() !== "input" || st.type !== "checkbox" && st.type !== "radio" ? et && Jo(et.elementType) && (Or = kl) : Or = Pe;
           if (Or && (Or = Or(l, et))) {
             dc(
-              Bt,
+              St,
               Or,
               f,
               Ft
@@ -7875,13 +7875,13 @@ Error generating stack: ` + p.message + `
           case "contextmenu":
           case "mouseup":
           case "dragend":
-            wr = !1, T(Bt, f, Ft);
+            wr = !1, T(St, f, Ft);
             break;
           case "selectionchange":
             if (qa) break;
           case "keydown":
           case "keyup":
-            T(Bt, f, Ft);
+            T(St, f, Ft);
         }
         var ar;
         if (cn)
@@ -7907,24 +7907,24 @@ Error generating stack: ` + p.message + `
           null,
           f,
           Ft
-        ), Bt.push({ event: Er, listeners: xn }), ar ? Er.data = ar : (ar = cc(f), ar !== null && (Er.data = ar)))), (ar = Yi ? gs(l, f) : uc(l, f)) && (Er = Np(et, "onBeforeInput"), 0 < Er.length && (xn = new rs(
+        ), St.push({ event: Er, listeners: xn }), ar ? Er.data = ar : (ar = cc(f), ar !== null && (Er.data = ar)))), (ar = Yi ? gs(l, f) : uc(l, f)) && (Er = Np(et, "onBeforeInput"), 0 < Er.length && (xn = new rs(
           "onBeforeInput",
           "beforeinput",
           null,
           f,
           Ft
-        ), Bt.push({
+        ), St.push({
           event: xn,
           listeners: Er
         }), xn.data = ar)), AI(
-          Bt,
+          St,
           l,
           et,
           f,
           Ft
         );
       }
-      G4(Bt, c);
+      G4(St, c);
     });
   }
   function Eh(l, c, f) {
@@ -8471,22 +8471,22 @@ Error generating stack: ` + p.message + `
       case "input":
         var F = null, v = null, z = null, se = null, we = null, et = null, Ft = null;
         for (dt in f) {
-          var Bt = f[dt];
-          if (f.hasOwnProperty(dt) && Bt != null)
+          var St = f[dt];
+          if (f.hasOwnProperty(dt) && St != null)
             switch (dt) {
               case "checked":
                 break;
               case "value":
                 break;
               case "defaultValue":
-                we = Bt;
+                we = St;
               default:
-                p.hasOwnProperty(dt) || di(l, c, dt, null, p, Bt);
+                p.hasOwnProperty(dt) || di(l, c, dt, null, p, St);
             }
         }
         for (var st in p) {
           var dt = p[st];
-          if (Bt = f[st], p.hasOwnProperty(st) && (dt != null || Bt != null))
+          if (St = f[st], p.hasOwnProperty(st) && (dt != null || St != null))
             switch (st) {
               case "type":
                 v = dt;
@@ -8512,13 +8512,13 @@ Error generating stack: ` + p.message + `
                   throw Error(r(137, c));
                 break;
               default:
-                dt !== Bt && di(
+                dt !== St && di(
                   l,
                   c,
                   st,
                   dt,
                   p,
-                  Bt
+                  St
                 );
             }
         }
@@ -8687,8 +8687,8 @@ Error generating stack: ` + p.message + `
     }
     for (var Ve in f)
       st = f[Ve], f.hasOwnProperty(Ve) && st != null && !p.hasOwnProperty(Ve) && di(l, c, Ve, null, p, st);
-    for (Bt in p)
-      st = p[Bt], dt = f[Bt], !p.hasOwnProperty(Bt) || st === dt || st == null && dt == null || di(l, c, Bt, st, p, dt);
+    for (St in p)
+      st = p[St], dt = f[St], !p.hasOwnProperty(St) || st === dt || st == null && dt == null || di(l, c, St, st, p, dt);
   }
   function ew(l) {
     switch (l) {
@@ -8712,8 +8712,8 @@ Error generating stack: ` + p.message + `
           for (z = 0, se = F.responseEnd, p += 1; p < f.length; p++) {
             var we = f[p], et = we.startTime;
             if (et > se) break;
-            var Ft = we.transferSize, Bt = we.initiatorType;
-            Ft && ew(Bt) && (we = we.responseEnd, z += Ft * (we < se ? 1 : (se - et) / (we - et)));
+            var Ft = we.transferSize, St = we.initiatorType;
+            Ft && ew(St) && (we = we.responseEnd, z += Ft * (we < se ? 1 : (se - et) / (we - et)));
           }
           if (--p, c += 8 * (v + z) / (F.duration / 1e3), l++, 10 < l) break;
         }
@@ -9392,7 +9392,7 @@ Error generating stack: ` + p.message + `
   function ZI(l, c, f, p, F, v, z, se, we) {
     this.tag = 1, this.containerInfo = l, this.pingCache = this.current = this.pendingChildren = null, this.timeoutHandle = -1, this.callbackNode = this.next = this.pendingContext = this.context = this.cancelPendingCommit = null, this.callbackPriority = 0, this.expirationTimes = $t(-1), this.entangledLanes = this.shellSuspendCounter = this.errorRecoveryDisabledLanes = this.expiredLanes = this.warmLanes = this.pingedLanes = this.suspendedLanes = this.pendingLanes = 0, this.entanglements = $t(0), this.hiddenUpdates = $t(null), this.identifierPrefix = p, this.onUncaughtError = F, this.onCaughtError = v, this.onRecoverableError = z, this.pooledCache = null, this.pooledCacheLanes = 0, this.formState = we, this.incompleteTransitions = /* @__PURE__ */ new Map();
   }
-  function bw(l, c, f, p, F, v, z, se, we, et, Ft, Bt) {
+  function bw(l, c, f, p, F, v, z, se, we, et, Ft, St) {
     return l = new ZI(
       l,
       c,
@@ -9401,7 +9401,7 @@ Error generating stack: ` + p.message + `
       we,
       et,
       Ft,
-      Bt,
+      St,
       se
     ), c = 1, v === !0 && (c |= 24), v = Cr(3, null, null, c), l.current = v, v.stateNode = l, c = cl(), c.refCount++, l.pooledCache = c, c.refCount++, v.memoizedState = {
       element: p,
@@ -22208,7 +22208,7 @@ const VW = () => {
           })(u.current);
           let oe = window.$3Dmol;
           if (!oe) {
-            const Xe = await import("./3Dmol-pu_9RuuF.js").then((ot) => ot._);
+            const Xe = await import("./3Dmol-4cZa-XCr.js").then((ot) => ot._);
             oe = Xe.default || Xe, window.$3Dmol = oe;
           }
           if (d) {
@@ -23198,7 +23198,7 @@ function uq({
   geneHeight: sr,
   ...Qs
 }) {
-  const { resolvedTheme: ni, getThemeColors: yi } = zc(), ci = A.useMemo(() => yi(ni), [ni]), [Hr, wi] = bt("info"), [Ua, Js] = bt(!1), eo = typeof e < "u" ? e : Ua, dr = typeof n == "function" ? n : Js, [No, fo] = bt(!1), Oo = typeof r < "u" ? r : No, Ci = typeof i == "function" ? i : fo, [Vi, ho] = bt(!1), cs = typeof s < "u" ? s : Vi, Qo = typeof o == "function" ? o : ho, [Wi, $a] = bt(!1), Jo = typeof a < "u" ? a : Wi, Sn = typeof u == "function" ? u : $a, [Ha, Kn] = bt(null), qi = typeof d < "u" ? d : Ha, Lo = typeof h == "function" ? h : Kn, [ws, Us] = bt(!1), Ao = typeof g < "u" ? g : ws, zo = typeof m == "function" ? m : Us, [sl, Va] = bt("start"), Dr = typeof y < "u" ? y : sl, ji = typeof C == "function" ? C : Va, [us, nt] = bt("after-tree"), qn = typeof b < "u" ? b : us, $s = typeof E == "function" ? E : nt, [Zr, go] = bt(Kt.gene.arrowheadHeight), [vo, Eo] = bt(Kt.gene.height), [Pn, ut] = bt(Kt.gene.tipWidthMode), ne = Lt ?? Pn, St = ft ?? ut, [fn, vn] = bt(Dt ?? Kt.gene.tipWidthFactor), [Wt, Gt] = bt(zt ?? Kt.gene.tipWidthFixed), [wn, gn] = bt("bottom"), In = typeof w < "u" ? w : wn, Qn = typeof _ == "function" ? _ : gn, [xi, Vr] = bt(""), Nn = typeof x < "u" ? x : xi, nn = typeof D == "function" ? D : Vr, [pn, Yn] = bt(""), _r = typeof S < "u" ? S : pn, xs = typeof k == "function" ? k : Yn, [rs, bi] = bt("domainName"), Di = typeof $ < "u" ? $ : rs, Br = typeof L == "function" ? L : bi, [to, Xi] = bt(""), Uo = typeof N < "u" ? N : to, _o = typeof P == "function" ? P : Xi, [jn, Fi] = bt(""), Pi = typeof U < "u" ? U : jn, ea = typeof M == "function" ? M : Fi, [Pr, or] = bt({ enabled: !1 }), ds = typeof j < "u" ? j : Pr, Wa = typeof W == "function" ? W : or, [fs, Tt] = bt({ enabled: !1 }), Jn = typeof Y < "u" ? Y : fs, cn = typeof R == "function" ? R : Tt, [hs, Yi] = bt({ enabled: !1 }), ha = typeof H < "u" ? H : hs, Rl = typeof I == "function" ? I : Yi, [$o, ga] = bt("all"), cc = typeof O < "u" ? O : $o, ta = typeof q == "function" ? q : ga, [gs, uc] = bt({ enabled: !1 }), Tn = typeof Z < "u" ? Z : gs, pa = typeof ce == "function" ? ce : uc, [dc, kr] = bt({ enabled: !1 }), Ho = typeof oe < "u" ? oe : dc, ol = typeof fe == "function" ? fe : kr, [ma, kl] = bt(null), Hs = typeof be < "u" ? be : ma, ya = typeof ge == "function" ? ge : kl, [Wr, is] = bt(null), Vo = typeof Ae < "u" ? Ae : Wr, Ca = typeof ke == "function" ? ke : is, [na, po] = bt(Kt.tree.xScalePercent), [Pe, ba] = bt(null), Qr = typeof Ce < "u" ? Ce : Pe, [Bi, Ds] = bt(null), fc = typeof ot < "u" ? ot : Bi, [Ml, wo] = bt(!1), al = typeof kn < "u" ? kn : Ml, xo = typeof Vn == "function" ? Vn : wo, [qa, Fa] = bt(null), ll = typeof Mi < "u" ? Mi : qa, Si = typeof Hi == "function" ? Hi : Fa, [wr, T] = bt(!1), Q = typeof Zn < "u" ? Zn : wr, re = typeof Gr == "function" ? Gr : T, [te, X] = bt(!0), G = typeof mi < "u" ? mi : te, K = typeof es == "function" ? es : X, [ae, he] = bt(!0), me = typeof _i < "u" ? _i : ae, ye = typeof Kr == "function" ? Kr : he, [Me, $e] = bt(Kt.tree.ySpacing), [Be, Ye] = bt(Kt.tree.ySpacing), He = typeof Wn == "function" ? Wn : Ye, [Ze, Ge] = bt(Kt.text.phyloLabelSize), [at, Nt] = bt(Kt.text.phyloLabelSize), Jt = typeof uo == "function" ? uo : Nt, [hn, On] = bt(Kt.text.geneLabelSize), [_n, Zt] = bt(Kt.text.geneLabelSize), Yt = typeof ts == "function" ? ts : Zt, [jt, mr] = bt(Kt.gene.edgeWidth), [Cr, ps] = bt(Kt.gene.edgeWidth), Gi = typeof tn == "function" ? tn : ps, [Jr, Vs] = bt(Kt.genome?.xScalePercent || 30), [Bs, ja] = bt(Kt.genome?.xScalePercent || 30), no = typeof Ar == "function" ? Ar : ja, ra = Ue || $n(null), [Ws, ss] = bt(!0), [ro, Ii] = bt(!0), [Ki, ia] = bt(!0), [qs, Fs] = bt(!0), [Do, Bo] = bt(!0), [So, Wo] = bt(!0), [Uc, J] = bt(!0), [Te, Se] = bt(!0), [Ie, je] = bt(!0), [V, ee] = bt(!0), ie = _e !== void 0 ? _e : Ws, ue = ve || ss, Fe = tt !== void 0 ? tt : ro, De = Ke || Ii, pt = vt !== void 0 ? vt : Ki, rt = ze || ia, yt = ct !== void 0 ? ct : qs, Ot = Et || Fs, en = Xt !== void 0 ? Xt : Do, Cn = ln || Bo, Bn = Ln !== void 0 ? Ln : So, xr = mn || Wo, fr = mt !== void 0 ? mt : Uc, hr = on || J, er = $t !== void 0 ? $t : Te, Ir = En || Se, Ni = yn !== void 0 ? yn : Ie, Oi = li || je, os = $r !== void 0 ? $r : V, Mr = Yr || ee, [As, Xa] = bt(null), [Nr, To] = bt("idle"), [Zi, qr] = bt(null), [cl, hc] = bt(null), ul = 400, Ru = "hoodini_nvidia_api_key", [qo, Pl] = bt(""), [sp, Td] = bt(!1), [op, ih] = bt(null);
+  const { resolvedTheme: ni, getThemeColors: yi } = zc(), ci = A.useMemo(() => yi(ni), [ni]), [Hr, wi] = bt("info"), [Ua, Js] = bt(!1), eo = typeof e < "u" ? e : Ua, dr = typeof n == "function" ? n : Js, [No, fo] = bt(!1), Oo = typeof r < "u" ? r : No, Ci = typeof i == "function" ? i : fo, [Vi, ho] = bt(!1), cs = typeof s < "u" ? s : Vi, Qo = typeof o == "function" ? o : ho, [Wi, $a] = bt(!1), Jo = typeof a < "u" ? a : Wi, Sn = typeof u == "function" ? u : $a, [Ha, Kn] = bt(null), qi = typeof d < "u" ? d : Ha, Lo = typeof h == "function" ? h : Kn, [ws, Us] = bt(!1), Ao = typeof g < "u" ? g : ws, zo = typeof m == "function" ? m : Us, [sl, Va] = bt("start"), Dr = typeof y < "u" ? y : sl, ji = typeof C == "function" ? C : Va, [us, nt] = bt("after-tree"), qn = typeof b < "u" ? b : us, $s = typeof E == "function" ? E : nt, [Zr, go] = bt(Kt.gene.arrowheadHeight), [vo, Eo] = bt(Kt.gene.height), [Pn, ut] = bt(Kt.gene.tipWidthMode), ne = Lt ?? Pn, Tt = ft ?? ut, [fn, vn] = bt(Dt ?? Kt.gene.tipWidthFactor), [Wt, Gt] = bt(zt ?? Kt.gene.tipWidthFixed), [wn, gn] = bt("bottom"), In = typeof w < "u" ? w : wn, Qn = typeof _ == "function" ? _ : gn, [xi, Vr] = bt(""), Nn = typeof x < "u" ? x : xi, nn = typeof D == "function" ? D : Vr, [pn, Yn] = bt(""), _r = typeof S < "u" ? S : pn, xs = typeof k == "function" ? k : Yn, [rs, bi] = bt("domainName"), Di = typeof $ < "u" ? $ : rs, Br = typeof L == "function" ? L : bi, [to, Xi] = bt(""), Uo = typeof N < "u" ? N : to, _o = typeof P == "function" ? P : Xi, [jn, Fi] = bt(""), Pi = typeof U < "u" ? U : jn, ea = typeof M == "function" ? M : Fi, [Pr, or] = bt({ enabled: !1 }), ds = typeof j < "u" ? j : Pr, Wa = typeof W == "function" ? W : or, [fs, Bt] = bt({ enabled: !1 }), Jn = typeof Y < "u" ? Y : fs, cn = typeof R == "function" ? R : Bt, [hs, Yi] = bt({ enabled: !1 }), ha = typeof H < "u" ? H : hs, Rl = typeof I == "function" ? I : Yi, [$o, ga] = bt("all"), cc = typeof O < "u" ? O : $o, ta = typeof q == "function" ? q : ga, [gs, uc] = bt({ enabled: !1 }), Tn = typeof Z < "u" ? Z : gs, pa = typeof ce == "function" ? ce : uc, [dc, kr] = bt({ enabled: !1 }), Ho = typeof oe < "u" ? oe : dc, ol = typeof fe == "function" ? fe : kr, [ma, kl] = bt(null), Hs = typeof be < "u" ? be : ma, ya = typeof ge == "function" ? ge : kl, [Wr, is] = bt(null), Vo = typeof Ae < "u" ? Ae : Wr, Ca = typeof ke == "function" ? ke : is, [na, po] = bt(Kt.tree.xScalePercent), [Pe, ba] = bt(null), Qr = typeof Ce < "u" ? Ce : Pe, [Bi, Ds] = bt(null), fc = typeof ot < "u" ? ot : Bi, [Ml, wo] = bt(!1), al = typeof kn < "u" ? kn : Ml, xo = typeof Vn == "function" ? Vn : wo, [qa, Fa] = bt(null), ll = typeof Mi < "u" ? Mi : qa, Si = typeof Hi == "function" ? Hi : Fa, [wr, T] = bt(!1), Q = typeof Zn < "u" ? Zn : wr, re = typeof Gr == "function" ? Gr : T, [te, X] = bt(!0), G = typeof mi < "u" ? mi : te, K = typeof es == "function" ? es : X, [ae, he] = bt(!0), me = typeof _i < "u" ? _i : ae, ye = typeof Kr == "function" ? Kr : he, [Me, $e] = bt(Kt.tree.ySpacing), [Be, Ye] = bt(Kt.tree.ySpacing), He = typeof Wn == "function" ? Wn : Ye, [Ze, Ge] = bt(Kt.text.phyloLabelSize), [at, Nt] = bt(Kt.text.phyloLabelSize), Jt = typeof uo == "function" ? uo : Nt, [hn, On] = bt(Kt.text.geneLabelSize), [_n, Zt] = bt(Kt.text.geneLabelSize), Yt = typeof ts == "function" ? ts : Zt, [jt, mr] = bt(Kt.gene.edgeWidth), [Cr, ps] = bt(Kt.gene.edgeWidth), Gi = typeof tn == "function" ? tn : ps, [Jr, Vs] = bt(Kt.genome?.xScalePercent || 30), [Bs, ja] = bt(Kt.genome?.xScalePercent || 30), no = typeof Ar == "function" ? Ar : ja, ra = Ue || $n(null), [Ws, ss] = bt(!0), [ro, Ii] = bt(!0), [Ki, ia] = bt(!0), [qs, Fs] = bt(!0), [Do, Bo] = bt(!0), [So, Wo] = bt(!0), [Uc, J] = bt(!0), [Te, Se] = bt(!0), [Ie, je] = bt(!0), [V, ee] = bt(!0), ie = _e !== void 0 ? _e : Ws, ue = ve || ss, Fe = tt !== void 0 ? tt : ro, De = Ke || Ii, pt = vt !== void 0 ? vt : Ki, rt = ze || ia, yt = ct !== void 0 ? ct : qs, Ot = Et || Fs, en = Xt !== void 0 ? Xt : Do, Cn = ln || Bo, Bn = Ln !== void 0 ? Ln : So, xr = mn || Wo, fr = mt !== void 0 ? mt : Uc, hr = on || J, er = $t !== void 0 ? $t : Te, Ir = En || Se, Ni = yn !== void 0 ? yn : Ie, Oi = li || je, os = $r !== void 0 ? $r : V, Mr = Yr || ee, [As, Xa] = bt(null), [Nr, To] = bt("idle"), [Zi, qr] = bt(null), [cl, hc] = bt(null), ul = 400, Ru = "hoodini_nvidia_api_key", [qo, Pl] = bt(""), [sp, Td] = bt(!1), [op, ih] = bt(null);
   Gn(() => {
     const ht = localStorage.getItem(Ru);
     ht && Pl(ht);
@@ -23813,7 +23813,7 @@ function uq({
                 ] }),
                 /* @__PURE__ */ le("div", { className: "mt-2", children: [
                   /* @__PURE__ */ B(un, { htmlFor: "tip-width-mode", className: "text-xs mb-1 block", children: "Arrow Tip Width Mode:" }),
-                  /* @__PURE__ */ le(Is, { value: ne, onValueChange: (ht) => St(ht), children: [
+                  /* @__PURE__ */ le(Is, { value: ne, onValueChange: (ht) => Tt(ht), children: [
                     /* @__PURE__ */ B(Os, { id: "tip-width-mode", className: "w-full text-xs", style: { height: "20px", minHeight: "20px" }, children: /* @__PURE__ */ B(Ns, {}) }),
                     /* @__PURE__ */ le(Ls, { children: [
                       /* @__PURE__ */ B(pr, { value: "factor", children: "Proportional" }),
@@ -56856,10 +56856,10 @@ function Xse({
     {
       ref: S,
       style: {
-        position: "absolute",
+        position: "fixed",
         right: 0,
         top: 0,
-        height: "100%",
+        height: "100vh",
         width: `${d.scrollbar.width}px`,
         zIndex: 20,
         display: "flex",
@@ -58125,7 +58125,7 @@ const as = !1, TM = it.forwardRef(({
   }, [ne, Z, fe, be, qn, P?.colorPalettes]), Gn(() => {
     j > 0 && (us.current = !0, kn((T) => T + 1));
   }, [j]);
-  const St = it.useRef(ze), fn = it.useRef(y), vn = it.useRef(m), Wt = it.useRef(C), Gt = it.useRef(_e), wn = it.useRef(0), gn = it.useMemo(() => {
+  const Tt = it.useRef(ze), fn = it.useRef(y), vn = it.useRef(m), Wt = it.useRef(C), Gt = it.useRef(_e), wn = it.useRef(0), gn = it.useMemo(() => {
     if (!ne) return `empty-${wn.current}`;
     const T = ne.config?.genome?.xScalePercent, Q = ze ?? T ?? 30;
     T !== Q && (ne.config = {
@@ -58135,9 +58135,9 @@ const as = !1, TM = it.forwardRef(({
         xScalePercent: Q
       }
     });
-    const re = St.current !== ze, te = fn.current !== y, X = vn.current !== m, G = Wt.current !== C, K = Gt.current !== _e;
+    const re = Tt.current !== ze, te = fn.current !== y, X = vn.current !== m, G = Wt.current !== C, K = Gt.current !== _e;
     if (re || te || X || G) {
-      if (St.current = ze, fn.current = y, vn.current = m, Wt.current = C, m != null && m !== "")
+      if (Tt.current = ze, fn.current = y, vn.current = m, Wt.current = C, m != null && m !== "")
         ne.alignCluster(String(m));
       else {
         const ae = Object.values(ne.hoodRanges || {}).some((he) => he.align_gene);
@@ -58397,13 +58397,13 @@ const as = !1, TM = it.forwardRef(({
       }
       return Array.isArray(X.geneFill) ? X.geneFill : [150, 150, 150, 255];
     }, Me = (Ge) => {
-      if (!Tt?.enabled)
+      if (!Bt?.enabled)
         return ye(X.geneFill);
       const at = re || te || "cluster";
       let Nt = Ge?.metadata?.[at];
       (Nt == null || Nt === "") && at === "cluster" && (Nt = Ge?.metadata?.clusterId ?? Ge?.metadata?.cluster_id ?? Ge?.cluster);
       let Jt = null;
-      return Q && !or(Nt) && (Jt = ds(Q, Fl(Nt), Tt?.type) || null), ye(Jt || Ge.fillColor || X.geneFill);
+      return Q && !or(Nt) && (Jt = ds(Q, Fl(Nt), Bt?.type) || null), ye(Jt || Ge.fillColor || X.geneFill);
     }, $e = (Ge, at, Nt, Jt = 1 / 0) => {
       const hn = Nt * 0.6, On = Math.max(3, Math.floor(at / hn));
       if (Ge.length <= On) return Ge;
@@ -58623,7 +58623,7 @@ const as = !1, TM = it.forwardRef(({
         };
     });
   }
-  const Tt = Z || P?.colorPalettes?.genePalette, Jn = ce || P?.colorPalettes?.domainPalette, cn = oe || P?.colorPalettes?.phyloPalette;
+  const Bt = Z || P?.colorPalettes?.genePalette, Jn = ce || P?.colorPalettes?.domainPalette, cn = oe || P?.colorPalettes?.phyloPalette;
   fe || P?.colorPalettes?.ncRNAPalette, Gn(() => {
     if (!Ar || Ar.length === 0) return;
     const T = Ar[0]?.id;
@@ -58676,7 +58676,7 @@ const as = !1, TM = it.forwardRef(({
       X.set(G, K.size / re);
     return X;
   }, [ne, ge, S, Ht, hs]), ha = it.useRef(null), Rl = it.useRef(null), $o = it.useMemo(() => {
-    if (!ne || !Tt?.enabled) return null;
+    if (!ne || !Bt?.enabled) return null;
     const T = ge || S || "cluster", Q = Object.values(ne.genesById), re = (ye) => {
       let Me = ye?.metadata?.[T];
       return (Me == null || Me === "") && T === "cluster" && (Me = ye?.metadata?.clusterId ?? ye?.metadata?.cluster_id ?? ye?.cluster), Me;
@@ -58685,16 +58685,16 @@ const as = !1, TM = it.forwardRef(({
       return !isNaN($e) && !isNaN(Be) ? $e - Be : String(ye).localeCompare(String(Me));
     });
     if (X.length === 0) return null;
-    const G = `${T}-${Tt.name}-${Tt.numColors}-${Tt.reverse}-${X.length}`;
+    const G = `${T}-${Bt.name}-${Bt.numColors}-${Bt.reverse}-${X.length}`;
     if (ha.current && Rl.current === G)
       return ha.current;
     const ae = X.map((ye) => Pr(ye)).filter((ye) => !isNaN(ye)).length === X.length && X.length > 0, he = on(
-      Tt.name,
-      Tt.numColors && Tt.type === "sequential" ? Tt.numColors : Math.max(X.length, Tt.numColors || X.length),
-      Tt.reverse || !1,
-      Tt.type || "qualitative"
+      Bt.name,
+      Bt.numColors && Bt.type === "sequential" ? Bt.numColors : Math.max(X.length, Bt.numColors || X.length),
+      Bt.reverse || !1,
+      Bt.type || "qualitative"
     ), me = /* @__PURE__ */ new Map();
-    if (Tt.type === "sequential" && ae) {
+    if (Bt.type === "sequential" && ae) {
       const ye = X.map((Be) => Pr(Be)), Me = Math.min(...ye), $e = Math.max(...ye);
       X.forEach((Be) => {
         const Ye = Pr(Be), He = $e > Me ? (Ye - Me) / ($e - Me) : 0, Ze = Math.floor(He * (he.length - 1));
@@ -58711,7 +58711,7 @@ const as = !1, TM = it.forwardRef(({
         isNaN($e) || me.set($e, he[Me % he.length]);
       });
     return ha.current = me, Rl.current = G, console.debug("stableGeneColorMap: generated for", X.length, "unique values"), me;
-  }, [ne, ge, S, Tt?.enabled, Tt?.name, Tt?.numColors, Tt?.reverse, Tt?.type]), ga = it.useRef(null), cc = it.useRef(null), ta = it.useMemo(() => {
+  }, [ne, ge, S, Bt?.enabled, Bt?.name, Bt?.numColors, Bt?.reverse, Bt?.type]), ga = it.useRef(null), cc = it.useRef(null), ta = it.useMemo(() => {
     if (!Pn || !$ || !N || !cn?.enabled) return null;
     const T = /* @__PURE__ */ new Set();
     for (const G of Pn.leafNodes || []) {
@@ -58748,8 +58748,8 @@ const as = !1, TM = it.forwardRef(({
         isNaN(ae) || X.set(ae, te[K % te.length]);
       });
     return ga.current = X, cc.current = re, console.debug("stableTreeColorMap: generated for", Q.length, "unique values"), X;
-  }, [Pn, $, N, cn?.enabled, cn?.name, cn?.numColors, cn?.reverse, cn?.type]), gs = Tt?.stableColors !== !1, uc = cn?.stableColors !== !1, Tn = it.useMemo(() => {
-    if (!ne || !Tt?.enabled || gs && !$o) return null;
+  }, [Pn, $, N, cn?.enabled, cn?.name, cn?.numColors, cn?.reverse, cn?.type]), gs = Bt?.stableColors !== !1, uc = cn?.stableColors !== !1, Tn = it.useMemo(() => {
+    if (!ne || !Bt?.enabled || gs && !$o) return null;
     const T = ge || S || "cluster";
     let Q = Object.values(ne.genesById);
     !gs && hs && hs.size > 0 && (Q = Q.filter((Me) => {
@@ -58764,13 +58764,13 @@ const as = !1, TM = it.forwardRef(({
       return !isNaN(Be) && !isNaN(Ye) ? Be - Ye : String(Me).localeCompare(String($e));
     });
     if (X.length === 0) return null;
-    const K = X.map((Me) => Pr(Me)).filter((Me) => !isNaN(Me)).length === X.length && X.length > 0, ae = /* @__PURE__ */ new Map(), he = Kt.gene.fillColor, me = Tt.transparentByPrevalence ? [he[0], he[1], he[2], 0] : he, ye = (Tt.prevalenceFilter || 0) / 100;
+    const K = X.map((Me) => Pr(Me)).filter((Me) => !isNaN(Me)).length === X.length && X.length > 0, ae = /* @__PURE__ */ new Map(), he = Kt.gene.fillColor, me = Bt.transparentByPrevalence ? [he[0], he[1], he[2], 0] : he, ye = (Bt.prevalenceFilter || 0) / 100;
     if (gs)
       X.forEach((Me) => {
-        const $e = Yi?.get(String(Me)) || 0, Be = $e >= ye, Ye = ds($o, Me, Tt?.type);
+        const $e = Yi?.get(String(Me)) || 0, Be = $e >= ye, Ye = ds($o, Me, Bt?.type);
         let He = Be ? Ye : me;
-        Be && Tt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence && (He = ne._desaturateColorByPrevalence(He, $e)), Be && Tt.transparentByPrevalence && Yi && ne._transparentByPrevalence && (He = ne._transparentByPrevalence(He, $e));
-        const Ze = Tt.type === "sequential" && K ? Pr(Me) : String(Me);
+        Be && Bt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence && (He = ne._desaturateColorByPrevalence(He, $e)), Be && Bt.transparentByPrevalence && Yi && ne._transparentByPrevalence && (He = ne._transparentByPrevalence(He, $e));
+        const Ze = Bt.type === "sequential" && K ? Pr(Me) : String(Me);
         ae.set(Ze, He);
         try {
           ae.set(String(Me), He);
@@ -58781,21 +58781,21 @@ const as = !1, TM = it.forwardRef(({
       });
     else {
       const Me = X.filter((Be) => (Yi?.get(String(Be)) || 0) >= ye), $e = on(
-        Tt.name,
-        Tt.numColors && Tt.type === "sequential" ? Tt.numColors : Math.max(Me.length, Tt.numColors || Me.length),
-        Tt.reverse || !1,
-        Tt.type || "qualitative"
+        Bt.name,
+        Bt.numColors && Bt.type === "sequential" ? Bt.numColors : Math.max(Me.length, Bt.numColors || Me.length),
+        Bt.reverse || !1,
+        Bt.type || "qualitative"
       );
-      if (Tt.type === "sequential" && K) {
+      if (Bt.type === "sequential" && K) {
         const Be = Me.map((Ze) => Pr(Ze)), Ye = Math.min(...Be), He = Math.max(...Be);
         Me.forEach((Ze) => {
           const Ge = Pr(Ze), at = He > Ye ? (Ge - Ye) / (He - Ye) : 0, Nt = Math.floor(at * ($e.length - 1));
           let Jt = $e[Nt];
-          if (Tt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence) {
+          if (Bt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence) {
             const hn = Yi.get(String(Ze)) || 0;
             Jt = ne._desaturateColorByPrevalence(Jt, hn);
           }
-          if (Tt.transparentByPrevalence && Yi && ne._transparentByPrevalence) {
+          if (Bt.transparentByPrevalence && Yi && ne._transparentByPrevalence) {
             const hn = Yi.get(String(Ze)) || 0;
             Jt = ne._transparentByPrevalence(Jt, hn);
           }
@@ -58808,11 +58808,11 @@ const as = !1, TM = it.forwardRef(({
       } else
         Me.forEach((Be, Ye) => {
           let He = $e[Ye % $e.length];
-          if (Tt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence) {
+          if (Bt.desaturateByPrevalence && Yi && ne._desaturateColorByPrevalence) {
             const Ge = Yi.get(String(Be)) || 0;
             He = ne._desaturateColorByPrevalence(He, Ge);
           }
-          if (Tt.transparentByPrevalence && Yi && ne._transparentByPrevalence) {
+          if (Bt.transparentByPrevalence && Yi && ne._transparentByPrevalence) {
             const Ge = Yi.get(String(Be)) || 0;
             He = ne._transparentByPrevalence(He, Ge);
           }
@@ -58822,7 +58822,7 @@ const as = !1, TM = it.forwardRef(({
         });
       X.forEach((Be) => {
         if ((Yi?.get(String(Be)) || 0) < ye) {
-          const He = Tt.type === "sequential" && K ? Pr(Be) : String(Be);
+          const He = Bt.type === "sequential" && K ? Pr(Be) : String(Be);
           ae.set(He, me);
           try {
             ae.set(String(Be), me);
@@ -58842,19 +58842,19 @@ const as = !1, TM = it.forwardRef(({
     hs,
     // For dynamic mode: only visible genes
     // depend on primitive palette properties so toggling/enabling recomputes reliably
-    Tt?.enabled,
-    Tt?.type,
-    Tt?.name,
+    Bt?.enabled,
+    Bt?.type,
+    Bt?.name,
     // For dynamic mode palette generation
-    Tt?.numColors,
+    Bt?.numColors,
     // For dynamic mode palette generation
-    Tt?.reverse,
+    Bt?.reverse,
     // For dynamic mode palette generation
-    Tt?.desaturateByPrevalence,
-    Tt?.transparentByPrevalence,
+    Bt?.desaturateByPrevalence,
+    Bt?.transparentByPrevalence,
     // Transparency by prevalence
-    Tt?.prevalenceFilter,
-    Tt?.stableColors,
+    Bt?.prevalenceFilter,
+    Bt?.stableColors,
     // Track stable colors setting
     gs,
     // Flag for stable vs dynamic mode
@@ -58873,7 +58873,7 @@ const as = !1, TM = it.forwardRef(({
     } catch (T) {
       console.error("ColorSelect gene logging error", T);
     }
-  }, [ge, S, ne, Tn, Tt?.name, Tt?.type]);
+  }, [ge, S, ne, Tn, Bt?.name, Bt?.type]);
   const pa = ({ object: T, layer: Q }) => {
     if (!T) return null;
     if (Q && Q.id === "protein-polygons") {
@@ -58984,7 +58984,7 @@ const as = !1, TM = it.forwardRef(({
     }
     return T.name ? { text: T.name } : T.id ? { text: T.id } : T.gene_id ? { text: T.gene_id } : null;
   };
-  it.useMemo(() => !0, [qt, Tt?.enabled, Tt?.name, Tt?.numColors, Tt?.reverse]);
+  it.useMemo(() => !0, [qt, Bt?.enabled, Bt?.name, Bt?.numColors, Bt?.reverse]);
   const { filteredProteinPolygons: dc, filteredNucleotidePolygons: kr } = it.useMemo(() => {
     if (!ne) return { filteredProteinPolygons: [], filteredNucleotidePolygons: [] };
     let T = ne.getProteinPolygons(), Q = ne.getNucleotidePolygons(), re = ne.leaves;
@@ -59029,7 +59029,7 @@ const as = !1, TM = it.forwardRef(({
       filteredProteinPolygons: X,
       filteredNucleotidePolygons: ae
     };
-  }, [ne, n, r, qt, Ee, Ce, Tn, Tt, Ht, $t]), Ho = it.useMemo(() => {
+  }, [ne, n, r, qt, Ee, Ce, Tn, Bt, Ht, $t]), Ho = it.useMemo(() => {
     if (!ne) return [];
     try {
       if (Ht) {
@@ -59064,7 +59064,7 @@ const as = !1, TM = it.forwardRef(({
             if (Tn) {
               let ae = K?.metadata?.[X];
               if ((ae == null || ae === "") && X === "cluster" && (ae = K?.metadata?.clusterId ?? K?.metadata?.cluster_id ?? K?.cluster), ae != null && ae !== "") {
-                const he = ds(Tn, ae, Tt?.type);
+                const he = ds(Tn, ae, Bt?.type);
                 if (he) return he;
               }
             }
@@ -59134,14 +59134,14 @@ const as = !1, TM = it.forwardRef(({
               const me = ge || S || "cluster";
               let ye = ae.metadata && ae.metadata[me];
               or(ye) && me === "cluster" && (ye = ae.cluster);
-              const Me = Tn && ae && !or(ye) ? ds(Tn, Fl(ye), Tt?.type) || ae.fillColor : ae.fillColor || mt.geneFill;
+              const Me = Tn && ae && !or(ye) ? ds(Tn, Fl(ye), Bt?.type) || ae.fillColor : ae.fillColor || mt.geneFill;
               X.push({ id: K.gAId, label: ae.metadata ? ae.metadata[ge || S] : ae.id, color: Me, stroke: Array.isArray(Me) ? Pi(Me) : null });
             }
             if (te.colorBy === "target_gene" && he) {
               const me = ge || S || "cluster";
               let ye = he.metadata && he.metadata[me];
               or(ye) && me === "cluster" && (ye = he.cluster);
-              const Me = Tn && he && !or(ye) ? ds(Tn, Fl(ye), Tt?.type) || he.fillColor : he.fillColor || mt.geneFill;
+              const Me = Tn && he && !or(ye) ? ds(Tn, Fl(ye), Bt?.type) || he.fillColor : he.fillColor || mt.geneFill;
               X.push({ id: K.gBId, label: he.metadata ? he.metadata[ge || S] : he.id, color: Me, stroke: Array.isArray(Me) ? Pi(Me) : null });
             }
           });
@@ -59168,11 +59168,11 @@ const as = !1, TM = it.forwardRef(({
           T.nucleotideLinks.forEach((K) => {
             const ae = T.genesById && T.genesById[K.gAId], he = T.genesById && T.genesById[K.gBId];
             if (te.colorBy === "source_gene" && ae) {
-              const me = ae.metadata && ae.metadata[ge || S] || ae.cluster, ye = Tn && ae && me ? ds(Tn, me, Tt?.type) || ae.fillColor : ae.fillColor || mt.geneFill;
+              const me = ae.metadata && ae.metadata[ge || S] || ae.cluster, ye = Tn && ae && me ? ds(Tn, me, Bt?.type) || ae.fillColor : ae.fillColor || mt.geneFill;
               X.push({ id: K.gAId, label: ae.metadata ? ae.metadata[ge || S] : ae.id, color: ye, stroke: Array.isArray(ye) ? Pi(ye) : null });
             }
             if (te.colorBy === "target_gene" && he) {
-              const me = he.metadata && he.metadata[ge || S] || he.cluster, ye = Tn && he && me ? ds(Tn, me, Tt?.type) || he.fillColor : he.fillColor || mt.geneFill;
+              const me = he.metadata && he.metadata[ge || S] || he.cluster, ye = Tn && he && me ? ds(Tn, me, Bt?.type) || he.fillColor : he.fillColor || mt.geneFill;
               X.push({ id: K.gBId, label: he.metadata ? he.metadata[ge || S] : he.id, color: ye, stroke: Array.isArray(ye) ? Pi(ye) : null });
             }
           });
@@ -59225,7 +59225,7 @@ const as = !1, TM = it.forwardRef(({
     ge,
     S,
     mt.geneFill,
-    Tt,
+    Bt,
     Pn,
     $,
     N,
@@ -59500,7 +59500,7 @@ const as = !1, TM = it.forwardRef(({
   }, [Z, fe, be, Ee, Ce, qt, P]), is = it.useMemo(() => {
     const T = /* @__PURE__ */ new Map();
     if (!ne) return T;
-    const Q = Tt?.enabled, re = ge || S || "cluster", te = (X) => {
+    const Q = Bt?.enabled, re = ge || S || "cluster", te = (X) => {
       if (!X) return null;
       if (Array.isArray(X)) return X.length >= 3 ? X : null;
       if (typeof X == "string") {
@@ -59523,7 +59523,7 @@ const as = !1, TM = it.forwardRef(({
           const ae = G?.metadata?.[re];
           if (ae != null && ae !== "") {
             const he = Fl(ae);
-            K = ds(Tn, he, Tt?.type);
+            K = ds(Tn, he, Bt?.type);
           }
         }
         if (!K && ne.proteinClusters && ne.proteinClusters[X]) {
@@ -59534,7 +59534,7 @@ const as = !1, TM = it.forwardRef(({
       T.set(X, K || null);
     }
     return [...T.entries()].filter(([, X]) => X !== null), T;
-  }, [ne, ne?._paletteVersion, Tt?.enabled, Tt?.type, Tt?.prevalenceFilter, Wr, Tn, ge, S, li, _]);
+  }, [ne, ne?._paletteVersion, Bt?.enabled, Bt?.type, Bt?.prevalenceFilter, Wr, Tn, ge, S, li, _]);
   it.useMemo(() => {
     if (!ne) return [];
     const T = a instanceof Set ? a : null, Q = (X) => X?.gene_id || X?.originalGeneId || X?.originalId || X?.id || X?.uniqueId || "", re = (X) => {
@@ -59569,7 +59569,7 @@ const as = !1, TM = it.forwardRef(({
       fillColor: is.get(X) || mt.geneFill || [200, 200, 200, 255]
     }));
     return te.filter((X) => X.fillColor && X.fillColor[0] !== 200), te;
-  }, [ne, ne?._paletteVersion, Tt?.enabled, is, mt, Wr, a, yn, En, Ht, qt, ze, _e]);
+  }, [ne, ne?._paletteVersion, Bt?.enabled, is, mt, Wr, a, yn, En, Ht, qt, ze, _e]);
   const Vo = it.useMemo(() => JSON.stringify(Ee), [Ee]), Ca = it.useMemo(() => JSON.stringify(Ce), [Ce]), na = it.useMemo(() => {
     if (!ne || !ne.proteinLinks || !Array.isArray(ne.proteinLinks)) return [];
     Ee && ne.applyProteinLinkColors(Ee, mt.geneFill);
@@ -59603,14 +59603,14 @@ const as = !1, TM = it.forwardRef(({
       return T ? G && K && T.has(G) && T.has(K) : !0;
     }).map((re, te) => {
       let X = re.fillColor || [150, 150, 150, 255];
-      if (Tt?.transparentByPrevalence && Tn) {
+      if (Bt?.transparentByPrevalence && Tn) {
         const G = ne.genesById[re.gAId], K = ne.genesById[re.gBId], ae = ge || S || "cluster";
         let he = G?.metadata?.[ae];
         (he == null || he === "") && ae === "cluster" && (he = G?.metadata?.clusterId ?? G?.metadata?.cluster_id ?? G?.cluster);
-        const me = he != null && he !== "" ? ds(Tn, he, Tt?.type) : null;
+        const me = he != null && he !== "" ? ds(Tn, he, Bt?.type) : null;
         let ye = K?.metadata?.[ae];
         (ye == null || ye === "") && ae === "cluster" && (ye = K?.metadata?.clusterId ?? K?.metadata?.cluster_id ?? K?.cluster);
-        const Me = ye != null && ye !== "" ? ds(Tn, ye, Tt?.type) : null, $e = me && Array.isArray(me) && me.length >= 4 ? me[3] / 255 : 0, Be = Me && Array.isArray(Me) && Me.length >= 4 ? Me[3] / 255 : 0, Ye = Math.min($e, Be), He = Array.isArray(X) && X.length >= 4 ? X[3] / 255 : 1, Ze = Math.round(He * Ye * 255);
+        const Me = ye != null && ye !== "" ? ds(Tn, ye, Bt?.type) : null, $e = me && Array.isArray(me) && me.length >= 4 ? me[3] / 255 : 0, Be = Me && Array.isArray(Me) && Me.length >= 4 ? Me[3] / 255 : 0, Ye = Math.min($e, Be), He = Array.isArray(X) && X.length >= 4 ? X[3] / 255 : 1, Ze = Math.round(He * Ye * 255);
         X = Array.isArray(X) ? [X[0], X[1], X[2], Ze] : X;
       }
       return {
@@ -59622,7 +59622,7 @@ const as = !1, TM = it.forwardRef(({
         _k: `${qt}_${te}`
       };
     });
-  }, [ne, ne?.proteinLinks, ne?._paletteVersion, Wr, qt, Vo, Tn, Ht, En, yn, Tt?.enabled, Tt?.transparentByPrevalence, Tt?.prevalenceFilter, ge, S, mt.geneFill]);
+  }, [ne, ne?.proteinLinks, ne?._paletteVersion, Wr, qt, Vo, Tn, Ht, En, yn, Bt?.enabled, Bt?.transparentByPrevalence, Bt?.prevalenceFilter, ge, S, mt.geneFill]);
   it.useEffect(() => {
   }, [Ht]);
   const po = it.useMemo(() => {
@@ -60025,13 +60025,13 @@ const as = !1, TM = it.forwardRef(({
             Fe && (ie = Fe);
           }
         }
-        if (Tt?.transparentByPrevalence && ee.geneId && Tn) {
+        if (Bt?.transparentByPrevalence && ee.geneId && Tn) {
           const ue = ne.genesById[ee.geneId];
           if (ue) {
             const Fe = ge || S || "cluster";
             let De = ue?.metadata?.[Fe];
             (De == null || De === "") && Fe === "cluster" && (De = ue?.metadata?.clusterId ?? ue?.metadata?.cluster_id ?? ue?.cluster);
-            const pt = De != null && De !== "" ? ds(Tn, De, Tt?.type) : null;
+            const pt = De != null && De !== "" ? ds(Tn, De, Bt?.type) : null;
             if (pt && Array.isArray(pt) && pt.length >= 4) {
               const rt = pt[3] / 255, yt = Array.isArray(ie) && ie.length >= 4 ? ie[3] / 255 : 1, Ot = Math.round(yt * rt * 255);
               ie = Array.isArray(ie) ? [ie[0], ie[1], ie[2], Ot] : ie;
@@ -60264,7 +60264,7 @@ const as = !1, TM = it.forwardRef(({
         }
         return Array.isArray(mt.geneFill) ? mt.geneFill : [150, 150, 150, 255];
       };
-      if (!Tt?.enabled) {
+      if (!Bt?.enabled) {
         const rt = ee(mt.geneFill || Pe.gene.fillColor), Ot = mt.background === "#ffffff" ? 0.7 : 1.3;
         return [
           Math.max(0, Math.min(255, Math.floor(rt[0] * Ot))),
@@ -60277,20 +60277,20 @@ const as = !1, TM = it.forwardRef(({
       const ue = ge || S || "cluster";
       if (Tn) {
         let rt = V?.metadata?.[ue];
-        (rt == null || rt === "") && ue === "cluster" && (rt = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), rt != null && rt !== "" && (ie = ds(Tn, rt, Tt?.type) || null);
+        (rt == null || rt === "") && ue === "cluster" && (rt = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), rt != null && rt !== "" && (ie = ds(Tn, rt, Bt?.type) || null);
       }
       let Fe;
       if (Tn && ue !== "cluster")
         if (ie)
           Fe = ee(ie);
-        else if (Tt.transparentByPrevalence) {
+        else if (Bt.transparentByPrevalence) {
           const rt = ee(Pe.gene.fillColor);
           Fe = [rt[0], rt[1], rt[2], 0];
         } else
           Fe = ee(Pe.gene.fillColor);
       else if (ie)
         Fe = ee(ie);
-      else if (Tt.transparentByPrevalence) {
+      else if (Bt.transparentByPrevalence) {
         const rt = ee(V.fillColor || Pe.gene.fillColor);
         Fe = [rt[0], rt[1], rt[2], 0];
       } else
@@ -60592,8 +60592,8 @@ const as = !1, TM = it.forwardRef(({
             Vo,
             is.size,
             Tn,
-            Tt?.prevalenceFilter,
-            Tt?.name,
+            Bt?.prevalenceFilter,
+            Bt?.name,
             ge,
             S,
             mt?.geneFill,
@@ -60774,19 +60774,19 @@ const as = !1, TM = it.forwardRef(({
           const ue = ge || S || "cluster";
           if (Tn) {
             let De = V?.metadata?.[ue];
-            (De == null || De === "") && ue === "cluster" && (De = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), De != null && De !== "" && (ie = ds(Tn, De, Tt?.type) || null);
+            (De == null || De === "") && ue === "cluster" && (De = V?.metadata?.clusterId ?? V?.metadata?.cluster_id ?? V?.cluster), De != null && De !== "" && (ie = ds(Tn, De, Bt?.type) || null);
           }
-          if (!Tt?.enabled)
+          if (!Bt?.enabled)
             ie || (ie = mt.geneFill || Pe.gene.fillColor);
           else if (Tn && ue !== "cluster") {
             if (!ie)
-              if (Tt.transparentByPrevalence) {
+              if (Bt.transparentByPrevalence) {
                 const De = mt.geneFill || Pe.gene.fillColor;
                 ie = [De[0], De[1], De[2], 0];
               } else
                 ie = mt.geneFill || Pe.gene.fillColor;
           } else if (!ie)
-            if (Tt.transparentByPrevalence) {
+            if (Bt.transparentByPrevalence) {
               const De = V.fillColor || mt.geneFill || Pe.gene.fillColor;
               ie = [De[0], De[1], De[2], 0];
             } else
@@ -60818,9 +60818,9 @@ const as = !1, TM = it.forwardRef(({
             _e,
             ze
           ],
-          getFillColor: [no, ge, S, Wr, mt.geneFill, qt, Tt?.enabled, Tt?.transparentByPrevalence],
+          getFillColor: [no, ge, S, Wr, mt.geneFill, qt, Bt?.enabled, Bt?.transparentByPrevalence],
           // Include resolvedTheme because getGeneEdgeColor uses themeColors.background to decide darken/lighten factor
-          getLineColor: [no, ge, S, Wr, mt.geneFill, Pe.gene.edgeWidth, qt, mn, Tt?.transparentByPrevalence],
+          getLineColor: [no, ge, S, Wr, mt.geneFill, Pe.gene.edgeWidth, qt, mn, Bt?.transparentByPrevalence],
           getLineWidth: Pe.gene.edgeWidth,
           stroked: Pe.gene.edgeWidth
         }
@@ -60847,8 +60847,8 @@ const as = !1, TM = it.forwardRef(({
         updateTriggers: {
           // Include gene.height and gene.arrowheadHeight so domain polygons update when gene size changes
           getPolygon: [at, qt, Pe.domain.height, Pe.gene.height, Pe.gene.arrowheadHeight, Pe.domain.heightFactor, lt, Ht, _e, ze],
-          getFillColor: [at.length, ke, Wr, mt.domainFill, lt, Ht, Tt?.transparentByPrevalence, Tn],
-          getLineColor: [at.length, Tt?.transparentByPrevalence],
+          getFillColor: [at.length, ke, Wr, mt.domainFill, lt, Ht, Bt?.transparentByPrevalence, Tn],
+          getLineColor: [at.length, Bt?.transparentByPrevalence],
           getLineWidth: Pe.domain.edgeWidth
         }
       }),
@@ -60870,7 +60870,7 @@ const as = !1, TM = it.forwardRef(({
           // Use geneLabels.length to force data refresh when filtering by ySpacing changes label count
           getPosition: [Ws.length, qt, Pe && Pe.gene ? Pe.gene.height : null, H, qe, _e, ze, no],
           getText: [Ws.length, Ae, ze, _e],
-          getColor: [Ws.length, ge, Tt && Tt.name || null, Wr],
+          getColor: [Ws.length, ge, Bt && Bt.name || null, Wr, Bt?.transparentByPrevalence, Bt?.desaturateByPrevalence, Bt?.prevalenceFilter, Tn],
           getSize: [Pe.text?.geneLabelSize, Pe.text?.scaleFactors?.gene, Ws.length, H, qe],
           getAlignmentBaseline: [Ws.length, qe, qt]
         }
@@ -61149,7 +61149,7 @@ const as = !1, TM = it.forwardRef(({
     Ut,
     // ===== PALETTE SIGNALS =====
     Kn.current?._paletteVersion,
-    Tt?.enabled
+    Bt?.enabled
   ]);
   it.useMemo(() => {
     const T = [], Q = (re) => {
@@ -69722,11 +69722,11 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       ct(!1), co.current = -1;
     }, 200));
   }, [a, gt, Rt, zt, Hn, Ht]);
-  const zn = ole(s, $), qt = A.useMemo(() => P ? jf(zn, I) : 0, [zn, I, P]), kn = A.useCallback((ne, St, fn) => {
+  const zn = ole(s, $), qt = A.useMemo(() => P ? jf(zn, I) : 0, [zn, I, P]), kn = A.useCallback((ne, Tt, fn) => {
     const vn = ne.getBoundingClientRect();
-    if (St >= zn.length || fn >= m)
+    if (Tt >= zn.length || fn >= m)
       return;
-    const Wt = vn.width / n, Gt = WA(St, fn, n, r, h, pi, gt, a, Rt, zt, m, $, N, zn, g);
+    const Wt = vn.width / n, Gt = WA(Tt, fn, n, r, h, pi, gt, a, Rt, zt, m, $, N, zn, g);
     return Wt !== 1 && (Gt.x *= Wt, Gt.y *= Wt, Gt.width *= Wt, Gt.height *= Wt), Gt.x += vn.x, Gt.y += vn.y, Gt;
   }, [
     n,
@@ -69742,8 +69742,8 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     N,
     zn,
     g
-  ]), Vn = A.useCallback((ne, St, fn, vn) => {
-    const Wt = ne.getBoundingClientRect(), Gt = Wt.width / n, wn = (St - Wt.left) / Gt, gn = (fn - Wt.top) / Gt, In = 5, Qn = VA(zn, gt, n, void 0, Rt);
+  ]), Vn = A.useCallback((ne, Tt, fn, vn) => {
+    const Wt = ne.getBoundingClientRect(), Gt = Wt.width / n, wn = (Tt - Wt.left) / Gt, gn = (fn - Wt.top) / Gt, In = 5, Qn = VA(zn, gt, n, void 0, Rt);
     let xi = 0, Vr = 0;
     const Nn = typeof PointerEvent < "u" && vn instanceof PointerEvent && vn.pointerType === "mouse" || typeof MouseEvent < "u" && vn instanceof MouseEvent, nn = typeof PointerEvent < "u" && vn instanceof PointerEvent && vn.pointerType === "touch" || typeof TouchEvent < "u" && vn instanceof TouchEvent;
     Nn && (xi = vn.button, Vr = vn.buttons);
@@ -69759,7 +69759,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       let _o = !1;
       if (pn === -1 && Yn === -1) {
         const Fi = kn(ne, zn.length - 1, -1);
-        Ma(Fi !== void 0), _o = St < Fi.x + Fi.width + In;
+        Ma(Fi !== void 0), _o = Tt < Fi.x + Fi.width + In;
       }
       const jn = wn > n && wn < n + OA() || gn > r && gn < r + OA();
       Di = {
@@ -69779,9 +69779,9 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     } else if (Yn <= -1) {
       let Br = kn(ne, pn, Yn);
       Ma(Br !== void 0);
-      let to = Br !== void 0 && Br.x + Br.width - St <= In;
+      let to = Br !== void 0 && Br.x + Br.width - Tt <= In;
       const Xi = pn - 1;
-      St - Br.x <= In && Xi >= 0 ? (to = !0, Br = kn(ne, Xi, Yn), Ma(Br !== void 0), Di = {
+      Tt - Br.x <= In && Xi >= 0 ? (to = !0, Br = kn(ne, Xi, Yn), Ma(Br !== void 0), Di = {
         kind: w && Yn === -2 ? El : gu,
         location: [Xi, Yn],
         bounds: Br,
@@ -69791,7 +69791,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         ctrlKey: xs,
         metaKey: rs,
         isTouch: nn,
-        localEventX: St - Br.x,
+        localEventX: Tt - Br.x,
         localEventY: fn - Br.y,
         button: xi,
         buttons: Vr,
@@ -69806,7 +69806,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         ctrlKey: xs,
         metaKey: rs,
         isTouch: nn,
-        localEventX: St - Br.x,
+        localEventX: Tt - Br.x,
         localEventY: fn - Br.y,
         button: xi,
         buttons: Vr,
@@ -69815,13 +69815,13 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     } else {
       const Br = kn(ne, pn, Yn);
       Ma(Br !== void 0);
-      const to = Br !== void 0 && Br.x + Br.width - St < In;
+      const to = Br !== void 0 && Br.x + Br.width - Tt < In;
       let Xi = !1;
       if (d !== !1 && d !== void 0 && k.current !== void 0) {
         const _o = typeof d == "object" ? { ...Qm, ...d } : Qm, jn = _o.size, Fi = jn / 2, Pi = lP(k.current.range), ea = kn(ne, Pi[0], Pi[1]);
         if (ea !== void 0) {
           const Pr = ea.x + ea.width + _o.offsetX - Fi + 0.5, or = ea.y + ea.height + _o.offsetY - Fi + 0.5;
-          Xi = Math.abs(Pr - St) < jn && Math.abs(or - fn) < jn;
+          Xi = Math.abs(Pr - Tt) < jn && Math.abs(or - fn) < jn;
         }
       }
       Di = {
@@ -69834,7 +69834,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         isFillHandle: Xi,
         metaKey: rs,
         isTouch: nn,
-        localEventX: St - Br.x,
+        localEventX: Tt - Br.x,
         localEventY: fn - Br.y,
         button: xi,
         buttons: Vr,
@@ -69864,8 +69864,8 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }), Zn = A.useRef(ln);
   Zn.current = ln;
   const [Gr, mi] = A.useMemo(() => {
-    const ne = document.createElement("canvas"), St = document.createElement("canvas");
-    return ne.style.display = "none", ne.style.opacity = "0", ne.style.position = "fixed", St.style.display = "none", St.style.opacity = "0", St.style.position = "fixed", [ne.getContext("2d", { alpha: !1 }), St.getContext("2d", { alpha: !1 })];
+    const ne = document.createElement("canvas"), Tt = document.createElement("canvas");
+    return ne.style.display = "none", ne.style.opacity = "0", ne.style.position = "fixed", Tt.style.display = "none", Tt.style.opacity = "0", Tt.style.position = "fixed", [ne.getContext("2d", { alpha: !1 }), Tt.getContext("2d", { alpha: !1 })];
   }, []);
   A.useLayoutEffect(() => {
     if (!(Gr === null || mi === null))
@@ -69874,8 +69874,8 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       };
   }, [Gr, mi]);
   const es = A.useMemo(() => new Fle(), []), _i = Hn && ze ? 1 : Ht && ze ? 2 : 5, Kr = Lt?.disableMinimumCellWidth === !0 ? 1 : 10, rr = A.useRef(), Wn = A.useRef(null), ir = A.useRef(null), uo = A.useCallback(() => {
-    const ne = _e.current, St = on.current;
-    if (ne === null || St === null || (Wn.current === null && (Wn.current = ne.getContext("2d", { alpha: !1 }), ne.width = 0, ne.height = 0), ir.current === null && (ir.current = St.getContext("2d", { alpha: !1 }), St.width = 0, St.height = 0), Wn.current === null || ir.current === null || Gr === null || mi === null))
+    const ne = _e.current, Tt = on.current;
+    if (ne === null || Tt === null || (Wn.current === null && (Wn.current = ne.getContext("2d", { alpha: !1 }), ne.width = 0, ne.height = 0), ir.current === null && (ir.current = Tt.getContext("2d", { alpha: !1 }), Tt.width = 0, Tt.height = 0), Wn.current === null || ir.current === null || Gr === null || mi === null))
       return;
     let fn = !1;
     const vn = (wn) => {
@@ -69993,7 +69993,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, []), ns = Que(ts);
   Hi.current = ns;
   const tn = A.useCallback((ne) => {
-    ts(new Bg(ne.map((St) => St.cell)));
+    ts(new Bg(ne.map((Tt) => Tt.cell)));
   }, [ts]);
   Ke.setCallback(ts);
   const [Zs, Ar] = A.useState(!1), [_s, sr] = Mi ?? [], Qs = _s !== void 0 && sr === -1 && _s >= 0 && _s < zn.length && zn[_s].headerRowMarkerDisabled !== !0, ni = _s !== void 0 && sr === -2;
@@ -70010,20 +70010,20 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     cursor: Ua
   }), [Ua]), eo = A.useRef("default"), dr = ge?.current;
   dr != null && eo.current !== Js.cursor && (dr.style.cursor = eo.current = Js.cursor);
-  const No = A.useCallback((ne, St, fn, vn) => {
+  const No = A.useCallback((ne, Tt, fn, vn) => {
     if (wt === void 0)
       return;
     const Wt = wt(ne);
     if (Wt.actions !== void 0) {
-      const Gt = BP(St, Wt.actions);
+      const Gt = BP(Tt, Wt.actions);
       for (const [wn, gn] of Gt.entries())
-        if (ad(gn, fn + St.x, vn + gn.y))
+        if (ad(gn, fn + Tt.x, vn + gn.y))
           return Wt.actions[wn];
     }
-  }, [wt]), fo = A.useCallback((ne, St, fn, vn) => {
-    const Wt = zn[St];
+  }, [wt]), fo = A.useCallback((ne, Tt, fn, vn) => {
+    const Wt = zn[Tt];
     if (!lt && !Ae && !(mn ?? !1)) {
-      const Gt = kn(ne, St, -1);
+      const Gt = kn(ne, Tt, -1);
       Ma(Gt !== void 0);
       const wn = SP(void 0, Wt, Gt.x, Gt.y, Gt.width, Gt.height, Ue, RE(Wt.title) === "rtl");
       if (Wt.hasMenu === !0 && wn.menuBounds !== void 0 && ad(wn.menuBounds, fn, vn))
@@ -70038,8 +70038,8 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         };
     }
   }, [zn, kn, mn, lt, Ae, Ue]), Oo = A.useRef(0), Ci = A.useRef(), Vi = A.useRef(!1), ho = A.useCallback((ne) => {
-    const St = _e.current, fn = ge?.current;
-    if (St === null || ne.target !== St && ne.target !== fn)
+    const Tt = _e.current, fn = ge?.current;
+    if (Tt === null || ne.target !== Tt && ne.target !== fn)
       return;
     Vi.current = !0;
     const vn = ne.clientX, Wt = ne.clientY;
@@ -70048,8 +70048,8 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       if (vn > wn.right || Wt > wn.bottom)
         return;
     }
-    const Gt = Vn(St, vn, Wt, ne);
-    Ci.current = Gt.location, Gt.isTouch && (Oo.current = Date.now()), $r.current !== Gt.isTouch && li(Gt.isTouch), !(Gt.kind === gu && fo(St, Gt.location[0], vn, Wt) !== void 0) && (Gt.kind === El && No(Gt.group, Gt.bounds, Gt.localEventX, Gt.localEventY) !== void 0 || (j?.(Gt), !Gt.isTouch && Ee !== !0 && Ee !== Gt.kind && Gt.button < 3 && Gt.button !== 1 && ne.preventDefault()));
+    const Gt = Vn(Tt, vn, Wt, ne);
+    Ci.current = Gt.location, Gt.isTouch && (Oo.current = Date.now()), $r.current !== Gt.isTouch && li(Gt.isTouch), !(Gt.kind === gu && fo(Tt, Gt.location[0], vn, Wt) !== void 0) && (Gt.kind === El && No(Gt.group, Gt.bounds, Gt.localEventX, Gt.localEventY) !== void 0 || (j?.(Gt), !Gt.isTouch && Ee !== !0 && Ee !== Gt.kind && Gt.button < 3 && Gt.button !== 1 && ne.preventDefault()));
   }, [
     ge,
     Ee,
@@ -70060,7 +70060,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   ]);
   Ko("pointerdown", ho, tt, !1);
   const cs = A.useRef(0), Qo = A.useCallback((ne) => {
-    const St = cs.current;
+    const Tt = cs.current;
     cs.current = Date.now();
     const fn = _e.current;
     if (Vi.current = !1, W === void 0 || fn === null)
@@ -70070,7 +70070,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     In.isTouch && Oo.current !== 0 && Date.now() - Oo.current > 500 && (In = {
       ...In,
       isLongTouch: !0
-    }), St !== 0 && Date.now() - St < (In.isTouch ? 1e3 : 500) && (In = {
+    }), Tt !== 0 && Date.now() - Tt < (In.isTouch ? 1e3 : 500) && (In = {
       ...In,
       isDoubleClick: !0
     }), $r.current !== In.isTouch && li(In.isTouch), !Wt && ne.cancelable && gn && ne.preventDefault();
@@ -70089,33 +70089,33 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, [W, ge, Vn, fo, No]);
   Ko("pointerup", Qo, tt, !1);
   const Wi = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null)
+    const Tt = _e.current;
+    if (Tt === null)
       return;
-    const fn = ge?.current, vn = ne.target !== St && ne.target !== fn;
+    const fn = ge?.current, vn = ne.target !== Tt && ne.target !== fn;
     let Wt, Gt, wn = !0;
     ne instanceof MouseEvent ? (Wt = ne.clientX, Gt = ne.clientY, wn = ne.button < 3) : (Wt = ne.changedTouches[0].clientX, Gt = ne.changedTouches[0].clientY);
-    const gn = Vn(St, Wt, Gt, ne);
+    const gn = Vn(Tt, Wt, Gt, ne);
     $r.current !== gn.isTouch && li(gn.isTouch), !vn && ne.cancelable && wn && ne.preventDefault();
     const [In] = gn.location;
     if (gn.kind === gu) {
-      const Qn = fo(St, In, Wt, Gt);
+      const Qn = fo(Tt, In, Wt, Gt);
       Qn !== void 0 && gn.button === 0 && Ci.current?.[0] === In && Ci.current?.[1] === -1 && (Qn.area === "menu" ? b?.(In, Qn.bounds) : Qn.area === "indicator" && E?.(In, Qn.bounds));
     }
   }, [ge, Vn, fo, b, E]);
   Ko("click", Wi, tt, !1);
   const $a = A.useCallback((ne) => {
-    const St = _e.current, fn = ge?.current;
-    if (St === null || ne.target !== St && ne.target !== fn || L === void 0)
+    const Tt = _e.current, fn = ge?.current;
+    if (Tt === null || ne.target !== Tt && ne.target !== fn || L === void 0)
       return;
-    const vn = Vn(St, ne.clientX, ne.clientY, ne);
+    const vn = Vn(Tt, ne.clientX, ne.clientY, ne);
     L(vn, () => {
       ne.cancelable && ne.preventDefault();
     });
   }, [ge, Vn, L]);
   Ko("contextmenu", $a, ge?.current ?? null, !1);
   const Jo = A.useCallback((ne) => {
-    vt.current = new Bg(ne.map((St) => St.item)), Et.current = ne, Io.current(), vt.current = void 0;
+    vt.current = new Bg(ne.map((Tt) => Tt.item)), Et.current = ne, Io.current(), vt.current = void 0;
   }, []), Sn = A.useMemo(() => new Gue(Jo), [Jo]), Ha = A.useRef(Sn);
   Ha.current = Sn, A.useLayoutEffect(() => {
     const ne = Ha.current;
@@ -70123,14 +70123,14 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       ne.setHovered(Mi);
       return;
     }
-    const St = y(Mi, !0), fn = ft(St), vn = fn === void 0 && St.kind === dn.Custom || fn?.needsHover !== void 0 && (typeof fn.needsHover == "boolean" ? fn.needsHover : fn.needsHover(St));
+    const Tt = y(Mi, !0), fn = ft(Tt), vn = fn === void 0 && Tt.kind === dn.Custom || fn?.needsHover !== void 0 && (typeof fn.needsHover == "boolean" ? fn.needsHover : fn.needsHover(Tt));
     ne.setHovered(vn ? Mi : void 0);
   }, [y, ft, Mi]);
   const Kn = A.useRef(), qi = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null)
+    const Tt = _e.current;
+    if (Tt === null)
       return;
-    const fn = ge?.current, vn = ne.target !== St && ne.target !== fn, Wt = Vn(St, ne.clientX, ne.clientY, ne);
+    const fn = ge?.current, vn = ne.target !== Tt && ne.target !== fn, Wt = Vn(Tt, ne.clientX, ne.clientY, ne);
     if (Wt.kind !== "out-of-bounds" && vn && !Vi.current && !Wt.isTouch)
       return;
     const Gt = (gn, In) => {
@@ -70164,11 +70164,11 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   ]);
   Ko("pointermove", qi, tt, !0);
   const Lo = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null)
+    const Tt = _e.current;
+    if (Tt === null)
       return;
     let fn, vn;
-    k.current !== void 0 && (fn = kn(St, k.current.cell[0], k.current.cell[1]), vn = k.current.cell), q?.({
+    k.current !== void 0 && (fn = kn(Tt, k.current.cell[0], k.current.cell[1]), vn = k.current.cell), q?.({
       bounds: fn,
       stopPropagation: () => ne.stopPropagation(),
       preventDefault: () => ne.preventDefault(),
@@ -70184,11 +70184,11 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       location: vn
     });
   }, [q, k, kn]), ws = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null)
+    const Tt = _e.current;
+    if (Tt === null)
       return;
     let fn, vn;
-    k.current !== void 0 && (fn = kn(St, k.current.cell[0], k.current.cell[1]), vn = k.current.cell), Z?.({
+    k.current !== void 0 && (fn = kn(Tt, k.current.cell[0], k.current.cell[1]), vn = k.current.cell), Z?.({
       bounds: fn,
       stopPropagation: () => ne.stopPropagation(),
       preventDefault: () => ne.preventDefault(),
@@ -70209,17 +70209,17 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
     else if (ne === null)
       ve.current = window;
     else {
-      const St = ne.getRootNode();
-      St === document && (ve.current = window), ve.current = St;
+      const Tt = ne.getRootNode();
+      Tt === document && (ve.current = window), ve.current = Tt;
     }
   }, [oe, Lt?.eventTarget]), Ao = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null || Ee === !1 || Ae) {
+    const Tt = _e.current;
+    if (Tt === null || Ee === !1 || Ae) {
       ne.preventDefault();
       return;
     }
     let fn, vn;
-    const Wt = Vn(St, ne.clientX, ne.clientY);
+    const Wt = Vn(Tt, ne.clientX, ne.clientY);
     if (Ee !== !0 && Wt.kind !== Ee) {
       ne.preventDefault();
       return;
@@ -70244,7 +70244,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       else {
         const [Vr, Nn] = Wt.location;
         if (Nn !== void 0) {
-          const nn = document.createElement("canvas"), pn = kn(St, Vr, Nn);
+          const nn = document.createElement("canvas"), pn = kn(Tt, Vr, Nn);
           Ma(pn !== void 0);
           const Yn = Math.ceil(window.devicePixelRatio ?? 1);
           nn.width = pn.width * Yn, nn.height = pn.height * Yn;
@@ -70274,10 +70274,10 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   ]);
   Ko("dragstart", Ao, ge?.current ?? null, !1, !1);
   const zo = A.useRef(), sl = A.useCallback((ne) => {
-    const St = _e.current;
-    if (Ut !== void 0 && ne.preventDefault(), St === null || Vt === void 0)
+    const Tt = _e.current;
+    if (Ut !== void 0 && ne.preventDefault(), Tt === null || Vt === void 0)
       return;
-    const fn = Vn(St, ne.clientX, ne.clientY), [vn, Wt] = fn.location, Gt = vn - (O ? 0 : 1), [wn, gn] = zo.current ?? [];
+    const fn = Vn(Tt, ne.clientX, ne.clientY), [vn, Wt] = fn.location, Gt = vn - (O ? 0 : 1), [wn, gn] = zo.current ?? [];
     (wn !== Gt || gn !== Wt) && (zo.current = [Gt, Wt], Vt([Gt, Wt], ne.dataTransfer));
   }, [O, Vn, Vt, Ut]);
   Ko("dragover", sl, ge?.current ?? null, !1, !1);
@@ -70286,11 +70286,11 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
   }, [be]);
   Ko("dragend", Va, ge?.current ?? null, !1, !1);
   const Dr = A.useCallback((ne) => {
-    const St = _e.current;
-    if (St === null || Ut === void 0)
+    const Tt = _e.current;
+    if (Tt === null || Ut === void 0)
       return;
     ne.preventDefault();
-    const fn = Vn(St, ne.clientX, ne.clientY), [vn, Wt] = fn.location, Gt = vn - (O ? 0 : 1);
+    const fn = Vn(Tt, ne.clientX, ne.clientY), [vn, Wt] = fn.location, Gt = vn - (O ? 0 : 1);
     Ut([Gt, Wt], ne.dataTransfer);
   }, [O, Vn, Ut]);
   Ko("drop", Dr, ge?.current ?? null, !1, !1);
@@ -70316,37 +70316,37 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
         preventScroll: !0
       });
     },
-    getBounds: (ne, St) => {
+    getBounds: (ne, Tt) => {
       if (!(oe === void 0 || oe.current === null))
-        return kn(oe.current, ne ?? 0, St ?? -1);
+        return kn(oe.current, ne ?? 0, Tt ?? -1);
     },
     damage: tn,
-    getMouseArgsForPosition: (ne, St, fn) => {
+    getMouseArgsForPosition: (ne, Tt, fn) => {
       if (!(oe === void 0 || oe.current === null))
-        return Vn(oe.current, ne, St, fn);
+        return Vn(oe.current, ne, Tt, fn);
     }
   }), [oe, tn, kn, Vn]);
   const $s = A.useRef(), Zr = sae(() => {
     if (n < 50 || Lt?.disableAccessibilityTree === !0)
       return null;
     let ne = VA(zn, gt, n, I, Rt);
-    const St = O ? 0 : -1;
+    const Tt = O ? 0 : -1;
     !O && ne[0]?.sourceIndex === 0 && (ne = ne.slice(1));
     const [fn, vn] = k.current?.cell ?? [], Wt = k.current?.range, Gt = ne.map((gn) => gn.sourceIndex), wn = Gu(a, Math.min(m, a + i));
     return fn !== void 0 && vn !== void 0 && !(Gt.includes(fn) && wn.includes(vn)) && qn(null), A.createElement(
       "table",
-      { key: "access-tree", role: "grid", "aria-rowcount": m + 1, "aria-multiselectable": "true", "aria-colcount": zn.length + St },
+      { key: "access-tree", role: "grid", "aria-rowcount": m + 1, "aria-multiselectable": "true", "aria-colcount": zn.length + Tt },
       A.createElement(
         "thead",
         { role: "rowgroup" },
-        A.createElement("tr", { role: "row", "aria-rowindex": 1 }, ne.map((gn) => A.createElement("th", { role: "columnheader", "aria-selected": k.columns.hasIndex(gn.sourceIndex), "aria-colindex": gn.sourceIndex + 1 + St, tabIndex: -1, onFocus: (In) => {
+        A.createElement("tr", { role: "row", "aria-rowindex": 1 }, ne.map((gn) => A.createElement("th", { role: "columnheader", "aria-selected": k.columns.hasIndex(gn.sourceIndex), "aria-colindex": gn.sourceIndex + 1 + Tt, tabIndex: -1, onFocus: (In) => {
           if (In.target !== nt.current)
             return At?.([gn.sourceIndex, -1]);
         }, key: gn.sourceIndex }, gn.title)))
       ),
       A.createElement("tbody", { role: "rowgroup" }, wn.map((gn) => A.createElement("tr", { role: "row", "aria-selected": k.rows.hasIndex(gn), key: gn, "aria-rowindex": gn + 2 }, ne.map((In) => {
         const Qn = In.sourceIndex, xi = wl(Qn, gn), Vr = fn === Qn && vn === gn, Nn = Wt !== void 0 && Qn >= Wt.x && Qn < Wt.x + Wt.width && gn >= Wt.y && gn < Wt.y + Wt.height, nn = `glide-cell-${Qn}-${gn}`, pn = [Qn, gn], Yn = y(pn, !0);
-        return A.createElement("td", { key: xi, role: "gridcell", "aria-colindex": Qn + 1 + St, "aria-selected": Nn, "aria-readonly": vf(Yn) || !gf(Yn), id: nn, "data-testid": nn, onClick: () => {
+        return A.createElement("td", { key: xi, role: "gridcell", "aria-colindex": Qn + 1 + Tt, "aria-selected": Nn, "aria-readonly": vf(Yn) || !gf(Yn), id: nn, "data-testid": nn, onClick: () => {
           const _r = oe?.current;
           if (_r != null)
             return q?.({
@@ -70401,7 +70401,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       pointerEvents: "none",
       transition: xe ? void 0 : "opacity 0.2s",
       boxShadow: "inset 13px 0 10px -13px rgba(0, 0, 0, 0.2)"
-    }, St = {
+    }, Tt = {
       position: "absolute",
       top: pi,
       left: 0,
@@ -70416,7 +70416,7 @@ const Jue = (t, e) => t.kind === dn.Custom ? t.copyData : e?.(t)?.getAccessibili
       A.Fragment,
       null,
       go > 0 && A.createElement("div", { id: "shadow-x", style: ne }),
-      Eo > 0 && A.createElement("div", { id: "shadow-y", style: St })
+      Eo > 0 && A.createElement("div", { id: "shadow-y", style: Tt })
     );
   }, [go, Eo, qt, n, xe, pi, r, kt]), ut = A.useMemo(() => ({
     position: "absolute",
@@ -71922,7 +71922,7 @@ function jde(t, e, n, r, i) {
     scrollRef: m
   };
 }
-const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-BQ0Buops.js"));
+const Xde = A.lazy(async () => await import("./data-grid-overlay-editor-rLA55hin.js"));
 let Yde = 0;
 function Gde(t) {
   return $le(NB(NB(t).filter((e) => e.span !== void 0).map((e) => Gu((e.span?.[0] ?? 0) + 1, (e.span?.[1] ?? 0) + 1))));
@@ -71965,14 +71965,14 @@ const U0 = {
     Ke !== void 0 ? Ke() : go(!1);
   }, [Ke]), ut = A.useMemo(() => Xt === void 0 ? void 0 : z0(Xt, nt), [Xt, nt]) ?? n, ne = A.useRef();
   ne.current === void 0 && (ne.current = new AbortController()), A.useEffect(() => () => ne?.current.abort(), []);
-  const [St, fn] = _de(q, x, nt, ne.current, Sn), vn = A.useCallback((J, Te, Se) => {
+  const [Tt, fn] = _de(q, x, nt, ne.current, Sn), vn = A.useCallback((J, Te, Se) => {
     if (Pt === void 0)
       return !0;
     const Ie = [J[0] - nt, J[1]];
     return Pt?.(Ie, Te, Se);
   }, [nt, Pt]), Wt = A.useRef(Xt), Gt = A.useCallback((J, Te) => {
-    Te && (J = Rde(J, St, nt, Y, ne.current)), ln !== void 0 ? (Wt.current = z0(J, -nt), ln(Wt.current)) : r(J);
-  }, [ln, St, nt, Y]), wn = hu(Hn, A.useCallback((J, Te, Se, Ie) => {
+    Te && (J = Rde(J, Tt, nt, Y, ne.current)), ln !== void 0 ? (Wt.current = z0(J, -nt), ln(Wt.current)) : r(J);
+  }, [ln, Tt, nt, Y]), wn = hu(Hn, A.useCallback((J, Te, Se, Ie) => {
     Hn?.(w[Se - nt], Te, Se - nt, Ie);
   }, [Hn, nt, w])), gn = hu(Ht, A.useCallback((J, Te, Se, Ie) => {
     Ht?.(w[Se - nt], Te, Se - nt, Ie);
@@ -72026,7 +72026,7 @@ const U0 = {
     y: 0
   }), Pi = A.useRef(!1), { setVisibleRegion: ea, visibleRegion: Pr, scrollRef: or } = jde(li, $r, ws, Fi, () => Pi.current = !0);
   Fi.current = Pr;
-  const ds = Pr.x + nt, Wa = Pr.y, fs = A.useRef(null), Tt = A.useCallback((J) => {
+  const ds = Pr.x + nt, Wa = Pr.y, fs = A.useRef(null), Bt = A.useCallback((J) => {
     J === !0 ? fs.current?.focus() : window.requestAnimationFrame(() => {
       fs.current?.focus();
     });
@@ -72406,7 +72406,7 @@ const U0 = {
           if (yt === void 0 || yt.checked === Fe.checked)
             return;
         }
-        s(void 0), Tt();
+        s(void 0), Bt();
         const De = ee.hasIndex(je), pt = is.current;
         if (xt === "multi" && (J.shiftKey || J.isLongTouch === !0) && pt !== void 0 && ee.hasIndex(pt)) {
           const rt = [Math.min(pt, je), Math.max(pt, je) + 1];
@@ -72445,25 +72445,25 @@ const U0 = {
               width: Ot - yt + 1,
               height: Cn - en + 1
             }
-          }, !0, Te, "click"), is.current = void 0, Tt();
+          }, !0, Te, "click"), is.current = void 0, Bt();
         } else
           Nn({
             cell: [Ie, je],
             range: { x: Ie, y: je, width: 1, height: 1 }
-          }, !0, Te, "click"), is.current = void 0, s(void 0), Tt();
+          }, !0, Te, "click"), is.current = void 0, s(void 0), Bt();
       }
     } else if (J.kind === "header")
       if (Qr.current = [Ie, je], s(void 0), us && Ie === 0)
-        is.current = void 0, Vo.current = void 0, !ho && xt === "multi" && (ee.length !== Sn ? nn(ur.fromSingleSelection([0, Sn]), void 0, Te) : nn(ur.empty(), void 0, Te), Tt());
+        is.current = void 0, Vo.current = void 0, !ho && xt === "multi" && (ee.length !== Sn ? nn(ur.fromSingleSelection([0, Sn]), void 0, Te) : nn(ur.empty(), void 0, Te), Bt());
       else {
         const Fe = Vo.current;
         if (Ct === "multi" && (J.shiftKey || J.isLongTouch === !0) && Fe !== void 0 && V.hasIndex(Fe)) {
           const De = [Math.min(Fe, Ie), Math.max(Fe, Ie) + 1];
           Te || J.isTouch || zt === "multi" ? pn(void 0, De, Te) : pn(ur.fromSingleSelection(De), void 0, Te);
         } else Ct === "multi" && (Te || J.isTouch || zt === "multi") ? (V.hasIndex(Ie) ? pn(V.remove(Ie), void 0, Te) : pn(void 0, Ie, Te), Vo.current = Ie) : Ct !== "none" && (V.hasIndex(Ie) ? pn(V.remove(Ie), void 0, Te) : pn(ur.fromSingleSelection(Ie), void 0, Te), Vo.current = Ie);
-        is.current = void 0, Tt();
+        is.current = void 0, Bt();
       }
-    else J.kind === El ? Qr.current = [Ie, je] : J.kind === i1 && !J.isMaybeScrollbar && (Gt($0, !1), s(void 0), Tt(), ze?.(), is.current = void 0, Vo.current = void 0);
+    else J.kind === El ? Qr.current = [Ie, je] : J.kind === i1 && !J.isMaybeScrollbar && (Gt($0, !1), s(void 0), Bt(), ze?.(), is.current = void 0, Vo.current = void 0);
   }, [
     xt,
     Ct,
@@ -72475,7 +72475,7 @@ const U0 = {
     dr,
     gs,
     Kr,
-    Tt,
+    Bt,
     Rt,
     zt,
     bi,
@@ -72519,7 +72519,7 @@ const U0 = {
       V--;
     for (let ie = Se + 1; ie < jn.length && Wg(je.group, jn[ie].group); ie++)
       ee++;
-    if (Tt(), Te || J.isTouch || zt === "multi")
+    if (Bt(), Te || J.isTouch || zt === "multi")
       if (Ie.hasAll([V, ee + 1])) {
         let ie = Ie;
         for (let ue = V; ue <= ee; ue++)
@@ -72531,16 +72531,16 @@ const U0 = {
       pn(ur.fromSingleSelection([V, ee + 1]), void 0, Te);
   }, [
     Ct,
-    Tt,
+    Bt,
     ut.columns,
     jn,
     nt,
     pn,
     zt
   ]), xo = A.useRef(!1), qa = A.useCallback(async (J) => {
-    if (St !== void 0 && wn !== void 0) {
+    if (Tt !== void 0 && wn !== void 0) {
       const Te = Fi.current.y, Se = Fi.current.height;
-      let Ie = St({
+      let Ie = Tt({
         x: J,
         y: Te,
         width: 1,
@@ -72556,7 +72556,7 @@ const U0 = {
     }
   }, [
     Di,
-    St,
+    Tt,
     Wi,
     Yn,
     Qo,
@@ -72566,7 +72566,7 @@ const U0 = {
     bi
   ]), [Fa, ll] = A.useState(), Si = A.useCallback(async (J, Te) => {
     const Se = J.current?.range;
-    if (Se === void 0 || St === void 0 || Te.current === void 0)
+    if (Se === void 0 || Tt === void 0 || Te.current === void 0)
       return;
     const Ie = Te.current.range;
     if (k !== void 0) {
@@ -72578,7 +72578,7 @@ const U0 = {
       }), ie)
         return;
     }
-    let je = St(Se, ne.current.signal);
+    let je = Tt(Se, ne.current.signal);
     typeof je != "object" && (je = await je());
     const V = je, ee = [];
     for (let ie = 0; ie < Ie.width; ie++)
@@ -72595,7 +72595,7 @@ const U0 = {
     cn(ee), fs.current?.damage(ee.map((ie) => ({
       cell: ie.location
     })));
-  }, [St, cn, k, nt]), wr = A.useCallback(() => {
+  }, [Tt, cn, k, nt]), wr = A.useCallback(() => {
     if (ut.current === void 0 || ut.current.range.width <= 1)
       return;
     const J = {
@@ -72929,8 +72929,8 @@ const U0 = {
         ee = nt, ie = Ie + 1, kr(ee - nt, 0, "horizontal");
       else {
         let yt = [];
-        if (St !== void 0) {
-          const Ot = St({
+        if (Tt !== void 0) {
+          const Ot = Tt({
             x: ee,
             y: ue,
             width: ie - ee - nt,
@@ -72973,7 +72973,7 @@ const U0 = {
       }
     }, !0, !1, "keyboard-select");
   }, [
-    St,
+    Tt,
     Be,
     ut,
     jn.length,
@@ -73021,7 +73021,7 @@ const U0 = {
           cell: i.cell
         }
       ]);
-    })), Tt(!0), s(void 0);
+    })), Bt(!0), s(void 0);
     const [Se, Ie] = Te;
     if (ut.current !== void 0 && (Se !== 0 || Ie !== 0)) {
       const je = ut.current.cell[1] === Jn - 1 && J !== void 0, V = ut.current.cell[0] === jn.length - 1 && J !== void 0;
@@ -73041,7 +73041,7 @@ const U0 = {
     $?.(J, Te);
   }, [
     i?.cell,
-    Tt,
+    Bt,
     ut,
     $,
     cn,
@@ -73054,7 +73054,7 @@ const U0 = {
     wt,
     Wr
   ]), hn = A.useMemo(() => `gdg-overlay-${Yde++}`, []), On = A.useCallback((J) => {
-    Tt();
+    Bt();
     const Te = [];
     for (let Se = J.x; Se < J.x + J.width; Se++)
       for (let Ie = J.y; Ie < J.y + J.height; Ie++) {
@@ -73072,7 +73072,7 @@ const U0 = {
         V !== void 0 && !vf(V) && hf(V) && Te.push({ location: [Se, Ie], value: V });
       }
     cn(Te), fs.current?.damage(Te.map((Se) => ({ cell: Se.location })));
-  }, [Tt, x, bi, cn, nt]), _n = i !== void 0, Zt = A.useCallback((J) => {
+  }, [Bt, x, bi, cn, nt]), _n = i !== void 0, Zt = A.useCallback((J) => {
     const Te = () => {
       J.stopPropagation(), J.preventDefault();
     }, Se = {
@@ -73373,13 +73373,13 @@ const U0 = {
         a9([ue, ...ee], ie, J);
       }
     };
-    if (Se && St !== void 0) {
+    if (Se && Tt !== void 0) {
       if (ut.current !== void 0) {
-        let ee = St(ut.current.range, ne.current.signal);
+        let ee = Tt(ut.current.range, ne.current.signal);
         typeof ee != "object" && (ee = await ee()), V(ee, Gu(ut.current.range.x - nt, ut.current.range.x + ut.current.range.width - nt));
       } else if (je !== void 0 && je.length > 0) {
         const ie = [...je].map((ue) => {
-          const Fe = St({
+          const Fe = Tt({
             x: nt,
             y: ue,
             width: w.length,
@@ -73395,7 +73395,7 @@ const U0 = {
       } else if (Ie.length > 0) {
         const ee = [], ie = [];
         for (const ue of Ie) {
-          let Fe = St({
+          let Fe = Tt({
             x: ue,
             y: 0,
             width: 1,
@@ -73413,7 +73413,7 @@ const U0 = {
     }
   }, [
     w,
-    St,
+    Tt,
     ut,
     Dr.copy,
     nt,
@@ -73580,14 +73580,14 @@ const U0 = {
   const [ro, Ii] = G ?? [], Ki = A.useCallback((J) => {
     const [Te, Se] = J;
     if (Se === -1) {
-      Ct !== "none" && (pn(ur.fromSingleSelection(Te), void 0, !1), Tt());
+      Ct !== "none" && (pn(ur.fromSingleSelection(Te), void 0, !1), Bt());
       return;
     }
     ro === Te && Ii === Se || (Nn({
       cell: J,
       range: { x: Te, y: Se, width: 1, height: 1 }
     }, !0, !1, "keyboard-nav"), kr(Te, Se));
-  }, [Ct, Tt, kr, ro, Ii, Nn, pn]), [ia, qs] = A.useState(!1), Fs = A.useRef(WM((J) => {
+  }, [Ct, Bt, kr, ro, Ii, Nn, pn]), [ia, qs] = A.useState(!1), Fs = A.useRef(WM((J) => {
     qs(J);
   }, 5)), Do = A.useCallback(() => {
     Fs.current(!0), ut.current === void 0 && ut.columns.length === 0 && ut.rows.length === 0 && u === void 0 && Nn({
@@ -73623,7 +73623,7 @@ const U0 = {
     A.createElement(
       Nde,
       { style: Uc, className: I, inWidth: b ?? So, inHeight: E ?? Wo },
-      A.createElement(yde, { fillHandle: kn, drawFocusRing: Js, experimental: Vn, fixedShadowX: Mi, fixedShadowY: Hi, getRowThemeOverride: qi, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: es, onDragLeave: _i, onRowMoved: Kr, overscrollX: sl, overscrollY: Va, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, smoothScrollX: ns, smoothScrollY: tn, className: I, enableGroups: to, onCanvasFocused: Do, onCanvasBlur: Bo, canvasRef: a, onContextMenu: jt, theme: Yn, cellXOffset: ds, cellYOffset: Wa, accessibilityHeight: Pr.height, onDragEnd: Me, columns: jn, nonGrowWidth: Br, drawHeader: Qn, onColumnProposeMove: ae, drawCell: xi, disabledRows: no, freezeColumns: ss, lockColumns: nt, firstColAccessible: nt === 0, getCellContent: gs, minColumnWidth: Qo, maxColumnWidth: Wi, searchInputRef: o, showSearch: vo, onSearchClose: Eo, highlightRegions: cc, getCellsForSelection: St, getGroupDetails: uc, headerHeight: Us, isFocused: ia, groupHeaderHeight: to ? Ao : 0, freezeTrailingRows: En + (qn && $t?.sticky === !0 ? 1 : 0), hasAppendRow: qn, onColumnResize: wn, onColumnResizeEnd: gn, onColumnResizeStart: In, onCellFocused: Ki, onColumnMoved: he, onDragStart: ye, onHeaderMenuClick: te, onHeaderIndicatorClick: X, onItemHovered: He, isFilling: u?.fillHandle === !0, onMouseMove: re, onKeyDown: Yt, onKeyUp: Ee, onMouseDown: fc, onMouseUp: Q, onDragOverCell: pi, onDrop: co, onSearchResultsChanged: Gi, onVisibleRegionChanged: K, clientSize: _r, rowHeight: ws, searchResults: ge, searchValue: ke, onSearchValueChange: Ae, rows: Jn, scrollRef: or, selection: ut, translateX: Pr.tx, translateY: Pr.ty, verticalBorder: ra, gridRef: fs, getCellRenderer: bi, resizeIndicator: ci }),
+      A.createElement(yde, { fillHandle: kn, drawFocusRing: Js, experimental: Vn, fixedShadowX: Mi, fixedShadowY: Hi, getRowThemeOverride: qi, headerIcons: Zn, imageWindowLoader: Gr, initialSize: mi, isDraggable: es, onDragLeave: _i, onRowMoved: Kr, overscrollX: sl, overscrollY: Va, preventDiagonalScrolling: ir, rightElement: uo, rightElementProps: Io, smoothScrollX: ns, smoothScrollY: tn, className: I, enableGroups: to, onCanvasFocused: Do, onCanvasBlur: Bo, canvasRef: a, onContextMenu: jt, theme: Yn, cellXOffset: ds, cellYOffset: Wa, accessibilityHeight: Pr.height, onDragEnd: Me, columns: jn, nonGrowWidth: Br, drawHeader: Qn, onColumnProposeMove: ae, drawCell: xi, disabledRows: no, freezeColumns: ss, lockColumns: nt, firstColAccessible: nt === 0, getCellContent: gs, minColumnWidth: Qo, maxColumnWidth: Wi, searchInputRef: o, showSearch: vo, onSearchClose: Eo, highlightRegions: cc, getCellsForSelection: Tt, getGroupDetails: uc, headerHeight: Us, isFocused: ia, groupHeaderHeight: to ? Ao : 0, freezeTrailingRows: En + (qn && $t?.sticky === !0 ? 1 : 0), hasAppendRow: qn, onColumnResize: wn, onColumnResizeEnd: gn, onColumnResizeStart: In, onCellFocused: Ki, onColumnMoved: he, onDragStart: ye, onHeaderMenuClick: te, onHeaderIndicatorClick: X, onItemHovered: He, isFilling: u?.fillHandle === !0, onMouseMove: re, onKeyDown: Yt, onKeyUp: Ee, onMouseDown: fc, onMouseUp: Q, onDragOverCell: pi, onDrop: co, onSearchResultsChanged: Gi, onVisibleRegionChanged: K, clientSize: _r, rowHeight: ws, searchResults: ge, searchValue: ke, onSearchValueChange: Ae, rows: Jn, scrollRef: or, selection: ut, translateX: Pr.tx, translateY: Pr.ty, verticalBorder: ra, gridRef: fs, getCellRenderer: bi, resizeIndicator: ci }),
       Ws,
       i !== void 0 && A.createElement(
         A.Suspense,
@@ -74062,7 +74062,7 @@ function vfe(t, e, n, r, i) {
     height: d - 1
   };
 }
-const Efe = A.lazy(async () => await import("./number-overlay-editor-DV08lcXU.js")), _fe = {
+const Efe = A.lazy(async () => await import("./number-overlay-editor-BqsA-VC-.js")), _fe = {
   getAccessibilityString: (t) => t.data?.toString() ?? "",
   kind: dn.Number,
   needsHover: (t) => t.hoverEffect === !0,
