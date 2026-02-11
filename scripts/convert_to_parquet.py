@@ -24,7 +24,8 @@ OUTPUT_DIR = DATA_DIR  # Output to same directory for Vite to inline
 def convert_baselines():
     """
     Convert defaultBaselines.txt to Parquet.
-    Schema: hood_id (str), seqid (str), start (i64), end (i64), align_gene (str, nullable)
+    Schema: hood_id (str), seqid (str), start (i64), end (i64), align_gene (str, nullable),
+            align_start (i64, nullable), align_end (i64, nullable), align_strand (str, nullable)
     """
     input_path = DATA_DIR / "defaultBaselines.txt"
     output_path = OUTPUT_DIR / "defaultBaselines.parquet"
@@ -33,17 +34,23 @@ def convert_baselines():
         print(f"⚠️  Skipping baselines: {input_path} not found")
         return
     
+    schema_overrides = {
+        "hood_id": pl.Utf8,
+        "seqid": pl.Utf8,
+        "start": pl.Int64,
+        "end": pl.Int64,
+        "align_gene": pl.Utf8,
+        "align_start": pl.Int64,
+        "align_end": pl.Int64,
+        "align_strand": pl.Utf8,
+    }
+    
     df = pl.read_csv(
         input_path,
         separator="\t",
         has_header=True,
-        schema_overrides={
-            "hood_id": pl.Utf8,
-            "seqid": pl.Utf8,
-            "start": pl.Int64,
-            "end": pl.Int64,
-            "align_gene": pl.Utf8,
-        }
+        schema_overrides={k: v for k, v in schema_overrides.items()
+                          if k in pl.read_csv(input_path, separator="\t", has_header=True, n_rows=0).columns}
     )
     
     df.write_parquet(output_path, compression="zstd")

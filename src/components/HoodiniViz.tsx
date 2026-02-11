@@ -50,6 +50,12 @@ export interface HoodData {
   hood_id?: string | number;
   hoodId?: string | number;
   align_gene?: string;
+  /** Start coordinate for region-based alignment (use instead of align_gene) */
+  align_start?: number;
+  /** End coordinate for region-based alignment (use instead of align_gene) */
+  align_end?: number;
+  /** Strand for region-based alignment ('+' or '-'). Defaults to '+' */
+  align_strand?: '+' | '-';
   [key: string]: unknown;
 }
 
@@ -1171,8 +1177,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
     if (alignCluster != null && alignCluster !== '') {
       newGenomeView.alignCluster(String(alignCluster));
     } else {
-      const hasDefaultGenes = Object.values(newGenomeView.hoodRanges || {}).some(hoodRange => hoodRange.align_gene);
-      if (useDefaultGeneAlignment && hasDefaultGenes) {
+      const hasDefaultAlignment = Object.values(newGenomeView.hoodRanges || {}).some(hr => hr.align_gene || (typeof hr.align_start === 'number' && typeof hr.align_end === 'number'));
+      if (useDefaultGeneAlignment && hasDefaultAlignment) {
         newGenomeView.alignByDefaultGenes();
       } else {
         if (defaultAlign === 'center') {
@@ -1453,8 +1459,8 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
       if (alignCluster != null && alignCluster !== '') {
         genomeView.alignCluster(String(alignCluster));
       } else {
-        const hasDefaultGenes = Object.values(genomeView.hoodRanges || {}).some(hoodRange => hoodRange.align_gene);
-        if (useDefaultGeneAlignment && hasDefaultGenes) {
+        const hasDefaultAlignment = Object.values(genomeView.hoodRanges || {}).some(hr => hr.align_gene || (typeof hr.align_start === 'number' && typeof hr.align_end === 'number'));
+        if (useDefaultGeneAlignment && hasDefaultAlignment) {
           genomeView.alignByDefaultGenes();
         } else {
           if (defaultAlign === 'center') {
@@ -8643,9 +8649,9 @@ const HoodiniViz = React.forwardRef<unknown, HoodiniVizProps>(({
         } else {
           // No specific cluster alignment requested
           // Use default gene alignment if enabled and available, otherwise fall back to traditional alignment
-          const hasDefaultGenes = Object.values(gv.hoodRanges || {}).some(hoodRange => hoodRange.align_gene);
+          const hasDefaultAlignment = Object.values(gv.hoodRanges || {}).some(hr => hr.align_gene || (typeof hr.align_start === 'number' && typeof hr.align_end === 'number'));
           
-          if (useDefaultGeneAlignment && hasDefaultGenes) {
+          if (useDefaultGeneAlignment && hasDefaultAlignment) {
             gv.alignByDefaultGenes();
             alignmentChanged = true;
           } else {

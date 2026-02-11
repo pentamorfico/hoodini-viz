@@ -18,6 +18,9 @@ export default function parseHoods(hoodsStr) {
     const startIndex = header.indexOf('start');
     const endIndex = header.indexOf('end');
     const alignGeneIndex = header.indexOf('align_gene');
+    const alignStartIndex = header.indexOf('align_start');
+    const alignEndIndex = header.indexOf('align_end');
+    const alignStrandIndex = header.indexOf('align_strand');
     
     return lines.slice(1).map((line, idx) => {
       const parts = line.split(/\t/);
@@ -40,6 +43,20 @@ export default function parseHoods(hoodsStr) {
       // Add align_gene if column exists
       if (alignGeneIndex !== -1 && parts[alignGeneIndex]) {
         hood.align_gene = parts[alignGeneIndex];
+      }
+      
+      // Add region-based alignment columns if they exist
+      if (alignStartIndex !== -1 && parts[alignStartIndex]) {
+        const aStart = Number(parts[alignStartIndex]);
+        if (isFinite(aStart)) hood.align_start = aStart;
+      }
+      if (alignEndIndex !== -1 && parts[alignEndIndex]) {
+        const aEnd = Number(parts[alignEndIndex]);
+        if (isFinite(aEnd)) hood.align_end = aEnd;
+      }
+      if (alignStrandIndex !== -1 && parts[alignStrandIndex]) {
+        const s = parts[alignStrandIndex].trim();
+        if (s === '+' || s === '-') hood.align_strand = s;
       }
       
       return hood;

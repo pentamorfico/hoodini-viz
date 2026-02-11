@@ -1712,7 +1712,7 @@ class GenomeView {
         this.hoodToSeqidMap[b.hood_id] = b.seqid;
         (this.seqidToHoodsMap[b.seqid] ||= []).push(b.hood_id);
 
-        this.hoodRanges[b.hood_id] = {
+        const hoodRange = {
           seqid: b.seqid,
           origStart: b.start,
           origEnd: b.end,
@@ -1721,6 +1721,14 @@ class GenomeView {
           length: b.end - b.start,
           align_gene: b.align_gene
         };
+        // Store region-based alignment coordinates if provided
+        if (typeof b.align_start === 'number' && isFinite(b.align_start) &&
+            typeof b.align_end === 'number' && isFinite(b.align_end)) {
+          hoodRange.align_start = b.align_start - b.start; // Convert to hood-relative coords
+          hoodRange.align_end = b.align_end - b.start;
+          hoodRange.align_strand = b.align_strand || '+';
+        }
+        this.hoodRanges[b.hood_id] = hoodRange;
       }
       if (this.nucleotidesBySeqid[b.seqid]) {
         this.nucleotidesBySeqid[b.seqid].setHood(b.start, b.end);
@@ -1740,26 +1748,46 @@ class GenomeView {
     const xScale = xScalePercent / 100;
 
     const genesToAlign = [];
+    const regionsToAlign = []; // { hood_id, midpoint, strand }
     for (const hood_id of this.leaves) {
       const hoodRange = this.hoodRanges[hood_id];
-      if (!hoodRange?.align_gene) continue;
-      const uniqueGeneId = `${hood_id}_${hoodRange.align_gene}`;
-      const gene = this.genesById[uniqueGeneId];
-      if (gene) genesToAlign.push(gene);
+      if (!hoodRange) continue;
+      // Prefer align_gene if available
+      if (hoodRange.align_gene) {
+        const uniqueGeneId = `${hood_id}_${hoodRange.align_gene}`;
+        const gene = this.genesById[uniqueGeneId];
+        if (gene) { genesToAlign.push(gene); continue; }
+      }
+      // Fall back to region-based alignment
+      if (typeof hoodRange.align_start === 'number' && typeof hoodRange.align_end === 'number') {
+        regionsToAlign.push({
+          hood_id,
+          midpoint: (hoodRange.align_start + hoodRange.align_end) / 2,
+          strand: hoodRange.align_strand || '+'
+        });
+      }
     }
-    if (!genesToAlign.length) return;
+    if (!genesToAlign.length && !regionsToAlign.length) return;
 
     genesToAlign.sort((a, b) => a.hood_id.localeCompare(b.hood_id));
     const targetVisualX = 0;
 
+    // --- Phase 1: Flip tracks so alignment targets face '+' direction ---
     for (const gene of genesToAlign) {
       const hood_id = gene.hood_id;
       const flipped = !!this.trackFlipped[hood_id];
       const effectiveStrand = flipped ? (gene.origStrand === '+' ? '-' : '+') : gene.origStrand;
       if (effectiveStrand === '-') this.flipTrackStateWithCentering(hood_id);
     }
+    for (const region of regionsToAlign) {
+      const hood_id = region.hood_id;
+      const flipped = !!this.trackFlipped[hood_id];
+      const effectiveStrand = flipped ? (region.strand === '+' ? '-' : '+') : region.strand;
+      if (effectiveStrand === '-') this.flipTrackStateWithCentering(hood_id);
+    }
     this.computeTrackPositions();
 
+    // --- Phase 2: Shift gene-based tracks to target X ---
     for (const gene of genesToAlign) {
       const hood_id = gene.hood_id;
       const currentVisualX = GenomeView.getGeneVisualX(gene, this);
@@ -1773,9 +1801,34 @@ class GenomeView {
       this.trackOffset[hood_id] = currentOffset + offsetAdj;
     }
 
-    const tracksWithAlignGenes = new Set(genesToAlign.map(g => g.hood_id));
+    // --- Phase 3: Shift region-based tracks to target X ---
+    for (const region of regionsToAlign) {
+      const hood_id = region.hood_id;
+      const hoodRange = this.hoodRanges[hood_id];
+      if (!hoodRange) continue;
+
+      const offset = this.trackOffset[hood_id] || 0;
+      const isFlipped = !!this.trackFlipped[hood_id];
+      const anchor = (hoodRange.length || 0) / 2;
+
+      // Compute the visual X of the region midpoint (same formula as getGeneVisualX)
+      const transformedX = GenomeView.getTransformedXUnified(region.midpoint, anchor, offset, isFlipped);
+      const currentVisualX = anchor + (transformedX - anchor) * xScale;
+
+      const visualShift = targetVisualX - currentVisualX;
+      const offsetAdj = (isFlipped ? -1 : 1) * (visualShift / xScale);
+
+      const currentOffset = this.trackOffset[hood_id] || 0;
+      this.trackOffset[hood_id] = currentOffset + offsetAdj;
+    }
+
+    // --- Phase 4: Center remaining tracks without alignment targets ---
+    const tracksWithAlignment = new Set([
+      ...genesToAlign.map(g => g.hood_id),
+      ...regionsToAlign.map(r => r.hood_id)
+    ]);
     for (const hood_id of this.leaves) {
-      if (tracksWithAlignGenes.has(hood_id)) continue;
+      if (tracksWithAlignment.has(hood_id)) continue;
       const seqid = this.hoodToSeqidMap[hood_id];
       if (!seqid) continue;
       const nuc = this.nucleotidesBySeqid[seqid];

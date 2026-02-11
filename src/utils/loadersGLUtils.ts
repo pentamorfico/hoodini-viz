@@ -131,6 +131,9 @@ function parseHoodsFallback(str) {
   const startIndex = header.indexOf('start');
   const endIndex = header.indexOf('end');
   const alignGeneIndex = header.indexOf('align_gene');
+  const alignStartIndex = header.indexOf('align_start');
+  const alignEndIndex = header.indexOf('align_end');
+  const alignStrandIndex = header.indexOf('align_strand');
 
   for (let i = 1; i < lines.length; ++i) {
     const line = lines[i].trim();
@@ -150,6 +153,18 @@ function parseHoodsFallback(str) {
     };
     if (alignGeneIndex !== -1 && cols[alignGeneIndex]) {
       entry.align_gene = cols[alignGeneIndex];
+    }
+    if (alignStartIndex !== -1 && cols[alignStartIndex]) {
+      const aStart = Number(cols[alignStartIndex]);
+      if (isFinite(aStart)) entry.align_start = aStart;
+    }
+    if (alignEndIndex !== -1 && cols[alignEndIndex]) {
+      const aEnd = Number(cols[alignEndIndex]);
+      if (isFinite(aEnd)) entry.align_end = aEnd;
+    }
+    if (alignStrandIndex !== -1 && cols[alignStrandIndex]) {
+      const s = cols[alignStrandIndex].trim();
+      if (s === '+' || s === '-') entry.align_strand = s;
     }
     out.push(entry);
   }
