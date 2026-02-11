@@ -1760,10 +1760,12 @@ class GenomeView {
       }
       // Fall back to region-based alignment
       if (typeof hoodRange.align_start === 'number' && typeof hoodRange.align_end === 'number') {
+        const strand = hoodRange.align_strand || '+';
         regionsToAlign.push({
           hood_id,
-          midpoint: (hoodRange.align_start + hoodRange.align_end) / 2,
-          strand: hoodRange.align_strand || '+'
+          // For '+' strand, align at start (5' end); for '-' strand, align at end (5' end)
+          alignPoint: strand === '-' ? hoodRange.align_end : hoodRange.align_start,
+          strand
         });
       }
     }
@@ -1811,8 +1813,8 @@ class GenomeView {
       const isFlipped = !!this.trackFlipped[hood_id];
       const anchor = (hoodRange.length || 0) / 2;
 
-      // Compute the visual X of the region midpoint (same formula as getGeneVisualX)
-      const transformedX = GenomeView.getTransformedXUnified(region.midpoint, anchor, offset, isFlipped);
+      // Compute the visual X of the alignment point (same formula as getGeneVisualX)
+      const transformedX = GenomeView.getTransformedXUnified(region.alignPoint, anchor, offset, isFlipped);
       const currentVisualX = anchor + (transformedX - anchor) * xScale;
 
       const visualShift = targetVisualX - currentVisualX;
