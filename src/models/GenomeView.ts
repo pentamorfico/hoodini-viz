@@ -949,11 +949,19 @@ class GenomeView {
 
   getNodeDescendantLeaves(node) {
     if (!node) return [];
-    function getLeafNames(n) {
-      if (n.branchset.length === 0 && n.name) return [n.name];
-      return n.branchset.flatMap(getLeafNames);
+    const names: string[] = [];
+    const stack = [node];
+    while (stack.length > 0) {
+      const n = stack.pop()!;
+      if (n.branchset.length === 0 && n.name) {
+        names.push(n.name);
+      } else {
+        for (let i = n.branchset.length - 1; i >= 0; i--) {
+          stack.push(n.branchset[i]);
+        }
+      }
     }
-    return getLeafNames(node);
+    return names;
   }
 
   buildScaleBar() {

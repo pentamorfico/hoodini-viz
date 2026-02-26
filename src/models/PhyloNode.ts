@@ -11,8 +11,20 @@ class PhyloNode {
     this.rootDist = 0;
   }
   getLeaves() {
-    if (this.branchset.length === 0) return [this];
-    return this.branchset.flatMap(ch => ch.getLeaves());
+    const leaves: PhyloNode[] = [];
+    const stack: PhyloNode[] = [this];
+    while (stack.length > 0) {
+      const node = stack.pop()!;
+      if (node.branchset.length === 0) {
+        leaves.push(node);
+      } else {
+        // Push in reverse order so leftmost child is processed first
+        for (let i = node.branchset.length - 1; i >= 0; i--) {
+          stack.push(node.branchset[i]);
+        }
+      }
+    }
+    return leaves;
   }
 }
 

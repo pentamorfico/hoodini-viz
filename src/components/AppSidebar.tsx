@@ -230,6 +230,8 @@ export function AppSidebar({
   setPhyloLabelSize: setPhyloLabelSizeProp,
   geneLabelSize: geneLabelSizeProp,
   setGeneLabelSize: setGeneLabelSizeProp,
+  rulerLabelSize: rulerLabelSizeProp,
+  setRulerLabelSize: setRulerLabelSizeProp,
   strokeLineWidth: strokeLineWidthProp,
   setStrokeLineWidth: setStrokeLineWidthProp,
   genomeXScale: genomeXScaleProp,

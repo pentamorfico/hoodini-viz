@@ -181,27 +181,37 @@ class PhyloTree {
 
   collectAll() {
     this.allNodes = [];
-    const collect=(node)=>{
+    const stack = [this.root];
+    while (stack.length > 0) {
+      const node = stack.pop();
       this.allNodes.push(node);
-      for(let ch of node.branchset) collect(ch);
-    };
-    collect(this.root);
+      // Push in reverse so left-to-right pre-order is preserved
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        stack.push(node.branchset[i]);
+      }
+    }
   }
 
   setParents() {
-    const setP=(node,p=null)=>{
-      node.parent=p;
-      for(let ch of node.branchset) setP(ch,node);
-    };
-    setP(this.root,null);
+    const stack: Array<{node: any, parent: any}> = [{node: this.root, parent: null}];
+    while (stack.length > 0) {
+      const {node, parent} = stack.pop()!;
+      node.parent = parent;
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        stack.push({node: node.branchset[i], parent: node});
+      }
+    }
   }
 
   computeDistances() {
-    const preOrderComputeDist=(node)=>{
-      node.rootDist=(node.parent?node.parent.rootDist:0)+(node.branchLength||0);
-      for(let ch of node.branchset) preOrderComputeDist(ch);
-    };
-    preOrderComputeDist(this.root);
+    const stack = [this.root];
+    while (stack.length > 0) {
+      const node = stack.pop()!;
+      node.rootDist = (node.parent ? node.parent.rootDist : 0) + (node.branchLength || 0);
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        stack.push(node.branchset[i]);
+      }
+    }
   }
 
   getLeafNodes() {
@@ -215,11 +225,30 @@ class PhyloTree {
     }
   }
 
-  assignInternalX(node) {
-    if(node.branchset.length===0) return node.x;
-    const xs=node.branchset.map(ch=>this.assignInternalX(ch));
-    node.x=xs.reduce((a,b)=>a+b,0)/xs.length;
-    return node.x;
+  assignInternalX(startNode) {
+    // Iterative post-order traversal to assign internal node x as mean of children
+    const stack: Array<{node: any, phase: number}> = [{node: startNode, phase: 0}];
+    while (stack.length > 0) {
+      const top = stack[stack.length - 1];
+      if (top.node.branchset.length === 0) {
+        // Leaf: x already assigned
+        stack.pop();
+        continue;
+      }
+      if (top.phase < top.node.branchset.length) {
+        // Push next child
+        const child = top.node.branchset[top.phase];
+        top.phase++;
+        stack.push({node: child, phase: 0});
+      } else {
+        // All children processed, compute x
+        let sum = 0;
+        for (const ch of top.node.branchset) sum += ch.x;
+        top.node.x = sum / top.node.branchset.length;
+        stack.pop();
+      }
+    }
+    return startNode.x;
   }
 
   scaleY() {
@@ -260,18 +289,20 @@ class PhyloTree {
     // Use theme colors if available, otherwise fall back to config or default
     const edgeColor = this.themeColors?.treeEdges || this.config.tree.edgeColor || [85,85,85,255];
     
-    const build=(node)=>{
-      for(let ch of node.branchset) {
+    const stack = [this.root];
+    while (stack.length > 0) {
+      const node = stack.pop()!;
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        const ch = node.branchset[i];
         const path=[
           [node.y,node.x],
           [node.y,ch.x],
           [ch.y,ch.x]
         ];
         edges.push({path:path,color:edgeColor,source:node,target:ch});
-        build(ch);
+        stack.push(ch);
       }
-    };
-    build(this.root);
+    }
     return edges;
   }
 
@@ -292,52 +323,58 @@ class PhyloTree {
     const leafNodes = this.getLeafNodes();
     const maxRootDist = Math.max(...leafNodes.map(leaf => leaf.rootDist));
     
-    // For each internal node, calculate the distance it should be from the root
-    // to maintain ultrametricity
-    const adjustBranchLengths = (node) => {
+    // Iterative post-order traversal for adjusting branch lengths
+    // Build post-order list
+    const postOrder: any[] = [];
+    const poStack = [this.root];
+    while (poStack.length > 0) {
+      const node = poStack.pop()!;
+      postOrder.push(node);
+      for (const child of node.branchset) {
+        poStack.push(child);
+      }
+    }
+    // Process in reverse (children before parents)
+    for (let i = postOrder.length - 1; i >= 0; i--) {
+      const node = postOrder[i];
       if (node.branchset.length === 0) {
-        // Leaf node: ensure its distance to root equals maxRootDist
         node.rootDist = maxRootDist;
-        return;
+      } else {
+        const childDistances = node.branchset.map(child => child.rootDist);
+        const minChildDist = Math.min(...childDistances);
+        node.rootDist = minChildDist - Math.max(...node.branchset.map(child =>
+          child.branchLength || 0
+        ));
+        if (node.rootDist < 0) {
+          node.rootDist = 0;
+        }
       }
-      
-      // Internal node: process children first
-      for (let child of node.branchset) {
-        adjustBranchLengths(child);
-      }
-      
-      // For internal nodes, set the rootDist to the minimum of children's rootDist
-      // minus their branch length to this node
-      const childDistances = node.branchset.map(child => child.rootDist);
-      const minChildDist = Math.min(...childDistances);
-      
-      // Adjust this node's position to maintain ultrametricity
-      // All children should have the same distance from this node to their tips
-      node.rootDist = minChildDist - Math.max(...node.branchset.map(child => 
-        child.branchLength || 0
-      ));
-      
-      // Ensure we don't go negative
-      if (node.rootDist < 0) {
-        node.rootDist = 0;
-      }
-    };
+    }
     
-    // Start from leaves and work backwards
-    adjustBranchLengths(this.root);
-    
-    // Now recalculate branch lengths based on the adjusted root distances
-    const recalculateBranchLengths = (node) => {
-      for (let child of node.branchset) {
-        // Branch length is the difference in root distances
+    // Iterative pre-order traversal to recalculate branch lengths
+    const recalcStack = [this.root];
+    while (recalcStack.length > 0) {
+      const node = recalcStack.pop()!;
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        const child = node.branchset[i];
         child.branchLength = child.rootDist - node.rootDist;
-        recalculateBranchLengths(child);
+        recalcStack.push(child);
       }
-    };
+    }
     
     // Root should have rootDist of 0
     this.root.rootDist = 0;
-    recalculateBranchLengths(this.root);
+    
+    // Recalculate branch lengths from root with corrected rootDist
+    const finalStack = [this.root];
+    while (finalStack.length > 0) {
+      const node = finalStack.pop()!;
+      for (let i = node.branchset.length - 1; i >= 0; i--) {
+        const child = node.branchset[i];
+        child.branchLength = child.rootDist - node.rootDist;
+        finalStack.push(child);
+      }
+    }
     
     // Recompute distances to ensure consistency
     this.computeDistances();
